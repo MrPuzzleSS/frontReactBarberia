@@ -26,6 +26,7 @@ import {
   CInputGroup,
   CInputGroupText,
 } from '@coreui/react';
+import ControlledSwitches from 'src/components/Swtichcomponent';
 
 function ListaProveedores() {
   const [visible, setVisible] = useState(false);
@@ -59,7 +60,7 @@ function ListaProveedores() {
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Proveedores</strong>
               <Link to="/proveedores/crear-proveedor">
-                <CButton color="primary">Agregar Proveedor</CButton>
+                <CButton color="success">Agregar Proveedor</CButton>
               </Link>
             </div>
           </CCardHeader>
@@ -86,19 +87,14 @@ function ListaProveedores() {
                     <CTableDataCell>{proveedor.email}</CTableDataCell>
                     <CTableDataCell>{proveedor.tipo}</CTableDataCell>
                     <CTableDataCell>
-                      <CButtonGroup aria-label="Basic mixed styles example">
                         <CButton
-                          color="info"
+                          color="primary"
                           size="sm"
-                          variant="outline"
                           onClick={() => setVisible(!visible)}
                         >
                           Editar
                         </CButton>
-                        <CButton color="danger" size="sm" variant="outline">
-                          Eliminar
-                        </CButton>
-                      </CButtonGroup>
+                        <ControlledSwitches />
                     </CTableDataCell>
                   </CTableRow>
                 ))}

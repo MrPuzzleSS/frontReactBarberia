@@ -26,6 +26,8 @@ import {
   CInputGroup,
   CInputGroupText,
 } from '@coreui/react'
+import Switch from '@mui/material/Switch';
+import ControlledSwitches from 'src/components/Swtichcomponent';
 
 function ListaCompras() {
   const [visible, setVisible] = useState(false)
@@ -63,7 +65,7 @@ function ListaCompras() {
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Compras</strong>
               <Link to="/compras/crear-compra">
-              <CButton color="primary">Agregar Compra</CButton>
+              <CButton color="success">Agregar Compra</CButton>
               </Link>
             </div>
           </CCardHeader>
@@ -92,19 +94,18 @@ function ListaCompras() {
                     <CTableDataCell>{calcularTotalCompra(compra)}</CTableDataCell>
                     <CTableDataCell>{compra.estado}</CTableDataCell>
                     <CTableDataCell>
-                      <CButtonGroup aria-label="Basic mixed styles example">
                         <CButton
-                          color="info"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setVisible(!visible)}
-                        >
+                          color="primary"
+                          size="sm" className="me-2"
+                          onClick={() => setVisible(!visible)}>
                           Editar
                         </CButton>
-                        <CButton color="warning" size="sm" variant="outline">
-                          Cambiar Estado
+                        <CButton
+                          color="danger"
+                          size="sm" className="me-2"
+                          onClick={() => setVisible(!visible)}>
+                          Eliminar
                         </CButton>
-                      </CButtonGroup>
                     </CTableDataCell>
                   </CTableRow>
                 ))}
@@ -123,7 +124,6 @@ function ListaCompras() {
               <CFormLabel>Proveedor</CFormLabel>
               <CFormSelect>
                 <option value="">Seleccionar proveedor</option>
-                {/* Agrega opciones de proveedores aquí */}
               </CFormSelect>
             </div>
             <div className="mb-3">
@@ -142,6 +142,12 @@ function ListaCompras() {
               </CInputGroup>
             </div>
             <div className="mb-3">
+              <CFormLabel>Estado</CFormLabel>
+              <CFormSelect>
+                <option value="">Seleccionar estado</option>
+              </CFormSelect>
+            </div>
+            <div className="mb-3">
               <CFormLabel>Total</CFormLabel>
             </div>
             <div className="mb-3">
@@ -151,9 +157,9 @@ function ListaCompras() {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setVisible(false)}>
-            Close
+            Cerrar
           </CButton>
-          <CButton color="primary">Save changes</CButton>
+          <CButton color="primary">Guardar Cambios</CButton>
         </CModalFooter>
       </CModal>
     </CRow>
