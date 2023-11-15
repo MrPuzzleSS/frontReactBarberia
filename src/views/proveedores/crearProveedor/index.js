@@ -8,15 +8,10 @@ import {
   CCardHeader,
   CCol,
   CForm,
-  CFormCheck,
   CFormInput,
   CFormLabel,
-  CFormSelect,
-  CInputGroup,
-  CInputGroupText,
   CRow,
 } from '@coreui/react'
-import { DocsExample } from 'src/components'
 
 function CrearProveedor() {
   return (

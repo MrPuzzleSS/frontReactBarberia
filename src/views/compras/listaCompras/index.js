@@ -26,8 +26,6 @@ import {
   CInputGroup,
   CInputGroupText,
 } from '@coreui/react'
-import Switch from '@mui/material/Switch';
-import ControlledSwitches from 'src/components/Swtichcomponent';
 
 function ListaCompras() {
   const [visible, setVisible] = useState(false)
