@@ -1,5 +1,6 @@
 import React from 'react'
 
+
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -49,7 +50,8 @@ const Badges = React.lazy(() => import('./views/notifications/badges/Badges'))
 const Modals = React.lazy(() => import('./views/notifications/modals/Modals'))
 const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 
-const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
+
+
 
 const ListaProveedores = React.lazy(() => import('./views/proveedores/listaProveedores'))
 const CrearProveedor = React.lazy(() => import('./views/proveedores/crearProveedor'))
@@ -94,6 +96,18 @@ const routes = [
   { path: '/empleados', name: 'Empleados', element: ListaEmpleados},
   { path: '/empleados/listaEmpleados', name: 'Listado', element: ListaEmpleados},
   { path: '/empleados/crearEmpleados', name: 'Crear', element: CrearEmpleados},
+  { path: '/clientes/listaClientes', name: 'Listado', element: ListaClientes },
+  { path: '/clientes/crearClientes', name: 'Crear', element: CrearCliente },
+  { path: '/agendas/crearConfiguracion', name: 'Crear', element: CrearConfiguracion },
+  { path: '/agendas/Calendar', name: 'Crear', element: Calendar },
+  { path: '/servicios', name: 'Servicios', element: ListaServicios },
+  { path: '/servicios/listaServicios', name: 'Listado de Servicios', element: ListaServicios },
+  { path: '/servicios/crearServicio', name: 'Crear Servicio', element: CrearServicio },
+
+  { path: '/insumos', name: 'Insumos', element: ListaInsumos },
+  { path: '/insumos/listaIsumos', name: 'Listado de Insumos', element: ListaInsumos },
+  { path: '/insumos/crearInsumo', name: 'Crear Insumo', element: CrearInsumo },
+
   { path: '/ventas/listaVentas', name: 'Ventas', element: ListarVentas},
   { path: '/ListaUsuarios', name:'Usuarios', element: Usuarios},
   { path: '/CrearUsuarios', name: 'CrearUsuarios', element: CrearUsuarios},
@@ -155,7 +169,7 @@ const routes = [
   { path: '/notifications/badges', name: 'Badges', element: Badges },
   { path: '/notifications/modals', name: 'Modals', element: Modals },
   { path: '/notifications/toasts', name: 'Toasts', element: Toasts },
-  { path: '/widgets', name: 'Widgets', element: Widgets },
+  // { path: '/widgets', name: 'Widgets', element: Widgets },
 ]
 
 export default routes

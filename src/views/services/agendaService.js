@@ -54,6 +54,29 @@ const AgendaService = {
         console.error('Error al eliminar la agenda:', error);
       });
   },
+
+
+
+  disableEvent: (id, motivo) => {
+    const url = `${apiUrl}/${id}/disable`;
+
+    const requestOptions = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ motivo }),
+    };
+
+    return fetch(url, requestOptions)
+
+      .then(response => response.json())
+      .catch(error => {
+        console.error('Error al inhabilitar el error  de errores :', error);
+        throw error;
+      });
+  },
 };
+
 
 export default AgendaService;

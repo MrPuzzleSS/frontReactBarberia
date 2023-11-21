@@ -1,5 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
 import ProveedoresDataService from 'src/views/services/ProveedoresService';

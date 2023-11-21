@@ -39,6 +39,7 @@
     "@fullcalendar/interaction": "^6.1.9",
     "@fullcalendar/moment": "^6.1.9",
     "@fullcalendar/react": "^6.1.9",
+    "@fullcalendar/rrule": "^6.1.9",
     "@fullcalendar/scrollgrid": "^6.1.9",
     "@fullcalendar/timegrid": "^6.1.9",
     "@fullcalendar/timeline": "^6.1.9",
@@ -59,7 +60,7 @@
     "redux": "4.2.1",
     "simplebar-react": "^2.4.3",
     "sweetalert": "^2.1.2",
-    "sweetalert2": "^11.10.0",
+    "sweetalert2": "^11.10.1",
     "sweetalert2-react-content": "^5.0.7"
   },
   "devDependencies": {

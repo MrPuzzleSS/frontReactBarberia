@@ -9,9 +9,13 @@ import bootstrapPlugin from '@fullcalendar/bootstrap';
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
 import googleCalendarPlugin from '@fullcalendar/google-calendar';
 import momentPlugin from '@fullcalendar/moment';
+import rrulePlugin from '@fullcalendar/rrule';
 import scrollgridPlugin from '@fullcalendar/scrollgrid';
 import timelinePlugin from '@fullcalendar/timeline';
 import '../../../Calendar.css';
+
+
+
 
 function Calendar() {
     const handleEventDrop = (info) => {
@@ -30,6 +34,7 @@ function Calendar() {
                     bootstrap5Plugin,
                     googleCalendarPlugin,
                     momentPlugin,
+                    rrulePlugin,
                     scrollgridPlugin,
                     timelinePlugin,
                 ]}
