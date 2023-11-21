@@ -2,7 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
+import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
+import ProveedoresDataService from 'src/views/services/ProveedoresService';
 import {
   CCard,
   CCardBody,
@@ -26,35 +28,10 @@ import {
 
 } from '@coreui/react';
 import ControlledSwitches from 'src/components/Swtichcomponent';
-import { show_alert } from 'src/components/functions';
 
 function ListaProveedores() {
-  const url='https://resapibarberia.onrender.com/api/proveedores';
   const [proveedores, setProveedores] = useState([]);
-  const [id_proveedor,setId_proveedor]= useState('');
-  const [nombre,setNombre]= useState('');
-  const [direccion,setDireccion]= useState('');
-  const [telefono,setTelefono]= useState('');
-  const [email,setEmail]= useState('');
-  const [tipo_de_producto_servico,setTipo_de_producto_servicio]= useState('');
-  const [operation,setOperation]= useState(1);
-  const [title,setTitle]= useState('');
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const respuesta = await axios.get(url);
-        setProveedores(respuesta.data.listProveedores); // Accede a la propiedad listProveedores
-      } catch (error) {
-        console.error('Error al obtener datos:', error);
-      }
-    };
-  
-    fetchData();
-  }, []);
-  
-  const [visible, setVisible] = useState(false)
-
+  const [visible, setVisible] = useState(false);
   const [editingProveedor, setEditingProveedor] = useState({
     id: '',
     nombre: '',
@@ -63,6 +40,57 @@ function ListaProveedores() {
     email: '',
     tipo_de_producto_servicio: '',
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const respuesta = await ProveedoresDataService.getAll();  // Utiliza la función getAll del servicio
+        setProveedores(respuesta.data.listProveedores);
+      } catch (error) {
+        console.error('Error al obtener datos:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleEditClick = (proveedor) => {
+    setEditingProveedor(proveedor);
+    setVisible(true);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditingProveedor((prevProveedor) => ({
+      ...prevProveedor,
+      [name]: value,
+    }));
+  };
+
+  const handleGuardarCambios = async () => {
+    try {
+      await ProveedoresDataService.update(
+        editingProveedor.id_proveedor,
+        editingProveedor
+      );
+      // Actualizar la lista después de la edición exitosa
+      const respuesta = await ProveedoresDataService.getAll();
+      setProveedores(respuesta.data.listProveedores);
+      setVisible(false);
+
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Proveedor editado correctamente",
+        showConfirmButton: false,
+        timer: 1500
+      });
+
+    } catch (error) {
+      console.error('Error al actualizar el proveedor:', error);
+      // Puedes manejar el error de alguna manera (mostrar un mensaje, etc.)
+    }
+  };
   
 
   return (
@@ -103,7 +131,7 @@ function ListaProveedores() {
                     <CButton
                           color="primary"
                           size="sm"
-                          onClick={() => setVisible(!visible)}
+                          onClick={() => handleEditClick(proveedor)}
                         >
                           Editar
                         </CButton>
@@ -124,23 +152,23 @@ function ListaProveedores() {
           <form>
             <div className="mb-3">
               <CFormLabel>Nombre</CFormLabel>
-              <CFormInput type="text" />
+              <CFormInput type="text" name='nombre' value={editingProveedor.nombre} onChange={handleInputChange}/>
             </div>
             <div className="mb-3">
               <CFormLabel>Dirección</CFormLabel>
-              <CFormInput type="text" />
+              <CFormInput type="text" name='direccion' value={editingProveedor.direccion} onChange={handleInputChange}/>
             </div>
             <div className="mb-3">
               <CFormLabel>Teléfono</CFormLabel>
-              <CFormInput type="tel" />
+              <CFormInput type="tel" name='telefono' value={editingProveedor.telefono} onChange={handleInputChange}/>
             </div>
             <div className="mb-3">
               <CFormLabel>Correo Electrónico</CFormLabel>
-              <CFormInput type="email" />
+              <CFormInput type="email" name='email' value={editingProveedor.email} onChange={handleInputChange}/>
             </div>
             <div className="mb-3">
               <CFormLabel>Tipo de Producto o Servicio</CFormLabel>
-              <CFormInput type="text" />
+              <CFormInput type="text" name='tipo_de_producto_servicio' value={editingProveedor.tipo_de_producto_servicio} onChange={handleInputChange}/>
             </div>
           </form>
         </CModalBody>
@@ -148,7 +176,7 @@ function ListaProveedores() {
           <CButton color="secondary" onClick={() => setVisible(false)}>
             Cerrar
           </CButton>
-          <CButton color="primary">Guardar Cambios</CButton>
+          <CButton color="primary" onClick={handleGuardarCambios}>Guardar Cambios</CButton>
         </CModalFooter>
       </CModal>
     </CRow>

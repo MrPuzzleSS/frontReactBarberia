@@ -199,18 +199,7 @@ const _nav = [
             name: 'Lista de Usuarios',
             to: '/listaUsuarios',
             icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
-          },
-          {
-            component: CNavItem,
-            name: 'Nuevo Usuario',
-            to: '/CrearUsuarios',
-          },
-          {
-            component: CNavItem,
-            name: 'Editar Usuario',
-            to: '/EditarUsuarios',
-          },
-         
+          }, 
         ],
       },
       {
@@ -225,17 +214,6 @@ const _nav = [
             to: '/ListaRol',
             icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
           },
-          {
-            component: CNavItem,
-            name: 'Nuevo Rol',
-            to: '/CrearRol',
-          },
-          {
-            component: CNavItem,
-            name: 'Editar Rol',
-            to: '/EditarRol',
-          },
-        
         ],
       },
       {

@@ -90,7 +90,8 @@ const CrearConfiguracion = () => {
 
   const fetchEmpleados = async () => {
     try {
-      const response = await fetch('http://localhost:8095/api/empleado');
+      const apiUrl = 'https://resapibarberia.onrender.com/api/empleado';
+      const response = await fetch('');
       if (!response.ok) {
         throw new Error('Error al obtener los empleados');
       }
