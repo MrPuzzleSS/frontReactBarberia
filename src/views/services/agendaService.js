@@ -1,4 +1,4 @@
-const apiUrl = 'http://localhost:8095/api/agenda'; 
+const apiUrl = 'http://localhost:8095/api/agenda';
 
 const AgendaService = {
   getAllAgendas: () => {
@@ -54,6 +54,28 @@ const AgendaService = {
         console.error('Error al eliminar la agenda:', error);
       });
   },
+
+ 
+
+  disableEvent: (id, motivo) => {
+    const url = `${apiUrl}/${id}/disable`;
+
+    const requestOptions = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ motivo }),
+    };
+
+    return fetch(url, requestOptions)
+      .then(response => response.json())
+      .catch(error => {
+        console.error('Error al inhabilitar el evento:', error);
+        throw error;
+      });
+  },
 };
+  
 
 export default AgendaService;
