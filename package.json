@@ -1,7 +1,7 @@
 {
-  "name": "@coreui/coreui-free-react-admin-template",
-  "version": "4.5.0",
-  "description": "CoreUI Free React Admin Template",
+  "name": "Proyecto-BAC",
+  "version": "1.0",
+  "description": "Proyecto React Barberia",
   "homepage": ".",
   "bugs": {
     "url": "https://github.com/coreui/coreui-free-react-admin-template/issues"
@@ -29,6 +29,11 @@
     "@coreui/react": "^4.11.0",
     "@coreui/react-chartjs": "^2.1.3",
     "@coreui/utils": "^2.0.2",
+<<<<<<< HEAD
+=======
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+>>>>>>> cffcdf157e7cb4b875a4ac3eedfea414a560d54d
     "@fullcalendar/adaptive": "^6.1.9",
     "@fullcalendar/bootstrap": "^6.1.9",
     "@fullcalendar/bootstrap5": "^6.1.9",
@@ -37,11 +42,18 @@
     "@fullcalendar/interaction": "^6.1.9",
     "@fullcalendar/moment": "^6.1.9",
     "@fullcalendar/react": "^6.1.9",
+<<<<<<< HEAD
     "@fullcalendar/rrule": "^6.1.9",
+=======
+>>>>>>> cffcdf157e7cb4b875a4ac3eedfea414a560d54d
     "@fullcalendar/scrollgrid": "^6.1.9",
     "@fullcalendar/timegrid": "^6.1.9",
     "@fullcalendar/timeline": "^6.1.9",
     "@fullcalendar/web-component": "^6.1.9",
+<<<<<<< HEAD
+=======
+    "@mui/material": "^5.14.18",
+>>>>>>> cffcdf157e7cb4b875a4ac3eedfea414a560d54d
     "axios": "^1.6.2",
     "chart.js": "^3.9.1",
     "classnames": "^2.3.2",
@@ -56,7 +68,13 @@
     "react-toastify": "^9.1.3",
     "redux": "4.2.1",
     "simplebar-react": "^2.4.3",
+<<<<<<< HEAD
     "sweetalert": "^2.1.2"
+=======
+    "sweetalert": "^2.1.2",
+    "sweetalert2": "^11.10.0",
+    "sweetalert2-react-content": "^5.0.7"
+>>>>>>> cffcdf157e7cb4b875a4ac3eedfea414a560d54d
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",

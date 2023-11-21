@@ -1,5 +1,8 @@
 /* eslint-disable prettier/prettier */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 import { Link } from 'react-router-dom';
 import {
   CCard,
@@ -14,42 +17,54 @@ import {
   CTableHeaderCell,
   CTableRow,
   CButton,
-  CButtonGroup,
   CModal,
   CModalHeader,
   CModalTitle,
   CModalBody,
   CModalFooter,
   CFormLabel,
-  CFormSelect,
   CFormInput,
-  CInputGroup,
-  CInputGroupText,
+
 } from '@coreui/react';
+import ControlledSwitches from 'src/components/Swtichcomponent';
+import { show_alert } from 'src/components/functions';
 
 function ListaProveedores() {
-  const [visible, setVisible] = useState(false);
+  const url='https://resapibarberia.onrender.com/api/proveedores';
+  const [proveedores, setProveedores] = useState([]);
+  const [id_proveedor,setId_proveedor]= useState('');
+  const [nombre,setNombre]= useState('');
+  const [direccion,setDireccion]= useState('');
+  const [telefono,setTelefono]= useState('');
+  const [email,setEmail]= useState('');
+  const [tipo_de_producto_servico,setTipo_de_producto_servicio]= useState('');
+  const [operation,setOperation]= useState(1);
+  const [title,setTitle]= useState('');
 
-  // Lista de proveedores (reemplaza esto con tus datos reales)
-  const proveedores = [
-    {
-      id: 1,
-      nombre: 'Proveedor 1',
-      direccion: 'Dirección 1',
-      telefono: '123-456-7890',
-      email: 'proveedor1@example.com',
-      tipo: 'Tipo 1',
-    },
-    {
-      id: 2,
-      nombre: 'Proveedor 2',
-      direccion: 'Dirección 2',
-      telefono: '987-654-3210',
-      email: 'proveedor2@example.com',
-      tipo: 'Tipo 2',
-    },
-    // Agrega más proveedores aquí
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const respuesta = await axios.get(url);
+        setProveedores(respuesta.data.listProveedores); // Accede a la propiedad listProveedores
+      } catch (error) {
+        console.error('Error al obtener datos:', error);
+      }
+    };
+  
+    fetchData();
+  }, []);
+  
+  const [visible, setVisible] = useState(false)
+
+  const [editingProveedor, setEditingProveedor] = useState({
+    id: '',
+    nombre: '',
+    direccion: '',
+    telefono: '',
+    email: '',
+    tipo_de_producto_servicio: '',
+  });
+  
 
   return (
     <CRow>
@@ -59,7 +74,7 @@ function ListaProveedores() {
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Proveedores</strong>
               <Link to="/proveedores/crear-proveedor">
-                <CButton color="primary">Agregar Proveedor</CButton>
+                <CButton color="success">Agregar Proveedor</CButton>
               </Link>
             </div>
           </CCardHeader>
@@ -77,28 +92,23 @@ function ListaProveedores() {
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {proveedores.map((proveedor, index) => (
-                  <CTableRow key={proveedor.id}>
-                    <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+                {proveedores.map((proveedor, i) => (
+                  <CTableRow key={proveedor.id_proveedor}>
+                    <CTableHeaderCell scope="row">{i + 1}</CTableHeaderCell>
                     <CTableDataCell>{proveedor.nombre}</CTableDataCell>
                     <CTableDataCell>{proveedor.direccion}</CTableDataCell>
                     <CTableDataCell>{proveedor.telefono}</CTableDataCell>
                     <CTableDataCell>{proveedor.email}</CTableDataCell>
-                    <CTableDataCell>{proveedor.tipo}</CTableDataCell>
+                    <CTableDataCell>{proveedor.tipo_de_producto_servicio}</CTableDataCell>
                     <CTableDataCell>
-                      <CButtonGroup aria-label="Basic mixed styles example">
-                        <CButton
-                          color="info"
+                    <CButton
+                          color="primary"
                           size="sm"
-                          variant="outline"
                           onClick={() => setVisible(!visible)}
                         >
                           Editar
                         </CButton>
-                        <CButton color="danger" size="sm" variant="outline">
-                          Eliminar
-                        </CButton>
-                      </CButtonGroup>
+                        <ControlledSwitches />
                     </CTableDataCell>
                   </CTableRow>
                 ))}

@@ -388,7 +388,7 @@ const CrearConfiguracion = () => {
                           setEvents(updatedEvents); // Actualiza el estado de los eventos con el evento deshabilitado.
                         })
                         .catch((error) => {
-                          console.error('Error al realizar la operacion:', error);
+                          console.error('Error al realizar la acción:', error);
                           // Manejar errores
                         });
                     }

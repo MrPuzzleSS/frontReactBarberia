@@ -7,11 +7,9 @@ import {
   CCardBody,
   CCardHeader,
   CCol,
-  CFormLabel,
-  CFormSelect,
+  CForm,
   CFormInput,
-  CInputGroup,
-  CInputGroupText,
+  CFormLabel,
   CRow,
 } from '@coreui/react'
 
@@ -19,41 +17,40 @@ function CrearProveedor() {
   return (
     <CRow>
       <CCol xs={12}>
-        <CCard>
+        <CCard className='mb-4'>
           <CCardHeader>
             <strong>Crear Proveedor</strong>
           </CCardHeader>
           <CCardBody>
-            <form>
-              <div className="mb-3">
+            <CForm className="row gy-4 gx-3 align-items-center">
+              <CCol sm={6}>
                 <CFormLabel>Nombre del Proveedor</CFormLabel>
                 <CFormInput type="text" />
-              </div>
-              <div className="mb-3">
+              </CCol>
+                <CCol sm={6}>
                 <CFormLabel>Dirección</CFormLabel>
                 <CFormInput />
-              </div>
-              <div className="mb-3">
+              </CCol>
+                <CCol sm={6}>
                 <CFormLabel>Teléfono</CFormLabel>
                 <CFormInput type="tel" />
-              </div>
-              <div className="mb-3">
+              </CCol>
+              <CCol sm={6}>  
                 <CFormLabel>Correo Electrónico</CFormLabel>
                 <CFormInput />
-              </div>
-              <div className="mb-3">
+              </CCol>
+              <CCol sm={6}>
                 <CFormLabel>Producto/Servicio</CFormLabel>
                 <CFormInput />
-              </div>
-              <CButton type="submit" color="primary" className="mr-2">
-                Guardar Compra
+              </CCol>
+              <CCol xs={12}>
+              <Link to="/proveedores/lista-proveedores">
+              <CButton type="submit" color="primary">
+                Crear Proveedor
               </CButton>
-              <Link to="/compras/lista-compras">
-                <CButton type="button" color="secondary">
-                  Cancelar
-                </CButton>
               </Link>
-            </form>
+              </CCol>
+            </CForm>
           </CCardBody>
         </CCard>
       </CCol>
