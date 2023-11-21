@@ -15,15 +15,17 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
+import logoBarberia from '../../../assets/images/logoBarberia2.png'
+
 
 const Login = () => {
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
-        <CRow className="justify-content-center">
+        <CRow className="justify-content-center" >
           <CCol md={8}>
             <CCardGroup>
-              <CCard className="p-4">
+              <CCard className="p-4" >
                 <CCardBody>
                   <CForm>
                     <h1>SION-BARBER</h1>
@@ -61,22 +63,19 @@ const Login = () => {
                   </CForm>
                 </CCardBody>
               </CCard>
-              <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
+              <CCard className="text-white" style={{ backgroundColor: '#669bbc', paddingTop: '5rem', width: '44%' }}>
                 <CCardBody className="text-center">
+                  <img src={logoBarberia} alt="logo empresa" width="76%" />
                   <div>
-                    ¡Bienvenido a Sion Barber Shop! Donde el estilo se encuentra con la elegancia. 
-      Nuestro equipo de barberos expertos se esfuerza por brindarte un corte de cabello 
-      y un cuidado de barba excepcionales! 
-                    <img src="../../src/assets/images/logoBarberia2.png" alt="Sion Barber Shop" style={{ width: '100%', marginBottom: '20px' }} />
-                    <Link to="/register">
-                      <CButton color="primary" className="mt-3" active tabIndex={-2}>
-                        REGISTRAR
-                      </CButton>
-                    </Link>
+                    ¡Bienvenido a Sion Barber Shop! Donde el estilo se encuentra con la elegancia.
                   </div>
+                  <Link to="/register">
+                    <CButton color="primary" className="mt-3" active tabIndex={-2}>
+                      REGISTRAR
+                    </CButton>
+                  </Link>
                 </CCardBody>
               </CCard>
-
 
 
             </CCardGroup>
@@ -88,3 +87,5 @@ const Login = () => {
 }
 
 export default Login
+
+
