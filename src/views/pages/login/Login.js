@@ -64,18 +64,21 @@ const Login = () => {
               <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
                 <CCardBody className="text-center">
                   <div>
-                    <h2>NUEVO USUARIO</h2>
-                    <p>
-                    ¡Bienvenido a Sion Barber Shop! Donde el estilo se encuentra con la elegancia. Nuestro equipo de barberos expertos se esfuerza por brindarte un corte de cabello y un cuidado de barba excepcionales!
-                    </p>
+                    ¡Bienvenido a Sion Barber Shop! Donde el estilo se encuentra con la elegancia. 
+      Nuestro equipo de barberos expertos se esfuerza por brindarte un corte de cabello 
+      y un cuidado de barba excepcionales! 
+                    <img src="../../src/assets/images/logoBarberia2.png" alt="Sion Barber Shop" style={{ width: '100%', marginBottom: '20px' }} />
                     <Link to="/register">
-                      <CButton color="primary" className="mt-3" active tabIndex={-1}>
-                        REGISTRAR!
+                      <CButton color="primary" className="mt-3" active tabIndex={-2}>
+                        REGISTRAR
                       </CButton>
                     </Link>
                   </div>
                 </CCardBody>
               </CCard>
+
+
+
             </CCardGroup>
           </CCol>
         </CRow>

@@ -64,7 +64,7 @@ const CrearUsuarios = React.lazy(() => import('./views/users/crearUsuario/CrearU
 const EditarUsuarios = React.lazy(() => import('./views/users/editarUsuario/EditUser'))
 const Roles = React.lazy(() => import('./views/rol/listaRoles/Roles'))
 const CrearRol = React.lazy(() => import('./views/rol/CrearRol/CreateRol'))
-const EditarRol = React.lazy(() => import('./views/rol/EditarRol/EditRol'))
+
 
 const ListaProductos = React.lazy(() => import('./views/productos/listaProductos'))
 const CrearProducto = React.lazy(() => import('./views/productos/crearProducto'))
@@ -100,7 +100,6 @@ const routes = [
   { path: '/EditarUsuarios', name: 'EditarUsuarios', element: EditarUsuarios},
   { path: '/ListaRol', name: 'Roles', element: Roles},
   { path: '/CrearRol', name: 'CrearRol', element: CrearRol},
-  { path: '/EditarRol', name: 'EditarRol', element: EditarRol},
   { path: '/productos', name: 'productos', element: ListaProductos },
   { path: '/productos/lista-productos', name: 'Productos', element: ListaProductos },
   { path: '/productos/crear-producto', name: 'Nuevo producto', element: CrearProducto },
