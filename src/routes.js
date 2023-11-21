@@ -1,5 +1,6 @@
 import React from 'react'
 
+
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -48,17 +49,10 @@ const Alerts = React.lazy(() => import('./views/notifications/alerts/Alerts'))
 const Badges = React.lazy(() => import('./views/notifications/badges/Badges'))
 const Modals = React.lazy(() => import('./views/notifications/modals/Modals'))
 const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
-const ListaServicios = React.lazy(() => import('./views/servicios/listaServicios'))
-const CrearServicio = React.lazy(() => import('./views/servicios/crearServicio'))
 
-const ListaClientes = React.lazy(() => import('./views/clientes/listaClientes'))
-const CrearCliente = React.lazy(() => import('./views/clientes/crearCliente'))
 
-const ListaInsumos = React.lazy(() => import('./views/insumos/listaInsumos'))
-const CrearInsumo = React.lazy(() => import('./views/insumos/crearInsumo'))
-const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
-const CrearConfiguracion = React.lazy(() => import('./views/agendas/crearConfiguracion'))
-const Calendar = React.lazy(() => import('./views/agendas/Calendar'))
+
+
 const ListaProveedores = React.lazy(() => import('./views/proveedores/listaProveedores'))
 const CrearProveedor = React.lazy(() => import('./views/proveedores/crearProveedor'))
 const ListaCompras = React.lazy(() => import('./views/compras/listaCompras'))
@@ -176,7 +170,7 @@ const routes = [
   { path: '/notifications/badges', name: 'Badges', element: Badges },
   { path: '/notifications/modals', name: 'Modals', element: Modals },
   { path: '/notifications/toasts', name: 'Toasts', element: Toasts },
-  { path: '/widgets', name: 'Widgets', element: Widgets },
+  // { path: '/widgets', name: 'Widgets', element: Widgets },
 ]
 
 export default routes

@@ -5,7 +5,6 @@ import swal from 'sweetalert';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
 import agendaService from '../../services/agendaService';
-import { v4 as uuidv4 } from 'uuid';
 
 const MultiSelect = ({ options, selectedValues, onChange }) => {
   const handleChange = (selectedOption) => {
@@ -366,39 +365,45 @@ const CrearConfiguracion = () => {
                     },
                   }).then((motivo) => {
                     if (motivo && motivo.trim() !== '') {
-                      // Realizar la solicitud a la API para inhabilitar o habilitar el evento
+                      // Aquí realizas la llamada a la API para inhabilitar o habilitar el evento
                       agendaService.disableEvent(clickInfo.event.id, motivo)
                         .then((response) => {
                           console.log(`Evento ${disableEvent ? 'inhabilitado' : 'habilitado'} con motivo: ${motivo}`);
-                          // Aquí podrías actualizar la interfaz o realizar acciones adicionales si es necesario
+                          // Aquí podrías actualizar la interfaz
                           fetchAgendas();
-
+                    
                           const updatedEvents = events.map(event => {
                             if (event.id === clickInfo.event.id) {
                               return {
                                 ...event,
                                 extendedProps: {
                                   ...event.extendedProps,
-                                  disabled: disableEvent, // Actualiza la propiedad 'disabled' en el evento
+                                  disabled: disableEvent,
                                 },
                               };
                             }
                             return event;
                           });
-                          setEvents(updatedEvents); // Actualiza el estado de los eventos con el evento deshabilitado.
+                          setEvents(updatedEvents); 
                         })
                         .catch((error) => {
                           console.error('Error al realizar la acción:', error);
-                          // Manejar errores
+                          
+                          // Manejo del error de JSON no válido
+                          try {
+                            const errorMessage = JSON.parse(error.response.data); // Si la respuesta tiene JSON inválido
+                            console.error('Error JSON:', errorMessage);
+                          } catch (jsonError) {
+                            console.error('Error no parseable como JSON:', error.response.data);
+                          }
                         });
                     }
+                    
                   });
                 }
               });
             }}
           />
-
-
         </div>
       </div>
     </div>

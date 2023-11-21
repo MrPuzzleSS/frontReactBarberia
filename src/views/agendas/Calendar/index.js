@@ -9,20 +9,14 @@ import bootstrapPlugin from '@fullcalendar/bootstrap';
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
 import googleCalendarPlugin from '@fullcalendar/google-calendar';
 import momentPlugin from '@fullcalendar/moment';
-<<<<<<< HEAD
 import rrulePlugin from '@fullcalendar/rrule';
-=======
->>>>>>> cffcdf157e7cb4b875a4ac3eedfea414a560d54d
 import scrollgridPlugin from '@fullcalendar/scrollgrid';
 import timelinePlugin from '@fullcalendar/timeline';
 import '../../../Calendar.css';
 
-<<<<<<< HEAD
 
 
 
-=======
->>>>>>> cffcdf157e7cb4b875a4ac3eedfea414a560d54d
 function Calendar() {
     const handleEventDrop = (info) => {
         console.log('Evento arrastrado:', info);
@@ -40,10 +34,7 @@ function Calendar() {
                     bootstrap5Plugin,
                     googleCalendarPlugin,
                     momentPlugin,
-<<<<<<< HEAD
                     rrulePlugin,
-=======
->>>>>>> cffcdf157e7cb4b875a4ac3eedfea414a560d54d
                     scrollgridPlugin,
                     timelinePlugin,
                 ]}

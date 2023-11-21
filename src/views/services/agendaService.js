@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 const apiUrl = 'http://localhost:8095/api/agenda';
-=======
-const apiUrl = 'http://localhost:8095/api/agenda'; 
->>>>>>> cffcdf157e7cb4b875a4ac3eedfea414a560d54d
 
 const AgendaService = {
   getAllAgendas: () => {
@@ -58,9 +54,8 @@ const AgendaService = {
         console.error('Error al eliminar la agenda:', error);
       });
   },
-<<<<<<< HEAD
 
- 
+
 
   disableEvent: (id, motivo) => {
     const url = `${apiUrl}/${id}/disable`;
@@ -74,6 +69,7 @@ const AgendaService = {
     };
 
     return fetch(url, requestOptions)
+
       .then(response => response.json())
       .catch(error => {
         console.error('Error al inhabilitar el error  de errores :', error);
@@ -81,9 +77,6 @@ const AgendaService = {
       });
   },
 };
-  
-=======
-};
->>>>>>> cffcdf157e7cb4b875a4ac3eedfea414a560d54d
+
 
 export default AgendaService;

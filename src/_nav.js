@@ -81,63 +81,6 @@ const _nav = [
   },
   {
     component: CNavGroup,
-<<<<<<< HEAD
-=======
-    name: 'Clientes',
-    to: '/clientes/crearCliente',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Listado',
-        to: '/clientes/listaClientes',
-      },
-      {
-        component: CNavItem,
-        name: 'Crear',
-        to: '/clientes/crearCliente',   
-      },
-    ],
-  },
-  {
-    component: CNavGroup,
-    name: 'Servicios',
-    to: '/servicios',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Listado',
-        to: '/Servicios/listaServicios',
-      },
-      {
-        component: CNavItem,
-        name: 'Crear',
-        to: '/Servicios/crearServicio',   
-      },
-    ],
-  },
-  {
-    component: CNavGroup,
-    name: 'Insumos',
-    to: '/insumos',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Listado',
-        to: '/insumos/listaIsumos',
-      },
-      {
-        component: CNavItem,
-        name: 'Crear',
-        to: '/insumos/crearInsumo',   
-      },
-    ],
-  },
-  {
-    component: CNavGroup,
->>>>>>> cffcdf157e7cb4b875a4ac3eedfea414a560d54d
     name: 'Agendas',
     to: '/agendas',
     icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
@@ -146,17 +89,12 @@ const _nav = [
         component: CNavItem,
         name: 'Crear Configuracion',
         to: '/agendas/CrearConfiguracion',
-<<<<<<< HEAD
         to: '/agendas/CrearConfiguracion',
       },
 
 
     ],
 
-=======
-      },
-    ],
->>>>>>> cffcdf157e7cb4b875a4ac3eedfea414a560d54d
   },
   {
     component: CNavGroup,
