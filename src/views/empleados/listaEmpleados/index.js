@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import {
   CCard,
@@ -25,31 +25,43 @@ import {
   CFormInput,
   CInputGroup,
   CInputGroupText,
-} from '@coreui/react'
+} from '@coreui/react';
+import EmpleadoService from 'src/views/services/empleadoService';
 
 function ListaEmpleados() {
-  const [visible, setVisible] = useState(false)
-  // Lista de compras (debes reemplazar esto con tus datos reales)
-  const empleados = [
-    {
-      id: 1,
-      nombre: 'Valeria',
-      apellido: 'Carmona',
-      correo: 'Vale@gmail.com',
-      documento: 1019228982,
-      telefono: 3009878976,
-      estado: 'Activo',
-    },
-    {
-      id: 2,
-      nombre: 'Sara',
-      apellido: 'Valencia',
-      correo: 'sara@gmail.com',
-      documento: 1019228982,
-      telefono: 3009878976,
-      estado: 'Activo',
-    },
-  ]
+  const [empleados, setEmpleados] = useState([]);
+  const [visible, setVisible] = useState(false);
+  const [selectedEmpleadoId, setSelectedEmpleadoId] = useState(null);
+
+  useEffect(() => {
+    // Obtener la lista de empleados al cargar el componente
+    fetchEmpleados();
+  }, []);
+
+  const fetchEmpleados = async () => {
+    try {
+      const data = await EmpleadoService.getAllEmpleados();
+      setEmpleados(data.empleados);
+    } catch (error) {
+      console.error('Error al obtener empleados:', error);
+    }
+  };
+
+  const handleEditar = (id) => {
+    // Abrir el modal y almacenar el ID del empleado seleccionado
+    setSelectedEmpleadoId(id);
+    setVisible(true);
+  };
+
+  const handleCambiarEstado = async (empleadoId) => {
+    try {
+      // Cambiar el estado del empleado y actualizar la lista
+      await EmpleadoService.cambiarEstadoEmpleado(empleadoId);
+      fetchEmpleados();
+    } catch (error) {
+      console.error('Error al cambiar el estado del empleado:', error);
+    }
+  };
 
   return (
     <CRow>
@@ -93,11 +105,16 @@ function ListaEmpleados() {
                           color="info"
                           size="sm"
                           variant="outline"
-                          onClick={() => setVisible(!visible)}
+                          onClick={() => handleEditar(empleado.id)}
                         >
                           Editar
                         </CButton>
-                        <CButton color="warning" size="sm" variant="outline">
+                        <CButton 
+                        color="warning" 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleCambiarEstado(empleado.id)}
+                        >
                           Cambiar Estado
                         </CButton>
                       </CButtonGroup>
