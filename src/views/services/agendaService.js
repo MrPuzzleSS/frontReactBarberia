@@ -71,7 +71,7 @@ const AgendaService = {
     return fetch(url, requestOptions)
       .then(response => response.json())
       .catch(error => {
-        console.error('Error al inhabilitar el evento:', error);
+        console.error('Error al inhabilitar el error  de errores :', error);
         throw error;
       });
   },
