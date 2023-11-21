@@ -15,6 +15,7 @@ import {
   CRow,
 } from '@coreui/react';
 
+
 const CrearProveedor = () => {
   const initialProveedorState = {
     nombre: '',
@@ -54,13 +55,13 @@ const CrearProveedor = () => {
 
   return (
     <CRow>
-      <CCol xs={12}>
+      <CCol xs>
         <CCard className='mb-4'>
           <CCardHeader>
             <strong>Crear Proveedor</strong>
           </CCardHeader>
           <CCardBody>
-            <CForm>
+            <CForm className='row g-3'>
               <CCol sm={6}>
                 <CFormLabel>Nombre del Proveedor</CFormLabel>
                 <CFormInput
@@ -106,7 +107,8 @@ const CrearProveedor = () => {
                   onChange={handleInputChange}
                 />
               </CCol>
-              <CButton type='button' color='primary' onClick={saveProveedor} to='/proveedores/lista-proveedores'>
+              <CCol xs={12} >
+              <CButton type='button' color='primary' className="me-md-2" onClick={saveProveedor} to='/proveedores/lista-proveedores'>
                 Crear Proveedor
               </CButton>
               <Link to='/proveedores/lista-proveedores'>
@@ -114,6 +116,7 @@ const CrearProveedor = () => {
                   Cancelar
                 </CButton>
               </Link>
+              </CCol>
             </CForm>
             {submitted && (
               <Navigate to='/proveedores/lista-proveedores'/>
