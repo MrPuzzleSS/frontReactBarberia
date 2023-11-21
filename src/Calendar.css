@@ -1,0 +1,52 @@
+
+/* Otros estilos específicos que quieras aplicar */
+
+.col-md-8{
+
+     
+    position: relative;
+    left: 150px;
+    right: 40px;
+    background-color: red;
+}
+
+
+.fc-media-screen fc-direction-ltr fc-theme-standard fc-liquid-hack{
+    background-color: #4caf50;
+}
+
+.fc-direction-ltr {
+    direction: ltr;
+    text-align: left;
+    width: 170%;
+    margin-top: calc(60 * var(--cui-gutter-y));
+    margin-right: calc(-0.15 * var(--cui-gutter-x));
+    margin-left: calc(4* var(--cui-gutter-x));
+    top: 63px;
+    position: relative;
+}
+
+.col-md-4 {
+    flex: 0 0 auto;
+    width: 41%;
+    position: relative;
+    left: 40px;
+   
+}
+
+h3, .h3 {
+    font-size: 2rem;
+    /* justify-content: center; */
+    left: 80%;
+    position: relative;
+}
+
+.row {
+    --cui-gutter-x: 1.5rem;
+    --cui-gutter-y: 0;
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: calc(-1 * var(--cui-gutter-y));
+    margin-right: calc(-0.5 * var(--cui-gutter-x));
+    margin-left: calc(-3* var(--cui-gutter-x));
+}
