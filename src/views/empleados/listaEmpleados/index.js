@@ -47,9 +47,9 @@ function ListaEmpleados() {
     }
   };
 
-  const handleEditar = (id) => {
+  const handleEditar = (empleado) => {
     // Abrir el modal y almacenar el ID del empleado seleccionado
-    setSelectedEmpleadoId(id);
+    setSelectedEmpleadoId(empleado);
     setVisible(true);
   };
 
@@ -105,7 +105,7 @@ function ListaEmpleados() {
                           color="info"
                           size="sm"
                           variant="outline"
-                          onClick={() => handleEditar(empleado.id)}
+                          onClick={() => handleEditar(empleado)}
                         >
                           Editar
                         </CButton>
@@ -131,18 +131,33 @@ function ListaEmpleados() {
           <CModalTitle>Editar Empleados</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <form>
+          <form onSubmit={e => { 
+            e.preventDefault()
+            console.log(selectedEmpleadoId)
+           }}>
             <div className="mb-3">
               <CFormLabel>Nombre</CFormLabel>
-              <CFormInput type="text" />
+              <CFormInput type="text" value={selectedEmpleadoId?.nombre} onChange={e => {
+                const newValue = {...selectedEmpleadoId}
+                newValue.nombre = e.target.value
+                setSelectedEmpleadoId(newValue)
+              }}/>
             </div>
             <div className="mb-3">
               <CFormLabel>Apellido</CFormLabel>
-              <CFormInput type="text" />
+              <CFormInput type="text" value={selectedEmpleadoId?.apellido} onChange={e => {
+                const newValue = {...selectedEmpleadoId}
+                newValue.apellido = e.target.value
+                setSelectedEmpleadoId(newValue)
+              }} />
             </div>
             <div className="mb-3">
               <CFormLabel>Correo</CFormLabel>
-              <CFormInput type="email" />
+              <CFormInput type="email" value={selectedEmpleadoId?.correo} onChange={e => {
+                const newValue = {...selectedEmpleadoId}
+                newValue.correo = e.target.value
+                setSelectedEmpleadoId(newValue)
+              }}/>
             </div>
             <div className="mb-3">
               <CFormLabel>Documento</CFormLabel>
@@ -166,7 +181,9 @@ function ListaEmpleados() {
           <CButton color="secondary" onClick={() => setVisible(false)}>
             Cerrar
           </CButton>
-          <CButton color="primary">Guardar Cambios</CButton>
+          <CButton color="primary" onClick={() => {
+            EmpleadoService.updateEmpleado(selectedEmpleadoId.id_empleado, selectedEmpleadoId)
+          }}>Guardar Cambios</CButton>
         </CModalFooter>
       </CModal>
     </CRow>

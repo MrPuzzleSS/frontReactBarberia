@@ -32,6 +32,7 @@ const EmpleadoService = {
     },
 
     updateEmpleado: (id, updatedEmpleado) => {
+        console.log(updatedEmpleado, "Carga este")
         return fetch(`${apiUrl}/${id}`, {
             method: 'PUT',
             headers: {
