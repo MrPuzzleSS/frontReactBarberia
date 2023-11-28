@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React, {useState} from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import ProveedoresDataService from 'src/views/services/ProveedoresService';
@@ -67,6 +66,7 @@ const CrearProveedor = () => {
                 <Controller
                   name="nombre"
                   control={control}
+                  rules={{required: true}}
                   render={({ field }) => <CFormInput {...field} />}
                 />
               </CCol>

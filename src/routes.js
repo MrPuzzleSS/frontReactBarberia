@@ -83,8 +83,10 @@ const CrearInsumo = React.lazy(() => import('./views/insumos/crearInsumo'))
 const CrearConfiguracion = React.lazy(() => import('./views/agendas/crearConfiguracion'))
 const Calendar = React.lazy(() => import('./views/agendas/Calendar'))
 
+
 const routes = [
   //TODAS LAS RUTAS DEL PROYECTO
+
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/proveedores', name: 'Proveedores', element: ListaProveedores },
