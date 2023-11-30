@@ -1,4 +1,4 @@
-const apiUrl = 'https://resapibarberia.onrender.com/api/agenda'; 
+const apiUrl = 'http://localhost:8095/api/agenda';
 
 const AgendaService = {
   getAllAgendas: () => {
@@ -55,28 +55,36 @@ const AgendaService = {
       });
   },
 
-
-
-  disableEvent: (id, motivo) => {
-    const url = `${apiUrl}/${id}/disable`;
-
-    const requestOptions = {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ motivo }),
-    };
-
-    return fetch(url, requestOptions)
-
-      .then(response => response.json())
-      .catch(error => {
-        console.error('Error al inhabilitar el error  de errores :', error);
-        throw error;
-      });
-  },
-};
-
+    disableEvent: async (id, motivo, estado) => {
+      const url = `${apiUrl}/${id}/disabled`;
+    
+      const requestOptions = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ motivo, newEstado: estado }), 
+      };
+    
+      try {
+        const response = await fetch(url, requestOptions);
+    
+        if (!response.ok) {
+          throw new Error('Error al inhabilitar el evento');
+        
+        }
+    
+        const data = await response.json();
+        // Aquí puedes manejar la respuesta exitosa del servidor
+        console.log('Evento inhabilitado exitosamente:', data);
+        return data; // Retorna la respuesta o realiza alguna acción adicional si es necesario
+      } catch (error) {
+        console.error('Error al inhabilitar el evento:', error);
+        
+        throw error; // Propaga el error para manejarlo en otro lugar si es necesario
+      }
+    },
+    
+  };
 
 export default AgendaService;

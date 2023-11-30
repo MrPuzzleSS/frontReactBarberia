@@ -130,7 +130,7 @@ const _nav = [
   {
     component: CNavGroup,
     name: 'Clientes',
-    to: '/clientes/crearCliente',
+    to: '/clientes/crearClientes',
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>,
     items: [
       {
@@ -141,7 +141,7 @@ const _nav = [
       {
         component: CNavItem,
         name: 'Crear',
-        to: '/clientes/crearCliente',   
+        to: '/clientes/crearClientes',   
       },
     ],
   },
