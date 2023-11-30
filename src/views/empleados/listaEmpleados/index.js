@@ -31,7 +31,7 @@ import EmpleadoService from 'src/views/services/empleadoService';
 function ListaEmpleados() {
   const [empleados, setEmpleados] = useState([]);
   const [visible, setVisible] = useState(false);
-  const [selectedEmpleadoId, setSelectedEmpleadoId] = useState(null);
+  const [selectedEmpleadoId, setSelectedEmpleadoId] = useState({});
 
   useEffect(() => {
     // Obtener la lista de empleados al cargar el componente
@@ -53,10 +53,10 @@ function ListaEmpleados() {
     setVisible(true);
   };
 
-  const handleCambiarEstado = async (empleadoId) => {
+  const handleCambiarEstado = async (id_empleado) => {
     try {
       // Cambiar el estado del empleado y actualizar la lista
-      await EmpleadoService.cambiarEstadoEmpleado(empleadoId);
+      await EmpleadoService.cambiarEstadoEmpleado(id_empleado);
       fetchEmpleados();
     } catch (error) {
       console.error('Error al cambiar el estado del empleado:', error);
@@ -80,18 +80,18 @@ function ListaEmpleados() {
               <CTableHead>
                 <CTableRow>
                   <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">nombre</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">apellido</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">correo</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">documento</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">telefono</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">estado</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">acciones</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Apellido</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Correo</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Documento</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Telefono</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {empleados.map((empleado, index) => (
-                  <CTableRow key={empleado.id}>
+                {empleados && empleados.map((empleado, index) => (
+                  <CTableRow key={empleado.id_empleado}>
                     <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                     <CTableDataCell>{empleado.nombre}</CTableDataCell>
                     <CTableDataCell>{empleado.apellido}</CTableDataCell>
@@ -113,7 +113,7 @@ function ListaEmpleados() {
                         color="warning" 
                         size="sm" 
                         variant="outline"
-                        onClick={() => handleCambiarEstado(empleado.id)}
+                        onClick={() => handleCambiarEstado(empleado.id_empleado)}
                         >
                           Cambiar Estado
                         </CButton>
@@ -161,19 +161,19 @@ function ListaEmpleados() {
             </div>
             <div className="mb-3">
               <CFormLabel>Documento</CFormLabel>
-              <CFormInput type="number" />
+              <CFormInput type="number" value={selectedEmpleadoId?.documento} onChange={e => {
+                const newValue = {...selectedEmpleadoId}
+                newValue.documento = e.target.value
+                setSelectedEmpleadoId(newValue)
+              }}/>
             </div>
             <div className="mb-3">
               <CFormLabel>telefono</CFormLabel>
-              <CFormInput type="number" />
-            </div>
-            <div className="mb-3">
-              <CFormLabel>Estado</CFormLabel>
-              <CFormSelect>
-                <option value="">Selecciona el estado</option>
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
-              </CFormSelect>
+              <CFormInput type="number" value={selectedEmpleadoId?.telefono} onChange={e => {
+                const newValue = {...selectedEmpleadoId}
+                newValue.telefono = e.target.value
+                setSelectedEmpleadoId(newValue)
+              }}/>
             </div>
           </form>
         </CModalBody>

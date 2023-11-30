@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import {
   CCard,
@@ -24,21 +24,30 @@ import {
   CFormInput,
   CInputGroup,
   CInputGroupText,
-} from '@coreui/react'
+} from '@coreui/react';
+import VentaService from 'src/views/services/ventasService';
 
 function ListaVentas() {
-  const [visible, setVisible] = useState(false)
-  // Lista de compras (debes reemplazar esto con tus datos reales)
-  const ventas = [
-    {
-      id: 1,
-      cliente: 'Valeria Carmona',
-      empleado: 'Feliciano Mosquera',
-      nmrfactu: '01',
-      valorTotal: '190.000',
-      estado: 'Pendiente'
-    },
-  ]
+  const [ventas, setVentas] = useState ([]);
+  const [visible, setVisible] = useState(false);
+  const [selectedVentaId, setSelectedVentaId] = useState ({});
+
+  useEffect(() => {
+    fetchVentas();
+  }, []);
+
+  const fetchVentas = async () => {
+    try {
+        const data = await VentaService.getVentas();
+        if (data && data.ventas) {
+            setVentas(data.ventas);
+        } else {
+            console.error('La respuesta de la API no contiene la propiedad "ventas":', data);
+        }
+    } catch (error) {
+        console.error('Error al obtener las ventas:', error);
+    }
+};
 
   return (
     <CRow>
@@ -66,13 +75,13 @@ function ListaVentas() {
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {ventas.map((venta, index) => (
-                  <CTableRow key={venta.id}>
+                {ventas && ventas.map((venta, index) => (
+                  <CTableRow key={venta.id_ventas}>
                     <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                    <CTableDataCell>{venta.cliente}</CTableDataCell>
-                    <CTableDataCell>{venta.empleado}</CTableDataCell>
-                    <CTableDataCell>{venta.nmrfactu}</CTableDataCell>
-                    <CTableDataCell>{venta.valorTotal}</CTableDataCell>
+                    <CTableDataCell>{venta.id_cliente}</CTableDataCell>
+                    <CTableDataCell>{venta.id_empleado}</CTableDataCell>
+                    <CTableDataCell>{venta.numeroFactura}</CTableDataCell>
+                    <CTableDataCell>{venta.precio}</CTableDataCell>
                     <CTableDataCell>{venta.estado}</CTableDataCell>
                     <CTableDataCell>
                       <CButtonGroup aria-label="Basic mixed styles example">
