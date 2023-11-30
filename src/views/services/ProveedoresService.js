@@ -8,6 +8,10 @@ const get = id => {
     return http.get(`/proveedores/${id}`);
 }
 
+const getProveedoresProductos = id => {
+    return http.get(`/proveedores/productos/${id}`);
+}
+
 const create = data => {
     return http.post("/proveedores", data);
 }
@@ -27,6 +31,7 @@ const findByTitle = title => {
 const ProveedoresService = {
     getAll,
     get,
+    getProveedoresProductos,
     create,
     update,
     remove,

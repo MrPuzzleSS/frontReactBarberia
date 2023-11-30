@@ -91,7 +91,6 @@ function ListaProveedores() {
       // Puedes manejar el error de alguna manera (mostrar un mensaje, etc.)
     }
   };
-  
 
   return (
     <CRow>
