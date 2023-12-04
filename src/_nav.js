@@ -89,7 +89,6 @@ const _nav = [
         component: CNavItem,
         name: 'Crear Configuracion',
         to: '/agendas/CrearConfiguracion',
-        to: '/agendas/CrearConfiguracion',
       },
 
 
