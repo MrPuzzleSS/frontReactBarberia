@@ -76,7 +76,7 @@ function ListaEmpleados() {
             </div>
           </CCardHeader>
           <CCardBody>
-            <CTable>
+            <CTable align='middle' className='mb-0 border' hover responsive>
               <CTableHead>
                 <CTableRow>
                   <CTableHeaderCell scope="col">#</CTableHeaderCell>
@@ -168,7 +168,7 @@ function ListaEmpleados() {
               }}/>
             </div>
             <div className="mb-3">
-              <CFormLabel>telefono</CFormLabel>
+              <CFormLabel>Telefono</CFormLabel>
               <CFormInput type="number" value={selectedEmpleadoId?.telefono} onChange={e => {
                 const newValue = {...selectedEmpleadoId}
                 newValue.telefono = e.target.value

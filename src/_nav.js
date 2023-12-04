@@ -62,22 +62,10 @@ const _nav = [
     ],
   },
   {
-    component: CNavGroup,
+    component: CNavItem,
     name: 'Empleados',
     to: '/empleados',
-    icon: <CIcon icon={cilPeople} customClassName="nav-icon"/>,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Lista de Empleado',
-        to: '/empleados/listaEmpleados',
-      },
-      {
-        component: CNavItem,
-        name: 'Nuevo Empleado',
-        to: '/empleados/crearEmpleados',   
-      },
-    ],
+    icon: <CIcon icon={cilPeople} customClassName="nav-icon"/>
   },
   {
     component: CNavGroup,
@@ -147,17 +135,10 @@ const _nav = [
     ],
   },
   {
-    component: CNavGroup,
+    component: CNavItem,
     name: 'Ventas',
     to: '/ventas',
-    icon: <CIcon icon={cilMoney} customClassName="nav-icon"/>,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Listar Ventas',
-        to: '/ventas/listaVentas',
-      },
-    ],
+    icon: <CIcon icon={cilMoney} customClassName="nav-icon"/>
   },
   {
     component: CNavGroup,

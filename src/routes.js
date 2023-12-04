@@ -91,10 +91,14 @@ const routes = [
   { path: '/compras', name: 'Compras', element: ListaCompras },
   { path: '/compras/lista-compras', name: 'Lista Compras', element: ListaCompras },
   { path: '/compras/crear-compra', name: 'Crear Compra', element: CrearCompra },
+  
   { path: '/empleados', name: 'Empleados', element: ListaEmpleados},
   { path: '/empleados/listaEmpleados', name: 'Listado', element: ListaEmpleados},
   { path: '/empleados/crearEmpleados', name: 'Crear', element: CrearEmpleados},
-  { path: '/ventas/listaVentas', name: 'Ventas', element: ListarVentas},
+
+  { path: '/ventas', name: 'Ventas', element: ListarVentas },
+  { path: '/ventas/listaVentas', name: 'Listado', element: ListarVentas},
+
   { path: '/ListaUsuarios', name:'Usuarios', element: Usuarios},
   { path: '/CrearUsuarios', name: 'CrearUsuarios', element: CrearUsuarios},
   { path: '/EditarUsuarios', name: 'EditarUsuarios', element: EditarUsuarios},
