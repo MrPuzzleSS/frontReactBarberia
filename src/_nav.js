@@ -1,5 +1,6 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
+import jwt_decode from 'jwt-decode';
 import {
   cilPuzzle,
   cilSpeedometer,
@@ -136,7 +137,7 @@ const _nav = [
   {
     component: CNavGroup,
     name: 'Agendas',
-    to: '/agendas',
+    to: '/agendas', 
     icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
     items: [
       {

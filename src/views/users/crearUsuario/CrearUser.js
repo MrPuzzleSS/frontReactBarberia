@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { CButton, CCard, CCardBody, CCol, CContainer, CForm, CFormInput, CInputGroup, CInputGroupText, CRow } from '@coreui/react';
+import { Link } from 'react-router-dom';
+import {
+  CButton,
+  CCard,
+  CCardBody,
+  CContainer,
+  CForm,
+  CFormInput,
+  CInputGroup,
+  CInputGroupText,
+  CRow,
+} from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilUser } from '@coreui/icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Link } from 'react-router-dom';
 
 const Register = () => {
   const [newUser, setNewUser] = useState({
@@ -17,6 +26,7 @@ const Register = () => {
   });
 
   const [roles, setRoles] = useState([]);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   useEffect(() => {
     axios.get('https://resapibarberia.onrender.com/api/rol')
@@ -29,6 +39,13 @@ const Register = () => {
 
   const handleAddUser = async () => {
     try {
+      // Validaciones
+      if (!newUser.id_rol || !newUser.nombre_usuario || !newUser.contrasena || !newUser.correo || !newUser.estado) {
+        toast.error('Por favor, completa todos los campos');
+        return;
+      }
+
+      // Envío de la solicitud solo si las validaciones son exitosas
       const response = await axios.post('https://resapibarberia.onrender.com/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
 
@@ -39,86 +56,93 @@ const Register = () => {
     }
   };
 
+  const handleInputChange = (fieldName, value) => {
+    setNewUser({ ...newUser, [fieldName]: value });
+  };
+
+  // Verificar si todos los campos requeridos están llenos
+  useEffect(() => {
+    const areAllFieldsFilled = Object.values(newUser).every(value => value !== '');
+    setIsButtonDisabled(!areAllFieldsFilled);
+  }, [newUser]);
+
   return (
     <div className="bg-light min-vh-80 d-flex align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
-          <CCol md={12} lg={20} xl={20}>
-            <CCard className="mx-12">
-              <CCardBody className="p-8">
-                <CForm>
-                  <h1 className="mb-8">CREAR USUARIO</h1>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilUser} />
-                    </CInputGroupText>
-                    <select
-                      value={newUser.id_rol}
-                      onChange={(e) => setNewUser({ ...newUser, id_rol: e.target.value })}
-                    >
-                      <option value="" disabled>Selecciona un rol</option>
-                      {roles.map(role => (
-                        <option key={role.id_rol} value={role.id_rol}>{role.nombre}</option>
-                      ))}
-                    </select>
-                  </CInputGroup>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilUser} />
-                    </CInputGroupText>
-                    <CFormInput
-                      placeholder="Nombre de usuario"
-                      autoComplete="username"
-                      value={newUser.nombre_usuario}
-                      onChange={(e) => setNewUser({ ...newUser, nombre_usuario: e.target.value })}
-                    />
-                  </CInputGroup>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilUser} />
-                    </CInputGroupText>
-                    <CFormInput
-                      type="password"
-                      placeholder="Contraseña"
-                      autoComplete="new-password"
-                      value={newUser.contrasena}
-                      onChange={(e) => setNewUser({ ...newUser, contrasena: e.target.value })}
-                    />
-                  </CInputGroup>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilUser} />
-                    </CInputGroupText>
-                    <CFormInput
-                      type="email"
-                      placeholder="Correo electrónico"
-                      autoComplete="email"
-                      value={newUser.correo}
-                      onChange={(e) => setNewUser({ ...newUser, correo: e.target.value })}
-                    />
-                  </CInputGroup>
-                  <CInputGroup className="mb-4">
-                    <CInputGroupText>
-                      <CIcon icon={cilUser} />
-                    </CInputGroupText>
-                    <CFormInput
-                      placeholder="Estado"
-                      autoComplete="estado"
-                      value={newUser.estado}
-                      onChange={(e) => setNewUser({ ...newUser, estado: e.target.value })}
-                    />
-                  </CInputGroup>
-                  <div className="d-grid">
-                  <Link to="http://localhost:3000/ListaRol">
-                    <CButton color="success" onClick={handleAddUser}>
-                      REGISTRAR USUARIO
-                    </CButton>
-                  </Link>
-                  </div>
-                </CForm>
-              </CCardBody>
-            </CCard>
-          </CCol>
+          <CCard className="mx-12">
+            <CCardBody className="p-8">
+              <CForm>
+                <h1 className="mb-8">CREAR USUARIO</h1>
+                <CInputGroup className="mb-3">
+                  <CInputGroupText>
+                    <CIcon icon="cilUser" />
+                  </CInputGroupText>
+                  <select
+                    value={newUser.id_rol}
+                    onChange={(e) => handleInputChange('id_rol', e.target.value)}
+                  >
+                    <option value="" disabled>Selecciona un rol</option>
+                    {roles.map(role => (
+                      <option key={role.id_rol} value={role.id_rol}>{role.nombre}</option>
+                    ))}
+                  </select>
+                </CInputGroup>
+                <CInputGroup className="mb-3">
+                  <CInputGroupText>
+                    <CIcon icon="cilUser" />
+                  </CInputGroupText>
+                  <CFormInput
+                    placeholder="Nombre de usuario"
+                    autoComplete="username"
+                    value={newUser.nombre_usuario}
+                    onChange={(e) => handleInputChange('nombre_usuario', e.target.value)}
+                  />
+                </CInputGroup>
+                <CInputGroup className="mb-3">
+                  <CInputGroupText>
+                    <CIcon icon="cilUser" />
+                  </CInputGroupText>
+                  <CFormInput
+                    type="password"
+                    placeholder="Contraseña"
+                    autoComplete="new-password"
+                    value={newUser.contrasena}
+                    onChange={(e) => handleInputChange('contrasena', e.target.value)}
+                  />
+                </CInputGroup>
+                <CInputGroup className="mb-3">
+                  <CInputGroupText>
+                    <CIcon icon="cilUser" />
+                  </CInputGroupText>
+                  <CFormInput
+                    type="email"
+                    placeholder="Correo electrónico"
+                    autoComplete="email"
+                    value={newUser.correo}
+                    onChange={(e) => handleInputChange('correo', e.target.value)}
+                  />
+                </CInputGroup>
+                <CInputGroup className="mb-4">
+                  <CInputGroupText>
+                    <CIcon icon="cilUser" />
+                  </CInputGroupText>
+                  <select
+                    value={newUser.estado}
+                    onChange={(e) => handleInputChange('estado', e.target.value)}
+                  >
+                    <option value="" disabled>ESTADO</option>
+                    <option value="activo">Activo</option>
+                  </select>
+                </CInputGroup>
+                <div className="d-grid">
+                  <CButton color="success" onClick={handleAddUser} disabled={isButtonDisabled}>
+                    REGISTRAR USUARIO
+                  </CButton>
+                </div>
+              </CForm>
+            </CCardBody>
+          </CCard>
         </CRow>
       </CContainer>
       <ToastContainer />

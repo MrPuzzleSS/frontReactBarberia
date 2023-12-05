@@ -69,7 +69,7 @@ const Register = () => {
       toast.error('Error al agregar rol');
     }
   };
-
+  
   return (
     <div className="bg-light min-vh-80 d-flex align-items-center">
       <CContainer>
@@ -83,23 +83,28 @@ const Register = () => {
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
                     </CInputGroupText>
-                    <CFormInput
-                      placeholder="ROL"
-                      autoComplete="username"
+                    <select
                       value={newRole.nombre}
                       onChange={(e) => setNewRole({ ...newRole, nombre: e.target.value })}
-                    />
+                    >x
+                      <option value="" disabled>ROL</option>
+                      <option value="administrador">ADMINISTRADOR</option>
+                      <option value="cliente">CLIENTE</option>
+                      <option value="empleado">EMPLEADO</option>
+                    </select>
                   </CInputGroup>
+
                   <CInputGroup className="mb-4">
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
                     </CInputGroupText>
-                    <CFormInput
-                      placeholder="ESTADO"
-                      autoComplete="new-password"
+                    <select
                       value={newRole.estado}
                       onChange={(e) => setNewRole({ ...newRole, estado: e.target.value })}
-                    />
+                    >
+                      <option value="" disabled>ESTADO</option>
+                      <option value="activo">Activo</option>
+                    </select>
                   </CInputGroup>
                   <div>
                     <h4>Permisos:</h4>
@@ -118,7 +123,6 @@ const Register = () => {
                       );
                     })}
                   </div>
-
 
                   <div className="d-grid">
                     <Link to="http://localhost:3000/ListaRol">

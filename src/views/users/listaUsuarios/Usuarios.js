@@ -171,16 +171,8 @@ const ListaUsuarios = () => {
                 id="correoElectronico"
               />
             </div>
-            <div className="mb-3">
-              <CFormLabel>Estado</CFormLabel>
-              <CFormInput
-                type="email"
-                defaultValue={selectedItem?.estado}
-                id="correoElectronico"
-              />
-            </div>
-            
-    
+
+          
           </form>
         </CModalBody>
         <CModalFooter>
