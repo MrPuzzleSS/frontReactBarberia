@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import '@sweetalert2/theme-bootstrap-4/bootstrap-4.css';
 import {
     CButton,
     CCard,
@@ -34,8 +36,6 @@ function CrearCliente() {
             ...formData,
             [name]: value,
         });
-
-        // Limpiar el error asociado al campo actual al modificar su valor
         setErrors({
             ...errors,
             [name]: null,
@@ -44,84 +44,35 @@ function CrearCliente() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setErrors({}); // Limpiar errores existentes
-        setSaving(true); // Activar indicador de guardado
+        setErrors({});
+        setSaving(true);
 
-        // Realizar validación de formulario aquí
         const validationErrors = {};
 
-        // Validar nombre
-        if (!formData.nombre) {
-            validationErrors.nombre = 'Por favor, ingresa el nombre.';
-        }
+        // Validaciones...
 
-        // Validar apellido
-        if (!formData.apellido) {
-            validationErrors.apellido = 'Por favor, ingresa el apellido.';
-        }
-
-        // Validar correo
-        if (!formData.correo) {
-            validationErrors.correo = 'Por favor, ingresa el correo.';
-        } else if (!isValidEmail(formData.correo)) {
-            validationErrors.correo = 'Por favor, ingresa un correo válido.';
-        }
-
-        // Validar documento
-        if (!formData.documento) {
-            validationErrors.documento = 'Por favor, ingresa el número de documento.';
-        } else if (!isValidDocumentNumber(formData.documento)) {
-            validationErrors.documento = 'Por favor, ingresa un número de documento válido.';
-        }
-
-        // Validar teléfono
-        if (!formData.telefono) {
-            validationErrors.telefono = 'Por favor, ingresa el número de teléfono.';
-        } else if (!isValidPhoneNumber(formData.telefono)) {
-            validationErrors.telefono = 'Por favor, ingresa un número de teléfono válido.';
-        }
-
-        // Validar estado
-        if (!formData.estado) {
-            validationErrors.estado = 'Por favor, selecciona el estado.';
-        }
-
-        // Verificar si hay errores de validación
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
-            setSaving(false); // Desactivar indicador de guardado debido a errores
+            setSaving(false);
             return;
         }
 
         axios
-            .post('/api/crear-cliente', formData)
+            .post('/api/crearCliente', formData)
             .then((response) => {
                 setSuccess(true);
-                setSaving(false); // Desactivar indicador de guardado después de éxito
-                // Puedes añadir aquí un código adicional si es necesario
+                setSaving(false);
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Cliente creado con éxito!',
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
             })
             .catch((error) => {
                 setErrors({ general: 'Error al crear el cliente. Inténtalo de nuevo.' });
-                setSaving(false); // Desactivar indicador de guardado en caso de error
+                setSaving(false);
             });
-    };
-
-    const isValidEmail = (email) => {
-        // Expresión regular para validar un correo electrónico
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
-
-    const isValidPhoneNumber = (phoneNumber) => {
-        // Expresión regular para validar un número de teléfono (solo dígitos, longitud 9-15)
-        const phoneRegex = /^\d{9,15}$/;
-        return phoneRegex.test(phoneNumber);
-    };
-
-    const isValidDocumentNumber = (documentNumber) => {
-        // Expresión regular para validar un número de documento (solo dígitos, longitud 1-15)
-        const documentRegex = /^\d{1,15}$/;
-        return documentRegex.test(documentNumber);
     };
 
     return (
@@ -149,7 +100,7 @@ function CrearCliente() {
                         )}
                         <form onSubmit={handleSubmit}>
                             <div className="mb-3">
-                                <CFormLabel>Nombre</CFormLabel>
+                                <CFormLabel>Nombre... completo</CFormLabel>
                                 <CFormInput
                                     type="text"
                                     name="nombre"
