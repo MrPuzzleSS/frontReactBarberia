@@ -103,6 +103,7 @@ const routes = [
   { path: '/servicios', name: 'Servicios', element: ListaServicios },
   { path: '/servicios/listaServicios', name: 'Listado de Servicios', element: ListaServicios },
   { path: '/servicios/crearServicio', name: 'Crear Servicio', element: CrearServicio },
+  
 
   { path: '/insumos', name: 'Insumos', element: ListaInsumos },
   { path: '/insumos/listaIsumos', name: 'Listado de Insumos', element: ListaInsumos },
