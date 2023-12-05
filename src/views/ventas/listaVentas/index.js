@@ -47,7 +47,17 @@ function ListaVentas() {
     } catch (error) {
         console.error('Error al obtener las ventas:', error);
     }
-};
+  };
+
+  const handleAnularVenta = async (id_ventas) => {
+    try {
+      await VentaService.anularVenta(id_ventas);
+      fetchVentas();
+    } catch (error) {
+      console.error('error al anular la venta:', error);
+    }
+  };
+
 
   return (
     <CRow>
@@ -56,13 +66,13 @@ function ListaVentas() {
           <CCardHeader>
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Ventas</strong>
-              <Link to="se pone el link.....">
+              <Link to="/ventas/CrearVentas">
               <CButton color="primary">Agregar Ventas</CButton>
               </Link>
             </div>
           </CCardHeader>
           <CCardBody>
-            <CTable>
+            <CTable align='middle' className='mb-0 border' hover responsive>
               <CTableHead>
                 <CTableRow>
                   <CTableHeaderCell scope="col">#</CTableHeaderCell>
@@ -93,7 +103,12 @@ function ListaVentas() {
                         >
                           Detalle 
                         </CButton>
-                        <CButton color="warning" size="sm" variant="outline">
+                        <CButton
+                          color="warning" 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleAnularVenta(venta.id_ventas)}
+                        >
                           Cambiar Estado
                         </CButton>
                       </CButtonGroup>
