@@ -32,6 +32,8 @@ function ListaCompras() {
   const [compras, setCompras] = useState([]);
   const [visible, setVisible] = useState(false);
   const [compraSeleccionada, setCompraSeleccionada] = useState(null);
+  const [tablaActualizada, setTablaActualizada] = useState(false);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,10 +72,12 @@ function ListaCompras() {
       } catch (error) {
         console.error('Error al obtener datos:', error);
       }
+
+      setTablaActualizada(false);
     };
 
     fetchData();
-  }, []);
+  }, [tablaActualizada]);
 
   const mostrarDetalleCompra = (compra) => {
     setCompraSeleccionada(compra);
@@ -82,26 +86,18 @@ function ListaCompras() {
 
   const pagarCompra = async (idCompra) => {
     try {
-      // Realiza la lógica para cambiar el estado de la compra a "Pagado"
-      await CompraDataService.cambiarEstadoCompra(idCompra, { estado: 'pagado' });
-      
-      // Actualiza el estado de la compra en el estado local
-      setCompras((prevCompras) => 
-        prevCompras.map((compra) =>
-          compra.compra.id_compra === idCompra
-            ? { ...compra, compra: { ...compra.compra, estado: 'Pagado' } }
-            : compra
-        )
-      );
-
-      // Muestra un mensaje de éxito
-      Swal.fire('Compra pagada con éxito', '', 'success');
+      // Cambiar el estado de la compra a "Pagado"
+      await CompraDataService.cambiarEstadoCompra(idCompra);
+      // Actualizar el estado para que la tabla se vuelva a renderizar
+      setTablaActualizada(true);
+      // Mostrar un mensaje de éxito
+      Swal.fire('Éxito', 'La compra se ha pagado exitosamente', 'success');
     } catch (error) {
-      console.error('Error al pagar la compra:', error);
-      // Muestra un mensaje de error
-      Swal.fire('Error al pagar la compra', '', 'error');
+      // Mostrar un mensaje de error
+      Swal.fire('Error', 'No se pudo realizar el pago', 'error');
     }
   };
+  
 
   return (
     <CRow>
@@ -110,7 +106,9 @@ function ListaCompras() {
           <CCardHeader>
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Compras</strong>
-              {/* Puedes agregar un enlace para agregar una nueva compra aquí si es necesario */}
+              <Link to="/compras/crear-compra">
+                <CButton color="success">Nueva Compra</CButton>
+              </Link>
             </div>
           </CCardHeader>
           <CCardBody>
@@ -137,8 +135,8 @@ function ListaCompras() {
                       <CTableDataCell>{formatFechaCompra(compra.compra.created_at)}</CTableDataCell>
                       <CTableDataCell>
                       <CButton color="warning" onClick={() => pagarCompra(compra.compra.id_compra)}>
-                        Pagar
-              </CButton>
+                      Pagar
+                      </CButton>
                       <CButton onClick={() => mostrarDetalleCompra(compra)} >Detalle</CButton>
                       </CTableDataCell>
                     </CTableRow>

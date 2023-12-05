@@ -28,9 +28,15 @@ const findByTitle = title => {
     return http.get(`/compras?title=${title}`);
 }
 
-const cambiarEstadoCompra = id => {
-    return http.put(`/compra/${id}/cambiarEstado`)
-}
+const cambiarEstadoCompra = async (id) => {
+    try {
+      const response = await http.put(`/compras/${id}/cambiarEstado`, { estado: 'Pagado' });
+      return response.data;
+    } catch (error) {
+      console.error('Error al cambiar el estado de la compra:', error);
+      throw error; // Puedes manejar el error según tus necesidades
+    }
+  };
 
 const CompraDataService = {
     getAll,

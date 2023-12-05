@@ -34,7 +34,7 @@ import CompraDataService from 'src/views/services/compraService';
 import detalleCompraDataService from 'src/views/services/detalleCompraService';
 
 const CrearCompra = () => {
-  const { control, handleSubmit, setValue, watch } = useForm({
+  const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm({
     defaultValues: {
       proveedor: '',
       productoSeleccionado: null,
@@ -234,6 +234,7 @@ const CrearCompra = () => {
                   rules={{required: true}}
                   render={({ field }) => <CFormInput {...field} placeholder='Descripción de la compra'/>}
                 />
+                {errors.descripcion?.type === 'required' && <h4 style={{color: 'red'}}>*</h4>}
               </CCol>
                 <CCol sm={4} className="d-flex align-items-end">
                   <CButton onClick={() => setVisibleLg(!visibleLg)}>
@@ -285,14 +286,17 @@ const CrearCompra = () => {
                   <Controller
                     name="cantidad"
                     control={control}
+                    rules={{required: true}}
                     render={({ field }) => <CFormInput {...field} />}
                   />
+                  {errors.cantidad?.type === 'required' && <h4 style={{color: 'red'}}>*</h4>}
                 </CCol>
                 <CCol sm={4}>
                   <CFormLabel>Precio Unitario</CFormLabel>
                   <Controller
                     name="precioUnitario"
                     control={control}
+                    rules={{required: true}}
                     render={({ field }) => <CFormInput {...field} />}
                   />
                 </CCol>
