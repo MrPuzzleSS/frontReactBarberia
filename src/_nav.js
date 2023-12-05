@@ -79,6 +79,7 @@ const _nav = [
       },
     ],
   },
+  
   {
     component: CNavGroup,
     name: 'Agendas',

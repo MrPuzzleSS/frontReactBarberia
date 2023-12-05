@@ -1,0 +1,127 @@
+este es el css
+/* calendarStyles.css */
+
+/* Estilos generales para mejorar la apariencia */
+.custom-calendar {
+    height: 700px;
+    width: 800px;
+    border: 2px solid #070202;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+}
+
+/* Estilos para el encabezado del calendario */
+.fc-header-toolbar {
+    background-color: #3c4b64;
+    /* Cambia el color de fondo del encabezado */
+    color: #ffffff;
+    /* Cambia el color del texto en el encabezado */
+    font-family: 'Times New Roman', Times, serif;
+    /* Cambia la fuente del calendario */
+    
+}
+
+/* Estilos para las celdas de fecha */
+.fc-day {
+    background-color: #ecf0f1;
+    /* Cambia el color de fondo de las celdas de fecha */
+    width: 90px;
+    /* Ajusta el ancho de las celdas */
+    height: 90px;
+    /* Ajusta la altura de las celdas */
+    margin: 20px;
+    /* Margen entre las celdas */
+}
+
+
+
+/* Estilos para las celdas de fecha */
+
+
+
+/* Efecto de hover para los eventos */
+.fc-event:hover {
+    background-color: #c005bc;
+    /* Cambia el color de fondo al pasar el mouse */
+}
+
+/* Estilos para el botón "Buscar" */
+.input-group-append button.btn.btn-primary {
+    font-family: 'Times New Roman', Times, serif;
+    /* Estilo de fuente */
+    /* Otros estilos que desees aplicar al botón "Buscar" */
+}
+
+/* Estilos para el área de programar agenda */
+.input-group input.form-control {
+    font-family: 'Times New Roman', Times, serif;
+    /* Estilo de fuente */
+    /* Otros estilos que desees aplicar al área de entrada de texto */
+}
+
+/* Estilos para el bloque del campo de entrada y el botón de búsqueda */
+.custom-input-group {
+    width: 46%;
+    /* Ancho completo del bloque */
+    margin-bottom: 8px;
+    /* Espacio entre elementos */
+}
+
+
+
+/* Estilos para el botón de búsqueda */
+.btn-buscar {
+    width: 80px;
+    /* Ancho del botón */
+    border-radius: 0 5px 5px 0;
+    /* Borde redondeado a la derecha */
+    background-color: #3c4b64;
+    
+    color: rgb(255, 254, 254);
+    /* Cambia el color del texto a blanco */
+}
+
+
+
+
+
+/* Estilos para el encabezado personalizado */
+.my-custom-header {
+    font-size: 26px;
+    /* Tamaño de fuente */
+    color: rgb(23, 23, 68);
+    /* Color del texto */
+    font-family: 'Times New Roman', Times, serif;
+    /* Estilo de fuente */
+    letter-spacing: 16px;
+    /* Espacio entre letras */
+    /* Otros estilos personalizados que desees */
+}
+
+/* Clase para cambiar el fondo del CCard */
+.custom-card {
+    background-color: #b9b8b8;
+    /* Cambia este color por el que desees */
+    /* Otros estilos si los necesitas */
+}
+
+.col-md-8 {
+    flex: 0 0 auto;
+    width: 85%;
+}
+
+.fc-direction-ltr {
+    direction: ltr;
+    text-align: left;
+    height: 420px;
+}
+
+
+
+/* styles.css */
+
+
+
+
+  

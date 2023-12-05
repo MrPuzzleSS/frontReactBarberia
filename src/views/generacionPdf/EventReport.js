@@ -47,14 +47,28 @@ MyDocument.propTypes = {
 const EventReport = ({ events }) => (
   <PDFDownloadLink document={<MyDocument events={events} />} fileName="reporte_eventos.pdf">
     {({ loading }) => (
-      <div style={{ backgroundColor: 'black', borderRadius: '4px', color: 'white', display: 'inline-block' }}>
-        <span style={{ padding: '8px 16px', minWidth: '180px' }}>
-          {loading ? 'Cargando...' : 'Descargar PDF'}
-        </span>
+      <div style={{ textAlign: 'right' }}> {/* Alineación a la derecha */}
+        <div 
+          style={{
+            backgroundColor: 'black',
+            borderRadius: '8px',
+            color: 'white',
+            display: 'inline-block',
+          }}
+          onMouseEnter={(e) => { e.target.style.backgroundColor = 'black'; }} // Cambia el color al pasar el mouse
+          onMouseLeave={(e) => { e.target.style.backgroundColor = '#3c4b64'; }} // Restaura el color al retirar el mouse
+        >
+          <span style={{ padding: '10px 30px', minWidth: '100px', height: '38px', display: 'flex', alignItems: 'center' }}>
+            {loading ? 'Cargando...' : 'Descargar PDF'}
+          </span>
+        </div>
       </div>
     )}
   </PDFDownloadLink>
 );
+
+
+
 
 EventReport.propTypes = {
   events: PropTypes.array.isRequired,

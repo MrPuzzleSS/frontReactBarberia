@@ -81,7 +81,6 @@ const ListaInsumos = React.lazy(() => import('./views/insumos/listaInsumos'))
 const CrearInsumo = React.lazy(() => import('./views/insumos/crearInsumo'))
 
 const CrearConfiguracion = React.lazy(() => import('./views/agendas/crearConfiguracion'))
-const Calendar = React.lazy(() => import('./views/agendas/Calendar'))
 
 const routes = [
   //TODAS LAS RUTAS DEL PROYECTO
@@ -99,7 +98,6 @@ const routes = [
   { path: '/clientes/listaClientes', name: 'Listado', element: ListaClientes },
   { path: '/clientes/crearClientes', name: 'Crear', element: CrearCliente },
   { path: '/agendas/crearConfiguracion', name: 'Crear', element: CrearConfiguracion },
-  { path: '/agendas/Calendar', name: 'Crear', element: Calendar },
   { path: '/servicios', name: 'Servicios', element: ListaServicios },
   { path: '/servicios/listaServicios', name: 'Listado de Servicios', element: ListaServicios },
   { path: '/servicios/crearServicio', name: 'Crear Servicio', element: CrearServicio },
@@ -120,7 +118,6 @@ const routes = [
   { path: '/clientes/listaClientes', name: 'Listado', element: ListaClientes },
   { path: '/clientes/crearClientes', name: 'Crear', element: CrearCliente },
   { path: '/agendas/crearConfiguracion', name: 'Crear', element: CrearConfiguracion },
-  { path: '/agendas/Calendar', name: 'Crear', element: Calendar },
   { path: '/servicios', name: 'Servicios', element: ListaServicios },
   { path: '/servicios/listaServicios', name: 'Listado de Servicios', element: ListaServicios },
   { path: '/servicios/crearServicio', name: 'Crear Servicio', element: CrearServicio },
