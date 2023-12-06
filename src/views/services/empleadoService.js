@@ -1,14 +1,4 @@
-import http from "src/http-common";
-
 const apiUrl = 'http://localhost:8095/api/empleado';
-
-const getAll = () => {
-    return http.get("/empleado");
-};
-
-export const ServicioBarbero = {
-    getAll
-}
 
 const EmpleadoService = {
     getAllEmpleados: () => {

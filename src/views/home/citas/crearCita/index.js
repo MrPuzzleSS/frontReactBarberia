@@ -24,7 +24,7 @@ import {
 } from "@coreui/react";
 
 import Servicios_S from "src/views/services/servicios_s";
-import { ServicioBarbero } from "src/views/services/empleadoService";
+import ServicioBarbero from "src/views/services/empleado_agenda";
 
 const AgendarCita = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,7 +35,10 @@ const AgendarCita = () => {
   const [tempSelectedServices, setTempSelectedServices] = useState([]);
   const [empleados, setEmpleados] = useState([]);
   const [selectedBarbero, setSelectedBarbero] = useState(null);
-  const [tempSelectedBarberos, setTempSelectedBarberos] = useState([]);
+  const [selectedBarberoId, setSelectedBarberoId] = useState(null);
+  const [agendaData, setAgendaData] = useState([]);
+
+
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -47,17 +50,23 @@ const AgendarCita = () => {
       }
     };
 
-    const fetchBarbero = async () => {
+    const fetchEmpleados = async () => {
       try {
         const response = await ServicioBarbero.getAll();
-        setEmpleados(response.data.empleados);
+        const nestedArray = response.data && response.data.empleados;
+
+        if (Array.isArray(nestedArray)) {
+          setEmpleados(nestedArray);
+        } else {
+          console.error('Error: La respuesta no contiene un array de proveedores', response.data);
+        }
       } catch (error) {
-        console.error("Error al obtener los servicios:", error);
+        console.error('Error al obtener la lista de proveedores', error);
       }
     };
 
     fetchServices();
-    fetchBarbero();
+    fetchEmpleados();
   }, []);
 
   const handlePageChange = (newPage) => {
@@ -91,23 +100,23 @@ const AgendarCita = () => {
     }
   };
 
-  const handleBarberoSelection = (barbero) => {
-    // Verifica si el barbero ya está en la lista temporal
-    const isAlreadySelected = tempSelectedBarberos.some(
-      (b) => b.id === barbero.id,
-    );
-
-    if (!isAlreadySelected) {
-      // Agrega el barbero a la lista temporal
-      setTempSelectedBarberos((prevSelectedBarberos) => [
-        ...prevSelectedBarberos,
-        barbero,
-      ]);
+  const handleBarberoSelection = async (id_empleado) => {
+    // Guarda el ID del barbero seleccionado
+    setSelectedBarberoId(id_empleado);
+    
+    try {
+      const response = await ServicioBarbero.getEmpleadoAgenda(id_empleado);
+      setAgendaData(response.data.agendas); // Actualiza el estado con los datos de la agenda
+      console.log('Agenda del empleado:', response.data);
+    } catch (error) {
+      console.error('Error al obtener la agenda del empleado:', error);
     }
-
+  
     // Cambia a la siguiente página
     handlePageChange(currentPage + 1);
   };
+  
+  
 
   return (
     <CContainer>
@@ -119,19 +128,19 @@ const AgendarCita = () => {
               active={currentPage === 1}
               onClick={() => handlePageChange(1)}
             >
-              Servicio
+              1. Servicio
             </CPaginationItem>
             <CPaginationItem
               active={currentPage === 2}
               onClick={() => handlePageChange(2)}
             >
-              Barbero
+              2. Barbero
             </CPaginationItem>
             <CPaginationItem
               active={currentPage === 3}
               onClick={() => handlePageChange(3)}
             >
-              Fecha y Hora
+              3. Fecha y Hora
             </CPaginationItem>
           </CPagination>
 
@@ -270,7 +279,7 @@ const AgendarCita = () => {
                 {empleados.map((empleado, index) => (
                   <CCol key={index} sm="4">
                     <CCard
-                      onClick={() => handleBarberoSelection(empleado)}
+                      onClick={() => handleBarberoSelection(empleado.id_empleado)}
                       style={{
                         cursor: "pointer",
                         border:
@@ -290,8 +299,34 @@ const AgendarCita = () => {
           )}
 
           {currentPage === 3 && (
-            // Agrega la lógica para seleccionar fecha y hora aquí
-            <p>Contenido para seleccionar fecha y hora...</p>
+            <>
+            <h3>Agenda del empleado</h3>
+            {agendaData.length > 0 ? (
+              <CTable>
+                <CTableHead>
+                  <CTableRow>
+                    {/* Define las columnas según la estructura de tus datos de agenda */}
+                    <CTableHeaderCell>Fecha</CTableHeaderCell>
+                    <CTableHeaderCell>Hora</CTableHeaderCell>
+                    {/* ... Otras columnas ... */}
+                  </CTableRow>
+                </CTableHead>
+                <CTableBody>
+                  {agendaData.map((item, index) => (
+                    <CTableRow key={index}>
+                      <CTableDataCell>{item.fechaInicio}</CTableDataCell>
+                      <CTableDataCell>{item.fechaFin}</CTableDataCell>
+                      {/* ... Otras celdas ... */}
+                    </CTableRow>
+                  ))}
+                </CTableBody>
+              </CTable>
+            ) : (
+              <div className="mt-3">
+                <CAlert color="info">No hay datos de agenda disponibles.</CAlert>
+              </div>
+            )}
+          </>
           )}
         </CCardBody>
       </CCard>
