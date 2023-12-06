@@ -1,4 +1,4 @@
-const apiUrl = 'https://resapibarberia.onrender.com/api/agenda';
+const apiUrl = 'http://localhost:8095/api/agenda';
 
 const AgendaService = {
   getAllAgendas: () => {
