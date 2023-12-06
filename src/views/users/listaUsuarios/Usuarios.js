@@ -13,14 +13,13 @@ import {
   CModal,
   CModalHeader,
   CModalTitle,
+  CFormSwitch,
   CModalBody,
   CModalFooter,
   CFormLabel,
   CFormInput,
 } from '@coreui/react';
 import { Link } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 
 const ListaUsuarios = () => {
@@ -28,23 +27,33 @@ const ListaUsuarios = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
+  const [searchId, setSearchId] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const rolesResponse = await axios.get('https://resapibarberia.onrender.com/api/rol');
-        const usuariosResponse = await axios.get('https://resapibarberia.onrender.com/api/usuario');
+        let usuariosResponse;
+
+        // Check if there's a search ID
+        if (searchId) {
+          // Fetch the user by ID
+          usuariosResponse = await axios.get(`https://resapibarberia.onrender.com/api/usuario/${searchId}`);
+          setUsers(usuariosResponse.data ? [usuariosResponse.data] : []);
+        } else {
+          // Fetch all users
+          usuariosResponse = await axios.get('https://resapibarberia.onrender.com/api/usuario');
+          setUsers(usuariosResponse.data.usuarios || []);
+        }
 
         setRoles(rolesResponse.data.listaRoles);
-        setUsers(usuariosResponse.data.usuarios || []);
       } catch (error) {
         console.error('Error al obtener datos:', error);
-        toast.error('Error al cargar datos');
       }
     };
 
     fetchData();
-  }, []);
+  }, [searchId]); // Agregar searchId como dependencia
 
   const getRolNombre = (id_rol) => {
     const rol = roles.find((r) => r.id_rol === id_rol);
@@ -55,10 +64,9 @@ const ListaUsuarios = () => {
     try {
       await axios.delete(`https://resapibarberia.onrender.com/api/usuario/${item.id_usuario}`);
       setUsers((prevUsers) => prevUsers.filter((user) => user.id_usuario !== item.id_usuario));
-      toast.success('Usuario eliminado con éxito');
     } catch (error) {
       console.error('Error al eliminar usuario:', error);
-      toast.error('Error al eliminar usuario');
+      // Puedes manejar el error según tus necesidades
     } finally {
       setSelectedItem(null);
     }
@@ -83,11 +91,9 @@ const ListaUsuarios = () => {
       setUsers((prevUsers) =>
         prevUsers.map((user) => (user.id_usuario === selectedItem.id_usuario ? editedUser : user))
       );
-
-      toast.success('Usuario editado con éxito');
     } catch (error) {
       console.error('Error al editar usuario:', error);
-      toast.error('Error al editar usuario');
+      // Puedes manejar el error según tus necesidades
     } finally {
       setVisible(false);
     }
@@ -99,6 +105,19 @@ const ListaUsuarios = () => {
       <CCard className="mb-4">
         <CCardHeader>LISTA DE USUARIOS</CCardHeader>
         <CCardBody>
+          {/* Barra de búsqueda por ID */}
+          <div className="mb-3">
+            <CFormLabel>BUSCAR USUARIO POR ID</CFormLabel>
+            <div className="d-flex">
+              <CFormInput
+                type="text"
+                value={searchId}
+                onChange={(e) => setSearchId(e.target.value)}
+              />
+
+            </div>
+          </div>
+
           <Link to="/CrearUsuarios">
             <CButton color="success" className="me-1">
               CREAR
@@ -137,9 +156,13 @@ const ListaUsuarios = () => {
                     <CButton color="primary" className="me-1" onClick={() => handleEdit(item)}>
                       Editar
                     </CButton>
-                    <CButton color="danger" onClick={() => handleDelete(item)}>
-                      Eliminar
-                    </CButton>
+                    <CFormSwitch
+                      size="xl"
+                      label=""
+                      id="formSwitchCheckChecked"
+                      defaultChecked
+                    />
+
                   </CTableDataCell>
                 </CTableRow>
               ))}
@@ -171,16 +194,6 @@ const ListaUsuarios = () => {
                 id="correoElectronico"
               />
             </div>
-            <div className="mb-3">
-              <CFormLabel>Estado</CFormLabel>
-              <CFormInput
-                type="email"
-                defaultValue={selectedItem?.estado}
-                id="correoElectronico"
-              />
-            </div>
-            
-    
           </form>
         </CModalBody>
         <CModalFooter>
@@ -192,8 +205,6 @@ const ListaUsuarios = () => {
           </CButton>
         </CModalFooter>
       </CModal>
-
-      <ToastContainer />
     </>
   );
 };

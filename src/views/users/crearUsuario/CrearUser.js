@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { CButton, CCard, CCardBody, CCol, CContainer, CForm, CFormInput, CInputGroup, CInputGroupText, CRow } from '@coreui/react';
+import { Link } from 'react-router-dom';
+
+import 'sweetalert2/dist/sweetalert2.css';
+import { CButton, CCard, CCardBody, CContainer, CForm, CFormInput, CInputGroup, CInputGroupText, CRow, CFormLabel, CFormSelect } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilUser } from '@coreui/icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Link } from 'react-router-dom';
 
 const Register = () => {
   const [newUser, setNewUser] = useState({
@@ -17,6 +18,9 @@ const Register = () => {
   });
 
   const [roles, setRoles] = useState([]);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     axios.get('https://resapibarberia.onrender.com/api/rol')
@@ -28,97 +32,166 @@ const Register = () => {
   }, []);
 
   const handleAddUser = async () => {
+    // Realizar validación de formulario aquí
+    const validationErrors = {};
+  
+    // Validar ID del Usuario
+    if (!newUser.id_rol) {
+      validationErrors.id_rol = 'Por favor, selecciona un rol para el usuario.';
+    }
+  
+    // Validar Nombre de Usuario
+    if (!newUser.nombre_usuario) {
+      validationErrors.nombre_usuario = 'Por favor, ingresa el nombre de usuario.';
+    } else if (newUser.nombre_usuario.length < 3) {
+      validationErrors.nombre_usuario = 'El nombre de usuario debe tener al menos 3 caracteres.';
+    } else {
+      // Validar que el nombre no contenga números ni caracteres especiales
+      const nameRegex = /^[A-Za-z]+$/;
+      if (!nameRegex.test(newUser.nombre_usuario)) {
+        validationErrors.nombre_usuario = 'El nombre no debe contener números ni caracteres especiales.';
+      }
+    }
+  
+    // Validar Contraseña
+    if (!newUser.contrasena) {
+      validationErrors.contrasena = 'Por favor, ingresa la contraseña.';
+    } else {
+      // Validar que la contraseña tenga al menos 8 caracteres
+      if (newUser.contrasena.length < 8) {
+        validationErrors.contrasena = 'La contraseña debe tener al menos 8 caracteres.';
+      }
+    }
+  
+    // Validar Correo Electrónico
+    if (!newUser.correo) {
+      validationErrors.correo = 'Por favor, ingresa el correo electrónico.';
+    } else {
+      // Validar formato de correo electrónico
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(newUser.correo)) {
+        validationErrors.correo = 'Por favor, ingresa un formato válido de correo electrónico.';
+      }
+    }
+  
+    // Validar Estado
+    if (!newUser.estado) {
+      validationErrors.estado = 'Por favor, selecciona el estado del usuario.';
+    }
+  
+    // Actualizar el estado con los errores
+    setErrors(validationErrors);
+  
+    // Verificar si hay errores de validación
+    if (Object.keys(validationErrors).length > 0) {
+      // Si hay errores de validación, no continuar con la llamada a la API
+      return;
+    }
+  
+    // Si no hay errores de validación, continuar con el proceso de guardar el usuario
     try {
       const response = await axios.post('https://resapibarberia.onrender.com/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
-
-      toast.success('Usuario agregado con éxito');
+  
+      // Mostrar SweetAlert de éxito (puedes personalizar según tus necesidades)
+      alert('Usuario agregado con éxito');
     } catch (error) {
       console.error('Error al agregar usuario:', error);
-      toast.error('Error al agregar usuario');
+  
+      // Mostrar SweetAlert de error (puedes personalizar según tus necesidades)
+      alert('Ha ocurrido un error al intentar agregar el usuario.');
     }
+  };
+
+
+
+
+
+
+  const handleInputChange = (fieldName, value) => {
+    setNewUser({ ...newUser, [fieldName]: value });
+
+    // Limpiar errores cuando se cambia un valor
+    setErrors({});
   };
 
   return (
     <div className="bg-light min-vh-80 d-flex align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
-          <CCol md={12} lg={20} xl={20}>
-            <CCard className="mx-12">
-              <CCardBody className="p-8">
-                <CForm>
-                  <h1 className="mb-8">CREAR USUARIO</h1>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilUser} />
-                    </CInputGroupText>
-                    <select
-                      value={newUser.id_rol}
-                      onChange={(e) => setNewUser({ ...newUser, id_rol: e.target.value })}
-                    >
-                      <option value="" disabled>Selecciona un rol</option>
-                      {roles.map(role => (
-                        <option key={role.id_rol} value={role.id_rol}>{role.nombre}</option>
-                      ))}
-                    </select>
-                  </CInputGroup>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilUser} />
-                    </CInputGroupText>
-                    <CFormInput
-                      placeholder="Nombre de usuario"
-                      autoComplete="username"
-                      value={newUser.nombre_usuario}
-                      onChange={(e) => setNewUser({ ...newUser, nombre_usuario: e.target.value })}
-                    />
-                  </CInputGroup>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilUser} />
-                    </CInputGroupText>
-                    <CFormInput
-                      type="password"
-                      placeholder="Contraseña"
-                      autoComplete="new-password"
-                      value={newUser.contrasena}
-                      onChange={(e) => setNewUser({ ...newUser, contrasena: e.target.value })}
-                    />
-                  </CInputGroup>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilUser} />
-                    </CInputGroupText>
-                    <CFormInput
-                      type="email"
-                      placeholder="Correo electrónico"
-                      autoComplete="email"
-                      value={newUser.correo}
-                      onChange={(e) => setNewUser({ ...newUser, correo: e.target.value })}
-                    />
-                  </CInputGroup>
-                  <CInputGroup className="mb-4">
-                    <CInputGroupText>
-                      <CIcon icon={cilUser} />
-                    </CInputGroupText>
-                    <CFormInput
-                      placeholder="Estado"
-                      autoComplete="estado"
-                      value={newUser.estado}
-                      onChange={(e) => setNewUser({ ...newUser, estado: e.target.value })}
-                    />
-                  </CInputGroup>
-                  <div className="d-grid">
-                  <Link to="http://localhost:3000/ListaRol">
-                    <CButton color="success" onClick={handleAddUser}>
-                      REGISTRAR USUARIO
+          <CCard className="mx-12">
+            <CCardBody className="p-8">
+              <CForm onSubmit={(e) => e.preventDefault()}>
+                <h2 className="mb-8">CREAR USUARIO</h2>
+                <div className="mb-3">
+                  <CFormLabel>Rol del Usuario</CFormLabel>
+                  <CFormSelect
+                    value={newUser.id_rol}
+                    onChange={(e) => handleInputChange('id_rol', e.target.value)}
+                  >
+                    <option value="" disabled>Selecciona un rol</option>
+                    {roles.map(role => (
+                      <option key={role.id_rol} value={role.id_rol}>{role.nombre}</option>
+                    ))}
+                  </CFormSelect>
+                  {errors.id_rol && <div className="text-danger">{errors.id_rol}</div>}
+                </div>
+                <div className="mb-3">
+                  <CFormLabel>Nombre de Usuario</CFormLabel>
+                  <CFormInput
+                    placeholder="Nombre de usuario"
+                    autoComplete="username"
+                    value={newUser.nombre_usuario}
+                    onChange={(e) => handleInputChange('nombre_usuario', e.target.value)}
+                  />
+                  {errors.nombre_usuario && <div className="text-danger">{errors.nombre_usuario}</div>}
+                </div>
+                <div className="mb-3">
+                  <CFormLabel>Contraseña</CFormLabel>
+                  <CFormInput
+                    type="password"
+                    placeholder="Contraseña"
+                    autoComplete="new-password"
+                    value={newUser.contrasena}
+                    onChange={(e) => handleInputChange('contrasena', e.target.value)}
+                  />
+                  {errors.contrasena && <div className="text-danger">{errors.contrasena}</div>}
+                </div>
+                <div className="mb-3">
+                  <CFormLabel>Correo Electrónico</CFormLabel>
+                  <CFormInput
+                    type="email"
+                    placeholder="Correo electrónico"
+                    autoComplete="email"
+                    value={newUser.correo}
+                    onChange={(e) => handleInputChange('correo', e.target.value)}
+                  />
+                  {errors.correo && <div className="text-danger">{errors.correo}</div>}
+                </div>
+                <div className="mb-3">
+                  <CFormLabel>Estado</CFormLabel>
+                  <CFormSelect
+                    value={newUser.estado}
+                    onChange={(e) => handleInputChange('estado', e.target.value)}
+                  >
+                    <option value="" disabled>Selecciona el estado</option>
+                    <option value="activo">Activo</option>
+                  </CFormSelect>
+                  {errors.estado && <div className="text-danger">{errors.estado}</div>}
+                </div>
+                <div>
+                  <CButton submit onClick={handleAddUser}>
+                    REGISTRAR USUARIO
+                  </CButton>
+                  <Link to="/listaUsuarios">
+                    <CButton type="button" color="secondary">
+                      Cancelar
                     </CButton>
                   </Link>
-                  </div>
-                </CForm>
-              </CCardBody>
-            </CCard>
-          </CCol>
+                </div>
+              </CForm>
+            </CCardBody>
+          </CCard>
         </CRow>
       </CContainer>
       <ToastContainer />

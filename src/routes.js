@@ -58,9 +58,12 @@ const ListaProveedores = React.lazy(() => import('./views/proveedores/listaProve
 const CrearProveedor = React.lazy(() => import('./views/proveedores/crearProveedor'))
 const ListaCompras = React.lazy(() => import('./views/compras/listaCompras'))
 const CrearCompra = React.lazy(() => import('./views/compras/crearCompra'))
+
 const ListaEmpleados = React.lazy(() => import('./views/empleados/listaEmpleados'))
 const CrearEmpleados = React.lazy(() => import('./views/empleados/crearEmpleado'))
+
 const ListarVentas = React.lazy(() => import('./views/ventas/listaVentas'))
+const FormularioVentas = React.lazy(() => import('./views/ventas/CrearVentas'))
 
 const Usuarios = React.lazy(() => import('./views/users/listaUsuarios/Usuarios'))
 const CrearUsuarios = React.lazy(() => import('./views/users/crearUsuario/CrearUser'))
@@ -95,9 +98,15 @@ const routes = [
   { path: '/compras', name: 'Compras', element: ListaCompras },
   { path: '/compras/lista-compras', name: 'Lista Compras', element: ListaCompras },
   { path: '/compras/crear-compra', name: 'Crear Compra', element: CrearCompra },
+  
   { path: '/empleados', name: 'Empleados', element: ListaEmpleados},
   { path: '/empleados/listaEmpleados', name: 'Listado', element: ListaEmpleados},
   { path: '/empleados/crearEmpleados', name: 'Crear', element: CrearEmpleados},
+
+  { path: '/ventas', name: 'Ventas', element: ListarVentas },
+  { path: '/ventas/listaVentas', name: 'Listado', element: ListarVentas},
+  { path: '/ventas/CrearVentas', name: 'Crear', element: FormularioVentas},
+
   { path: '/clientes/listaClientes', name: 'Listado', element: ListaClientes },
   { path: '/clientes/crearClientes', name: 'Crear', element: CrearCliente },
   { path: '/agendas/crearConfiguracion', name: 'Crear', element: CrearConfiguracion },
