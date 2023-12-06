@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, fetchAgendas } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-
+import Swal from 'sweetalert2';
 import swal from 'sweetalert';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
@@ -10,6 +10,7 @@ import agendaService from '../../services/agendaService';
 import EventReport from '../../generacionPdf/EventReport';
 import interactionPlugin from '@fullcalendar/interaction';
 import { CCard, CCardHeader, CCardBody } from '@coreui/react';
+import esLocale from '@fullcalendar/core/locales/es';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import 'src/scss/css/calendarStyles.css';
 
@@ -42,6 +43,7 @@ const asignarColorXEmpleado = () => {
 };
 
 asignarColorXEmpleado();
+
 
 const MultiSelect = ({ options, selectedValues, onChange }) => {
     const handleChange = (selectedOption) => {
@@ -86,10 +88,7 @@ const CrearConfiguracion = () => {
     const fetchAgendas = async () => {
         try {
             const data = await agendaService.getAllAgendas();
-
-            console.log('Contenido de data:', data); // Agrega este registro
             const agendas = data.agendas || [];
-            console.log('empleados', empleados);
 
             if (Array.isArray(agendas)) {
                 const formattedEvents = agendas.map((agenda) => ({
@@ -105,7 +104,6 @@ const CrearConfiguracion = () => {
                 }));
 
                 setEvents(formattedEvents);
-
             } else {
                 console.error('Las agendas no se obtuvieron como un array:', data);
                 console.log('Estructura de las agendas:', data);
@@ -115,20 +113,18 @@ const CrearConfiguracion = () => {
         }
     };
 
+   
+
+
+
     const handleEventDrop = async (eventDropInfo) => {
         try {
             const { id, start, end } = eventDropInfo.event;
-
-            console.log('Datos antes de la actualización en la base de datos:', { id, start, end });
-            console.log('Contenido de eventDropInfo.event:', eventDropInfo.event.extendedProps.id_agenda);
-
-            //Actualizar la base de datos con los nuevos detalles del evento
+            // Actualizar la base de datos con los nuevos detalles del evento
             await agendaService.updateAgenda(eventDropInfo.event.extendedProps.id_agenda, {
                 fechaInicio: start,
                 fechaFin: end
             });
-
-            console.log('Evento actualizado en la base de datos.');
 
             // Actualizar el estado local solo si la actualización en la base de datos es exitosa
             const updatedEvents = events.map((event) => {
@@ -142,10 +138,23 @@ const CrearConfiguracion = () => {
                 return event;
             });
 
-
             setEvents(updatedEvents);
+
+            // Mostrar mensaje de éxito con SweetAlert
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: 'El evento ha sido actualizado correctamente.',
+            });
+
         } catch (error) {
             console.error('Error al actualizar el evento en la base de datos:', error);
+            // Mostrar mensaje de error con SweetAlert
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema al actualizar el evento. Por favor, inténtalo de nuevo.',
+            });
         }
     };
 
@@ -153,6 +162,9 @@ const CrearConfiguracion = () => {
         fetchAgendas();
         fetchEmpleados();
     }, []);
+
+
+    
 
     const fetchEmpleados = async () => {
         try {
@@ -185,7 +197,6 @@ const CrearConfiguracion = () => {
         });
 
         formData.empleadosSeleccionados = selectedValues
-
         setFormData((prevFormData) => ({
             ...prevFormData,
             empleadosSeleccionados: selectedValues,
@@ -203,15 +214,12 @@ const CrearConfiguracion = () => {
                 icon: 'error',
                 button: 'Aceptar',
             });
-
         }
 
         try {
             const fechaInicio = new Date(`${formData.fechaInicio}T${formData.horaInicio}`);
             const fechaFin = new Date(`${formData.fechaFin}T${formData.horaFin}`);
-
             const dias = Math.floor((fechaFin - fechaInicio) / (1000 * 60 * 60 * 24));
-
             if (dias >= 0) {
                 let currentDate = new Date(fechaInicio);
 
@@ -225,12 +233,6 @@ const CrearConfiguracion = () => {
                     if (!existingAgenda) {
                         const newEndDate = new Date(currentDate);
                         newEndDate.setHours(fechaFin.getHours(), fechaFin.getMinutes());
-
-
-
-                        console.log('empleados', empleados);
-                        console.log('form', formData);
-                        console.log('formData.empleadosSeleccionados', formData.empleadosSeleccionados); //empleadosSeleccionados
 
                         const empleadoSeleccionado = empleados.filter((empleado) =>
                             formData.empleadosSeleccionados.includes(empleado.value)
@@ -262,7 +264,6 @@ const CrearConfiguracion = () => {
                     }
 
                     currentDate.setDate(currentDate.getDate() + 1);
-
                 }
 
                 swal({
@@ -297,9 +298,6 @@ const CrearConfiguracion = () => {
             calendarRef.current.getApi().refetchEvents();
         }
     };
-   
-
-  
 
     const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -352,8 +350,16 @@ const CrearConfiguracion = () => {
                     setEventoSeleccionado(null);
 
                     // Actualiza el calendario después de la edición
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: 'El evento ha sido actualizado correctamente.',
+
+                    });
                     updateCalendar();
                 })
+
                 .catch((error) => {
                     console.error('Error al actualizar la agenda:', error);
                     // Manejo de errores
@@ -372,8 +378,8 @@ const CrearConfiguracion = () => {
             ...formData,
             fechaInicio: clickedDate.toISOString().split('T')[0],
             fechaFin: clickedDate.toISOString().split('T')[0],
-            horaInicio: '00:00',
-            horaFin: '01:00',
+            horaInicio: '09:00',
+            horaFin: '21:00',
             empleadosSeleccionados: [],
         });
     };
@@ -391,13 +397,9 @@ const CrearConfiguracion = () => {
         });
     };
 
-
-
-
     const handleCrearAgenda = async () => {
         try {
             const { horaInicio, horaFin, empleadosSeleccionados } = formData;
-
             const fechaInicio = new Date(`${formData.fechaInicio}T${formData.horaInicio}`);
             const fechaFin = new Date(`${formData.fechaFin}T${formData.horaFin}`);
 
@@ -421,11 +423,10 @@ const CrearConfiguracion = () => {
                             fechaFin: newEndDate,
                             horaInicio,
                             horaFin,
+                            title: `Agenda de ${empleado.nombre} ${empleado.apellido}`, // Incluir el nombre del empleado en el título del evento
                             id_empleado: empleado,
                         };
-
                         const createdEvent = await agendaService.createAgenda(newEvent);
-
                         if (!!createdEvent?.error) {
                             throw new Error(createdEvent?.error);
                         } else {
@@ -433,14 +434,11 @@ const CrearConfiguracion = () => {
                         }
                     });
                 }
-
                 currentDate.setDate(currentDate.getDate() + 1);
             }
 
             setEvents((prevEvents) => [...prevEvents, ...newEvents]);
-
             await fetchAgendas();
-
             setShowCreateModal(false);
 
             setFormData({
@@ -462,19 +460,35 @@ const CrearConfiguracion = () => {
             updateCalendar();
         } catch (error) {
             console.error('Error al crear la agenda:', error);
-
-
-
             swal({
                 title: 'Error',
                 text: 'Hubo un error al crear la agenda',
                 icon: 'error',
                 button: 'Aceptar',
-
             });
-
         }
     };
+   
+ 
+    const [searchText, setSearchText] = useState(''); // Estado para almacenar el texto de búsqueda
+    const filteredEvents = events.filter((event) => {
+        const nombreEmpleado = event.title.toLowerCase(); // Obtener el nombre del empleado del título del evento
+        console.log('Nombre del empleado:', nombreEmpleado); // Console.log para ver el nombre del empleado
+    
+        return (
+            nombreEmpleado.includes(searchText.toLowerCase()) // Filtrar por nombre del empleado
+        );
+    });
+    
+
+    
+   
+
+  
+
+
+
+
 
     return (
         <div className="container mt-6">
@@ -495,18 +509,18 @@ const CrearConfiguracion = () => {
                                         <div className="input-group custom-input-group">
                                             <input
                                                 type="text"
-                                                className="form-control custom-input"
-                                                value={formData.busquedaEmpleado}
-                                                onChange={(e) => setFormData({ ...formData, busquedaEmpleado: e.target.value })}
-                                                placeholder="Ingrese el nombre"
+                                                className="form-control"
+                                                placeholder="Buscar evento..."
+                                                value={searchText}
+                                                onChange={(e) => setSearchText(e.target.value)}
                                             />
+
                                             <div className="input-group-append">
                                                 <button type="button" className="btn btn-buscar">
                                                     <i className="bi bi-search"></i> Buscar
                                                 </button>
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
                                 <div className="col-md-6">
@@ -514,7 +528,6 @@ const CrearConfiguracion = () => {
                                 </div>
                             </div>
                             <FullCalendar
-                                ref={calendarRef}
                                 plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
                                 dateClick={handleDateClick}
                                 eventDrop={handleEventDrop}
@@ -524,68 +537,50 @@ const CrearConfiguracion = () => {
                                     center: 'title',
                                     right: 'dayGridMonth,timeGridWeek,timeGridDay',
                                 }}
-                                events={events}
+                                locale={esLocale}
+                                events={filteredEvents.length > 0 ? filteredEvents : events}
                                 eventClick={(clickInfo) => {
                                     const empleadoSeleccionado = empleados.find(
                                         (empleado) => empleado.value === clickInfo.event.extendedProps.empleado
                                     );
-
-                                    console.log('Estoy editando');
-                                    console.log({ empleados, empleadoSeleccionado, clickInfo });
-
-                                    swal({
+                                    Swal.fire({
                                         title: clickInfo.event.title,
-                                        content: {
-                                            element: 'div',
-                                            attributes: {
-                                                innerHTML: `
-            <div style="font-weight: bold;">
-              Detalles del evento<br/>
-              Fecha de inicio: ${clickInfo.event.start.toLocaleDateString()}<br/>
-              Fecha de fin: ${clickInfo.event.end ? clickInfo.event.end.toLocaleDateString() : 'No end date'}<br/>
-              Hora de inicio: ${clickInfo.event.extendedProps.horaInicio}<br/>
-              Hora de fin: ${clickInfo.event.extendedProps.horaFin}<br/>
-              Empleado: ${empleadoSeleccionado.label}
-            </div>
-          `,
-                                            },
-                                        },
-                                        buttons: {
-                                            edit: {
-                                                text: 'Editar',
-                                                value: 'edit',
-                                            },
-                                            disable: {
-                                                text: !clickInfo.event.extendedProps.estado ? 'Habilitar Agenda' : 'Cancelar Agenda',
-                                                value: !clickInfo.event.extendedProps.estado ? 'enable' : 'disable',
-                                            },
-                                            cancel: 'Cancelar',
-                                        },
-                                    }).then((value) => {
-                                        if (value === 'edit') {
+                                        html: `
+                <div style="font-weight: bold;">
+                    Detalles del evento<br/>
+                    Fecha de inicio: ${clickInfo.event.start.toLocaleDateString()}<br/>
+                    Fecha de fin: ${clickInfo.event.end ? clickInfo.event.end.toLocaleDateString() : 'No end date'}<br/>
+                    Hora de inicio: ${clickInfo.event.extendedProps.horaInicio}<br/>
+                    Hora de fin: ${clickInfo.event.extendedProps.horaFin}<br/>
+                    Empleado: ${empleadoSeleccionado.label}
+                </div>
+            `,
+                                        showCancelButton: true,
+                                        showConfirmButton: true,
+                                        showDenyButton: true,
+                                        confirmButtonText: 'Editar',
+                                        denyButtonText: !clickInfo.event.extendedProps.estado ? 'Habilitar Agenda' : 'Cancelar Agenda',
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
                                             handleEditEvent(clickInfo);
                                             setShowEditModal(true);
-                                        } else if (value === 'disable' || value === 'enable') {
-                                            const disableEvent = value === 'disable';
-                                            swal({
-                                                title: `Motivo de ${disableEvent ? 'inhabilitación' : 'habilitación'}`,
-                                                content: 'input',
-                                                buttons: {
-                                                    cancel: 'Cancelar',
-                                                    confirm: {
-                                                        text: disableEvent ? 'Inhabilitar' : 'Habilitar',
-                                                        value: 'confirm',
-                                                    },
-                                                },
-                                            }).then((motivo) => {
-                                                if (motivo && motivo.trim() !== '') {
-                                                    agendaService
-                                                        .disableEvent(clickInfo?.event?._def?.extendedProps?.id_agenda, motivo, clickInfo.event.extendedProps.estado)
-                                                        .then((response) => {
-                                                            const successMessage = disableEvent ? 'Evento inhabilitado' : 'Evento habilitado';
-                                                            swal.fire('¡Éxito!', `${successMessage} con motivo: ${motivo}`, 'success')
-                                                                .then(() => {
-                                                                    console.log(`Evento ${disableEvent ? 'inhabilitado' : 'habilitado'} con motivo: ${motivo}`);
+                                        } else if (result.isDenied) {
+                                            const disableEvent = !clickInfo.event.extendedProps.estado;
+                                            Swal.fire({
+                                                title: `Motivo de ${disableEvent ? 'habilitación' : 'inhabilitación'}`,
+                                                input: 'text',
+                                                showCancelButton: true,
+                                                confirmButtonText: disableEvent ? 'Habilitar' : 'Inhabilitar',
+                                            }).then((motivoResult) => {
+                                                if (motivoResult.isConfirmed) {
+                                                    const motivo = motivoResult.value;
+                                                    if (motivo && motivo.trim() !== '') {
+                                                        agendaService
+                                                            .disableEvent(clickInfo?.event?._def?.extendedProps?.id_agenda, motivo, clickInfo.event.extendedProps.estado)
+                                                            .then(() => {
+                                                                const successMessage = disableEvent ? 'Evento habilitado' : 'Evento inhabilitado';
+                                                                Swal.fire('¡Éxito!', `${successMessage} con motivo: ${motivo}`, 'success').then(() => {
+                                                                    console.log(`Evento ${disableEvent ? 'habilitado' : 'inhabilitado'} con motivo: ${motivo}`);
                                                                     fetchAgendas();
                                                                     const updatedEvents = events.map((event) => {
                                                                         if (event.id === clickInfo.event.id) {
@@ -593,25 +588,24 @@ const CrearConfiguracion = () => {
                                                                                 ...event,
                                                                                 extendedProps: {
                                                                                     ...event.extendedProps,
-                                                                                    disabled: disableEvent,
+                                                                                    estado: disableEvent ? true : false,
                                                                                 },
                                                                             };
                                                                         }
                                                                         return event;
                                                                     });
                                                                     setEvents(updatedEvents);
-                                                                })
-                                                                .catch((error) => {
-                                                                    console.error('Error al realizar la acción:', error);
                                                                 });
-                                                        });
+                                                            })
+                                                            .catch((error) => {
+                                                                console.error('Error al realizar la acción:', error);
+                                                            });
+                                                    }
                                                 }
                                             });
                                         }
                                     });
                                 }}
-                                className="custom-calendar"
-                                style={{ width: '100%', minWidth: '320px' }}
                             />
                         </CCardBody>
                     </CCard>
@@ -679,9 +673,9 @@ const CrearConfiguracion = () => {
                             <Button variant="primary" onClick={handleGuardarCambios}>
                                 Guardar Cambios
                             </Button>
+
                         </Modal.Footer>
                     </Modal>
-
                     <Modal show={showCreateModal} onHide={handleCloseCreateModal}>
                         <Modal.Header closeButton>
                             <Modal.Title>Crear Agenda</Modal.Title>
@@ -743,10 +737,8 @@ const CrearConfiguracion = () => {
                     </Modal>
                 </div>
             </div>
-
         </div>
     );
-
 };
 
 export default CrearConfiguracion;
