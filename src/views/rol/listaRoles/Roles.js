@@ -18,6 +18,7 @@ import {
   CModalFooter,
   CFormLabel,
   CFormInput,
+  CFormSwitch,
 } from '@coreui/react';
 import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
@@ -29,12 +30,12 @@ const Dashboard = () => {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editedRole, setEditedRole] = useState({ nombre: '', estado: '' });
+  const [searchId, setSearchId] = useState('');
 
   useEffect(() => {
     const fetchRoles = async () => {
       try {
         const response = await axios.get('https://resapibarberia.onrender.com/api/rol');
-        console.log('Respuesta de la API:', response.data);
 
         if (response.data && Array.isArray(response.data.listaRoles)) {
           setRoles(response.data.listaRoles);
@@ -52,10 +53,24 @@ const Dashboard = () => {
     fetchRoles();
   }, []);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`https://resapibarberia.onrender.com/api/rol/${searchId}`);
+        setRoles(response.data ? [response.data] : []);
+      } catch (error) {
+        console.error('Error al obtener el rol por ID:', error);
+      }
+    };
+
+    if (searchId !== '') {
+      fetchData();
+    }
+  }, [searchId]);
+
   const handleAddRole = async (newRoleData) => {
     try {
       const response = await axios.post('https://resapibarberia.onrender.com/api/rol', newRoleData);
-      console.log('Respuesta al agregar rol:', response.data);
 
       setRoles([...roles, response.data]);
 
@@ -69,7 +84,6 @@ const Dashboard = () => {
   const handleEditRole = async (id, editedRoleData) => {
     try {
       const response = await axios.put(`https://resapibarberia.onrender.com/api/rol/${id}`, editedRoleData);
-      console.log('Respuesta al editar rol:', response.data);
 
       setRoles(roles.map(role => (role.id_rol === id ? response.data : role)));
 
@@ -79,13 +93,26 @@ const Dashboard = () => {
       toast.error('Error al editar rol');
     }
   };
-  const handleEdit = (item) => {
+
+  /*const handleEdit = (item) => {
     setSelectedItem(item);
     setEditedRole({
       nombre: item.nombre,
       estado: item.estado,
     });
     setVisible(true);
+  };
+  */
+  const handleSwitchChange = (item) => {
+    const updatedRoles = roles.map((role) =>
+      role.id_rol === item.id_rol ? { ...role, estado: role.estado === 'Activo' ? 'Inactivo' : 'Activo' } : role
+    );
+
+    setRoles(updatedRoles);
+    setEditedRole({
+      nombre: item.nombre,
+      estado: item.estado === 'Activo' ? 'Inactivo' : 'Activo',
+    });
   };
 
   const handleDelete = async (idToDelete) => {
@@ -95,12 +122,11 @@ const Dashboard = () => {
         toast.error('Error al eliminar rol');
         return;
       }
-  
+
       const response = await axios.delete(`https://resapibarberia.onrender.com/api/rol/${idToDelete}`);
-      console.log('Respuesta al eliminar rol:', response.data);
-  
+
       setRoles((prevRoles) => prevRoles.filter((role) => role.id_rol !== idToDelete));
-  
+
       toast.success('Rol eliminado con éxito');
     } catch (error) {
       console.error('Error al eliminar rol:', error);
@@ -109,8 +135,6 @@ const Dashboard = () => {
       setSelectedItem(null);
     }
   };
-
-  
 
   const handleSaveChanges = async () => {
     try {
@@ -136,19 +160,23 @@ const Dashboard = () => {
     }
   };
 
-
-
-
-
-
-
-
-
   return (
     <>
       <CCard className="mb-4">
         <CCardHeader>LISTA DE ROLES</CCardHeader>
         <CCardBody>
+          {/* Barra de búsqueda por ID */}
+          <div className="mb-3">
+            <CFormLabel>BUSCAR ROL POR ID</CFormLabel>
+            <div className="d-flex">
+              <CFormInput
+                type="text"
+                value={searchId}
+                onChange={(e) => setSearchId(e.target.value)}
+              />
+            </div>
+          </div>
+
           <Link to="/CrearRol">
             <CButton color="success" className="me-1">
               CREAR
@@ -167,8 +195,6 @@ const Dashboard = () => {
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-
-
                 {roles.map((item) => (
                   <CTableRow key={item.id_rol}>
                     <CTableDataCell>
@@ -181,18 +207,16 @@ const Dashboard = () => {
                       <strong>{item.estado}</strong>
                     </CTableDataCell>
                     <CTableDataCell>
-                      <CButton color="primary" className="me-1" onClick={() => handleEdit(item)}>
-                        Editar
-                      </CButton>
-                      <CButton color="danger" onClick={() => handleDelete(item.id_rol)}>
-                        Eliminar
-                      </CButton>
+                      <CFormSwitch
+                        size="xl"
+                        label=""
+                        id="formSwitchCheckChecked"
+                        defaultChecked={editedRole.estado === 'Activo'}
+                        onChange={() => setEditedRole({ ...editedRole, estado: editedRole.estado === 'Activo' ? 'Inactivo' : 'Activo' })}
+                      />
                     </CTableDataCell>
                   </CTableRow>
                 ))}
-
-
-
               </CTableBody>
             </CTable>
           )}
@@ -216,11 +240,7 @@ const Dashboard = () => {
             </div>
             <div className="mb-3">
               <CFormLabel>ESTADO</CFormLabel>
-              <CFormInput
-                type="text"
-                value={editedRole.estado}
-                onChange={(e) => setEditedRole({ ...editedRole, estado: e.target.value })}
-              />
+            
             </div>
           </form>
         </CModalBody>
