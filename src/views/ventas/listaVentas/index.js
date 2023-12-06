@@ -109,7 +109,7 @@ function ListaVentas() {
                           variant="outline"
                           onClick={() => handleAnularVenta(venta.id_ventas)}
                         >
-                          Cambiar Estado
+                          Anular
                         </CButton>
                       </CButtonGroup>
                     </CTableDataCell>

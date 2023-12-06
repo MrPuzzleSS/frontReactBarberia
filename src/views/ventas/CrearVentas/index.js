@@ -38,6 +38,7 @@ function FormularioVentas() {
     const [selectedCliente, setSelectedCliente] = useState(null);
     const [apellido, setApellido] = useState('');
     const [documento, setDocumento] = useState('');
+    const [numeroFactura, setNumeroFactura] = useState('');
     const [showServicios, setShowServicios] = useState(false);
     const [showProductos, setShowProductos] = useState(false);
     const [selectedServicio, setSelectedServicio] = useState(null);
@@ -45,6 +46,7 @@ function FormularioVentas() {
     const [selectedEmpleado, setSelectedEmpleado] = useState(null);
     const [serviciosEnVenta, setServiciosEnVenta] = useState([]);
     const [productosEnVenta, setProductosEnVenta] = useState([]);
+    const [totalVenta, setTotalVenta] = useState(0);
 
     useEffect(() => {
         fetchClientes();
@@ -56,6 +58,25 @@ function FormularioVentas() {
 
 
 
+    const createSale = async () => {
+        try {
+            // Adjust the following line based on your VentaService API method
+            const response = await VentaService.crearVenta({
+                clienteId: selectedCliente.id_cliente,
+                empleadoId: selectedEmpleado.id_empleado,
+                servicios: serviciosEnVenta,
+                productos: productosEnVenta,
+                totalVenta: totalVenta,
+                numeroFactura: numeroFactura,
+        });
+    
+            console.log('Sale created:', response);
+        } catch (error) {
+            console.error('Error creating sale:', error);
+        }
+    };
+
+    
     const fetchEmpleados = async () => {
         try{
             const response = await fetch(`${API_URL}/empleado`);
@@ -160,12 +181,14 @@ function FormularioVentas() {
                 id: selectedServicio.id,
                 nombre: selectedServicio.nombre,
                 cantidad: 1, // Puedes ajustar la cantidad según tus necesidades
-                precioTotal: selectedServicio.precio,
+                precioTotal: selectedServicio.valor,
             };
 
             setServiciosEnVenta([...serviciosEnVenta, nuevaFilaServicio]);
             // Limpiar la selección después de agregar el servicio
             setSelectedServicio(null);
+
+            setTotalVenta(totalVenta + nuevaFilaServicio.precioTotal);
         }
     };
 
@@ -173,7 +196,7 @@ function FormularioVentas() {
     const handleAgregarProducto = () => {
         if (selectedProducto) {
             const nuevaFilaProducto = {
-                id: selectedProducto.id,
+                id: selectedProducto.id_productos,
                 nombre: selectedProducto.nombre,
                 cantidad: 1, // Puedes ajustar la cantidad según tus necesidades
                 precioTotal: selectedProducto.precio,
@@ -182,6 +205,8 @@ function FormularioVentas() {
             setProductosEnVenta([...productosEnVenta, nuevaFilaProducto]);
             // Limpiar la selección después de agregar el producto
             setSelectedProducto(null);
+
+            setTotalVenta(totalVenta + nuevaFilaProducto.precioTotal);
         }
     };
 
@@ -242,6 +267,16 @@ function FormularioVentas() {
                                     ))}                                
                                 </CFormSelect>
                             </div>
+                            
+                            <div className="mb-3">
+                                <CFormLabel>Número de Factura</CFormLabel>
+                                <CFormInput
+                                    type="text"
+                                    name="numeroFactura"
+                                    value={numeroFactura}
+                                    onChange={(e) => setNumeroFactura(e.target.value)}
+                                />
+                            </div>
 
                             <div className="mb-3">
                                 <CButton color="primary" onClick={() => setShowServicios(true)}>
@@ -273,7 +308,7 @@ function FormularioVentas() {
                                     <CFormSelect onChange={(e) => handleProductoChange(e.target.value)}>
                                         <option value="">Seleccionar Producto</option>
                                         {productos.map((producto) => (
-                                            <option key={producto.id} value={producto.id}>
+                                            <option key={producto.id_productos} value={producto.id_productos}>
                                                 {producto.nombre}
                                             </option>
                                         ))}
@@ -328,12 +363,14 @@ function FormularioVentas() {
                                 </CTableBody>
                             </CTable>
 
+
                             <div className="mb-3">
                                 <CFormLabel>Total de la Venta</CFormLabel>
-                                {/* Mostrar el total de la venta */}
+                                <CFormInput value={totalVenta.toString()} readOnly />
                             </div>
-
-                            <CButton color="primary">Crear</CButton>
+                            <CButton color="primary" onClick={createSale}>
+                                Crear
+                            </CButton>
                             <Link to="/ventas/listaVentas">
                                 <CButton color="danger">Cancelar</CButton>
                             </Link>
