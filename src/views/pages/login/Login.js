@@ -1,5 +1,5 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   CButton,
   CCard,
@@ -12,13 +12,60 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
+  CAlert,
+} from '@coreui/react';
+import CIcon from '@coreui/icons-react';
+import { cilLockLocked, cilUser } from '@coreui/icons';
+import logoBarberia from '../../../assets/images/logoBarberia2.png';
+import fonds from '../../../assets/images/fonds.jpg';
 
 const Login = () => {
+  const [nombreUsuario, setNombreUsuario] = useState('');
+  const [contrasena, setContrasena] = useState('');
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    try {
+      setError(null);
+
+      const response = await fetch('https://resapibarberia.onrender.com/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ nombre_usuario: nombreUsuario, contrasena }),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        throw new Error(`Error al autenticar el usuario: ${errorMessage}`);
+      }
+
+      const { token } = await response.json();
+
+      if (token) {
+        localStorage.setItem('token', token);
+        console.log('Token guardado correctamente:', token);
+        navigate('/dashboard'); // Redirige al dashboard después de guardar el token
+      } else {
+        setError('Token no válido recibido del servidor');
+      }
+    } catch (error) {
+      console.error('Error al iniciar sesión:', error);
+      setError('Usuario o contraseña incorrectos');
+    }
+  };
+
   return (
-    <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
+    <div
+      className="min-vh-100 d-flex flex-row align-items-center"
+      style={{
+        backgroundImage: `url(${fonds})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
       <CContainer>
         <CRow className="justify-content-center">
           <CCol md={8}>
@@ -26,13 +73,20 @@ const Login = () => {
               <CCard className="p-4">
                 <CCardBody>
                   <CForm>
-                    <h1>SION-BARBER</h1>
-                    <p className="text-medium-emphasis">Iniciar sesión en tu cuenta</p>
+                    <br />
+                    <h3>Iniciar sesión en tu cuenta</h3>
+                    <br />
+                    {error && <CAlert color="danger">{error}</CAlert>}
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
                       </CInputGroupText>
-                      <CFormInput placeholder="USUARIO" autoComplete="username" />
+                      <CFormInput
+                        placeholder="USUARIO"
+                        autoComplete="username"
+                        value={nombreUsuario}
+                        onChange={(e) => setNombreUsuario(e.target.value)}
+                      />
                     </CInputGroup>
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
@@ -42,15 +96,15 @@ const Login = () => {
                         type="password"
                         placeholder="CONTRASEÑA"
                         autoComplete="current-password"
+                        value={contrasena}
+                        onChange={(e) => setContrasena(e.target.value)}
                       />
                     </CInputGroup>
                     <CRow>
                       <CCol xs={6}>
-                        <Link to="/#/dashborad">
-                          <CButton color="primary" className="px-4">
-                            INGRESAR
-                          </CButton>
-                        </Link>
+                        <CButton color="primary" className="px-4" onClick={handleLogin}>
+                          INGRESAR
+                        </CButton>
                       </CCol>
                       <CCol xs={6} className="text-right">
                         <CButton color="link" className="px-0">
@@ -61,18 +115,14 @@ const Login = () => {
                   </CForm>
                 </CCardBody>
               </CCard>
-              <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
+              <CCard
+                className="text-white"
+                style={{ backgroundColor: '#4a4e69', paddingTop: '5rem', width: '44%' }}
+              >
                 <CCardBody className="text-center">
+                  <img src={logoBarberia} alt="logo empresa" width="96%" />
                   <div>
-                    <h2>NUEVO USUARIO</h2>
-                    <p>
-                    ¡Bienvenido a Sion Barber Shop! Donde el estilo se encuentra con la elegancia. Nuestro equipo de barberos expertos se esfuerza por brindarte un corte de cabello y un cuidado de barba excepcionales!
-                    </p>
-                    <Link to="/register">
-                      <CButton color="primary" className="mt-3" active tabIndex={-1}>
-                        REGISTRAR!
-                      </CButton>
-                    </Link>
+                    ¡Bienvenido a Sion Barber Shop! Donde el estilo se encuentra con la elegancia.
                   </div>
                 </CCardBody>
               </CCard>
@@ -81,7 +131,7 @@ const Login = () => {
         </CRow>
       </CContainer>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

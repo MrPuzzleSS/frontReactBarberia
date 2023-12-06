@@ -1,5 +1,6 @@
 import React from 'react'
 
+
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -49,7 +50,8 @@ const Badges = React.lazy(() => import('./views/notifications/badges/Badges'))
 const Modals = React.lazy(() => import('./views/notifications/modals/Modals'))
 const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 
-const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
+
+
 
 const ListaProveedores = React.lazy(() => import('./views/proveedores/listaProveedores'))
 const CrearProveedor = React.lazy(() => import('./views/proveedores/crearProveedor'))
@@ -67,7 +69,7 @@ const CrearUsuarios = React.lazy(() => import('./views/users/crearUsuario/CrearU
 const EditarUsuarios = React.lazy(() => import('./views/users/editarUsuario/EditUser'))
 const Roles = React.lazy(() => import('./views/rol/listaRoles/Roles'))
 const CrearRol = React.lazy(() => import('./views/rol/CrearRol/CreateRol'))
-const EditarRol = React.lazy(() => import('./views/rol/EditarRol/EditRol'))
+
 
 const ListaProductos = React.lazy(() => import('./views/productos/listaProductos'))
 const CrearProducto = React.lazy(() => import('./views/productos/crearProducto'))
@@ -82,10 +84,11 @@ const ListaInsumos = React.lazy(() => import('./views/insumos/listaInsumos'))
 const CrearInsumo = React.lazy(() => import('./views/insumos/crearInsumo'))
 
 const CrearConfiguracion = React.lazy(() => import('./views/agendas/crearConfiguracion'))
-const Calendar = React.lazy(() => import('./views/agendas/Calendar'))
+
 
 const routes = [
   //TODAS LAS RUTAS DEL PROYECTO
+
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/proveedores', name: 'Proveedores', element: ListaProveedores },
@@ -103,19 +106,30 @@ const routes = [
   { path: '/ventas/listaVentas', name: 'Listado', element: ListarVentas},
   { path: '/ventas/CrearVentas', name: 'Crear', element: FormularioVentas},
 
+  { path: '/clientes/listaClientes', name: 'Listado', element: ListaClientes },
+  { path: '/clientes/crearClientes', name: 'Crear', element: CrearCliente },
+  { path: '/agendas/crearConfiguracion', name: 'Crear', element: CrearConfiguracion },
+  { path: '/servicios', name: 'Servicios', element: ListaServicios },
+  { path: '/servicios/listaServicios', name: 'Listado de Servicios', element: ListaServicios },
+  { path: '/servicios/crearServicio', name: 'Crear Servicio', element: CrearServicio },
+  
+
+  { path: '/insumos', name: 'Insumos', element: ListaInsumos },
+  { path: '/insumos/listaIsumos', name: 'Listado de Insumos', element: ListaInsumos },
+  { path: '/insumos/crearInsumo', name: 'Crear Insumo', element: CrearInsumo },
+
+  { path: '/ventas/listaVentas', name: 'Ventas', element: ListarVentas},
   { path: '/ListaUsuarios', name:'Usuarios', element: Usuarios},
   { path: '/CrearUsuarios', name: 'CrearUsuarios', element: CrearUsuarios},
   { path: '/EditarUsuarios', name: 'EditarUsuarios', element: EditarUsuarios},
   { path: '/ListaRol', name: 'Roles', element: Roles},
   { path: '/CrearRol', name: 'CrearRol', element: CrearRol},
-  { path: '/EditarRol', name: 'EditarRol', element: EditarRol},
   { path: '/productos', name: 'productos', element: ListaProductos },
   { path: '/productos/lista-productos', name: 'Productos', element: ListaProductos },
   { path: '/productos/crear-producto', name: 'Nuevo producto', element: CrearProducto },
   { path: '/clientes/listaClientes', name: 'Listado', element: ListaClientes },
   { path: '/clientes/crearClientes', name: 'Crear', element: CrearCliente },
   { path: '/agendas/crearConfiguracion', name: 'Crear', element: CrearConfiguracion },
-  { path: '/agendas/Calendar', name: 'Crear', element: Calendar },
   { path: '/servicios', name: 'Servicios', element: ListaServicios },
   { path: '/servicios/listaServicios', name: 'Listado de Servicios', element: ListaServicios },
   { path: '/servicios/crearServicio', name: 'Crear Servicio', element: CrearServicio },
@@ -164,7 +178,7 @@ const routes = [
   { path: '/notifications/badges', name: 'Badges', element: Badges },
   { path: '/notifications/modals', name: 'Modals', element: Modals },
   { path: '/notifications/toasts', name: 'Toasts', element: Toasts },
-  { path: '/widgets', name: 'Widgets', element: Widgets },
+  // { path: '/widgets', name: 'Widgets', element: Widgets },
 ]
 
 export default routes

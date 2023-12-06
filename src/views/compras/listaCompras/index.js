@@ -1,6 +1,8 @@
 /* eslint-disable prettier/prettier */
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
+import CompraDataService from 'src/views/services/compraService'; // Asegúrate de que la ruta sea correcta
 import {
   CCard,
   CCardBody,
@@ -14,46 +16,88 @@ import {
   CTableHeaderCell,
   CTableRow,
   CButton,
-  CButtonGroup,
   CModal,
-  CModalHeader,
   CModalTitle,
+  CModalHeader,
   CModalBody,
-  CModalFooter,
-  CFormLabel,
-  CFormSelect,
-  CFormInput,
-  CInputGroup,
-  CInputGroupText,
-} from '@coreui/react'
+  CModalFooter
+} from '@coreui/react';
+
+function formatFechaCompra(fecha) {
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  return new Date(fecha).toLocaleDateString('es-ES', options);
+}
 
 function ListaCompras() {
-  const [visible, setVisible] = useState(false)
-  // Lista de compras (debes reemplazar esto con tus datos reales)
-  const compras = [
-    {
-      id: 1,
-      proveedor: 'Proveedor 1',
-      producto: 'Producto 1',
-      cantidad: 5,
-      precioUnitario: 10,
-      estado: 'Pendiente',
-    },
-    {
-      id: 2,
-      proveedor: 'Proveedor 2',
-      producto: 'Producto 2',
-      cantidad: 3,
-      precioUnitario: 15,
-      estado: 'Entregado',
-    },
-    // Agrega más compras aquí
-  ]
+  const [compras, setCompras] = useState([]);
+  const [visible, setVisible] = useState(false);
+  const [compraSeleccionada, setCompraSeleccionada] = useState(null);
+  const [tablaActualizada, setTablaActualizada] = useState(false);
 
-  // Función para calcular el total de una compra
-  const calcularTotalCompra = (compra) => {
-    return compra.cantidad * compra.precioUnitario
-  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await CompraDataService.getCompraDetalle();
+        console.log('Datos:', response.data);
+
+        const comprasConDetalle = response.data.map(item => {
+          const compra = {
+            descripcion: item.compra.descripcion,
+            id_compra: item.compra.id_compra,
+            estado: item.compra.estado,
+            created_at: item.compra.created_at,
+          };
+
+          const detallesCompra = item.detallesCompra.map(detalle => ({
+            id_producto: detalle.id_producto,
+            cantidad: detalle.cantidad,
+            precioUnitario: detalle.precioUnitario,
+            total: detalle.total,
+          }));
+
+          // Calcular el total de los productos en detallesCompra
+          const totalCompra = detallesCompra.reduce((total, detalle) => total + detalle.total, 0);
+
+          return {
+            compra: {
+              ...compra,
+              total: totalCompra, // Agregar el total al objeto compra
+            },
+            detallesCompra,
+          };
+        });
+
+        setCompras(comprasConDetalle);
+      } catch (error) {
+        console.error('Error al obtener datos:', error);
+      }
+
+      setTablaActualizada(false);
+    };
+
+    fetchData();
+  }, [tablaActualizada]);
+
+  const mostrarDetalleCompra = (compra) => {
+    setCompraSeleccionada(compra);
+    setVisible(true);
+  };
+
+  const pagarCompra = async (idCompra) => {
+    try {
+      // Cambiar el estado de la compra a "Pagado"
+      await CompraDataService.cambiarEstadoCompra(idCompra);
+      // Actualizar el estado para que la tabla se vuelva a renderizar
+      setTablaActualizada(true);
+      // Mostrar un mensaje de éxito
+      Swal.fire('Éxito', 'La compra se ha pagado exitosamente', 'success');
+    } catch (error) {
+      // Mostrar un mensaje de error
+      Swal.fire('Error', 'No se pudo realizar el pago', 'error');
+    }
+  };
+  
 
   return (
     <CRow>
@@ -63,105 +107,97 @@ function ListaCompras() {
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Compras</strong>
               <Link to="/compras/crear-compra">
-              <CButton color="success">Agregar Compra</CButton>
+                <CButton color="success">Nueva Compra</CButton>
               </Link>
             </div>
           </CCardHeader>
           <CCardBody>
-            <CTable>
-              <CTableHead>
+            <CTable align="middle" className="mb-0 border" hover responsive> 
+              <CTableHead color="light">
                 <CTableRow>
                   <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Proveedor</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Producto</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Cantidad</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Total</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
+                  {/* Agrega más encabezados según tus necesidades */}
+                  <CTableHeaderCell scope="col">DESCRIPCIÓN</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">TOTAL</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">ESTADO</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">FECHA DE COMPRA</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">ACCIONES</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {compras.map((compra, index) => (
-                  <CTableRow key={compra.id}>
-                    <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                    <CTableDataCell>{compra.proveedor}</CTableDataCell>
-                    <CTableDataCell>{compra.producto}</CTableDataCell>
-                    <CTableDataCell>{compra.cantidad}</CTableDataCell>
-                    <CTableDataCell>{compra.precioUnitario}</CTableDataCell>
-                    <CTableDataCell>{calcularTotalCompra(compra)}</CTableDataCell>
-                    <CTableDataCell>{compra.estado}</CTableDataCell>
-                    <CTableDataCell>
-                        <CButton
-                          color="primary"
-                          size="sm" className="me-2"
-                          onClick={() => setVisible(!visible)}>
-                          Editar
-                        </CButton>
-                        <CButton
-                          color="danger"
-                          size="sm" className="me-2"
-                          onClick={() => setVisible(!visible)}>
-                          Eliminar
-                        </CButton>
-                    </CTableDataCell>
+                {Array.isArray(compras) && compras.length > 0 ? (
+                  compras.map((compra, i) => (
+                    <CTableRow key={i}>
+                      <CTableHeaderCell scope="row">{i + 1}</CTableHeaderCell>
+                      <CTableDataCell>{compra.compra.descripcion}</CTableDataCell>
+                      <CTableDataCell>{compra.compra.total}</CTableDataCell>
+                      <CTableDataCell>{compra.compra.estado}</CTableDataCell>
+                      <CTableDataCell>{formatFechaCompra(compra.compra.created_at)}</CTableDataCell>
+                      <CTableDataCell>
+                      <CButton color="warning" onClick={() => pagarCompra(compra.compra.id_compra)}>
+                      Pagar
+                      </CButton>
+                      <CButton onClick={() => mostrarDetalleCompra(compra)} >Detalle</CButton>
+                      </CTableDataCell>
+                    </CTableRow>
+                  ))
+                ) : (
+                  <CTableRow>
                   </CTableRow>
-                ))}
+                )}
               </CTableBody>
             </CTable>
+            <CModal
+              alignment="center"
+              visible={visible}
+              onClose={() => setVisible(false)}
+              aria-labelledby="ScrollingLongContentExampleLabel2"
+            >
+              <CModalHeader>
+                <CModalTitle id="ScrollingLongContentExampleLabel2">Detalle de la Compra</CModalTitle>
+              </CModalHeader>
+              <CModalBody>
+                {compraSeleccionada && (
+                  <>
+                    <p><strong>Descripción:</strong> {compraSeleccionada.compra.descripcion}</p>
+                    <p><strong>Total:</strong> {compraSeleccionada.compra.total}</p>
+                    <p><strong>Estado:</strong> {compraSeleccionada.compra.estado}</p>
+                    <p><strong>Fecha de Compra:</strong> {formatFechaCompra(compraSeleccionada.compra.created_at)}</p>
+                    <h5>Detalles de la Compra:</h5>
+                    <CTable>
+                      <CTableHead>
+                        <CTableRow>
+                          <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Cantidad</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Total</CTableHeaderCell>
+                        </CTableRow>
+                      </CTableHead>
+                      <CTableBody>
+                        {compraSeleccionada.detallesCompra.map((detalle, index) => (
+                          <CTableRow key={index}>
+                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+                            <CTableDataCell>{detalle.cantidad}</CTableDataCell>
+                            <CTableDataCell>{detalle.precioUnitario}</CTableDataCell>
+                            <CTableDataCell>{detalle.total}</CTableDataCell>
+                          </CTableRow>
+                        ))}
+                      </CTableBody>
+                    </CTable>
+                  </>
+                )}
+              </CModalBody>
+              <CModalFooter>
+                <CButton color="secondary" onClick={() => setVisible(false)}>
+                  Cerrar
+                </CButton>
+              </CModalFooter>
+            </CModal>
           </CCardBody>
         </CCard>
       </CCol>
-      <CModal visible={visible} onClose={() => setVisible(false)}>
-        <CModalHeader>
-          <CModalTitle>Editar Compra</CModalTitle>
-        </CModalHeader>
-        <CModalBody>
-          <form>
-            <div className="mb-3">
-              <CFormLabel>Proveedor</CFormLabel>
-              <CFormSelect>
-                <option value="">Seleccionar proveedor</option>
-              </CFormSelect>
-            </div>
-            <div className="mb-3">
-              <CFormLabel>Producto</CFormLabel>
-              <CFormInput type="text" />
-            </div>
-            <div className="mb-3">
-              <CFormLabel>Cantidad</CFormLabel>
-              <CFormInput type="number" />
-            </div>
-            <div className="mb-3">
-              <CFormLabel>Precio Unitario</CFormLabel>
-              <CInputGroup className="mb-3">
-                <CInputGroupText>$</CInputGroupText>
-                <CFormInput type="number" />
-              </CInputGroup>
-            </div>
-            <div className="mb-3">
-              <CFormLabel>Estado</CFormLabel>
-              <CFormSelect>
-                <option value="">Seleccionar estado</option>
-              </CFormSelect>
-            </div>
-            <div className="mb-3">
-              <CFormLabel>Total</CFormLabel>
-            </div>
-            <div className="mb-3">
-              <CFormLabel>Fecha de Compra</CFormLabel>
-            </div>
-          </form>
-        </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setVisible(false)}>
-            Cerrar
-          </CButton>
-          <CButton color="primary">Guardar Cambios</CButton>
-        </CModalFooter>
-      </CModal>
     </CRow>
-  )
+  );
 }
 
-export default ListaCompras
+export default ListaCompras;

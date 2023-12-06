@@ -1,5 +1,6 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
+import jwt_decode from 'jwt-decode';
 import {
   cilPuzzle,
   cilSpeedometer,
@@ -79,39 +80,33 @@ const _nav = [
       },
     ],
   },
+  
   {
     component: CNavGroup,
-    name: 'Clientes',
-    to: '/clientes/crearCliente',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>,
+    name: 'Agendas',
+    to: '/agendas',
+    icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
-        name: 'Listado',
-        to: '/clientes/listaClientes',
+        name: 'Crear Configuracion',
+        to: '/agendas/CrearConfiguracion',
       },
-      {
-        component: CNavItem,
-        name: 'Crear',
-        to: '/clientes/crearCliente',   
-      },
+
+
     ],
+
   },
   {
     component: CNavGroup,
-    name: 'Servicios',
-    to: '/servicios',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>,
+    name: 'Ventas',
+    to: '/ventas',
+    icon: <CIcon icon={cilMoney} customClassName="nav-icon"/>,
     items: [
       {
         component: CNavItem,
-        name: 'Listado',
-        to: '/Servicios/listaServicios',
-      },
-      {
-        component: CNavItem,
-        name: 'Crear',
-        to: '/Servicios/crearServicio',   
+        name: 'Listar Ventas',
+        to: '/ventas/listaVentas',
       },
     ],
   },
@@ -136,29 +131,44 @@ const _nav = [
   {
     component: CNavGroup,
     name: 'Agendas',
-    to: '/agendas',
+    to: '/agendas', 
     icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
+    name: 'Clientes',
+    to: '/clientes/crearClientes',
+    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>,
     items: [
       {
         component: CNavItem,
-        name: 'Crear Configuracion',
-        to: '/agendas/CrearConfiguracion',
+        name: 'Listado',
+        to: '/clientes/listaClientes',
+      },
+      {
+        component: CNavItem,
+        name: 'Crear',
+        to: '/clientes/crearClientes',   
       },
     ],
   },
+
   {
     component: CNavGroup,
-    name: 'Ventas',
-    to: '/ventas',
-    icon: <CIcon icon={cilMoney} customClassName="nav-icon"/>,
+    name: 'Servicios',
+    to: '/servicios',
+    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>,
     items: [
       {
         component: CNavItem,
-        name: 'Listar Ventas',
-        to: '/ventas/listaVentas',
+        name: 'Listado',
+        to: '/Servicios/listaServicios',
+      },
+      {
+        component: CNavItem,
+        name: 'Crear',
+        to: '/Servicios/crearServicio',   
       },
     ],
   },
+
   {
     component: CNavGroup,
     name: 'Productos',
@@ -193,18 +203,7 @@ const _nav = [
             name: 'Lista de Usuarios',
             to: '/listaUsuarios',
             icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
-          },
-          {
-            component: CNavItem,
-            name: 'Nuevo Usuario',
-            to: '/CrearUsuarios',
-          },
-          {
-            component: CNavItem,
-            name: 'Editar Usuario',
-            to: '/EditarUsuarios',
-          },
-         
+          }, 
         ],
       },
       {
@@ -219,17 +218,6 @@ const _nav = [
             to: '/ListaRol',
             icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
           },
-          {
-            component: CNavItem,
-            name: 'Nuevo Rol',
-            to: '/CrearRol',
-          },
-          {
-            component: CNavItem,
-            name: 'Editar Rol',
-            to: '/EditarRol',
-          },
-        
         ],
       },
       {

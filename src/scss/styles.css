@@ -1,0 +1,27 @@
+.table {
+    display: table;
+    width: 100%;
+    border-style: solid;
+    border-width: 1px;
+    border-right-width: 0;
+    border-bottom-width: 0;
+  }
+  
+  .tableRow {
+    margin: auto;
+    flex-direction: row;
+  }
+  
+  .tableCell {
+    margin: 5px;
+    padding: 5px;
+    border-style: solid;
+    border-width: 1px;
+    border-left-width: 0;
+    border-top-width: 0;
+  }
+  
+  .headerCell {
+    font-weight: bold;
+    text-align: center;
+  }

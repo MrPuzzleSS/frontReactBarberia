@@ -1,0 +1,21 @@
+/* HomeCliente.css */
+
+.carousel-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Para mantener la relación de aspecto original */
+}
+
+.custom-carousel {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.carousel-item {
+  height: 400px; /* Ajusta la altura según tus necesidades */
+}
+
+.custom-caption {
+  background-color: rgba(0, 0, 0, 0.664); /* Fondo negro con 50% de opacidad */
+  padding: 15px; /* Ajusta según sea necesario */
+}
