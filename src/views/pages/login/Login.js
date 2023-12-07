@@ -107,8 +107,8 @@ const Login = () => {
                         </CButton>
                       </CCol>
                       <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0">
-                          Olvidó su contraseña?
+                        <CButton color="link" className="px-0" onClick={() => navigate('/recuperarContraseña')}>
+                          ¿Olvidó su contraseña?
                         </CButton>
                       </CCol>
                     </CRow>

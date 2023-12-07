@@ -69,6 +69,7 @@ const CrearUsuarios = React.lazy(() => import('./views/users/crearUsuario/CrearU
 const EditarUsuarios = React.lazy(() => import('./views/users/editarUsuario/EditUser'))
 const Roles = React.lazy(() => import('./views/rol/listaRoles/Roles'))
 const CrearRol = React.lazy(() => import('./views/rol/CrearRol/CreateRol'))
+const recuperarContraseña = React.lazy( ()=> import('./views/pages/login/recuperarContraseña'))
 
 
 const ListaProductos = React.lazy(() => import('./views/productos/listaProductos'))
@@ -119,11 +120,14 @@ const routes = [
   { path: '/insumos/crearInsumo', name: 'Crear Insumo', element: CrearInsumo },
 
   { path: '/ventas/listaVentas', name: 'Ventas', element: ListarVentas},
+
   { path: '/ListaUsuarios', name:'Usuarios', element: Usuarios},
   { path: '/CrearUsuarios', name: 'CrearUsuarios', element: CrearUsuarios},
   { path: '/EditarUsuarios', name: 'EditarUsuarios', element: EditarUsuarios},
   { path: '/ListaRol', name: 'Roles', element: Roles},
   { path: '/CrearRol', name: 'CrearRol', element: CrearRol},
+  {path: '/recuperarContraseña', name: 'recuperarContraseña', element: recuperarContraseña},
+
   { path: '/productos', name: 'productos', element: ListaProductos },
   { path: '/productos/lista-productos', name: 'Productos', element: ListaProductos },
   { path: '/productos/crear-producto', name: 'Nuevo producto', element: CrearProducto },

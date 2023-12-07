@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import axios from 'axios';
 import {
   CCard,
@@ -31,26 +32,28 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [editedRole, setEditedRole] = useState({ nombre: '', estado: '' });
   const [searchId, setSearchId] = useState('');
+  const [permisos, setPermisos] = useState([]);
+  const [selectedRoleId, setSelectedRoleId] = useState(null);
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+  const [selectedRolePermissions, setSelectedRolePermissions] = useState([]);
 
   useEffect(() => {
-    const fetchRoles = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('https://resapibarberia.onrender.com/api/rol');
+        const rolesResponse = await axios.get('https://resapibarberia.onrender.com/api/rol');
+        const permisosResponse = await axios.get('https://resapibarberia.onrender.com/api/permisos');
 
-        if (response.data && Array.isArray(response.data.listaRoles)) {
-          setRoles(response.data.listaRoles);
-        } else {
-          console.error('La respuesta de la API no contiene un array de roles válido:', response.data);
-        }
+        setRoles(rolesResponse.data?.listaRoles || []); // Utiliza operador de opción nula
+        setPermisos(permisosResponse.data?.listaPermisos || []);
 
         setLoading(false);
       } catch (error) {
-        console.error('Error al obtener la lista de roles:', error);
+        console.error('Error al obtener datos:', error);
         setLoading(false);
       }
     };
 
-    fetchRoles();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -71,9 +74,7 @@ const Dashboard = () => {
   const handleAddRole = async (newRoleData) => {
     try {
       const response = await axios.post('https://resapibarberia.onrender.com/api/rol', newRoleData);
-
       setRoles([...roles, response.data]);
-
       toast.success('Rol agregado con éxito');
     } catch (error) {
       console.error('Error al agregar rol:', error);
@@ -84,9 +85,7 @@ const Dashboard = () => {
   const handleEditRole = async (id, editedRoleData) => {
     try {
       const response = await axios.put(`https://resapibarberia.onrender.com/api/rol/${id}`, editedRoleData);
-
-      setRoles(roles.map(role => (role.id_rol === id ? response.data : role)));
-
+      setRoles(roles.map((role) => (role.id_rol === id ? response.data : role)));
       toast.success('Rol editado con éxito');
     } catch (error) {
       console.error('Error al editar rol:', error);
@@ -94,47 +93,52 @@ const Dashboard = () => {
     }
   };
 
-  /*const handleEdit = (item) => {
-    setSelectedItem(item);
-    setEditedRole({
-      nombre: item.nombre,
-      estado: item.estado,
-    });
-    setVisible(true);
-  };
-  */
-  const handleSwitchChange = (item) => {
+  const handleSwitchChange = async (item) => {
+    setSelectedRoleId(item.id_rol);
     const updatedRoles = roles.map((role) =>
       role.id_rol === item.id_rol ? { ...role, estado: role.estado === 'Activo' ? 'Inactivo' : 'Activo' } : role
     );
-
+  
     setRoles(updatedRoles);
     setEditedRole({
       nombre: item.nombre,
       estado: item.estado === 'Activo' ? 'Inactivo' : 'Activo',
     });
+  
+    // Mostrar SweetAlert según el estado actualizado
+    const alertText = item.estado === 'Activo' ? 'cambiado a Inactivo' : 'cambiado a Activo';
+    const alertIcon = item.estado === 'Activo' ? 'error' : 'success';
+  
+    Swal.fire({
+      icon: alertIcon,
+      title: 'Estado Cambiado',
+      text: `Rol ${alertText}`,
+    });
   };
-
-  const handleDelete = async (idToDelete) => {
+  
+  
+  const handleFetchPermissions = async (roleId) => {
     try {
-      if (!idToDelete) {
-        console.error('El ID a eliminar es nulo o indefinido');
-        toast.error('Error al eliminar rol');
-        return;
+      const response = await axios.get(`https://resapibarberia.onrender.com/api/rol/${roleId}`);
+      const selectedRole = response.data;
+  
+      if (selectedRole && selectedRole.permisos) {
+        setSelectedRolePermissions(selectedRole.permisos);
+        setShowPermissionsModal(true);
+      } else {
+        handlePermissionsError(selectedRole);
       }
-
-      const response = await axios.delete(`https://resapibarberia.onrender.com/api/rol/${idToDelete}`);
-
-      setRoles((prevRoles) => prevRoles.filter((role) => role.id_rol !== idToDelete));
-
-      toast.success('Rol eliminado con éxito');
     } catch (error) {
-      console.error('Error al eliminar rol:', error);
-      toast.error('Error al eliminar rol');
-    } finally {
-      setSelectedItem(null);
+      console.error('Error al obtener los permisos del rol:', error);
+      handlePermissionsError();
     }
   };
+  
+  const handlePermissionsError = (details) => {
+    console.error('El rol no tiene permisos o la respuesta no es válida:', details);
+    // Puedes mostrar una alerta, notificación o manejar el error según tus necesidades
+  };
+
 
   const handleSaveChanges = async () => {
     try {
@@ -191,6 +195,7 @@ const Dashboard = () => {
                   <CTableHeaderCell>ID</CTableHeaderCell>
                   <CTableHeaderCell>NOMBRE</CTableHeaderCell>
                   <CTableHeaderCell>ESTADO</CTableHeaderCell>
+              
                   <CTableHeaderCell>ACCIONES</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
@@ -206,13 +211,14 @@ const Dashboard = () => {
                     <CTableDataCell>
                       <strong>{item.estado}</strong>
                     </CTableDataCell>
+                  
                     <CTableDataCell>
                       <CFormSwitch
                         size="xl"
                         label=""
-                        id="formSwitchCheckChecked"
+                        id={`formSwitchCheckChecked_${item.id_rol}`}
                         defaultChecked={editedRole.estado === 'Activo'}
-                        onChange={() => setEditedRole({ ...editedRole, estado: editedRole.estado === 'Activo' ? 'Inactivo' : 'Activo' })}
+                        onChange={() => handleSwitchChange(item)}
                       />
                     </CTableDataCell>
                   </CTableRow>
@@ -223,7 +229,38 @@ const Dashboard = () => {
         </CCardBody>
       </CCard>
 
-      {/* Modal de Edición */}
+      {/* Modal de Permisos */}
+      <CModal
+        show={showPermissionsModal}
+        onClose={() => setShowPermissionsModal(false)}
+      >
+        <CModalHeader closeButton>
+          <CModalTitle>Permisos del Rol</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <h5>Permisos Asociados:</h5>
+          <ul>
+            {selectedRolePermissions.map((permiso) => (
+              <li key={permiso.id_permiso}>{permiso.nombre_permiso}</li>
+            ))}
+          </ul>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setShowPermissionsModal(false)}>
+            Cerrar
+          </CButton>
+        </CModalFooter>
+      </CModal>
+
+      <ToastContainer />
+    </>
+  );
+};
+
+export default Dashboard;
+
+
+      /* Modal de Edición 
       <CModal visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader>
           <CModalTitle>Editar ROL</CModalTitle>
@@ -240,7 +277,6 @@ const Dashboard = () => {
             </div>
             <div className="mb-3">
               <CFormLabel>ESTADO</CFormLabel>
-            
             </div>
           </form>
         </CModalBody>
@@ -253,10 +289,4 @@ const Dashboard = () => {
           </CButton>
         </CModalFooter>
       </CModal>
-
-      <ToastContainer />
-    </>
-  );
-};
-
-export default Dashboard;
+*/

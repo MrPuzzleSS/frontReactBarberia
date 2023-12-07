@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 import {
   CCard,
   CCardBody,
@@ -13,14 +15,13 @@ import {
   CModal,
   CModalHeader,
   CModalTitle,
-  CFormSwitch,
   CModalBody,
   CModalFooter,
   CFormLabel,
   CFormInput,
+  CFormSwitch,
 } from '@coreui/react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 
 const ListaUsuarios = () => {
   const [visible, setVisible] = useState(false);
@@ -35,13 +36,10 @@ const ListaUsuarios = () => {
         const rolesResponse = await axios.get('https://resapibarberia.onrender.com/api/rol');
         let usuariosResponse;
 
-        // Check if there's a search ID
         if (searchId) {
-          // Fetch the user by ID
           usuariosResponse = await axios.get(`https://resapibarberia.onrender.com/api/usuario/${searchId}`);
           setUsers(usuariosResponse.data ? [usuariosResponse.data] : []);
         } else {
-          // Fetch all users
           usuariosResponse = await axios.get('https://resapibarberia.onrender.com/api/usuario');
           setUsers(usuariosResponse.data.usuarios || []);
         }
@@ -53,7 +51,7 @@ const ListaUsuarios = () => {
     };
 
     fetchData();
-  }, [searchId]); // Agregar searchId como dependencia
+  }, [searchId]);
 
   const getRolNombre = (id_rol) => {
     const rol = roles.find((r) => r.id_rol === id_rol);
@@ -66,7 +64,6 @@ const ListaUsuarios = () => {
       setUsers((prevUsers) => prevUsers.filter((user) => user.id_usuario !== item.id_usuario));
     } catch (error) {
       console.error('Error al eliminar usuario:', error);
-      // Puedes manejar el error según tus necesidades
     } finally {
       setSelectedItem(null);
     }
@@ -77,6 +74,26 @@ const ListaUsuarios = () => {
     setVisible(true);
   };
 
+  const handleSwitchChange = (item) => {
+    const newStatus = item.estado === 'Activo' ? 'Inactivo' : 'Activo';
+  
+    const updatedUsers = users.map((user) =>
+      user.id_usuario === item.id_usuario
+        ? { ...user, estado: newStatus }
+        : user
+    );
+  
+    setUsers(updatedUsers);
+  
+    Swal.fire({
+      icon: newStatus === 'Activo' ? 'success' : 'error',
+      title: `¡El estado del usuario se ${newStatus} correctamente!`,
+      showConfirmButton: false,
+      timer: 1500,
+      iconHtml: newStatus === 'Inactivo' ? '<i class="fas fa-times"></i>' : null,
+    });
+  };
+
   const handleSaveChanges = async () => {
     try {
       const editedUser = {
@@ -85,19 +102,36 @@ const ListaUsuarios = () => {
         correo: document.getElementById('correoElectronico').value,
         // Agrega más campos según tu necesidad
       };
-
+  
       await axios.put(`https://resapibarberia.onrender.com/api/usuario/${editedUser.id_usuario}`, editedUser);
-
+  
       setUsers((prevUsers) =>
         prevUsers.map((user) => (user.id_usuario === selectedItem.id_usuario ? editedUser : user))
       );
+  
+      // Mostrar SweetAlert de éxito para la edición
+      Swal.fire({
+        icon: 'success',
+        title: 'Usuario editado con éxito',
+        showConfirmButton: false,
+        timer: 1500, // Cerrar automáticamente después de 1.5 segundos
+      });
+  
     } catch (error) {
       console.error('Error al editar usuario:', error);
-      // Puedes manejar el error según tus necesidades
+  
+      // Mostrar SweetAlert de error
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al editar usuario',
+        text: 'Ha ocurrido un error al intentar editar el usuario.',
+      });
+  
     } finally {
       setVisible(false);
     }
   };
+  
 
   return (
     <>
@@ -105,7 +139,6 @@ const ListaUsuarios = () => {
       <CCard className="mb-4">
         <CCardHeader>LISTA DE USUARIOS</CCardHeader>
         <CCardBody>
-          {/* Barra de búsqueda por ID */}
           <div className="mb-3">
             <CFormLabel>BUSCAR USUARIO POR ID</CFormLabel>
             <div className="d-flex">
@@ -114,7 +147,6 @@ const ListaUsuarios = () => {
                 value={searchId}
                 onChange={(e) => setSearchId(e.target.value)}
               />
-
             </div>
           </div>
 
@@ -159,10 +191,13 @@ const ListaUsuarios = () => {
                     <CFormSwitch
                       size="xl"
                       label=""
-                      id="formSwitchCheckChecked"
-                      defaultChecked
+                      id={`formSwitchCheckChecked_${item.id_usuario}`}
+                      defaultChecked={item.estado === 'Activo'}
+                      onChange={() => handleSwitchChange(item)}
                     />
-
+                    <CButton color="danger" className="me-1" onClick={() => handleDelete(item)}>
+                      Eliminar
+                    </CButton>
                   </CTableDataCell>
                 </CTableRow>
               ))}
@@ -171,7 +206,6 @@ const ListaUsuarios = () => {
         </CCardBody>
       </CCard>
 
-      {/* Modal de Edición */}
       <CModal visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader>
           <CModalTitle>Editar Usuario</CModalTitle>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-
+import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.css';
 import { CButton, CCard, CCardBody, CContainer, CForm, CFormInput, CInputGroup, CInputGroupText, CRow, CFormLabel, CFormSelect } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
@@ -88,18 +88,26 @@ const Register = () => {
       return;
     }
   
-    // Si no hay errores de validación, continuar con el proceso de guardar el usuario
     try {
       const response = await axios.post('https://resapibarberia.onrender.com/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
   
-      // Mostrar SweetAlert de éxito (puedes personalizar según tus necesidades)
-      alert('Usuario agregado con éxito');
+      // Mostrar SweetAlert de éxito
+      Swal.fire({
+        icon: 'success',
+        title: 'Usuario agregado con éxito',
+        showConfirmButton: false,
+        timer: 1500, // Cerrar automáticamente después de 1.5 segundos
+      });
     } catch (error) {
       console.error('Error al agregar usuario:', error);
   
-      // Mostrar SweetAlert de error (puedes personalizar según tus necesidades)
-      alert('Ha ocurrido un error al intentar agregar el usuario.');
+      // Mostrar SweetAlert de error
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al agregar usuario',
+        text: 'Ha ocurrido un error al intentar agregar el usuario.',
+      });
     }
   };
 
