@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import VentaService from 'src/views/services/ventasService'; 
+import VentaService from 'src/views/services/ventasService';
 import { Link } from 'react-router-dom';
 import {
     CFormLabel,
@@ -56,8 +56,6 @@ function FormularioVentas() {
         fetchEmpleados();
     }, []);
 
-
-
     const createSale = async () => {
         try {
             // Adjust the following line based on your VentaService API method
@@ -68,20 +66,19 @@ function FormularioVentas() {
                 productos: productosEnVenta,
                 totalVenta: totalVenta,
                 numeroFactura: numeroFactura,
-        });
-    
+            });
             console.log('Sale created:', response);
+            // Navegar a la nueva ruta después de que la venta se haya creado
         } catch (error) {
             console.error('Error creating sale:', error);
         }
     };
 
-    
     const fetchEmpleados = async () => {
-        try{
+        try {
             const response = await fetch(`${API_URL}/empleado`);
             const data = await response.json();
-            if (data && data.empleados){
+            if (data && data.empleados) {
                 setEmpleados(data.empleados);
             } else {
                 console.error('Error la lista de empleados:', data);
@@ -196,7 +193,7 @@ function FormularioVentas() {
     const handleAgregarProducto = () => {
         if (selectedProducto) {
             const nuevaFilaProducto = {
-                id: selectedProducto.id_productos,
+                id: selectedProducto.id_producto,
                 nombre: selectedProducto.nombre,
                 cantidad: 1, // Puedes ajustar la cantidad según tus necesidades
                 precioTotal: selectedProducto.precio,
@@ -259,15 +256,15 @@ function FormularioVentas() {
                             <div className="mb-3">
                                 <CFormLabel>Empleado</CFormLabel>
                                 <CFormSelect onChange={(e) => handleEmpleadoChange(e.target.value)}>
-                                <option value="">Seleccionar Empleado</option>
-                                {empleados.map((empleado) => (
+                                    <option value="">Seleccionar Empleado</option>
+                                    {empleados.map((empleado) => (
                                         <option key={empleado.id_empleado} value={empleado.id_empleado}>
                                             {empleado.nombre}
                                         </option>
-                                    ))}                                
+                                    ))}
                                 </CFormSelect>
                             </div>
-                            
+
                             <div className="mb-3">
                                 <CFormLabel>Número de Factura</CFormLabel>
                                 <CFormInput
