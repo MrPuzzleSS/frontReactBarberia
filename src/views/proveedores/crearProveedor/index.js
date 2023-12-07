@@ -16,7 +16,7 @@ import {
 import { useForm, Controller } from "react-hook-form";
 
 const CrearProveedor = () => {
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
       nombre: '',
       direccion: '',
@@ -69,38 +69,47 @@ const CrearProveedor = () => {
                   rules={{required: true}}
                   render={({ field }) => <CFormInput {...field} />}
                 />
+                {errors.nombre?.type === 'required' && <p style={{color: 'red'}}>El nombre del proveedor es requerido</p>}
               </CCol>
               <CCol sm={6}>
                 <CFormLabel>Dirección</CFormLabel>
                 <Controller
                   name="direccion"
                   control={control}
+                  rules={{required: true}}
                   render={({ field }) => <CFormInput {...field} />}
                 />
+                {errors.direccion?.type === 'required' && <p style={{color: 'red'}}>El campo direccion es requerido</p>}
               </CCol>
               <CCol sm={6}>
                 <CFormLabel>Teléfono</CFormLabel>
                 <Controller
                   name="telefono"
                   control={control}
+                  rules={{required: true}}
                   render={({ field }) => <CFormInput {...field} />}
                 />
+                {errors.telefono?.type === 'required' && <p style={{color: 'red'}}>El campo telefono es requerido</p>}
               </CCol>
               <CCol sm={6}>
                 <CFormLabel>Correo Electrónico</CFormLabel>
                 <Controller
                   name="email"
                   control={control}
+                  rules={{required: true}}
                   render={({ field }) => <CFormInput {...field} />}
                 />
+                {errors.email?.type === 'required' && <p style={{color: 'red'}}>El campo correo electrónico es requerido</p>}
               </CCol>
               <CCol sm={6}>
                 <CFormLabel>Producto/Servicio</CFormLabel>
                 <Controller
                   name="tipo_de_producto_servicio"
                   control={control}
+                  rules={{required: true}}
                   render={({ field }) => <CFormInput {...field} />}
                 />
+                {errors.tipo_de_producto_servicio?.type === 'required' && <p style={{color: 'red'}}>El campo producto o servicio es requerido</p>}
               </CCol>
               <CCol xs={12} >
               <CButton type='submit' color='primary' className="me-md-2">

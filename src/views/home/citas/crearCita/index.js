@@ -37,8 +37,7 @@ const AgendarCita = () => {
   const [selectedBarbero, setSelectedBarbero] = useState(null);
   const [selectedBarberoId, setSelectedBarberoId] = useState(null);
   const [agendaData, setAgendaData] = useState([]);
-
-
+  const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -58,10 +57,13 @@ const AgendarCita = () => {
         if (Array.isArray(nestedArray)) {
           setEmpleados(nestedArray);
         } else {
-          console.error('Error: La respuesta no contiene un array de proveedores', response.data);
+          console.error(
+            "Error: La respuesta no contiene un array de proveedores",
+            response.data,
+          );
         }
       } catch (error) {
-        console.error('Error al obtener la lista de proveedores', error);
+        console.error("Error al obtener la lista de proveedores", error);
       }
     };
 
@@ -103,20 +105,22 @@ const AgendarCita = () => {
   const handleBarberoSelection = async (id_empleado) => {
     // Guarda el ID del barbero seleccionado
     setSelectedBarberoId(id_empleado);
-    
+
     try {
       const response = await ServicioBarbero.getEmpleadoAgenda(id_empleado);
       setAgendaData(response.data.agendas); // Actualiza el estado con los datos de la agenda
-      console.log('Agenda del empleado:', response.data);
+      console.log("Agenda del empleado:", response.data);
     } catch (error) {
-      console.error('Error al obtener la agenda del empleado:', error);
+      console.error("Error al obtener la agenda del empleado:", error);
     }
-  
+
     // Cambia a la siguiente página
     handlePageChange(currentPage + 1);
   };
-  
-  
+
+  const handleDateSelect = (date) => {
+    setSelectedDate(date);
+  };
 
   return (
     <CContainer>
@@ -273,60 +277,95 @@ const AgendarCita = () => {
           )}
 
           {currentPage === 2 && (
-            <CContainer>
-              <h3>Barberos Disponibles</h3>
-              <CRow>
-                {empleados.map((empleado, index) => (
-                  <CCol key={index} sm="4">
-                    <CCard
-                      onClick={() => handleBarberoSelection(empleado.id_empleado)}
-                      style={{
-                        cursor: "pointer",
-                        border:
-                          selectedBarbero === empleado
-                            ? "2px solid #007bff"
-                            : "1px solid #ddd",
-                      }}
-                    >
-                      <CCardBody>
-                        <CCardTitle>{empleado.nombre}</CCardTitle>
-                      </CCardBody>
-                    </CCard>
-                  </CCol>
-                ))}
-              </CRow>
-            </CContainer>
+            <>
+              <CContainer>
+                <h3>Barberos Disponibles</h3>
+                {empleados.length > 0 ? (
+                  <CRow>
+                    {empleados.map((empleado, index) => (
+                      <CCol key={index} sm="4">
+                        <CCard
+                          onClick={() =>
+                            handleBarberoSelection(empleado.id_empleado)
+                          }
+                          style={{
+                            cursor: "pointer",
+                            border:
+                              selectedBarbero === empleado
+                                ? "2px solid #007bff"
+                                : "1px solid #ddd",
+                          }}
+                        >
+                          <CCardBody>
+                            <CCardTitle>{empleado.nombre}</CCardTitle>
+                          </CCardBody>
+                        </CCard>
+                      </CCol>
+                    ))}
+                  </CRow>
+                ) : (
+                  <div className="mt-3">
+                    <CAlert color="info">
+                      No hay datos de agenda disponibles.
+                    </CAlert>
+                  </div>
+                )}
+              </CContainer>
+            </>
           )}
 
           {currentPage === 3 && (
-            <>
-            <h3>Agenda del empleado</h3>
-            {agendaData.length > 0 ? (
-              <CTable>
-                <CTableHead>
-                  <CTableRow>
-                    {/* Define las columnas según la estructura de tus datos de agenda */}
-                    <CTableHeaderCell>Fecha</CTableHeaderCell>
-                    <CTableHeaderCell>Hora</CTableHeaderCell>
-                    {/* ... Otras columnas ... */}
-                  </CTableRow>
-                </CTableHead>
-                <CTableBody>
-                  {agendaData.map((item, index) => (
-                    <CTableRow key={index}>
-                      <CTableDataCell>{item.fechaInicio}</CTableDataCell>
-                      <CTableDataCell>{item.fechaFin}</CTableDataCell>
-                      {/* ... Otras celdas ... */}
-                    </CTableRow>
-                  ))}
-                </CTableBody>
-              </CTable>
-            ) : (
-              <div className="mt-3">
-                <CAlert color="info">No hay datos de agenda disponibles.</CAlert>
+                <>
+      {currentPage === 3 && (
+        <>
+          <h3>Agenda del empleado</h3>
+          {/* Implementación básica de un calendario */}
+          <div>
+            {[...Array(31)].map((_, index) => (
+              <div
+                key={index}
+                onClick={() => handleDateSelect(index + 1)}
+                style={{
+                  display: 'inline-block',
+                  padding: '10px',
+                  margin: '5px',
+                  border: '1px solid #ccc',
+                  cursor: 'pointer',
+                  backgroundColor:
+                    selectedDate === index + 1 ? '#aaf' : 'transparent',
+                }}
+              >
+                {index + 1}
               </div>
-            )}
-          </>
+            ))}
+          </div>
+
+          {/* Mostrar la tabla de horas si se ha seleccionado un día */}
+          {selectedDate !== null && (
+            <div>
+              <h4>Horas para el día {selectedDate}</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Hora Inicio</th>
+                    <th>Hora Fin</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {agendaData.map((agenda, index) => (
+                    // Supongamos que agenda.fechaInicio es igual a selectedDate
+                    <tr key={index}>
+                      <td>{agenda.horaInicio}</td>
+                      <td>{agenda.horaFin}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+    </>
           )}
         </CCardBody>
       </CCard>
