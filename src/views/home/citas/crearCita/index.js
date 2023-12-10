@@ -352,13 +352,17 @@ const AgendarCita = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {agendaData.map((agenda, index) => (
-                    // Supongamos que agenda.fechaInicio es igual a selectedDate
-                    <tr key={index}>
-                      <td>{agenda.horaInicio}</td>
-                      <td>{agenda.horaFin}</td>
-                    </tr>
-                  ))}
+                {agendaData.map((agenda, index) => (
+          <tr key={index}>
+            <td>{agenda.horaInicio}</td>
+            <td>{agenda.horaFin}</td>
+            <td>
+              {Array.from({ length: agenda.horaFin - agenda.horaInicio + 1 }, (_, i) => (
+                <span key={i}>{agenda.horaInicio + i}</span>
+              ))}
+            </td>
+          </tr>
+        ))}
                 </tbody>
               </table>
             </div>
