@@ -31,6 +31,7 @@ import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
 import interactionPlugin from "@fullcalendar/interaction"; // for selectable
 import CitasDataService from "src/views/services/citasService";
 import CitasServiciosDataService from "src/views/services/citasServiciosService";
+import Swal from 'sweetalert2'
 
 const AgendarCita = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -124,9 +125,18 @@ const AgendarCita = () => {
           // Utiliza la función create de CitasServiciosDataService para crear la cita_servicio
           await CitasServiciosDataService.create(citaServicio);
         }
+        
+        Swal.fire({
+          icon: "success",
+          title: "Se creo la cita correctamente",
+          showConfirmButton: false,
+          timer: 1500
+        });
 
-        // Después de agendar, cambia de página si es necesario
-        handlePageChange(currentPage + 1);
+        //Navigating to the list whit react router
+        window.location.href = "/cliente/cita";
+
+
       } catch (error) {
         console.error("Error al intentar agendar la cita:", error);
         // Puedes manejar el error según tus necesidades, mostrar un mensaje, etc.
