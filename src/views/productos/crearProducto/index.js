@@ -69,7 +69,7 @@ function CrearProducto() {
 
   // ...
 
-  const handleGuardarProducto = async (e) => {
+  const handleGuardarProducto = async (e, ) => {
     e.preventDefault();
 
     // Validación de campos requeridos
@@ -90,6 +90,10 @@ function CrearProducto() {
       id_proveedor: id_proveedor,
       nombre: nombre,
       descripcion: descripcion,
+      precioCosto:precioCosto,
+      precioVenta:precioVenta,
+
+      
       // Incluye los demás campos del producto aquí, como precio, stock, precioCosto, precioVenta, etc.
     };
 
