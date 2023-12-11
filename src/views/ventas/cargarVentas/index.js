@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import VentaService from 'src/views/services/ventasService';
-import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import {
     CFormLabel,
     CFormSelect,
@@ -31,9 +30,7 @@ import {
 
 const API_URL = 'http://localhost:8095/api';
 
-function FormularioVentas() {
-    const navigate = useNavigate();
-    const [formValid, setFormValid] = useState(false);
+function CargarVentas() {
     const [clientes, setClientes] = useState([]);
     const [servicios, setServicios] = useState([]);
     const [productos, setProductos] = useState([]);
@@ -48,8 +45,11 @@ function FormularioVentas() {
     const [selectedServicio, setSelectedServicio] = useState(null);
     const [selectedProducto, setSelectedProducto] = useState(null);
     const [selectedEmpleado, setSelectedEmpleado] = useState(null);
+    const [citaSeleccionada, setCitaSeleccionada] = useState(null);
     const [serviciosEnVenta, setServiciosEnVenta] = useState([]);
     const [productosEnVenta, setProductosEnVenta] = useState([]);
+    const [citaId, setCitaId] = useState('');
+    const [citaData, setCitaData] = useState(null);
     const [totalVenta, setTotalVenta] = useState(0);
 
     useEffect(() => {
@@ -58,27 +58,23 @@ function FormularioVentas() {
         fetchProductos();
         fetchVentas();
         fetchEmpleados();
-    }, []);
+        fetchCitasData();
+    }, [citaId]);
+    console.log(citaId)
+
+    const getNextNumeroFactura = () => {
+        const lastNumeroFactura = ventas.length > 0 ? ventas[ventas.length - 1].numeroFactura : '00';
+        const nextNumber = parseInt(lastNumeroFactura, 10) + 1;
+        return nextNumber < 10 ? `0${nextNumber}` : `${nextNumber}`;
+    };
 
     const createSale = async () => {
         try {
-
-            if (!formValid) {
-                // Muestra un mensaje de error o utiliza alguna otra lógica para indicar que el formulario no es válido
-                Swal.fire('Error', 'Completa todos los campos obligatorios antes de crear la venta', 'error');
-                return;
-            }
-            
-            // Mensaje de éxito
-            Swal.fire('Éxito', 'El empleado se ha creado correctamente', 'success');
-
-            // Utiliza el método navigate para redireccionar
-            navigate('/ventas/listaVentas');
-            // Adjust the following line based on your VentaService API method
             const nextNumeroFactura = getNextNumeroFactura();
             setNumeroFactura(nextNumeroFactura);
-
+            // Adjust the following line based on your VentaService API method
             const response = await VentaService.crearVenta({
+                citaId: citaSeleccionada.id_cita,
                 clienteId: selectedCliente.id_cliente,
                 empleadoId: selectedEmpleado.id_empleado,
                 servicios: serviciosEnVenta,
@@ -93,10 +89,16 @@ function FormularioVentas() {
         }
     };
 
-    const getNextNumeroFactura = () => {
-        const lastNumeroFactura = ventas.length > 0 ? ventas[ventas.length - 1].numeroFactura : '00';
-        const nextNumber = parseInt(lastNumeroFactura, 10) + 1;
-        return nextNumber < 10 ? `0${nextNumber}` : `${nextNumber}`;
+    const fetchCitasData = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/citashoy`);
+            console.log(response.data.listCitas)
+            if (response.data) {
+                setCitaData(response.data.listCitas);
+            }
+        } catch (error) {
+            console.error('Error al obtener los datos de la cita:', error);
+        }
     };
 
     const fetchEmpleados = async () => {
@@ -133,6 +135,7 @@ function FormularioVentas() {
             const data = await response.json();
             if (data && data.listServicios) {
                 setServicios(data.listServicios);
+                console.log(data.listServicios);
             } else {
                 console.error('Error al obtener la lista de servicios:', data);
             }
@@ -174,7 +177,6 @@ function FormularioVentas() {
             setSelectedCliente(selected);
             setApellido(selected.apellido);
             setDocumento(selected.documento);
-            setFormValid(clienteId !== '' && selectedEmpleado !== null);
         } else {
             // Manejar el caso en que no se encuentra el cliente con el ID especificado
             console.error('Cliente no encontrado con el ID:', clienteId);
@@ -185,12 +187,21 @@ function FormularioVentas() {
     const handleEmpleadoChange = (empleadoId) => {
         const selected = empleados.find((empleado) => empleado.id_empleado == empleadoId);
         setSelectedEmpleado(selected);
-        setFormValid(selectedCliente !== null && empleadoId !== '');
     };
 
     const handleServicioChange = (servicioId) => {
-        const selected = servicios.find((servicio) => servicio.id == servicioId);
+        const parsedServicioId = parseInt(servicioId, 10);
+
+        if (isNaN(parsedServicioId) || !servicios) {
+            // Manejar el caso en el que servicioId no es un número válido o servicios es null/undefined
+            console.error('El servicioId no es un número válido o servicios no está definido');
+            return;
+        }
+        console.log(parsedServicioId);
+
+        const selected = servicios.find((servicio) => servicio.id == parsedServicioId);
         setSelectedServicio(selected);
+
     };
 
     const handleProductoChange = (productoId) => {
@@ -200,7 +211,7 @@ function FormularioVentas() {
     };
 
     const handleAgregarServicio = () => {
-        if (selectedServicio && selectedServicio.valor) {
+        if (selectedServicio) {
             const nuevaFilaServicio = {
                 id: selectedServicio.id,
                 nombre: selectedServicio.nombre,
@@ -249,6 +260,35 @@ function FormularioVentas() {
         setProductosEnVenta(nuevasFilas);
     };
 
+    const handleCitaChange = async (event) => {
+        const citaIdSeleccionada = parseInt(event.target.value, 10);
+        const citaSeleccionada = citaData.find((cita) => cita.id_cita === citaIdSeleccionada);
+        setCitaSeleccionada(citaSeleccionada)
+        await setCitaSeleccionada(citaSeleccionada);
+        await handleClienteChange(citaSeleccionada.id_cliente);
+        await handleEmpleadoChange(citaSeleccionada.id_empleado);
+        let infoServicio;
+        try {
+            const response = await fetch(`${API_URL}/citas_servicios/${citaSeleccionada.id_cita}`);
+            const data = await response.json();
+            infoServicio = data;
+        } catch (error) {
+            console.error('Error al obtener los datos de la cita:', error);
+        }
+        const selected = servicios.find((servicio) => servicio.id == infoServicio.id_servicio);
+        const nuevaFilaServicio = {
+            id: selected.id,
+            nombre: selected.nombre,
+            cantidad: 1,
+            precioTotal: selected.valor,
+        };
+        console.log(nuevaFilaServicio)
+
+        setServiciosEnVenta([...serviciosEnVenta, nuevaFilaServicio]);
+        setSelectedServicio(null);
+
+        setTotalVenta(totalVenta + nuevaFilaServicio.precioTotal);
+    }
 
     return (
         <CRow>
@@ -257,7 +297,7 @@ function FormularioVentas() {
                     <CCardHeader>
                         <div className="d-flex justify-content-between align-items-center">
                             <strong>Crear Venta</strong>
-                            <Link to="ventas/cargarVentas">
+                            <Link to="ruta/de/tu/agregar/ventas">
                                 <CButton color="primary">Agregar Venta</CButton>
                             </Link>
                         </div>
@@ -265,15 +305,37 @@ function FormularioVentas() {
                     <CCardBody>
                         <form>
                             <div className="mb-3">
-                                <CFormLabel>Cliente</CFormLabel>
-                                <CFormSelect onChange={(e) => handleClienteChange(e.target.value)}>
-                                    <option value="">Seleccionar Cliente</option>
-                                    {clientes.map((cliente) => (
-                                        <option key={cliente.id_cliente} value={cliente.id_cliente}>
-                                            {cliente.nombre}
-                                        </option>
-                                    ))}
+                                <CFormLabel>Hora de la Cita para Hoy</CFormLabel>
+                                <CFormSelect name="horaCita" onChange={handleCitaChange}>
+                                    <option>Selecciona una cita</option>
+                                    {citaData && Array.isArray(citaData) ? (
+                                        citaData.length > 0 ? (
+                                            citaData.map((cita) => (
+                                                <option key={cita.id_cita} value={cita.id_cita}>
+                                                    {cita.Hora_Atencion}
+                                                </option>
+                                            ))
+                                        ) : (
+                                            <option value="">No hay citas disponibles</option>
+                                        )
+                                    ) : (
+                                        <option value="">Cargando citas...</option>
+                                    )}
                                 </CFormSelect>
+                            </div>
+                            {citaData && citaData.id && (
+                                <div>
+                                    <p>Información de la Cita:</p>
+                                    <p>Nombre: {citaData?.id_cliente?.nombre}</p>
+                                    <p>apellido: {citaData?.id_cliente?.apellido}</p>
+                                    <p>documento: {citaData?.id_cliente?.documento}</p>
+                                    <p>empleado: {citaData?.id_empleado?.nombre}</p>
+                                    <p>servicio: {citaData?.id_servicio?.nombre}</p>
+                                </div>
+                            )}
+                            <div className="mb-3">
+                                <CFormLabel>Cliente</CFormLabel>
+                                <CFormInput value={selectedCliente?.nombre} readOnly />
                             </div>
                             <div className="mb-3">
                                 <CFormLabel>Apellido</CFormLabel>
@@ -285,16 +347,9 @@ function FormularioVentas() {
                             </div >
                             <div className="mb-3">
                                 <CFormLabel>Empleado</CFormLabel>
-                                <CFormSelect onChange={(e) => handleEmpleadoChange(e.target.value)}>
-                                    <option value="">Seleccionar Empleado</option>
-                                    {empleados.map((empleado) => (
-                                        <option key={empleado.id_empleado} value={empleado.id_empleado}>
-                                            {empleado.nombre}
-                                        </option>
-                                    ))}
-                                </CFormSelect>
+                                <CFormInput value={selectedEmpleado?.nombre == undefined ? ' ' : selectedEmpleado?.nombre + ' ' + selectedEmpleado?.apellido} readOnly />
                             </div>
-                            
+
                             <div className="mb-3" style={{ display: 'none' }}>
                                 <CFormLabel>Número de Factura</CFormLabel>
                                 <CFormInput
@@ -409,4 +464,4 @@ function FormularioVentas() {
     );
 }
 
-export default FormularioVentas;
+export default CargarVentas;
