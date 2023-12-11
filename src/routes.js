@@ -14,6 +14,7 @@ const Carousels = React.lazy(() => import('./views/base/carousels/Carousels'))
 const Collapses = React.lazy(() => import('./views/base/collapses/Collapses'))
 const ListGroups = React.lazy(() => import('./views/base/list-groups/ListGroups'))
 const Navs = React.lazy(() => import('./views/base/navs/Navs'))
+
 const Paginations = React.lazy(() => import('./views/base/paginations/Paginations'))
 const Placeholders = React.lazy(() => import('./views/base/placeholders/Placeholders'))
 const Popovers = React.lazy(() => import('./views/base/popovers/Popovers'))
@@ -84,7 +85,7 @@ const CrearCliente = React.lazy(() => import('./views/clientes/crearCliente'))
 const ListaInsumos = React.lazy(() => import('./views/insumos/listaInsumos'))
 const CrearInsumo = React.lazy(() => import('./views/insumos/crearInsumo'))
 
-const CrearConfiguracion = React.lazy(() => import('./views/agendas/crearConfiguracion'))
+const CrearConfiguracion = React.lazy(() => import('./views/agendas/crearConfiguracion/programacion'))
 
 
 const routes = [

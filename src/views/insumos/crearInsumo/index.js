@@ -8,86 +8,42 @@ import {
     CCol,
     CFormLabel,
     CFormInput,
-    CFormSelect,
     CRow,
 } from '@coreui/react';
+import InsumoService from 'src/views/services/insumoService'; // Actualiza el servicio si es necesario
 
 function CrearInsumo() {
-    const [insumo, setInsumo] = useState({
-        id: '',
-        nombre: '',
-        valor: 0,
-        cantidad: 0,
-        estado: '',
-    });
+    const [nombre, setNombre] = useState('');
+    const [stock, setStock] = useState(0);
+    const [precio, setPrecio] = useState(0);
+    const [error, setError] = useState('');
 
-    const [errors, setErrors] = useState({});
-    const [success, setSuccess] = useState(false);
-    const [saving, setSaving] = useState(false);
+    const handleGuardarInsumo = async (e) => {
+        e.preventDefault();
 
-    const handleInputChange = (event) => {
-        const { name, value } = event.target;
-        setInsumo({
-            ...insumo,
-            [name]: value,
-        });
-
-        // Limpiar el error asociado al campo actual al modificar su valor
-        setErrors({
-            ...errors,
-            [name]: null,
-        });
-    };
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        setErrors({}); // Limpiar errores existentes
-        setSaving(true); // Activar indicador de guardado
-
-        // Realizar validación de formulario aquí
-        const validationErrors = {};
-
-        // Validar ID del Insumo
-        if (!insumo.id) {
-            validationErrors.id = 'Por favor, ingresa el ID del insumo.';
-        }
-
-        // Validar Nombre del Insumo
-        if (!insumo.nombre) {
-            validationErrors.nombre = 'Por favor, ingresa el nombre del insumo.';
-        }
-
-        // Validar Valor del Insumo
-        if (!insumo.valor || insumo.valor <= 0) {
-            validationErrors.valor = 'Por favor, ingresa un valor válido para el insumo.';
-        }
-
-        // Validar Cantidad del Insumo
-        if (!insumo.cantidad || insumo.cantidad <= 0) {
-            validationErrors.cantidad = 'Por favor, ingresa una cantidad válida para el insumo.';
-        }
-
-        // Validar Estado
-        if (!insumo.estado) {
-            validationErrors.estado = 'Por favor, selecciona el estado del insumo.';
-        }
-
-        // Verificar si hay errores de validación
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            setSaving(false); // Desactivar indicador de guardado debido a errores
+        // Validaciones
+        if (!nombre.trim() || stock <= 0 || precio <= 0) {
+            setError('Todos los campos son obligatorios y los valores numéricos deben ser mayores que cero.');
             return;
         }
 
-        // Aquí puedes realizar la lógica para guardar el insumo en la base de datos
-        // Por ejemplo, puedes enviar una solicitud a tu API para crear el insumo
-        // console.log('Insumo creado:', insumo);
+        const newInsumo = {
+            nombre,
+            stock,
+            precio,
+        };
 
-        // Simulando una solicitud asíncrona (puedes reemplazar esto con tu lógica real)
-        setTimeout(() => {
-            setSuccess(true);
-            setSaving(false); // Desactivar indicador de guardado después de éxito
-        }, 1000);
+        try {
+            const response = await InsumoService.createInsumo(newInsumo);
+            console.log('Insumo creado:', response);
+
+            setNombre('');
+            setStock(0);
+            setPrecio(0);
+            setError('');
+        } catch (error) {
+            console.error('Error al crear el insumo:', error);
+        }
     };
 
     return (
@@ -98,95 +54,33 @@ function CrearInsumo() {
                         <strong>Crear Insumo</strong>
                     </CCardHeader>
                     <CCardBody>
-                        {saving && (
-                            <div className="text-info mb-3">
-                                <strong>Guardando...</strong>
-                            </div>
-                        )}
-                        {errors.general && (
-                            <div className="text-danger mb-3">
-                                <strong>{errors.general}</strong>
-                            </div>
-                        )}
-                        {success && (
-                            <div className="text-success mb-3">
-                                <strong>Insumo creado con éxito.</strong>
-                            </div>
-                        )}
-                        <form onSubmit={handleSubmit}>
+                        <form onSubmit={handleGuardarInsumo}>
                             <div className="mb-3">
-                                <CFormLabel>ID del Insumo</CFormLabel>
+                                <CFormLabel>Nombre</CFormLabel>
                                 <CFormInput
                                     type="text"
-                                    name="id"
-                                    value={insumo.id}
-                                    onChange={handleInputChange}
+                                    value={nombre}
+                                    onChange={(e) => setNombre(e.target.value)}
                                 />
-                                {errors.id && (
-                                    <div className="text-danger">
-                                        <small>{errors.id}</small>
-                                    </div>
-                                )}
                             </div>
                             <div className="mb-3">
-                                <CFormLabel>Nombre del Insumo</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    name="nombre"
-                                    value={insumo.nombre}
-                                    onChange={handleInputChange}
-                                />
-                                {errors.nombre && (
-                                    <div className="text-danger">
-                                        <small>{errors.nombre}</small>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="mb-3">
-                                <CFormLabel>Valor del Insumo</CFormLabel>
+                                <CFormLabel>Stock</CFormLabel>
                                 <CFormInput
                                     type="number"
-                                    name="valor"
-                                    value={insumo.valor}
-                                    onChange={handleInputChange}
+                                    value={stock}
+                                    onChange={(e) => setStock(e.target.value)}
                                 />
-                                {errors.valor && (
-                                    <div className="text-danger">
-                                        <small>{errors.valor}</small>
-                                    </div>
-                                )}
                             </div>
                             <div className="mb-3">
-                                <CFormLabel>Cantidad del Insumo</CFormLabel>
+                                <CFormLabel>Precio</CFormLabel>
                                 <CFormInput
                                     type="number"
-                                    name="cantidad"
-                                    value={insumo.cantidad}
-                                    onChange={handleInputChange}
+                                    value={precio}
+                                    onChange={(e) => setPrecio(e.target.value)}
                                 />
-                                {errors.cantidad && (
-                                    <div className="text-danger">
-                                        <small>{errors.cantidad}</small>
-                                    </div>
-                                )}
                             </div>
-                            <div className="mb-3">
-                                <CFormLabel>Estado</CFormLabel>
-                                <CFormSelect
-                                    name="estado"
-                                    value={insumo.estado}
-                                    onChange={handleInputChange}
-                                >
-                                    <option value="">Selecciona el estado</option>
-                                    <option value="activo">Activo</option>
-                                    <option value="inactivo">Inactivo</option>
-                                </CFormSelect>
-                                {errors.estado && (
-                                    <div className="text-danger">
-                                        <small>{errors.estado}</small>
-                                    </div>
-                                )}
-                            </div>
+                            {/* Mensaje de error */}
+                            {error && <div style={{ color: 'red' }}>{error}</div>}
                             <CButton type="submit" color="primary" className="mr-2">
                                 Guardar Insumo
                             </CButton>

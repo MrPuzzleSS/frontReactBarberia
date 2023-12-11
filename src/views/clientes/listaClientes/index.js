@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+/* eslint-disable prettier/prettier */
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-
+import Swal from 'sweetalert2';
 import {
     CCard,
     CCardBody,
@@ -22,54 +22,74 @@ import {
     CModalBody,
     CModalFooter,
     CFormLabel,
-    CFormSelect,
     CFormInput,
-    CInputGroup,
-    CInputGroupText,
 } from '@coreui/react';
+import ClienteService from 'src/views/services/clienteService'; // Actualiza el servicio si es necesario
 
-function ListaClientes() {
+const ListaClientes = () => {
     const [visible, setVisible] = useState(false);
-    const [editingCliente, setEditingCliente] = useState(null); // Cliente que se está editando
+    const [clientes, setClientes] = useState(null);
+    const [selectedClienteId, setSelectedClienteId] = useState(null);
 
-    // Reemplaza esta lista con datos reales de clientes
-    const clientes = [
-        {
-            id: 1,
-            nombre: 'Aaron',
-            apellido: 'Vera',
-            correo: 'vera@gmail.com',
-            documento: 123547,
-            telefono: 3148868498,
-            estado: 'Activo',
-        },
-        {
-            id: 2,
-            nombre: 'Oscar',
-            apellido: 'Torres',
-            correo: 't99@gmail.com',
-            documento: 1019228982,
-            telefono: 3009878976,
-            estado: 'Activo',
-        },
-    ];
+    const fetchClientes = async () => {
+        try {
+            const response = await ClienteService.getAllClientes();
+            const data = response.listClientes || [];
+            setClientes(data);
+        } catch (error) {
+            console.error('Error al obtener clientes:', error);
+            setClientes([]);
+        }
+    };
+    
 
-    const handleEditClick = (cliente) => {
-        setEditingCliente(cliente);
+    useEffect(() => {
+        fetchClientes();
+    }, []);
+
+    const handleEditar = (cliente) => {
+        setSelectedClienteId(cliente);
         setVisible(true);
     };
 
-    const handleCloseModal = () => {
-        setEditingCliente(null);
-        setVisible(false);
+    const handleEliminar = async (id_cliente) => {
+        try {
+            await ClienteService.eliminarCliente(id_cliente);
+            fetchClientes();
+            Swal.fire({
+                icon: 'success',
+                title: 'Cliente eliminado',
+                showConfirmButton: false,
+                timer: 1500,
+            });
+        } catch (error) {
+            console.error('Error al eliminar el cliente:', error);
+        }
     };
 
-    // Agrega lógica para guardar los cambios del cliente editado
-    const handleSaveChanges = () => {
-        // Realiza la lógica para guardar los cambios en la base de datos
-        // Después, cierra la ventana modal
-        handleCloseModal();
+    const handleGuardarCambios = async () => {
+        try {
+            console.log('selectedClienteId:', selectedClienteId);
+            console.log('selectedClienteId.id:', selectedClienteId.id_cliente);
+            if (selectedClienteId && selectedClienteId.id_cliente) {
+                await ClienteService.updateCliente(selectedClienteId.id_cliente, selectedClienteId);
+                fetchClientes();
+                setVisible(false);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Cambios guardados',
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+            } else {
+                console.error('Error: ID de cliente no definido o válido.');
+            }
+        } catch (error) {
+            console.error('Error al guardar cambios:', error);
+        }
     };
+    
+    
 
     return (
         <CRow>
@@ -78,7 +98,7 @@ function ListaClientes() {
                     <CCardHeader>
                         <div className="d-flex justify-content-between align-items-center">
                             <strong>Lista de Clientes</strong>
-                            <Link to="/clientes/crearClientes">
+                            <Link to="/clientes/crearCliente">
                                 <CButton color="primary">Agregar Cliente</CButton>
                             </Link>
                         </div>
@@ -90,35 +110,36 @@ function ListaClientes() {
                                     <CTableHeaderCell scope="col">#</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Apellido</CTableHeaderCell>
-                                    <CTableHeaderCell scope="col">Correo</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Documento</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Teléfono</CTableHeaderCell>
-                                    <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
                                 </CTableRow>
                             </CTableHead>
                             <CTableBody>
-                                {clientes.map((cliente, index) => (
-                                    <CTableRow key={cliente.id}>
+                                {Array.isArray(clientes) && clientes.length > 0 && clientes.map((cliente, index) => (
+                                    <CTableRow key={cliente.id_cliente}>
                                         <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                                         <CTableDataCell>{cliente.nombre}</CTableDataCell>
                                         <CTableDataCell>{cliente.apellido}</CTableDataCell>
-                                        <CTableDataCell>{cliente.correo}</CTableDataCell>
                                         <CTableDataCell>{cliente.documento}</CTableDataCell>
                                         <CTableDataCell>{cliente.telefono}</CTableDataCell>
-                                        <CTableDataCell>{cliente.estado}</CTableDataCell>
                                         <CTableDataCell>
-                                            <CButtonGroup aria-label="Basic mixed styles example">
+                                            <CButtonGroup aria-label="Acciones del Cliente">
                                                 <CButton
                                                     color="info"
                                                     size="sm"
                                                     variant="outline"
-                                                    onClick={() => handleEditClick(cliente)}
+                                                    onClick={() => handleEditar(cliente)}
                                                 >
                                                     Editar
                                                 </CButton>
-                                                <CButton color="warning" size="sm" variant="outline">
-                                                    Cambiar Estado
+                                                <CButton
+                                                    color="danger"
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => handleEliminar(cliente.id_cliente)}
+                                                >
+                                                    Eliminar
                                                 </CButton>
                                             </CButtonGroup>
                                         </CTableDataCell>
@@ -129,7 +150,8 @@ function ListaClientes() {
                     </CCardBody>
                 </CCard>
             </CCol>
-            <CModal visible={visible} onClose={handleCloseModal}>
+
+            <CModal visible={visible} onClose={() => setVisible(false)}>
                 <CModalHeader>
                     <CModalTitle>Editar Cliente</CModalTitle>
                 </CModalHeader>
@@ -137,39 +159,63 @@ function ListaClientes() {
                     <form>
                         <div className="mb-3">
                             <CFormLabel>Nombre</CFormLabel>
-                            <CFormInput type="text" defaultValue={editingCliente?.nombre} />
+                            <CFormInput
+                                type="text"
+                                value={selectedClienteId ? selectedClienteId.nombre : ''}
+                                onChange={(e) =>
+                                    setSelectedClienteId({
+                                        ...selectedClienteId,
+                                        nombre: e.target.value,
+                                    })
+                                }
+                            />
                         </div>
                         <div className="mb-3">
                             <CFormLabel>Apellido</CFormLabel>
-                            <CFormInput type="text" defaultValue={editingCliente?.apellido} />
-                        </div>
-                        <div className="mb-3">
-                            <CFormLabel>Correo</CFormLabel>
-                            <CFormInput type="email" defaultValue={editingCliente?.correo} />
+                            <CFormInput
+                                type="text"
+                                value={selectedClienteId ? selectedClienteId.apellido : ''}
+                                onChange={(e) =>
+                                    setSelectedClienteId({
+                                        ...selectedClienteId,
+                                        apellido: e.target.value,
+                                    })
+                                }
+                            />
                         </div>
                         <div className="mb-3">
                             <CFormLabel>Documento</CFormLabel>
-                            <CFormInput type="number" defaultValue={editingCliente?.documento} />
+                            <CFormInput
+                                type="number"
+                                value={selectedClienteId ? selectedClienteId.documento : ''}
+                                onChange={(e) =>
+                                    setSelectedClienteId({
+                                        ...selectedClienteId,
+                                        documento: e.target.value,
+                                    })
+                                }
+                            />
                         </div>
                         <div className="mb-3">
                             <CFormLabel>Teléfono</CFormLabel>
-                            <CFormInput type="number" defaultValue={editingCliente?.telefono} />
-                        </div>
-                        <div className="mb-3">
-                            <CFormLabel>Estado</CFormLabel>
-                            <CFormSelect>
-                                <option value="">Selecciona el estado</option>
-                                <option value="activo">Activo</option>
-                                <option value="inactivo">Inactivo</option>
-                            </CFormSelect>
+                            <CFormInput
+                                type="text"
+                                value={selectedClienteId ? selectedClienteId.telefono : ''}
+                                onChange={(e) =>
+                                    setSelectedClienteId({
+                                        ...selectedClienteId,
+                                        telefono: e.target.value,
+                                    })
+                                }
+                            />
                         </div>
                     </form>
                 </CModalBody>
                 <CModalFooter>
-                    <CButton color="secondary" onClick={handleCloseModal}>
+                    <CButton color="secondary" onClick={() => setVisible(false)}>
                         Cerrar
                     </CButton>
-                    <CButton color="primary" onClick={handleSaveChanges}>
+                    <CButton color="primary" onClick={handleGuardarCambios}>
                         Guardar Cambios
                     </CButton>
                 </CModalFooter>
