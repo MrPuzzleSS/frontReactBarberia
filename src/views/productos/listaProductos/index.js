@@ -58,6 +58,15 @@ function ListaProductos() {
 
 
   const handleEditar = (producto) => {
+    if (producto.estado === 'Inactivo') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Producto inactivo',
+        text: 'No se puede editar un producto inactivo.',
+      });
+      return; // Detener la edición del producto inactivo
+    }
+
     setSelectedProductoId(producto);
     setVisible(true);
   };
