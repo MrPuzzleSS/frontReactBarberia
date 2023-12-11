@@ -1,5 +1,5 @@
-const apiUrl = 'https://resapibarberia.onrender.com/api/producto';
-const apiUrlProveedores = 'https://resapibarberia.onrender.com/api/proveedores';
+const apiUrl = 'http://localhost:8095/api/producto';
+const apiUrlProveedores = 'http://localhost:8095/api/proveedores';
 
 const ProductoService = {
 
@@ -99,15 +99,15 @@ const ProductoService = {
         }
     },
 
-    cambiarEstadoProducto: async (id, nuevoEstado) => {
+    putProducto: async (id, estado) => {
         try {
-            console.log('Ruta de solicitud:', `${apiUrl}/cambiarEstado/${id}`); // Agrega este console.log()
-            const response = await fetch(`${apiUrl}/cambiarEstado/${id}`, {
+            console.log('Ruta de solicitud:', `${apiUrl}/${id}`); // Agrega este console.log()
+            const response = await fetch(`${apiUrl}/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ nuevoEstado }),
+                body: JSON.stringify({ estado }),
             });
             if (!response.ok) {
                 throw new Error('Error al cambiar el estado del producto');

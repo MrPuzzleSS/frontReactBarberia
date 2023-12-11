@@ -58,6 +58,15 @@ function ListaProductos() {
 
 
   const handleEditar = (producto) => {
+    if (producto.estado === 'Inactivo') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Producto inactivo',
+        text: 'No se puede editar un producto inactivo.',
+      });
+      return; // Detener la edición del producto inactivo
+    }
+
     setSelectedProductoId(producto);
     setVisible(true);
   };
@@ -93,9 +102,9 @@ function ListaProductos() {
     }
   };
 
-  const handleCambiarEstado = async (id_producto, nuevoEstado) => {
+  const handleCambiarEstado = async (id_producto, estado) => {
     try {
-      await ProductoService.cambiarEstadoProducto(id_producto, nuevoEstado); // Pasar el nuevo estado al servicio
+      await ProductoService.putProducto(id_producto, estado); // Pasar el nuevo estado al servicio
       fetchProductos();
       Swal.fire({
         icon: 'success',
