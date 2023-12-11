@@ -31,6 +31,8 @@ function ListaVentas() {
   const [ventas, setVentas] = useState ([]);
   const [visible, setVisible] = useState(false);
   const [selectedVentaId, setSelectedVentaId] = useState ({});
+  const [detalleproductos, setDetalleProducto] = useState(null);
+  const [detalleservicios, setDetalleServicio] = useState(null);
 
   useEffect(() => {
     fetchVentas();
@@ -49,12 +51,21 @@ function ListaVentas() {
     }
   };
 
-  const handleAnularVenta = async (id_ventas) => {
-    try {
-      await VentaService.anularVenta(id_ventas);
+  const cancelarVentas = async (id_ventas) => {
+    try{
+      await VentaService.cancelarVenta(id_ventas);
       fetchVentas();
     } catch (error) {
-      console.error('error al anular la venta:', error);
+      console.error('error al cancelar la venta', error);
+    }
+  };
+
+  const CambioAnulado = async (id_ventas) => {
+    try{
+      await VentaService.cambiarEstado(id_ventas);
+      fetchVentas();
+    } catch (error) {
+      console.error('no deja anular, tenemos un error', error);
     }
   };
 
@@ -81,6 +92,7 @@ function ListaVentas() {
                   <CTableHeaderCell scope="col">Nro° Factura</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Valor Total</CTableHeaderCell>
                   <CTableHeaderCell scope="col">estado</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">anular</CTableHeaderCell>
                   <CTableHeaderCell scope="col">acciones</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
@@ -93,13 +105,18 @@ function ListaVentas() {
                     <CTableDataCell>{venta.numeroFactura}</CTableDataCell>
                     <CTableDataCell>{venta.precio}</CTableDataCell>
                     <CTableDataCell>{venta.estado}</CTableDataCell>
+                    <CTableDataCell>{venta.estado_anulado}</CTableDataCell>
                     <CTableDataCell>
                       <CButtonGroup aria-label="Basic mixed styles example">
                         <CButton
                           color="info"
                           size="sm"
                           variant="outline"
-                          onClick={() => setVisible(!visible)}
+                          onClick={() => {
+                            setVisible(!visible);
+                            setDetalleProducto(venta.detalleproductos); 
+                            setDetalleServicio(venta.detalleservicios);
+                          }}
                         >
                           Detalle 
                         </CButton>
@@ -107,9 +124,17 @@ function ListaVentas() {
                           color="warning" 
                           size="sm" 
                           variant="outline"
-                          onClick={() => handleAnularVenta(venta.id_ventas)}
+                          onClick={() => cancelarVentas(venta.id_ventas)}
                         >
-                          Anular
+                          confirmar
+                        </CButton>
+                        <CButton
+                          color="warning" 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => CambioAnulado(venta.id_ventas)}
+                        >
+                          anular
                         </CButton>
                       </CButtonGroup>
                     </CTableDataCell>
@@ -125,23 +150,30 @@ function ListaVentas() {
           <CModalTitle>Detalle de Ventas</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <form>
-            <div className="mb-3">
-              <CFormLabel>IdProducto: 4</CFormLabel>
+          {detalleproductos && (
+            <div>
+              <h4>Detalles de Productos</h4>
+              <ul>
+                {detalleproductos.map((detalle, index) => (
+                  <li key={index}>
+                    IdDetalleProducto: {detalle.id_detalleproducto}, IdVenta: {detalle.id_ventas}, IdProducto: {detalle.id_producto}, Cantidad: {detalle.cantidad}, Valor Venta: {detalle.valor_venta}, Valor Total: {detalle.valor_total}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="mb-3">
-              <CFormLabel>Cantidad: 3</CFormLabel>
+          )}
+          {detalleservicios && (
+            <div>
+              <h4>Detalles de Servicios</h4>
+              <ul>
+                {detalleservicios.map((detalle, index) => (
+                  <li key={index}>
+                    IdDetalleServicio: {detalle.id_detalleservicio}, IdVenta: {detalle.id_ventas}, IdServicio: {detalle.id_servicio}, Cantidad: {detalle.cantidad}, Valor Venta: {detalle.valor_venta}, Valor Total: {detalle.valor_total}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="mb-3">
-              <CFormLabel>Valor Venta: 70.000</CFormLabel>
-            </div>
-            <div className="mb-3">
-              <CFormLabel>Valor Total: 210.000</CFormLabel>
-            </div>
-            <div className="mb-3">
-              <CFormLabel>Tipo de Venta: Productos</CFormLabel>
-            </div>
-          </form>
+          )}
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setVisible(false)}>

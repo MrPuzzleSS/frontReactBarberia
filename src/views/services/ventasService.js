@@ -3,17 +3,14 @@ const api_url = 'http://localhost:8095/api/venta';
 const VentaService = {
     getVentas: () => {
         return fetch(`${api_url}`)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error al obtener las ventas: ${response.status} - ${response.statusText}`);
+                }
+                return response.json();
+            })
             .catch(error => {
-                console.error('Error al obtener las ventas:', error);
-            });
-    },
-
-    getVentaById: (id) => {
-        return fetch(`${api_url}/venta/${id}`)
-            .then(response => response.json())
-            .catch(error => {
-                console.error('Error al obtener la venta por ID:', error);
+                console.error('Error al obtener las ventas:', error.message);
             });
     },
 
@@ -31,13 +28,23 @@ const VentaService = {
             });
     },
 
-    anularVenta: (id) => {
-        return fetch(`${api_url}/${id}`, {
-            method: 'DELETE',
+    cancelarVenta: (id_ventas) => {
+        return fetch(`${api_url}/cancelar/${id_ventas}`, {
+            method: 'PUT', 
         })
             .then(response => response.json())
             .catch(error => {
-                console.error('Error al anular la venta:', error);
+                console.error('Error al cancelar la venta:', error);
+            });
+    },
+
+    cambiarEstado: (id_ventas) => {
+        return fetch(`${api_url}/estadoventa/${id_ventas}`, {
+            method: 'PUT',
+        })
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Error al cambiar el estado de la venta:', error);
             });
     },
 };
