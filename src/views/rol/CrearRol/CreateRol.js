@@ -22,7 +22,7 @@ import 'react-toastify/dist/ReactToastify.css';
 const Register = () => {
   const [newRole, setNewRole] = useState({
     nombre: '',
-    estado: '',
+    estado: 'Activo',
     permisos: [],
   });
 
@@ -74,9 +74,6 @@ const Register = () => {
       validationErrors.estado = 'Por favor, selecciona el estado del rol.';
     }
 
-    if (newRole.permisos.length === 0) {
-      validationErrors.permisos = 'Por favor, selecciona al menos un permiso.';
-    }
 
     if (Object.keys(validationErrors).length > 0) {
       // Display SweetAlert for validation errors
@@ -104,12 +101,7 @@ const Register = () => {
     } catch (error) {
       console.error('Error al agregar rol:', error);
       
-      // Show SweetAlert for error
-      Swal.fire({
-        icon: 'error',
-        title: 'ERROR',
-        text: 'SOLO SE PERMITEN 3 TIPOS DE ROLES',
-      });
+      // Show SweetAlert for erro
     }
   };
 
@@ -126,32 +118,15 @@ const Register = () => {
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
                     </CInputGroupText>
-                    <select
-                      value={newRole.nombre}
-                      onChange={(e) => setNewRole({ ...newRole, nombre: e.target.value })}
-                    >
-                      <option value="" disabled>ROL</option>
-                      <option value="administrador">ADMINISTRADOR</option>
-                      <option value="cliente">CLIENTE</option>
-                      <option value="empleado">EMPLEADO</option>
-                    </select>
+                    <CFormInput
+                    placeholder="Nombre de usuario"
+                    autoComplete="rol"
+                    value={newRole.nombre}
+                    onChange={(e) => setNewRole({ ...newRole, nombre: e.target.value })}
+                    
+                  />
                   </CInputGroup>
                   {errors.nombre && <div className="text-danger">{errors.nombre}</div>}
-
-                  <CInputGroup className="mb-4">
-                    <CInputGroupText>
-                      <CIcon icon={cilUser} />
-                    </CInputGroupText>
-                    <select
-                      value={newRole.estado}
-                      onChange={(e) => setNewRole({ ...newRole, estado: e.target.value })}
-                    >
-                      <option value="" disabled>ESTADO</option>
-                      <option value="activo">Activo</option>
-                    </select>
-                  </CInputGroup>
-                  {errors.estado && <div className="text-danger">{errors.estado}</div>}
-
                   <div>
                     <h4>Permisos:</h4>
                     {permisos.map((permiso) => (

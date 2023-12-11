@@ -1,5 +1,7 @@
 import React from 'react'
 
+//import PrivateRoute from './components/privateRoute';
+
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -53,7 +55,7 @@ const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 
 
 
-const ListaProveedores = React.lazy(() => import('./views/proveedores/listaProveedores'))
+const ListaProveedores = React.lazy(()  => import('./views/proveedores/listaProveedores'))
 const CrearProveedor = React.lazy(() => import('./views/proveedores/crearProveedor'))
 const ListaCompras = React.lazy(() => import('./views/compras/listaCompras'))
 const CrearCompra = React.lazy(() => import('./views/compras/crearCompra'))
@@ -67,8 +69,11 @@ const FormularioVentas = React.lazy(() => import('./views/ventas/CrearVentas'))
 const Usuarios = React.lazy(() => import('./views/users/listaUsuarios/Usuarios'))
 const CrearUsuarios = React.lazy(() => import('./views/users/crearUsuario/CrearUser'))
 const EditarUsuarios = React.lazy(() => import('./views/users/editarUsuario/EditUser'))
+
 const Roles = React.lazy(() => import('./views/rol/listaRoles/Roles'))
 const CrearRol = React.lazy(() => import('./views/rol/CrearRol/CreateRol'))
+const recuperarContraseña = React.lazy( ()=> import('./views/pages/login/recuperarContraseña'))
+const resetContrasena = React.lazy ( ()=> import('./views/pages/login/resetContrasena'))
 
 
 const ListaProductos = React.lazy(() => import('./views/productos/listaProductos'))
@@ -90,7 +95,10 @@ const routes = [
   //TODAS LAS RUTAS DEL PROYECTO
 
   { path: '/', exact: true, name: 'Home' },
-  { path: '/dashboard', name: 'Dashboard', element: Dashboard },
+
+  { path: '/dashboard', name: 'Dashboard', element:Dashboard },
+
+
   { path: '/proveedores', name: 'Proveedores', element: ListaProveedores },
   { path: '/proveedores/lista-proveedores', name: 'Proveedores', element: ListaProveedores },
   { path: '/proveedores/crear-proveedor', name: 'Nuevo proveedor', element: CrearProveedor },
@@ -119,11 +127,17 @@ const routes = [
   { path: '/insumos/crearInsumo', name: 'Crear Insumo', element: CrearInsumo },
 
   { path: '/ventas/listaVentas', name: 'Ventas', element: ListarVentas},
-  { path: '/ListaUsuarios', name:'Usuarios', element: Usuarios},
+
+  { path: '/ListaUsuarios', name: 'Usuarios',element : Usuarios},
+
+
   { path: '/CrearUsuarios', name: 'CrearUsuarios', element: CrearUsuarios},
   { path: '/EditarUsuarios', name: 'EditarUsuarios', element: EditarUsuarios},
+  
   { path: '/ListaRol', name: 'Roles', element: Roles},
   { path: '/CrearRol', name: 'CrearRol', element: CrearRol},
+  {path: '/recuperarContraseña', name: 'recuperarContraseña', element: recuperarContraseña},
+  {path: '/resetContrasena', name: 'resetContrasena', element: resetContrasena},
   { path: '/productos', name: 'productos', element: ListaProductos },
   { path: '/productos/lista-productos', name: 'Productos', element: ListaProductos },
   { path: '/productos/crear-producto', name: 'Nuevo producto', element: CrearProducto },

@@ -25,10 +25,11 @@ const Login = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+ 
   const handleLogin = async () => {
     try {
       setError(null);
-
+  
       const response = await fetch('https://resapibarberia.onrender.com/api/login', {
         method: 'POST',
         headers: {
@@ -36,15 +37,24 @@ const Login = () => {
         },
         body: JSON.stringify({ nombre_usuario: nombreUsuario, contrasena }),
       });
-
+  
       if (!response.ok) {
         const errorMessage = await response.text();
         throw new Error(`Error al autenticar el usuario: ${errorMessage}`);
       }
-
-      const { token } = await response.json();
-
+  
+      const { token, userId } = await response.json();
+  
       if (token) {
+        // Verificar el estado del usuario
+        const userResponse = await fetch(`https://resapibarberia.onrender.com/api/usuario/${userId}`);
+        const userData = await userResponse.json();
+  
+        if (userData && userData.estado === 'Inactivo') {
+          setError('Usuario inactivo, no puede iniciar sesión');
+          return;
+        }
+  
         localStorage.setItem('token', token);
         console.log('Token guardado correctamente:', token);
         navigate('/dashboard'); // Redirige al dashboard después de guardar el token
@@ -56,6 +66,7 @@ const Login = () => {
       setError('Usuario o contraseña incorrectos');
     }
   };
+  
 
   return (
     <div
@@ -107,8 +118,8 @@ const Login = () => {
                         </CButton>
                       </CCol>
                       <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0">
-                          Olvidó su contraseña?
+                        <CButton color="link" className="px-0" onClick={() => navigate('/recuperarContraseña')}>
+                          ¿Olvidó su contraseña?
                         </CButton>
                       </CCol>
                     </CRow>
