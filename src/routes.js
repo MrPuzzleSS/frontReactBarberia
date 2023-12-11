@@ -84,7 +84,7 @@ const CrearCliente = React.lazy(() => import('./views/clientes/crearCliente'))
 const ListaInsumos = React.lazy(() => import('./views/insumos/listaInsumos'))
 const CrearInsumo = React.lazy(() => import('./views/insumos/crearInsumo'))
 
-const CrearConfiguracion = React.lazy(() => import('./views/agendas/crearConfiguracion'))
+const CrearConfiguracion = React.lazy(() => import('./views/agendas/crearConfiguracion/programacion'))
 
 
 const routes = [

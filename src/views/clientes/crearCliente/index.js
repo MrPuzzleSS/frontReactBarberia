@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Swal from 'sweetalert2';
-import '@sweetalert2/theme-bootstrap-4/bootstrap-4.css';
 import {
     CButton,
     CCard,
@@ -9,70 +7,64 @@ import {
     CCardHeader,
     CCol,
     CFormLabel,
-    CFormSelect,
     CFormInput,
     CRow,
 } from '@coreui/react';
-import axios from 'axios';
+import ClienteService from 'src/views/services/clienteService'; // Update the service if necessary
 
 function CrearCliente() {
-    const initialFormData = {
-        nombre: '',
-        apellido: '',
-        correo: '',
-        documento: '',
-        telefono: '',
-        estado: '',
-    };
+    const [nombre, setNombre] = useState('');
+    const [apellido, setApellido] = useState('');
+    const [documento, setDocumento] = useState('');
+    const [telefono, setTelefono] = useState('');
+    const [error, setError] = useState('');
 
-    const [formData, setFormData] = useState(initialFormData);
-    const [errors, setErrors] = useState({});
-    const [success, setSuccess] = useState(false);
-    const [saving, setSaving] = useState(false);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
-        setErrors({
-            ...errors,
-            [name]: null,
-        });
-    };
-
-    const handleSubmit = (e) => {
+    const handleGuardarCliente = async (e) => {
         e.preventDefault();
-        setErrors({});
-        setSaving(true);
 
-        const validationErrors = {};
-
-        // Validaciones...
-
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            setSaving(false);
+        // Validaciones
+        if (!nombre.trim() || !apellido.trim() || !documento.trim() || !telefono.trim()) {
+            setError('Todos los campos son obligatorios.');
             return;
         }
 
-        axios
-            .post('/api/crearCliente', formData)
-            .then((response) => {
-                setSuccess(true);
-                setSaving(false);
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Cliente creado con éxito!',
-                    showConfirmButton: false,
-                    timer: 1500,
-                });
-            })
-            .catch((error) => {
-                setErrors({ general: 'Error al crear el cliente. Inténtalo de nuevo.' });
-                setSaving(false);
-            });
+        // Validación de nombre y apellido: deben contener solo letras y tener al menos 2 caracteres
+        if (!/^[a-zA-Z]{2,}$/.test(nombre) || !/^[a-zA-Z]{2,}$/.test(apellido)) {
+            setError('Nombre y apellido deben contener solo letras y tener al menos 2 caracteres.');
+            return;
+        }
+
+        // Validación de documento: debe ser un número positivo
+        if (!/^[1-9]\d*$/.test(documento)) {
+            setError('El documento no es válido.');
+            return;
+        }
+
+        // Validación de teléfono: solo permite números y debe tener al menos 7 dígitos
+        if (!/^\d{7,}$/.test(telefono)) {
+            setError('El teléfono no es válido.');
+            return;
+        }
+
+        const newCliente = {
+            nombre,
+            apellido,
+            documento,
+            telefono,
+        };
+
+        try {
+            const response = await ClienteService.createCliente(newCliente);
+            console.log('Cliente creado:', response);
+
+            setNombre('');
+            setApellido('');
+            setDocumento('');
+            setTelefono('');
+            setError('');
+        } catch (error) {
+            console.error('Error al crear el cliente:', error);
+        }
     };
 
     return (
@@ -83,109 +75,41 @@ function CrearCliente() {
                         <strong>Crear Cliente</strong>
                     </CCardHeader>
                     <CCardBody>
-                        {saving && (
-                            <div className="text-info mb-3">
-                                <strong>Guardando...</strong>
-                            </div>
-                        )}
-                        {errors.general && (
-                            <div className="text-danger mb-3">
-                                <strong>{errors.general}</strong>
-                            </div>
-                        )}
-                        {success && (
-                            <div className="text-success mb-3">
-                                <strong>Cliente creado con éxito.</strong>
-                            </div>
-                        )}
-                        <form onSubmit={handleSubmit}>
+                        <form onSubmit={handleGuardarCliente}>
                             <div className="mb-3">
-                                <CFormLabel>Nombre... completo</CFormLabel>
+                                <CFormLabel>Nombre</CFormLabel>
                                 <CFormInput
                                     type="text"
-                                    name="nombre"
-                                    value={formData.nombre}
-                                    onChange={handleChange}
+                                    value={nombre}
+                                    onChange={(e) => setNombre(e.target.value)}
                                 />
-                                {errors.nombre && (
-                                    <div className="text-danger">
-                                        <small>{errors.nombre}</small>
-                                    </div>
-                                )}
                             </div>
                             <div className="mb-3">
                                 <CFormLabel>Apellido</CFormLabel>
                                 <CFormInput
                                     type="text"
-                                    name="apellido"
-                                    value={formData.apellido}
-                                    onChange={handleChange}
+                                    value={apellido}
+                                    onChange={(e) => setApellido(e.target.value)}
                                 />
-                                {errors.apellido && (
-                                    <div className="text-danger">
-                                        <small>{errors.apellido}</small>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="mb-3">
-                                <CFormLabel>Correo</CFormLabel>
-                                <CFormInput
-                                    type="email"
-                                    name="correo"
-                                    value={formData.correo}
-                                    onChange={handleChange}
-                                />
-                                {errors.correo && (
-                                    <div className="text-danger">
-                                        <small>{errors.correo}</small>
-                                    </div>
-                                )}
                             </div>
                             <div className="mb-3">
                                 <CFormLabel>Documento</CFormLabel>
                                 <CFormInput
                                     type="number"
-                                    name="documento"
-                                    value={formData.documento}
-                                    onChange={handleChange}
+                                    value={documento}
+                                    onChange={(e) => setDocumento(e.target.value)}
                                 />
-                                {errors.documento && (
-                                    <div className="text-danger">
-                                        <small>{errors.documento}</small>
-                                    </div>
-                                )}
                             </div>
                             <div className="mb-3">
                                 <CFormLabel>Teléfono</CFormLabel>
                                 <CFormInput
-                                    type="number"
-                                    name="telefono"
-                                    value={formData.telefono}
-                                    onChange={handleChange}
+                                    type="text"
+                                    value={telefono}
+                                    onChange={(e) => setTelefono(e.target.value)}
                                 />
-                                {errors.telefono && (
-                                    <div className="text-danger">
-                                        <small>{errors.telefono}</small>
-                                    </div>
-                                )}
                             </div>
-                            <div className="mb-3">
-                                <CFormLabel>Estado</CFormLabel>
-                                <CFormSelect
-                                    name="estado"
-                                    value={formData.estado}
-                                    onChange={handleChange}
-                                >
-                                    <option value="">Selecciona el estado</option>
-                                    <option value="activo">Activo</option>
-                                    <option value="inactivo">Inactivo</option>
-                                </CFormSelect>
-                                {errors.estado && (
-                                    <div className="text-danger">
-                                        <small>{errors.estado}</small>
-                                    </div>
-                                )}
-                            </div>
+                            {/* Mensaje de error */}
+                            {error && <div style={{ color: 'red' }}>{error}</div>}
                             <CButton type="submit" color="primary" className="mr-2">
                                 Guardar Cliente
                             </CButton>
@@ -201,5 +125,6 @@ function CrearCliente() {
         </CRow>
     );
 }
+
 
 export default CrearCliente;

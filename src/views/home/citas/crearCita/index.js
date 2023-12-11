@@ -23,7 +23,7 @@ import {
   CAlert,
 } from "@coreui/react";
 
-import Servicios_S from "src/views/services/servicios_s";
+import Servicios_S from "src/views/services/servicioService";
 import ServicioBarbero from "src/views/services/empleado_agenda";
 
 const AgendarCita = () => {
