@@ -26,7 +26,7 @@ const NavBarCliente = () => {
             <CCollapse className="navbar-collapse" visible={visible}>
               <CNavbarNav>
                 <CNavItem>
-                  <CNavLink href="#" active>
+                  <CNavLink href="/cliente/inicio" active>
                     INICIO
                   </CNavLink>
                 </CNavItem>

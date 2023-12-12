@@ -40,6 +40,7 @@ const CrearCompra = () => {
       productoSeleccionado: null,
       cantidad: '',
       precioUnitario: '',
+      precioVenta: '',
       total: '',
     },
   });
@@ -100,13 +101,16 @@ const CrearCompra = () => {
   const onSelectProduct = (producto) => {
     setSelectedProduct(producto);
     setValue('productoSeleccionado', producto);
-    setValue('precioUnitario', producto.precio);
+    setValue('cantidad', producto.stock);
+    setValue('precioUnitario', producto.precioCosto);
+    setValue('precioVenta', producto.precioVenta);
   };
 
   const onAgregarProducto = () => {
     const productoSeleccionado = watch('productoSeleccionado');
     const cantidad = watch('cantidad');
     const precioUnitario = watch('precioUnitario');
+    const precioVenta = watch('precioVenta');
   
     if (!productoSeleccionado || !cantidad || !precioUnitario) {
       return;
@@ -116,6 +120,7 @@ const CrearCompra = () => {
       producto: productoSeleccionado,
       cantidad,
       precioUnitario,
+      precioVenta,
       total: cantidad * precioUnitario,
     };
   
@@ -124,6 +129,7 @@ const CrearCompra = () => {
     setValue('productoSeleccionado', null);
     setValue('cantidad', '');
     setValue('precioUnitario', '');
+    setValue('precioVenta', '');
 
     Toast.fire({
       icon: "success",
@@ -157,10 +163,10 @@ const CrearCompra = () => {
 
       // Paso 2: Crear detalles de la compra
       const detallesCompraPromises = tempProductos.map(async (productoAgregado) => {
-        const { producto, cantidad, precioUnitario, total } = productoAgregado;
+        const { producto, cantidad, precioUnitario, precioVenta, total } = productoAgregado;
   
         // Verificar que los datos de detalle de compra estén completos
-        if (!producto || !cantidad || !precioUnitario || !total) {
+        if (!producto || !cantidad || !precioUnitario || !precioVenta || !total) {
           console.error('Error: Datos de detalle de compra incompletos');
           return;
         }
@@ -171,6 +177,7 @@ const CrearCompra = () => {
           id_producto: producto.id_producto,
           cantidad,
           precioUnitario,
+          precioVenta,
           total,
         });
       });
@@ -261,7 +268,8 @@ const CrearCompra = () => {
                         <CTableHeaderCell scope="col">#</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Descripcion</CTableHeaderCell>
-                          <CTableHeaderCell scope="col">Precio</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Precio Venta</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Stock</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
                         </CTableRow>
@@ -272,7 +280,8 @@ const CrearCompra = () => {
                             <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                             <CTableDataCell>{producto.nombre}</CTableDataCell>
                             <CTableDataCell>{producto.descripcion}</CTableDataCell>
-                            <CTableDataCell>{producto.precio}</CTableDataCell>
+                            <CTableDataCell>{producto.precioCosto}</CTableDataCell>
+                            <CTableDataCell>{producto.precioVenta}</CTableDataCell>
                             <CTableDataCell>{producto.stock}</CTableDataCell>
                             <CTableDataCell>{producto.estado}</CTableDataCell>
                           </CTableRow>
@@ -295,6 +304,15 @@ const CrearCompra = () => {
                   <CFormLabel>Precio Unitario</CFormLabel>
                   <Controller
                     name="precioUnitario"
+                    control={control}
+                    rules={{required: true}}
+                    render={({ field }) => <CFormInput {...field} />}
+                  />
+                </CCol>
+                <CCol sm={4}>
+                  <CFormLabel>Precio de Venta</CFormLabel>
+                  <Controller
+                    name="precioVenta"
                     control={control}
                     rules={{required: true}}
                     render={({ field }) => <CFormInput {...field} />}
@@ -323,6 +341,7 @@ const CrearCompra = () => {
                       <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                       <CTableHeaderCell scope="col">Cantidad</CTableHeaderCell>
                       <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
+                      <CTableHeaderCell scope="col">Precio Venta</CTableHeaderCell>
                       <CTableHeaderCell scope="col">Total</CTableHeaderCell>
                     </CTableRow>
                   </CTableHead>
@@ -333,6 +352,7 @@ const CrearCompra = () => {
                             <CTableDataCell>{producto.producto.nombre}</CTableDataCell>
                             <CTableDataCell>{producto.cantidad}</CTableDataCell>
                             <CTableDataCell>{producto.precioUnitario}</CTableDataCell>
+                            <CTableDataCell>{producto.precioVenta}</CTableDataCell>
                             <CTableDataCell>{producto.total}</CTableDataCell>
                           </CTableRow>
                         ))}
@@ -343,14 +363,14 @@ const CrearCompra = () => {
                   <CButton type="submit" color="primary" className="me-md-2">
                     Crear Compra
                   </CButton>
-                  <Link to="/proveedores/lista-proveedores">
+                  <Link to="/compras/lista-compras">
                     <CButton type="button" color="secondary">
                       Cancelar
                     </CButton>
                   </Link>
                 </CCol>
               </CForm>
-              {submitted && <Navigate to="/proveedores/lista-compras" />}
+              {submitted && <Navigate to="/compras/lista-compras" />}
             </CCardBody>
           </CCard>
         </CCol>
