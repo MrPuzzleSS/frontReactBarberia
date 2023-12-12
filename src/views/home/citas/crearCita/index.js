@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Navigate } from 'react-router-dom';
 import {
   CContainer,
   CCard,
@@ -133,9 +134,7 @@ const AgendarCita = () => {
           timer: 1500
         });
 
-        //Navigating to the list whit react router
-        window.location.href = "/cliente/cita";
-
+        <Navigate to="/cliente/listacitas" />
 
       } catch (error) {
         console.error("Error al intentar agendar la cita:", error);
