@@ -31,7 +31,10 @@ const NavBarCliente = () => {
                   </CNavLink>
                 </CNavItem>
                 <CNavItem>
-                  <CNavLink href="/cliente/reservar">RESERVAS</CNavLink>
+                  <CNavLink href="/cliente/reservar">AGENDAR</CNavLink>
+                </CNavItem>
+                <CNavItem>
+                  <CNavLink href="/cliente/listacitas">CITAS AGENDADAS</CNavLink>
                 </CNavItem>
                 <CNavItem>
                   <CNavLink href="#">QUIENES SOMOS</CNavLink>
