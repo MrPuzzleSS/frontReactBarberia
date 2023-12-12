@@ -165,7 +165,6 @@ function ListaProductos() {
             <CTable>
               <CTableHead>
                 <CTableRow>
-                  <CTableHeaderCell>Proveedor</CTableHeaderCell>
                   <CTableHeaderCell>Nombre</CTableHeaderCell>
                   <CTableHeaderCell>Descripción</CTableHeaderCell>
                   <CTableHeaderCell>Precio costo</CTableHeaderCell>
@@ -177,9 +176,7 @@ function ListaProductos() {
               <CTableBody>
                 {productos.map((producto) => (
                   <CTableRow key={producto.id_producto}>
-                    <CTableDataCell>
-                      {proveedores.find((prov) => prov.id_proveedor === producto.id_proveedor)?.nombre || 'Proveedor no encontrado'}
-                    </CTableDataCell>
+                  
                     <CTableDataCell>{producto.nombre}</CTableDataCell>
                     <CTableDataCell>{producto.descripcion}</CTableDataCell>
                     <CTableDataCell>{producto.precioCosto}</CTableDataCell>
