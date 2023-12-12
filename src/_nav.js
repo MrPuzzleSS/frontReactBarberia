@@ -108,6 +108,11 @@ const _nav = [
         name: 'Listar Ventas',
         to: '/ventas/listaVentas',
       },
+      {
+        component: CNavItem,
+        name: 'cargar venta',
+        to: '/ventas/cargarVentas',
+      },
     ],
   },
   {

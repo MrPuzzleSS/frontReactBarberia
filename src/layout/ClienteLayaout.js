@@ -1,16 +1,17 @@
-import React from 'react'
-import { ClienteContent, AppFooter, NavBarCliente} from '../components/cliente'
+import React from 'react';
+import { ClienteContent, AppFooter, NavBarCliente } from '../components/cliente';
+import '../assets/css/ClienteLayout.css'; // Importa tu archivo de estilos CSS
 
-const ClienteLayaout = () => {
+const ClienteLayout = () => {
   return (
-    <div>
-      <NavBarCliente/>
-        <div className="body flex-grow-12">
-            <ClienteContent/>
-        </div>
-        <AppFooter/>
+    <div className="cliente-layout">
+      <NavBarCliente />
+      <div className="body flex-grow-12">
+        <ClienteContent />
+      </div>
+      <AppFooter />
     </div>
-  )
+  );
 }
 
-export default ClienteLayaout
+export default ClienteLayout;

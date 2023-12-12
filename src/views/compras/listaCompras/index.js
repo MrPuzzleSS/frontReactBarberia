@@ -53,6 +53,7 @@ function ListaCompras() {
             id_producto: detalle.id_producto,
             cantidad: detalle.cantidad,
             precioUnitario: detalle.precioUnitario,
+            precioVenta: detalle.precioVenta,
             total: detalle.total,
           }));
 
@@ -170,6 +171,7 @@ function ListaCompras() {
                           <CTableHeaderCell scope="col">#</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Cantidad</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Precio Venta</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Total</CTableHeaderCell>
                         </CTableRow>
                       </CTableHead>
@@ -179,6 +181,7 @@ function ListaCompras() {
                             <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                             <CTableDataCell>{detalle.cantidad}</CTableDataCell>
                             <CTableDataCell>{detalle.precioUnitario}</CTableDataCell>
+                            <CTableDataCell>{detalle.precioVenta}</CTableDataCell>
                             <CTableDataCell>{detalle.total}</CTableDataCell>
                           </CTableRow>
                         ))}

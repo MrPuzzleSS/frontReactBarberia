@@ -5,7 +5,7 @@ const getAll = () => {
 };
 
 const getEmpleadoAgenda = id => {
-    return http.get(`/empleado/agenda/${id}`);
+    return http.get(`/agenda/empleado/${id}`);
 }
 
 const ServicioBarbero = {
