@@ -4,6 +4,11 @@ const getAll = () => {
     return http.get("/citas");
 }
 
+const getAllCitasServicios = () => {
+    return http.get("/citas/servicios");
+
+}
+
 const get = id => {
     return http.get(`/citas/${id}`);
 }
@@ -26,7 +31,7 @@ const findByTitle = title => {
 
 const cambiarEstadoCita = async (id) => {
     try {
-      const response = await http.put(`/citas/${id}/cambiarEstado`, { estado: 'Pagado' });
+      const response = await http.put(`/citas/${id}/cambiarEstado`, { estado: 'Cancelada' });
       return response.data;
     } catch (error) {
       console.error('Error al cambiar el estado de la cita:', error);
@@ -36,6 +41,7 @@ const cambiarEstadoCita = async (id) => {
 
 const CitasDataService = {
     getAll,
+    getAllCitasServicios,
     get,
     create,
     update,
