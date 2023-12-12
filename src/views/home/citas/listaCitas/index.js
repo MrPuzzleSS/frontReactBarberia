@@ -21,7 +21,6 @@ import {
   CModalBody,
   CModalFooter,
 } from "@coreui/react";
-import { ta } from "date-fns/locale";
 
 function ListaCitas() {
   const [visible, setVisible] = useState(false);
