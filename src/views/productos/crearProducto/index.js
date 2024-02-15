@@ -103,7 +103,7 @@ function CrearProducto() {
     };
 
     try {
-      const response = await fetch('http://localhost:8095/api/producto', {
+      const response = await fetch('https://restapibarberia.onrender.com/api/producto', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

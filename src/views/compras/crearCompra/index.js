@@ -36,7 +36,7 @@ import detalleCompraDataService from 'src/views/services/detalleCompraService';
 const CrearCompra = () => {
   const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm({
     defaultValues: {
-      proveedor: '',
+      descripcion: '',
       productoSeleccionado: null,
       cantidad: '',
       precioUnitario: '',
@@ -47,59 +47,29 @@ const CrearCompra = () => {
 
   const [submitted, setSubmitted] = useState(false);
   const [visibleLg, setVisibleLg] = useState(false);
-  const [proveedores, setProveedores] = useState([]);
   const [productos, setProductos] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedProveedor, setSelectedProveedor] = useState({
-    id: '',
-    nombre: '',
-    productos: [],
-  });
   const [tempProductos, setTempProductos] = useState([]);
   
   useEffect(() => {
-    const fetchProveedores = async () => {
+    const fetchProductos = async () => {
       try {
-        const response = await ProveedoresService.getAll();
-        const nestedArray = response.data && response.data.listProveedores;
+        const response = await CompraDataService.getAllProductos();
+        const productos = response.data;
 
-        if (Array.isArray(nestedArray)) {
-          setProveedores(nestedArray);
+        if (Array.isArray(productos)) {
+          setProductos(productos);
         } else {
-          console.error('Error: La respuesta no contiene un array de proveedores', response.data);
+          console.error('Error: La respuesta no contiene un array de productos', response.data);
         }
       } catch (error) {
-        console.error('Error al obtener la lista de proveedores', error);
+        console.error('Error al obtener la lista de productos', error);
       }
     };
 
-    fetchProveedores();
+    fetchProductos();
   }, []);
 
-  const onSelectProveedor = async (idProveedor) => {
-    try {
-      const response = await ProveedoresService.getProveedoresProductos(idProveedor);
-      const { proveedor, productos } = response.data;
-
-      if (!proveedor || !productos) {
-        console.error('Respuesta de la API incompleta');
-        return;
-      }
-
-      setSelectedProveedor({
-        id: proveedor.id_proveedor, // Asegúrate de usar el campo correcto del modelo
-        nombre: proveedor.nombre,
-        productos: productos,
-      });
-
-      setProductos(productos);
-    } catch (error) {
-      console.error('Error al obtener la lista de productos del proveedor', error);
-    }
-  };
-
   const onSelectProduct = (producto) => {
-    setSelectedProduct(producto);
     setValue('productoSeleccionado', producto);
     setValue('cantidad', producto.stock);
     setValue('precioUnitario', producto.precioCosto);
@@ -133,9 +103,8 @@ const CrearCompra = () => {
 
     Toast.fire({
       icon: "success",
-      title: "El producto se agrego correctamente"
+      title: "El producto se agregó correctamente"
     });
-
   };
 
   const onSubmit = async (data) => {
@@ -212,37 +181,15 @@ const CrearCompra = () => {
             <CCardBody>
               <CForm className="row g-3" onSubmit={handleSubmit(onSubmit)}>
                 <CCol sm={4}>
+                  <CFormLabel>Descripción de la compra</CFormLabel>
                   <Controller
-                    name="proveedor"
+                    name="descripcion"
                     control={control}
-                    rules={{ required: true }}
-                    render={({ field }) => (
-                      <CFormSelect
-                        {...field}
-                        onChange={(e) => {
-                          setValue('proveedor', e.target.value);
-                          onSelectProveedor(e.target.value);
-                        }}
-                      >
-                        <option value=''>Selecciona un Proveedor</option>
-                        {proveedores.map((proveedor) => (
-                          <option key={proveedor.id_proveedor} value={proveedor.id_proveedor}>
-                            {proveedor.nombre}
-                          </option>
-                        ))}
-                      </CFormSelect>
-                    )}
+                    rules={{required: true}}
+                    render={({ field }) => <CFormInput {...field} />}
                   />
+                  {errors.descripcion?.type === 'required' && <h4 style={{color: 'red'}}>*</h4>}
                 </CCol>
-                <CCol sm={4} className="d-flex align-items-center">
-                <Controller
-                  name="descripcion"
-                  control={control}
-                  rules={{required: true}}
-                  render={({ field }) => <CFormInput {...field} placeholder='Descripción de la compra'/>}
-                />
-                {errors.descripcion?.type === 'required' && <h4 style={{color: 'red'}}>*</h4>}
-              </CCol>
                 <CCol sm={4} className="d-flex align-items-end">
                   <CButton onClick={() => setVisibleLg(!visibleLg)}>
                     <CIcon icon={cilPlaylistAdd} /> Agregar Producto
@@ -261,64 +208,34 @@ const CrearCompra = () => {
                       </CModalTitle>
                     </CModalHeader>
                     <CModalBody>
-                    <CCard>
-                    <CTable hover>
-                    <CTableHead>
-                        <CTableRow>
-                        <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                          <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
-                          <CTableHeaderCell scope="col">Descripcion</CTableHeaderCell>
-                          <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
-                          <CTableHeaderCell scope="col">Precio Venta</CTableHeaderCell>
-                          <CTableHeaderCell scope="col">Stock</CTableHeaderCell>
-                          <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
-                        </CTableRow>
-                      </CTableHead>
-                      <CTableBody>
-                      {selectedProveedor.productos.map((producto, index) => (
-                          <CTableRow key={index} onClick={() => onSelectProduct(producto)}>
-                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                            <CTableDataCell>{producto.nombre}</CTableDataCell>
-                            <CTableDataCell>{producto.descripcion}</CTableDataCell>
-                            <CTableDataCell>{producto.precioCosto}</CTableDataCell>
-                            <CTableDataCell>{producto.precioVenta}</CTableDataCell>
-                            <CTableDataCell>{producto.stock}</CTableDataCell>
-                            <CTableDataCell>{producto.estado}</CTableDataCell>
-                          </CTableRow>
-                        ))}
-                      </CTableBody>
-                </CTable>
-                </CCard>
-                <CRow>
-                    <CCol sm={4}>
-                  <CFormLabel>Cantidad</CFormLabel>
-                  <Controller
-                    name="cantidad"
-                    control={control}
-                    rules={{required: true}}
-                    render={({ field }) => <CFormInput {...field} />}
-                  />
-                  {errors.cantidad?.type === 'required' && <h4 style={{color: 'red'}}>*</h4>}
-                </CCol>
-                <CCol sm={4}>
-                  <CFormLabel>Precio Unitario</CFormLabel>
-                  <Controller
-                    name="precioUnitario"
-                    control={control}
-                    rules={{required: true}}
-                    render={({ field }) => <CFormInput {...field} />}
-                  />
-                </CCol>
-                <CCol sm={4}>
-                  <CFormLabel>Precio de Venta</CFormLabel>
-                  <Controller
-                    name="precioVenta"
-                    control={control}
-                    rules={{required: true}}
-                    render={({ field }) => <CFormInput {...field} />}
-                  />
-                </CCol>
-                </CRow>
+                      <CCard>
+                        <CTable hover>
+                          <CTableHead>
+                            <CTableRow>
+                              <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                              <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
+                              <CTableHeaderCell scope="col">Descripción</CTableHeaderCell>
+                              <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
+                              <CTableHeaderCell scope="col">Precio Venta</CTableHeaderCell>
+                              <CTableHeaderCell scope="col">Stock</CTableHeaderCell>
+                              <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
+                            </CTableRow>
+                          </CTableHead>
+                          <CTableBody>
+                            {productos.map((producto, index) => (
+                              <CTableRow key={index} onClick={() => onSelectProduct(producto)}>
+                                <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+                                <CTableDataCell>{producto.nombre}</CTableDataCell>
+                                <CTableDataCell>{producto.descripcion}</CTableDataCell>
+                                <CTableDataCell>{producto.precioCosto}</CTableDataCell>
+                                <CTableDataCell>{producto.precioVenta}</CTableDataCell>
+                                <CTableDataCell>{producto.stock}</CTableDataCell>
+                                <CTableDataCell>{producto.estado}</CTableDataCell>
+                              </CTableRow>
+                            ))}
+                          </CTableBody>
+                        </CTable>
+                      </CCard>
                     </CModalBody>
                     <CModalFooter>
                       <CButton
@@ -334,30 +251,30 @@ const CrearCompra = () => {
                   </CModal>
                 </CCol>
                 <CCard>
-                <CTable hover>
-                <CTableHead>
-                    <CTableRow>
-                      <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Cantidad</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Precio Venta</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Total</CTableHeaderCell>
-                    </CTableRow>
-                  </CTableHead>
-                  <CTableBody>
-                    {tempProductos.map((producto, index) => (
-                          <CTableRow key={index}>
-                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                            <CTableDataCell>{producto.producto.nombre}</CTableDataCell>
-                            <CTableDataCell>{producto.cantidad}</CTableDataCell>
-                            <CTableDataCell>{producto.precioUnitario}</CTableDataCell>
-                            <CTableDataCell>{producto.precioVenta}</CTableDataCell>
-                            <CTableDataCell>{producto.total}</CTableDataCell>
-                          </CTableRow>
-                        ))}
-                  </CTableBody>
-                </CTable>
+                  <CTable hover>
+                    <CTableHead>
+                      <CTableRow>
+                        <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Cantidad</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Precio Venta</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Total</CTableHeaderCell>
+                      </CTableRow>
+                    </CTableHead>
+                    <CTableBody>
+                      {tempProductos.map((producto, index) => (
+                        <CTableRow key={index}>
+                          <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+                          <CTableDataCell>{producto.producto.nombre}</CTableDataCell>
+                          <CTableDataCell>{producto.cantidad}</CTableDataCell>
+                          <CTableDataCell>{producto.precioUnitario}</CTableDataCell>
+                          <CTableDataCell>{producto.precioVenta}</CTableDataCell>
+                          <CTableDataCell>{producto.total}</CTableDataCell>
+                        </CTableRow>
+                      ))}
+                    </CTableBody>
+                  </CTable>
                 </CCard>
                 <CCol xs={12}>
                   <CButton type="submit" color="primary" className="me-md-2">
