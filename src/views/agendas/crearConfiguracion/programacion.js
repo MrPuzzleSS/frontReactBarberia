@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import Swal from 'sweetalert2';
+import '@fullcalendar/daygrid';
 import swal from 'sweetalert';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
@@ -13,44 +15,10 @@ import { CCard, CCardHeader, CCardBody } from '@coreui/react';
 import esLocale from '@fullcalendar/core/locales/es';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import 'src/scss/css/calendarStyles.css';
-
-
-
-
+import io from 'socket.io-client';
 
 
 const CrearConfiguracion = () => {
-
-    const colorArray = [
-        '#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
-        '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
-        '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
-        '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
-        '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
-        '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
-        '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
-        '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
-        '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
-        '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'
-    ];
-
-
-    const generateColor = (id_empleado) => {
-        const color = colorArray[id_empleado - 1] || '#CCCCCC';
-        return color;
-    };
-
-    const asignarColorXEmpleado = () => {
-        const miAgenda = document.querySelectorAll('.fc-event-title');
-        miAgenda.forEach((titulo) => {
-            const id_empleado = titulo.innerText.split(' ')[3];
-            const colorEmpleado = generateColor(id_empleado);
-            titulo.style.backgroundColor = colorEmpleado;
-        });
-    };
-
-    asignarColorXEmpleado();
-
 
     const MultiSelect = ({ options, selectedValues, onChange }) => {
         const handleChange = (selectedOption) => {
@@ -59,8 +27,6 @@ const CrearConfiguracion = () => {
 
         console.log('Soy felix', options, selectedValues, onChange);
         const selectedOptions = options.filter((option) => selectedValues.includes(option.value));
-
-        asignarColorXEmpleado();
 
         return (
             <Select isMulti options={options} value={selectedOptions} onChange={handleChange} />
@@ -78,7 +44,6 @@ const CrearConfiguracion = () => {
         onChange: PropTypes.func.isRequired,
     };
 
-
     const calendarRef = useRef(null);
     const [formData, setFormData] = useState({
         fechaInicio: '',
@@ -91,34 +56,6 @@ const CrearConfiguracion = () => {
 
     const [events, setEvents] = useState([]);
     const [empleados, setEmpleados] = useState([]);
-
-    const fetchAgendas = async () => {
-        try {
-            const data = await agendaService.getAllAgendas();
-            const agendas = data.agendas || [];
-
-            if (Array.isArray(agendas)) {
-                const formattedEvents = agendas.map((agenda) => ({
-                    title: `Agenda de Empleado ${empleados.length > 0 ? empleados.find((empleado) => empleado.value === agenda.id_empleado).label : agenda.id_empleado}`,
-                    start: new Date(agenda.fechaInicio),
-                    end: new Date(agenda.fechaFin),
-                    horaInicio: agenda.horaInicio,
-                    horaFin: agenda.horaFin,
-                    empleado: agenda.id_empleado,
-                    id_agenda: agenda.id_agenda,
-                    estado: agenda.estado,
-                    editable: true,
-                }));
-
-                setEvents(formattedEvents);
-            } else {
-                console.error('Las agendas no se obtuvieron como un array:', data);
-                console.log('Estructura de las agendas:', data);
-            }
-        } catch (error) {
-            console.error('Error al obtener las agendas:', error);
-        }
-    };
 
     const handleEventDrop = async (eventDropInfo) => {
         try {
@@ -175,20 +112,9 @@ const CrearConfiguracion = () => {
         }
     };
 
-
-
-
-    useEffect(() => {
-        fetchAgendas();
-        fetchEmpleados();
-    }, []);
-
-
-
-
     const fetchEmpleados = async () => {
         try {
-            const response = await fetch('https://resapibarberia.onrender.com/api/empleado');
+            const response = await fetch('http://localhost:8095/api/empleado');
             if (!response.ok) {
                 throw new Error('Error al obtener los empleados');
             }
@@ -209,6 +135,10 @@ const CrearConfiguracion = () => {
         }
     };
 
+    useEffect(() => {
+        fetchEmpleados();
+    }, []);
+
     const handleEmpleadosChange = (selectedEmpleados) => {
         const selectedValues = selectedEmpleados.map((option) => option.value);
         const selectedEmpleadosData = empleados.filter((empleado) => selectedValues.includes(empleado.value));
@@ -223,6 +153,95 @@ const CrearConfiguracion = () => {
         }));
         console.log('Estado actual de formData:', formData);
     };
+
+    const socketRef = useRef(null);
+
+    useEffect(() => {
+        socketRef.current = io('http://localhost:8095');
+
+        socketRef.current.on('connect', () => {
+            console.log('Conectado al servidor Socket.IO');
+        });
+
+        socketRef.current.on('connect_error', (error) => {
+            console.error('Error de conexión:', error);
+        });
+
+        return () => {
+            socketRef.current.disconnect();
+        };
+    }, []);
+
+    const colorArray = [
+        '#FF6633', '#FFB399', '#FF33FF', '#00B3E6',
+        '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+        '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+        '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+        '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
+        '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+        '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
+        '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+        '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
+        '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'
+    ];
+
+    const generateColor = (id_empleado) => {
+        const color = colorArray[id_empleado - 1] || '#CCCCCC';
+        return color;
+    };
+
+    const fetchAgendas = useCallback(async () => {
+
+
+
+        try {
+            console.log('Iniciando fetch de agendas...');
+
+            const data = await agendaService.getAllAgendas();
+            console.log('Estos son los datos obtenidos:', data);
+
+            const agendas = data.agendas || [];
+
+            if (Array.isArray(agendas)) {
+                const formattedEvents = agendas.map((agenda) => ({
+                    title: `Agenda ${agenda.id_empleado}`,
+                    start: new Date(agenda.fechaInicio),
+                    end: new Date(agenda.fechaFin),
+                    horaInicio: agenda.horaInicio,
+                    horaFin: agenda.horaFin,
+                    empleado: agenda.id_empleado,
+                    id_agenda: agenda.id_agenda,
+                    estado: agenda.estado,
+                    editable: true,
+                    backgroundColor: generateColor(agenda.id_empleado)
+                }));
+
+                setEvents(formattedEvents);
+                console.log('Eventos actualizados:', formattedEvents);
+
+                // Emitir el mensaje después de actualizar los eventos
+                socketRef.current.emit('agendaActualizada', { agendas: formattedEvents });
+                console.log('Mensaje emitido: agendaActualizada');
+            } else {
+                console.error('Las agendas no se obtuvieron como un array:', data);
+                console.log('Estructura de las agendas:', data);
+            }
+        } catch (error) {
+            console.error('Error al obtener las agendas:', error);
+        }
+    }, [setEvents, socketRef]);
+
+    useEffect(() => {
+        const fetchDataAndEmit = async () => {
+            await fetchAgendas();
+        };
+
+        fetchDataAndEmit();
+    }, [fetchAgendas]);
+
+
+
+
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
@@ -261,8 +280,30 @@ const CrearConfiguracion = () => {
                         console.log('empleadoSeleccionado', empleadoSeleccionado);
 
                         if (empleadoSeleccionado) {
+                            // empleadoSeleccionado.forEach(async (barbero) => {
+                            //     // Crear el evento con el empleado seleccionado
+                            //     const newEvent = {
+                            //         id_empleado: parseInt(barbero.value),
+                            //         fechaInicio: new Date(currentDate),
+                            //         fechaFin: newEndDate,
+                            //         horaInicio: formData.horaInicio,
+                            //         horaFin: formData.horaFin
+                            //     };
+
+                            //     console.log('newEvent', newEvent);
+
+                            //     await agendaService.createAgenda(newEvent);
+                            //     // Agregar el nuevo evento a la lista de eventos
+                            //     setEvents((prevEvents) => [...prevEvents, newEvent]);
+
+
+
+                            //     socketRef.current.emit(' es el nuevaAgendaCreada', newEvent);
+                            //     console.log('Mensaje emitido: nuevaAgendaCreada');
+
+                            // })
+
                             empleadoSeleccionado.forEach(async (barbero) => {
-                                // Crear el evento con el empleado seleccionado
                                 const newEvent = {
                                     id_empleado: parseInt(barbero.value),
                                     fechaInicio: new Date(currentDate),
@@ -273,11 +314,23 @@ const CrearConfiguracion = () => {
 
                                 console.log('newEvent', newEvent);
 
-                                await agendaService.createAgenda(newEvent);
-                                // Agregar el nuevo evento a la lista de eventos
-                                setEvents((prevEvents) => [...prevEvents, newEvent]);
+                                try {
+                                    // Crear el evento con el empleado seleccionado
+                                    await agendaService.createAgenda(newEvent);
 
-                            })
+                                    // Agregar el nuevo evento a la lista de eventos utilizando el callback de setEvents
+                                    setEvents((prevEvents) => [...prevEvents, newEvent]);
+
+                                    // Emitir el mensaje de nueva agenda creada
+                                    socketRef.current.emit('nuevaAgendaCreada', newEvent);
+                                    console.log('Mensaje emitido: nuevaAgendaCreada');
+                                } catch (error) {
+                                    console.error('Error al crear la agenda:', error);
+                                }
+                            });
+
+
+
                         } else {
                             console.log('No se encontraron barberos seleccionados.');
                         }
@@ -389,6 +442,7 @@ const CrearConfiguracion = () => {
             // Manejo si no hay ningún evento seleccionado para actualizar
         }
     };
+
     //---------------------------------------------------------------------------
     const [showCreateModal, setShowCreateModal] = useState(false);
     const handleDateClick = (info) => {
@@ -440,10 +494,11 @@ const CrearConfiguracion = () => {
                     throw new Error('La hora de inicio no puede ser posterior a la hora de fin');
                 }
 
-                  // Validación de horas de inicio y fin
-                  if (!empleadosSeleccionados > empleadosSeleccionados) {
-                    throw new Error('El campo del empleado es requerido');
+                // Validación de empleados seleccionados
+                if (!empleadosSeleccionados || empleadosSeleccionados.length === 0) {
+                    throw new Error('Debes seleccionar al menos un empleado');
                 }
+
 
 
 
@@ -528,9 +583,10 @@ const CrearConfiguracion = () => {
 
 
 
+
     const [searchText, setSearchText] = useState(''); // Estado para almacenar el texto de búsqueda
     const filteredEvents = events.filter((event) => {
-        const nombreEmpleado = event.title.toLowerCase(); // Obtener el nombre del empleado del título del evento
+        const nombreEmpleado = event.title.toString().toLowerCase(); // Obtener el nombre del empleado del título del evento
         console.log('Nombre del empleado:', nombreEmpleado); // Console.log para ver el nombre del empleado
 
         return (
@@ -541,9 +597,6 @@ const CrearConfiguracion = () => {
     const motivosPredefinidos = [
         'Enfermedad',
         'Emergencia familiar',
-        ''
-
-        // Agrega más motivos según sea necesario
     ];
 
     return (
@@ -595,6 +648,17 @@ const CrearConfiguracion = () => {
                                 }}
                                 locale={esLocale}
                                 events={filteredEvents.length > 0 ? filteredEvents : events}
+                                eventContent={(arg) => {
+                                    const empleadoSeleccionado = empleados.find(
+                                        (empleado) => empleado.value === arg.event.extendedProps.empleado
+                                    );
+                                    const nombreEmpleado = empleadoSeleccionado ? empleadoSeleccionado.label : 'Desconocido';
+                                    return (
+                                        <span style={{ backgroundColor: arg.event.backgroundColor, color: 'white', padding: '2px 5px', borderRadius: '3px' }}>
+                                            {nombreEmpleado}
+                                        </span>
+                                    );
+                                }}
                                 eventClick={(clickInfo) => {
                                     const empleadoSeleccionado = empleados.find(
                                         (empleado) => empleado.value === clickInfo.event.extendedProps.empleado
@@ -776,7 +840,7 @@ const CrearConfiguracion = () => {
 
                         </Modal.Footer>
                     </Modal>
-                    <Modal show={showCreateModal} onHide={handleCloseCreateModal}>
+                    <Modal show={showCreateModal} onHide={null}>
                         <Modal.Header closeButton>
                             <Modal.Title>Crear Agenda</Modal.Title>
                         </Modal.Header>

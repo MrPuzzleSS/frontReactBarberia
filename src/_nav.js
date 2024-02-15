@@ -1,6 +1,7 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
-import jwt_decode from 'jwt-decode';
+// import jwt_decode from 'jwt-decode';
+
 import {
   cilPuzzle,
   cilSpeedometer,
@@ -27,75 +28,29 @@ const _nav = [
     },
   },
   {
-    component: CNavGroup,
+    component: CNavItem,
     name: 'Proveedores',
     to: '/proveedores',
-    icon: <CIcon icon={cilIndustry} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Lista de Proveedores',
-        to: '/proveedores/lista-proveedores',
-      },
-      {
-        component: CNavItem,
-        name: 'Nuevo Proveedor',
-        to: '/proveedores/crear-proveedor',
-      },
-    ],
+    icon: <CIcon icon={cilIndustry} customClassName="nav-icon" />
   },
   {
-    component: CNavGroup,
+    component: CNavItem,
     name: 'Compras',
     to: '/compras',
-    icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Lista de compras',
-        to: '/compras/lista-compras',
-      },
-      {
-        component: CNavItem,
-        name: 'Nueva compra',
-        to: '/compras/crear-compra',
-      },
-    ],
+    icon: <CIcon icon={cilCart} customClassName="nav-icon" />
   },
   {
-    component: CNavGroup,
+    component: CNavItem,
     name: 'Empleados',
     to: '/empleados',
     icon: <CIcon icon={cilPeople} customClassName="nav-icon"/>,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Lista de Empleado',
-        to: '/empleados/listaEmpleados',
-      },
-      {
-        component: CNavItem,
-        name: 'Nuevo Empleado',
-        to: '/empleados/crearEmpleados',   
-      },
-    ],
   },
   
   {
-    component: CNavGroup,
+    component: CNavItem,
     name: 'Agendas',
-    to: '/agendas',
+    to: '/agendas/crearconfiguracion',
     icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Crear Configuracion',
-        to: '/agendas/CrearConfiguracion',
-      },
-
-
-    ],
-
   },
   {
     component: CNavGroup,
@@ -105,92 +60,41 @@ const _nav = [
     items: [
       {
         component: CNavItem,
-        name: 'Listar Ventas',
-        to: '/ventas/listaVentas',
-      },
+        name: 'Lista de Ventas',
+        to: '/ventas',
+      }, 
       {
         component: CNavItem,
-        name: 'cargar venta',
+        name: 'Cargar Ventas',
         to: '/ventas/cargarVentas',
-      },
+      }, 
     ],
   },
   {
-    component: CNavGroup,
+    component: CNavItem,
     name: 'Insumos',
     to: '/insumos',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Listado',
-        to: '/insumos/listaIsumos',
-      },
-      {
-        component: CNavItem,
-        name: 'Crear',
-        to: '/insumos/crearInsumo',   
-      },
-    ],
-  },
-  {
-    component: CNavGroup,
-    name: 'Agendas',
-    to: '/agendas', 
-    icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
-    name: 'Clientes',
-    to: '/clientes/crearClientes',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Listado',
-        to: '/clientes/listaClientes',
-      },
-      {
-        component: CNavItem,
-        name: 'Crear',
-        to: '/clientes/crearClientes',   
-      },
-    ],
+    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>
   },
 
+
   {
-    component: CNavGroup,
+    component: CNavItem,
+    name: 'Clientes',
+    to: '/clientes/listaClientes', 
+    icon: <CIcon icon={cilCart} customClassName="nav-icon" />
+  },
+  {
+    component: CNavItem,
     name: 'Servicios',
     to: '/servicios',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Listado',
-        to: '/Servicios/listaServicios',
-      },
-      {
-        component: CNavItem,
-        name: 'Crear',
-        to: '/Servicios/crearServicio',   
-      },
-    ],
+    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>
   },
-
   {
-    component: CNavGroup,
+    component: CNavItem,
     name: 'Productos',
     to: '/Productos',
-    icon: <CIcon icon={cilBasket} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Lista de Productos',
-        to: '/Productos/lista-Productos',
-      },
-      {
-        component: CNavItem,
-        name: 'Nuevo Producto',
-        to: '/Productos/crear-Producto',
-      },
-    ],
+    icon: <CIcon icon={cilBasket} customClassName="nav-icon" />
   },
   {
     component: CNavGroup,

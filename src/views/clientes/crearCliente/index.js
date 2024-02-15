@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import {
     CButton,
     CCard,
@@ -10,48 +11,69 @@ import {
     CFormInput,
     CRow,
 } from '@coreui/react';
-import ClienteService from 'src/views/services/clienteService'; // Update the service if necessary
+import ClienteService from 'src/views/services/clienteService';
 
 function CrearCliente() {
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
-    const [documento, setDocumento] = useState('');
+    const [correo, setCorreo] = useState('');
     const [telefono, setTelefono] = useState('');
-    const [error, setError] = useState('');
+    const [documento, setDocumento] = useState(''); // Nuevo estado para el campo de documento
+
+    const fetchClientes = async () => {
+        try {
+            const data = await ClienteService.getAllClientes();
+            console.log('Clientes obtenidos:', data.Clientes);
+        } catch (error) {
+            console.log('Error al obtener clientes:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchClientes();
+    }, []);
 
     const handleGuardarCliente = async (e) => {
         e.preventDefault();
 
-        // Validaciones
-        if (!nombre.trim() || !apellido.trim() || !documento.trim() || !telefono.trim()) {
-            setError('Todos los campos son obligatorios.');
+        if (!nombre.trim() || !apellido.trim() || !correo.trim() || !telefono.trim() || !documento.trim()) { // Añadido documento a la validación
+            Swal.fire('Error', 'Todos los campos son obligatorios.', 'error');
             return;
         }
 
-        // Validación de nombre y apellido: deben contener solo letras y tener al menos 2 caracteres
         if (!/^[a-zA-Z]{2,}$/.test(nombre) || !/^[a-zA-Z]{2,}$/.test(apellido)) {
-            setError('Nombre y apellido deben contener solo letras y tener al menos 2 caracteres.');
+            Swal.fire('Error', 'Nombre y apellido deben contener solo letras y tener al menos 2 caracteres.', 'error');
             return;
         }
 
-        // Validación de documento: debe ser un número positivo
-        if (!/^[1-9]\d*$/.test(documento)) {
-            setError('El documento no es válido.');
+        // Dentro de la función handleGuardarCliente
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+            Swal.fire('Error', 'El correo electrónico no es válido.', 'error');
             return;
         }
 
-        // Validación de teléfono: solo permite números y debe tener al menos 7 dígitos
+
+
         if (!/^\d{7,}$/.test(telefono)) {
-            setError('El teléfono no es válido.');
+            Swal.fire('Error', 'El teléfono no es válido.', 'error');
+            return;
+        }
+
+        // Validación para el documento, que en este caso se asume como un número
+        if (!/^\d+$/.test(documento)) {
+            Swal.fire('Error', 'El documento debe contener solo números.', 'error');
             return;
         }
 
         const newCliente = {
             nombre,
             apellido,
-            documento,
+            correo,
             telefono,
+            documento, 
+            // Se agrega el documento al objeto del nuevo cliente
         };
+        console.log('este es ',newCliente);
 
         try {
             const response = await ClienteService.createCliente(newCliente);
@@ -59,12 +81,16 @@ function CrearCliente() {
 
             setNombre('');
             setApellido('');
-            setDocumento('');
+            setCorreo('');
             setTelefono('');
-            setError('');
+            setDocumento(''); // Se reinicia el estado del documento
+
+            Swal.fire('Éxito', 'Cliente creado correctamente.', 'success');
         } catch (error) {
             console.error('Error al crear el cliente:', error);
+            Swal.fire('Error', 'Hubo un problema al crear el cliente.', 'error');
         }
+
     };
 
     return (
@@ -93,13 +119,14 @@ function CrearCliente() {
                                 />
                             </div>
                             <div className="mb-3">
-                                <CFormLabel>Documento</CFormLabel>
+                                <CFormLabel>Correo</CFormLabel>
                                 <CFormInput
-                                    type="number"
-                                    value={documento}
-                                    onChange={(e) => setDocumento(e.target.value)}
+                                    type="email"
+                                    value={correo}
+                                    onChange={(e) => setCorreo(e.target.value)}
                                 />
                             </div>
+
                             <div className="mb-3">
                                 <CFormLabel>Teléfono</CFormLabel>
                                 <CFormInput
@@ -108,9 +135,16 @@ function CrearCliente() {
                                     onChange={(e) => setTelefono(e.target.value)}
                                 />
                             </div>
-                            {/* Mensaje de error */}
-                            {error && <div style={{ color: 'red' }}>{error}</div>}
-                            <CButton type="submit" color="primary" className="mr-2">
+                            <div className="mb-3">
+                                <CFormLabel>Documento</CFormLabel>
+                                <CFormInput
+                                    type="text"
+                                    value={documento}
+                                    onChange={(e) => setDocumento(e.target.value)}
+                                />
+                            </div>
+
+                            <CButton type="submit" color="primary" onClick={handleGuardarCliente}>
                                 Guardar Cliente
                             </CButton>
                             <Link to="/clientes/listaClientes">
@@ -125,6 +159,5 @@ function CrearCliente() {
         </CRow>
     );
 }
-
 
 export default CrearCliente;

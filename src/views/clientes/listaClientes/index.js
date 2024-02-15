@@ -41,7 +41,7 @@ const ListaClientes = () => {
             setClientes([]);
         }
     };
-    
+
 
     useEffect(() => {
         fetchClientes();
@@ -88,8 +88,8 @@ const ListaClientes = () => {
             console.error('Error al guardar cambios:', error);
         }
     };
-    
-    
+
+
 
     return (
         <CRow>
@@ -97,20 +97,24 @@ const ListaClientes = () => {
                 <CCard>
                     <CCardHeader>
                         <div className="d-flex justify-content-between align-items-center">
+                            
                             <strong>Lista de Clientes</strong>
-                            <Link to="/clientes/crearCliente">
+                            <Link to="/Clientes/CrearClientes">
                                 <CButton color="primary">Agregar Cliente</CButton>
                             </Link>
                         </div>
                     </CCardHeader>
                     <CCardBody>
-                        <CTable>
+                       
+                        <CTable align="middle" className="mb-0 border" hover responsive>
+
                             <CTableHead>
                                 <CTableRow>
                                     <CTableHeaderCell scope="col">#</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Apellido</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Documento</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Correo</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Teléfono</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
                                 </CTableRow>
@@ -122,11 +126,12 @@ const ListaClientes = () => {
                                         <CTableDataCell>{cliente.nombre}</CTableDataCell>
                                         <CTableDataCell>{cliente.apellido}</CTableDataCell>
                                         <CTableDataCell>{cliente.documento}</CTableDataCell>
+                                        <CTableDataCell>{cliente.correo}</CTableDataCell>
                                         <CTableDataCell>{cliente.telefono}</CTableDataCell>
                                         <CTableDataCell>
                                             <CButtonGroup aria-label="Acciones del Cliente">
                                                 <CButton
-                                                    color="info"
+                                                    color="primary" // Cambiado a "primary" para hacerlo azul
                                                     size="sm"
                                                     variant="outline"
                                                     onClick={() => handleEditar(cliente)}
@@ -134,7 +139,7 @@ const ListaClientes = () => {
                                                     Editar
                                                 </CButton>
                                                 <CButton
-                                                    color="danger"
+                                                    color="danger" // Cambiado a "danger" para hacerlo rojo
                                                     size="sm"
                                                     variant="outline"
                                                     onClick={() => handleEliminar(cliente.id_cliente)}
@@ -143,6 +148,7 @@ const ListaClientes = () => {
                                                 </CButton>
                                             </CButtonGroup>
                                         </CTableDataCell>
+
                                     </CTableRow>
                                 ))}
                             </CTableBody>
@@ -194,8 +200,24 @@ const ListaClientes = () => {
                                         documento: e.target.value,
                                     })
                                 }
+                                disabled={true} // Aquí estableces el campo como deshabilitado
                             />
                         </div>
+                        <div className="mb-3">
+                            <CFormLabel>Correo</CFormLabel>
+                            <CFormInput
+                                type="email"
+                                value={selectedClienteId ? selectedClienteId.correo : ''}
+                                onChange={(e) =>
+                                    setSelectedClienteId({
+                                        ...selectedClienteId,
+                                        correo: e.target.value, // Aquí debes usar `correo` en lugar de `Correo`
+                                    })
+                                }
+                            />
+
+                        </div>
+
                         <div className="mb-3">
                             <CFormLabel>Teléfono</CFormLabel>
                             <CFormInput
