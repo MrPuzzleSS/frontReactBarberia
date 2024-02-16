@@ -1,0 +1,28 @@
+.permissions-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+  }
+  
+  .permissions-list {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+  }
+  
+  .permission-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .check-icon {
+    color: #28a745; /* Color verde (ajusta según tu paleta de colores) */
+    margin-right: 10px;
+  }
+  
+  .permission-text {
+    font-size: 16px;
+    color: #333;
+  }
+  
