@@ -72,6 +72,7 @@ const EditarUsuarios = React.lazy(() => import('./views/users/editarUsuario/Edit
 
 const Roles = React.lazy(() => import('./views/rol/listaRoles/Roles'))
 const CrearRol = React.lazy(() => import('./views/rol/CrearRol/CreateRol'))
+const recuperarContraseña = React.lazy( ()=> import('./views/pages/login/recuperarContraseña'))
 
 
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 import {
   CCard,
   CCardBody,
@@ -66,12 +66,22 @@ const ListaRol = () => {
     const updatedRoles = roles.map((role) =>
       role.id_rol === item.id_rol ? { ...role, estado: role.estado === 'Activo' ? 'Inactivo' : 'Activo' } : role
     );
-
+  
     setRoles(updatedRoles);
 
-    const alertText = item.estado === 'Activo' ? 'cambiado a Inactivo' : 'cambiado a Activo';
-    const alertIcon = item.estado === 'Activo' ? 'error' : 'success';
+     var alertText = item.estado === 'Activo' ? 'cambiado a Inactivo' : 'cambiado a Activo';
+     var alertIcon = item.estado === 'Activo' ? 'error' : 'success';
 
+    Swal.fire({
+      icon: alertIcon,
+      title: 'Estado Cambiado',
+      text: `Rol ${alertText}`,
+    });
+  
+    // Mostrar SweetAlert según el estado actualizado
+    var alertText = item.estado === 'Activo' ? 'cambiado a Inactivo' : 'cambiado a Activo';
+    var alertIcon = item.estado === 'Activo' ? 'error' : 'success';
+  
     Swal.fire({
       icon: alertIcon,
       title: 'Estado Cambiado',
@@ -112,6 +122,12 @@ const ListaRol = () => {
       });
     }
   };
+  
+  const handlePermissionsError = (details) => {
+    console.error('El rol no tiene permisos o la respuesta no es válida:', details);
+    // Puedes mostrar una alerta, notificación o manejar el error según tus necesidades
+  };
+
 
   const handleAssignPermiso = async (permisoId) => {
     try {
@@ -178,6 +194,7 @@ const ListaRol = () => {
                     <CTableDataCell>
                       <strong>{item.estado}</strong>
                     </CTableDataCell>
+                  
                     <CTableDataCell>
                       {item.permisos.map((permiso) => (
                         <div key={permiso.id_permiso} style={{ display: 'flex', alignItems: 'center' }}>
