@@ -1,6 +1,8 @@
 import React from 'react'
 
 
+
+
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -54,7 +56,7 @@ const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 
 
 
-const ListaProveedores = React.lazy(() => import('./views/proveedores/listaProveedores'))
+const ListaProveedores = React.lazy(()  => import('./views/proveedores/listaProveedores'))
 const CrearProveedor = React.lazy(() => import('./views/proveedores/crearProveedor'))
 const ListaCompras = React.lazy(() => import('./views/compras/listaCompras'))
 const CrearCompra = React.lazy(() => import('./views/compras/crearCompra'))
@@ -69,8 +71,11 @@ const CargarVentas = React.lazy(() => import('./views/ventas/cargarVentas'))
 const Usuarios = React.lazy(() => import('./views/users/listaUsuarios/Usuarios'))
 const CrearUsuarios = React.lazy(() => import('./views/users/crearUsuario/CrearUser'))
 const EditarUsuarios = React.lazy(() => import('./views/users/editarUsuario/EditUser'))
+
 const Roles = React.lazy(() => import('./views/rol/listaRoles/Roles'))
 const CrearRol = React.lazy(() => import('./views/rol/CrearRol/CreateRol'))
+const recuperarContraseña = React.lazy( ()=> import('./views/pages/login/recuperarContraseña'))
+
 
 
 const ListaProductos = React.lazy(() => import('./views/productos/listaProductos'))
@@ -92,7 +97,13 @@ const routes = [
   //TODAS LAS RUTAS DEL PROYECTO
 
   { path: '/', exact: true, name: 'Home' },
-  { path: '/dashboard', name: 'Dashboard', element: Dashboard },
+
+  { path: '/dashboard', name: 'Dashboard', element:Dashboard },
+  //{ path: '/dashboard', name: 'Dashboard', element: <PrivateRoute path="/dashboard" element={<Dashboard />} /> },
+  
+  // ... (otras rutas públicas y protegidas)
+
+
   { path: '/proveedores', name: 'Proveedores', element: ListaProveedores },
   { path: '/proveedores/lista-proveedores', name: 'Proveedores', element: ListaProveedores },
   { path: '/proveedores/crear-proveedor', name: 'Nuevo proveedor', element: CrearProveedor },
@@ -122,11 +133,20 @@ const routes = [
   { path: '/insumos/crearInsumo', name: 'Crear Insumo', element: CrearInsumo },
 
   { path: '/ventas/listaVentas', name: 'Ventas', element: ListarVentas},
-  { path: '/ListaUsuarios', name:'Usuarios', element: Usuarios},
+
+  { path: '/ListaUsuarios', name: 'Usuarios',element : Usuarios},
+
+
   { path: '/CrearUsuarios', name: 'CrearUsuarios', element: CrearUsuarios},
   { path: '/EditarUsuarios', name: 'EditarUsuarios', element: EditarUsuarios},
-  { path: '/ListaRol', name: 'Roles', element: Roles},
+  
+ { path: '/ListaRol', name: 'Roles', element: Roles},
+  //{ path: '/ListaRol', name: 'Roles', element: Roles, private: true },
+ 
+ // { path: '/ListaRol', name: 'Roles', element: <PrivateRoute element={<Roles />} /> },
+  
   { path: '/CrearRol', name: 'CrearRol', element: CrearRol},
+  
   { path: '/productos', name: 'productos', element: ListaProductos },
   { path: '/productos/lista-productos', name: 'Productos', element: ListaProductos },
   { path: '/productos/crear-producto', name: 'Nuevo producto', element: CrearProducto },
@@ -140,6 +160,8 @@ const routes = [
   { path: '/insumos/listaIsumos', name: 'Listado de Insumos', element: ListaInsumos },
   { path: '/insumos/crearInsumo', name: 'Crear Insumo', element: CrearInsumo },
   //------------------------------------------------------------------------------------
+
+
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },
   { path: '/theme/typography', name: 'Typography', element: Typography },
@@ -184,4 +206,4 @@ const routes = [
   // { path: '/widgets', name: 'Widgets', element: Widgets },
 ]
 
-export default routes
+export { routes};

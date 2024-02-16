@@ -28,12 +28,28 @@ function CrearEmpleado() {
     const [documento, setDocumento] = useState('');
     const [telefono, setTelefono] = useState('');
     const [estado, setEstado] = useState('');
+    const [documentoApi, setdocumentoApi] = useState('');
+    const [errorDocumento, setError] = useState(false);
 
     const [empleados, setEmpleados] = useState([]);
 
-    const checkDocumentoExistente = (documento) => {
-        return empleados.some((empleado) => empleado.documento === documento);
+
+    const validardocumento = async () => {
+        setError(false)
+        if (documento.length > 0) {
+            try {
+                const respuesta = await fetch(`http://localhost:8095/api/validar?documento=${documento}`);
+                const datosRespuesta = await respuesta.json();
+                if (datosRespuesta.documento == 'El documento ya existe') {
+                    setError(true);
+                }
+                setdocumentoApi(datosRespuesta.documento);
+            } catch (error) {
+                console.error(error)
+            }
+        }
     };
+
 
     //Estados para manejar mensajes de error
     const [nombreError, setNombreError] = useState('');
@@ -53,38 +69,34 @@ function CrearEmpleado() {
         setDocumentoError('');
         setTelefonoError('');
 
-        if (checkDocumentoExistente(documento)) {
-            Swal.fire('Error', 'Ya existe un empleado con ese documento', 'error');
-            return;
-        }
-        
+
         if (!nombre || !apellido || !correo || !documento || !telefono) {
             Swal.fire('Error', 'Por favor, complete todos los campos', 'error');
             return;
         }
 
         // Validar el nombre con la expresión regular
-        if (!/^[A-Za-z]+$/.test(nombre)) {
+        if (!/^[A-Za-z ]+$/.test(nombre)) {
             setNombreError('El nombre debe contener solo letras');
             return;
         }
 
-        if (!/^[A-Za-z]+$/.test(apellido)){
+        if (!/^[A-Za-z ]+$/.test(apellido)) {
             setApellidoError('El apellido debe de contener solo letras');
             return;
         }
 
-        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{3,}$/.test(correo)){
+        if (!/^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/.test(correo)) {
             setCorreoError('Ingrese por favor un correo valido');
             return;
         }
 
-        if (!/^\d{1,10}$/.test(documento)){
+        if (!/^\d{1,10}$/.test(documento)) {
             setDocumentoError('Ingresa solo números y solo se ingresan menos de 10 dígitos');
             return;
         }
 
-        if (!/^\d{1,10}$/.test(telefono)){
+        if (!/^\d{1,10}$/.test(telefono)) {
             setTelefonoError('Ingresa solo números y solo se ingresan menos de 10 dígitos');
             return;
         }
@@ -103,9 +115,6 @@ function CrearEmpleado() {
             console.log('Empleado creado:', response);
 
             setEmpleados([...empleados, response]);
-
-            // Mensaje de éxito
-            Swal.fire('Éxito', 'El empleado se ha creado correctamente', 'success');
 
             // Utiliza el método navigate para redireccionar
             navigate('/empleados/listaEmpleados');
@@ -136,17 +145,15 @@ function CrearEmpleado() {
                                     value={documento}
                                     onChange={(e) => {
                                         setDocumento(e.target.value);
-                                        // Verifica si el documento ya existe en tiempo real
-                                        if (checkDocumentoExistente(e.target.value)) {
-                                            setDocumentoError('Ya existe un empleado con ese documento');
-                                        } else {
-                                            setDocumentoError('');
-                                        }
                                     }}
+                                    onBlur={validardocumento}
                                     invalid={documentoError !== ''}
                                 />
                                 <CFormFeedback invalid>{documentoError}</CFormFeedback>
                             </div>
+                            {errorDocumento &&
+                                <p style={{ color: 'red' }}>Ya existe un empleado con éste número de cédula</p>
+                            }
                             <div className="mb-3">
                                 <CFormLabel>Nombre</CFormLabel>
                                 <CFormInput

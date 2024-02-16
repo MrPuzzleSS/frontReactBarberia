@@ -1,13 +1,27 @@
-const apiUrl = 'https://resapibarberia.onrender.com/api/agenda';
+const apiUrl = 'http://localhost:8095/api/agenda';
 
 const AgendaService = {
+  
   getAllAgendas: () => {
     return fetch(apiUrl)
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Error al obtener las agendas');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Agendas obtenidas correctamente:', data);
+        return data;
+      })
       .catch(error => {
         console.error('Error al obtener las agendas:', error);
+        throw error; // Propaga el error para que pueda ser manejado en otro lugar
       });
   },
+
+
+
 
   getAgendaById: (id) => {
     return fetch(`${apiUrl}/${id}`)
@@ -84,6 +98,7 @@ const AgendaService = {
         throw error; // Propaga el error para manejarlo en otro lugar si es necesario
       }
     },
+    
     
   };
 

@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import Swal from 'sweetalert2';
+import '@fullcalendar/daygrid';
 import swal from 'sweetalert';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
@@ -13,44 +15,10 @@ import { CCard, CCardHeader, CCardBody } from '@coreui/react';
 import esLocale from '@fullcalendar/core/locales/es';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import 'src/scss/css/calendarStyles.css';
-
-
-
-
+import io from 'socket.io-client';
 
 
 const CrearConfiguracion = () => {
-
-    const colorArray = [
-        '#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
-        '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
-        '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
-        '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
-        '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
-        '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
-        '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
-        '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
-        '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
-        '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'
-    ];
-
-
-    const generateColor = (id_empleado) => {
-        const color = colorArray[id_empleado - 1] || '#CCCCCC';
-        return color;
-    };
-
-    const asignarColorXEmpleado = () => {
-        const miAgenda = document.querySelectorAll('.fc-event-title');
-        miAgenda.forEach((titulo) => {
-            const id_empleado = titulo.innerText.split(' ')[3];
-            const colorEmpleado = generateColor(id_empleado);
-            titulo.style.backgroundColor = colorEmpleado;
-        });
-    };
-
-    asignarColorXEmpleado();
-
 
     const MultiSelect = ({ options, selectedValues, onChange }) => {
         const handleChange = (selectedOption) => {
@@ -59,8 +27,6 @@ const CrearConfiguracion = () => {
 
         console.log('Soy felix', options, selectedValues, onChange);
         const selectedOptions = options.filter((option) => selectedValues.includes(option.value));
-
-        asignarColorXEmpleado();
 
         return (
             <Select isMulti options={options} value={selectedOptions} onChange={handleChange} />
@@ -78,7 +44,6 @@ const CrearConfiguracion = () => {
         onChange: PropTypes.func.isRequired,
     };
 
-
     const calendarRef = useRef(null);
     const [formData, setFormData] = useState({
         fechaInicio: '',
@@ -92,103 +57,15 @@ const CrearConfiguracion = () => {
     const [events, setEvents] = useState([]);
     const [empleados, setEmpleados] = useState([]);
 
-    const fetchAgendas = async () => {
-        try {
-            const data = await agendaService.getAllAgendas();
-            const agendas = data.agendas || [];
-
-            if (Array.isArray(agendas)) {
-                const formattedEvents = agendas.map((agenda) => ({
-                    title: `Agenda de Empleado ${empleados.length > 0 ? empleados.find((empleado) => empleado.value === agenda.id_empleado).label : agenda.id_empleado}`,
-                    start: new Date(agenda.fechaInicio),
-                    end: new Date(agenda.fechaFin),
-                    horaInicio: agenda.horaInicio,
-                    horaFin: agenda.horaFin,
-                    empleado: agenda.id_empleado,
-                    id_agenda: agenda.id_agenda,
-                    estado: agenda.estado,
-                    editable: true,
-                }));
-
-                setEvents(formattedEvents);
-            } else {
-                console.error('Las agendas no se obtuvieron como un array:', data);
-                console.log('Estructura de las agendas:', data);
-            }
-        } catch (error) {
-            console.error('Error al obtener las agendas:', error);
-        }
-    };
-
-    const handleEventDrop = async (eventDropInfo) => {
-        try {
-            const { id, start, end } = eventDropInfo.event;
-
-            // Validar si la fecha está fuera del día actual
-            const currentDate = new Date();
-            const fechaHoy = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()); // Fecha actual sin hora
-
-            if (start < fechaHoy || end < fechaHoy) {
-                throw new Error('No puedes arrastrar eventos a fechas anteriores al día actual');
-            }
-
-            // Verificar si la agenda está deshabilitada antes de permitir la edición
-            if (eventDropInfo.event.extendedProps.estado === false) {
-                throw new Error('No puedes editar una agenda deshabilitada');
-            }
-
-            // Actualizar la base de datos con los nuevos detalles del evento
-            await agendaService.updateAgenda(eventDropInfo.event.extendedProps.id_agenda, {
-                fechaInicio: start,
-                fechaFin: end
-            });
-
-            // Actualizar el estado local solo si la actualización en la base de datos es exitosa
-            const updatedEvents = events.map((event) => {
-                if (event.id === id) {
-                    return {
-                        ...event,
-                        start,
-                        end,
-                    };
-                }
-                return event;
-            });
-
-            setEvents(updatedEvents);
-
-            // Mostrar mensaje de éxito con SweetAlert
-            Swal.fire({
-                icon: 'success',
-                title: '¡Éxito!',
-                text: 'El evento ha sido actualizado correctamente.',
-            });
-
-        } catch (error) {
-            console.error('Error al actualizar el evento:', error);
-            // Mostrar mensaje de error con SweetAlert
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: error.message,
-            });
-        }
-    };
 
 
-
-
-    useEffect(() => {
-        fetchAgendas();
-        fetchEmpleados();
-    }, []);
 
 
 
 
     const fetchEmpleados = async () => {
         try {
-            const response = await fetch('https://resapibarberia.onrender.com/api/empleado');
+            const response = await fetch('http://localhost:8095/api/empleado');
             if (!response.ok) {
                 throw new Error('Error al obtener los empleados');
             }
@@ -209,6 +86,10 @@ const CrearConfiguracion = () => {
         }
     };
 
+    useEffect(() => {
+        fetchEmpleados();
+    }, []);
+
     const handleEmpleadosChange = (selectedEmpleados) => {
         const selectedValues = selectedEmpleados.map((option) => option.value);
         const selectedEmpleadosData = empleados.filter((empleado) => selectedValues.includes(empleado.value));
@@ -223,6 +104,95 @@ const CrearConfiguracion = () => {
         }));
         console.log('Estado actual de formData:', formData);
     };
+
+    const socketRef = useRef(null);
+
+    useEffect(() => {
+        socketRef.current = io('http://localhost:8095');
+
+        socketRef.current.on('connect', () => {
+            console.log('Conectado al servidor Socket.IO');
+        });
+
+        socketRef.current.on('connect_error', (error) => {
+            console.error('Error de conexión:', error);
+        });
+
+        return () => {
+            socketRef.current.disconnect();
+        };
+    }, []);
+
+    const colorArray = [
+        '#FF6633', '#FFB399', '#FF33FF', '#00B3E6',
+        '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+        '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+        '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+        '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
+        '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+        '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
+        '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+        '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
+        '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'
+    ];
+
+    const generateColor = (id_empleado) => {
+        const color = colorArray[id_empleado - 1] || '#CCCCCC';
+        return color;
+    };
+
+    const fetchAgendas = useCallback(async () => {
+
+
+
+        try {
+            console.log('Iniciando fetch de agendas...');
+
+            const data = await agendaService.getAllAgendas();
+            console.log('Estos son los datos obtenidos:', data);
+
+            const agendas = data.agendas || [];
+
+            if (Array.isArray(agendas)) {
+                const formattedEvents = agendas.map((agenda) => ({
+                    title: `Agenda ${agenda.id_empleado}`,
+                    start: new Date(agenda.fechaInicio),
+                    end: new Date(agenda.fechaFin),
+                    horaInicio: agenda.horaInicio,
+                    horaFin: agenda.horaFin,
+                    empleado: agenda.id_empleado,
+                    id_agenda: agenda.id_agenda,
+                    estado: agenda.estado,
+                    editable: true,
+                    backgroundColor: generateColor(agenda.id_empleado)
+                }));
+
+                setEvents(formattedEvents);
+                console.log('Eventos actualizados:', formattedEvents);
+
+                // Emitir el mensaje después de actualizar los eventos
+                socketRef.current.emit('agendaActualizada', { agendas: formattedEvents });
+                console.log('Mensaje emitido: agendaActualizada');
+            } else {
+                console.error('Las agendas no se obtuvieron como un array:', data);
+                console.log('Estructura de las agendas:', data);
+            }
+        } catch (error) {
+            console.error('Error al obtener las agendas:', error);
+        }
+    }, [setEvents, socketRef]);
+
+    useEffect(() => {
+        const fetchDataAndEmit = async () => {
+            await fetchAgendas();
+        };
+
+        fetchDataAndEmit();
+    }, [fetchAgendas]);
+
+
+
+
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
@@ -261,8 +231,30 @@ const CrearConfiguracion = () => {
                         console.log('empleadoSeleccionado', empleadoSeleccionado);
 
                         if (empleadoSeleccionado) {
+                            // empleadoSeleccionado.forEach(async (barbero) => {
+                            //     // Crear el evento con el empleado seleccionado
+                            //     const newEvent = {
+                            //         id_empleado: parseInt(barbero.value),
+                            //         fechaInicio: new Date(currentDate),
+                            //         fechaFin: newEndDate,
+                            //         horaInicio: formData.horaInicio,
+                            //         horaFin: formData.horaFin
+                            //     };
+
+                            //     console.log('newEvent', newEvent);
+
+                            //     await agendaService.createAgenda(newEvent);
+                            //     // Agregar el nuevo evento a la lista de eventos
+                            //     setEvents((prevEvents) => [...prevEvents, newEvent]);
+
+
+
+                            //     socketRef.current.emit(' es el nuevaAgendaCreada', newEvent);
+                            //     console.log('Mensaje emitido: nuevaAgendaCreada');
+
+                            // })
+
                             empleadoSeleccionado.forEach(async (barbero) => {
-                                // Crear el evento con el empleado seleccionado
                                 const newEvent = {
                                     id_empleado: parseInt(barbero.value),
                                     fechaInicio: new Date(currentDate),
@@ -273,11 +265,23 @@ const CrearConfiguracion = () => {
 
                                 console.log('newEvent', newEvent);
 
-                                await agendaService.createAgenda(newEvent);
-                                // Agregar el nuevo evento a la lista de eventos
-                                setEvents((prevEvents) => [...prevEvents, newEvent]);
+                                try {
+                                    // Crear el evento con el empleado seleccionado
+                                    await agendaService.createAgenda(newEvent);
 
-                            })
+                                    // Agregar el nuevo evento a la lista de eventos utilizando el callback de setEvents
+                                    setEvents((prevEvents) => [...prevEvents, newEvent]);
+
+                                    // Emitir el mensaje de nueva agenda creada
+                                    socketRef.current.emit('nuevaAgendaCreada', newEvent);
+                                    console.log('Mensaje emitido: nuevaAgendaCreada');
+                                } catch (error) {
+                                    console.error('Error al crear la agenda:', error);
+                                }
+                            });
+
+
+
                         } else {
                             console.log('No se encontraron barberos seleccionados.');
                         }
@@ -389,6 +393,7 @@ const CrearConfiguracion = () => {
             // Manejo si no hay ningún evento seleccionado para actualizar
         }
     };
+
     //---------------------------------------------------------------------------
     const [showCreateModal, setShowCreateModal] = useState(false);
     const handleDateClick = (info) => {
@@ -425,92 +430,95 @@ const CrearConfiguracion = () => {
             const fechaHoy = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()); // Fecha actual sin hora
             const fechaInicioEvento = new Date(`${fechaInicio}T${horaInicio}`);
             const fechaFinEvento = new Date(`${fechaFin}T${horaFin}`);
-
+    
             // Validación de fechas anteriores al día actual
             if (fechaInicioEvento < fechaHoy || fechaFinEvento < fechaHoy) {
                 throw new Error('No puedes crear eventos en fechas anteriores al día actual');
-            } else {
-                // Validación de campos obligatorios
-                if (!fechaInicioEvento || !fechaFinEvento || !horaInicio || !horaFin || empleadosSeleccionados.length === 0) {
-                    throw new Error('Todos los campos son obligatorios');
-                }
-
-                // Validación de horas de inicio y fin
-                if (horaInicio > horaFin) {
-                    throw new Error('La hora de inicio no puede ser posterior a la hora de fin');
-                }
-
-                  // Validación de horas de inicio y fin
-                  if (!empleadosSeleccionados > empleadosSeleccionados) {
-                    throw new Error('El campo del empleado es requerido');
-                }
-
-
-
-                // Validación de fechas de inicio y fin
-                if (fechaInicioEvento > fechaFinEvento) {
-                    throw new Error('La fecha de inicio no puede ser posterior a la fecha de fin');
-                }
-
-                // Validación de campos obligatorios
-                if (!fechaInicioEvento || !fechaFinEvento || !horaInicio || !horaFin || empleadosSeleccionados.length === 0) {
-                    throw new Error('Todos los campos son obligatorios');
-                }
-
-
-                // Resto del código para la creación de eventos...
-                const newEvents = [];
-                let currentDateEvent = new Date(fechaInicioEvento);
-
-                while (currentDateEvent <= fechaFinEvento) {
-                    const newEndDate = new Date(currentDateEvent);
-                    newEndDate.setHours(fechaFinEvento.getHours(), fechaFinEvento.getMinutes());
-
-                    if (empleadosSeleccionados) {
-                        empleadosSeleccionados.forEach(async (empleado) => {
-                            const newEvent = {
-                                fechaInicio: currentDateEvent,
-                                fechaFin: newEndDate,
-                                horaInicio,
-                                horaFin,
-                                title: `Agenda de ${empleado.nombre} ${empleado.apellido}`,
-                                id_empleado: empleado,
-                            };
-                            const createdEvent = await agendaService.createAgenda(newEvent);
-                            if (!!createdEvent?.error) {
-                                throw new Error(createdEvent?.error);
-                            } else {
-                                newEvents.push(createdEvent);
-                            }
-                        });
-                    }
-                    currentDateEvent.setDate(currentDateEvent.getDate() + 1);
-                }
-
-                // Actualización de eventos y estado
-                setEvents((prevEvents) => [...prevEvents, ...newEvents]);
-                await fetchAgendas();
-                setShowCreateModal(false);
-
-                // Limpiar el formulario
-                setFormData({
-                    fechaInicio: '',
-                    fechaFin: '',
-                    horaInicio: '',
-                    horaFin: '',
-                    empleadosSeleccionados: [],
-                    busquedaEmpleado: '',
-                });
-
-                // Mostrar mensaje de éxito y actualizar calendario
-                swal({
-                    title: 'Éxito',
-                    text: 'La agenda ha sido creada con éxito',
-                    icon: 'success',
-                    button: 'Aceptar',
-                });
-                updateCalendar();
             }
+    
+            // Validación de campos obligatorios
+            if (!fechaInicioEvento || !fechaFinEvento || !horaInicio || !horaFin || empleadosSeleccionados.length === 0) {
+                throw new Error('Todos los campos son obligatorios');
+            }
+    
+            // Validación de horas de inicio y fin
+            if (horaInicio > horaFin) {
+                throw new Error('La hora de inicio no puede ser posterior a la hora de fin');
+            }
+    
+            // Validación de empleados seleccionados
+            if (!empleadosSeleccionados || empleadosSeleccionados.length === 0) {
+                throw new Error('Debes seleccionar al menos un empleado');
+            }
+    
+            // Validación de fechas de inicio y fin
+            if (fechaInicioEvento > fechaFinEvento) {
+                throw new Error('La fecha de inicio no puede ser posterior a la fecha de fin');
+            }
+    
+            // Verificar si hay algún evento existente con la misma hora para el mismo empleado
+            const existingEvent = events.find(existingEvent => 
+                existingEvent.extendedProps && // Verifica que extendedProps no sea undefined
+                existingEvent.extendedProps.id_empleado === empleadosSeleccionados.id && // Mismo empleado
+                ((fechaInicioEvento >= existingEvent.start && fechaInicioEvento < existingEvent.end) || (fechaFinEvento > existingEvent.start && fechaFinEvento <= existingEvent.end)) // Misma hora
+            );
+    
+            if (existingEvent) {
+                throw new Error('Ya existe un evento para este empleado en la misma hora');
+            }
+    
+            // Resto del código para la creación de eventos...
+            const newEvents = [];
+            let currentDateEvent = new Date(fechaInicioEvento);
+    
+            while (currentDateEvent <= fechaFinEvento) {
+                const newEndDate = new Date(currentDateEvent);
+                newEndDate.setHours(fechaFinEvento.getHours(), fechaFinEvento.getMinutes());
+    
+                if (empleadosSeleccionados) {
+                    empleadosSeleccionados.forEach(async (empleado) => {
+                        const newEvent = {
+                            fechaInicio: currentDateEvent,
+                            fechaFin: newEndDate,
+                            horaInicio,
+                            horaFin,
+                            title: `Agenda de ${empleado.nombre} ${empleado.apellido}`,
+                            id_empleado: empleado,
+                        };
+                        const createdEvent = await agendaService.createAgenda(newEvent);
+                        if (!!createdEvent?.error) {
+                            throw new Error(createdEvent?.error);
+                        } else {
+                            newEvents.push(createdEvent);
+                        }
+                    });
+                }
+                currentDateEvent.setDate(currentDateEvent.getDate() + 1);
+            }
+    
+            // Actualización de eventos y estado
+            setEvents((prevEvents) => [...prevEvents, ...newEvents]);
+            await fetchAgendas();
+            setShowCreateModal(false);
+    
+            // Limpiar el formulario
+            setFormData({
+                fechaInicio: '',
+                fechaFin: '',
+                horaInicio: '',
+                horaFin: '',
+                empleadosSeleccionados: [],
+                busquedaEmpleado: '',
+            });
+    
+            // Mostrar mensaje de éxito y actualizar calendario
+            swal({
+                title: 'Éxito',
+                text: 'La agenda ha sido creada con éxito',
+                icon: 'success',
+                button: 'Aceptar',
+            });
+            updateCalendar();
         } catch (error) {
             // Manejo de errores
             console.error('Error al crear la agenda:', error);
@@ -522,15 +530,120 @@ const CrearConfiguracion = () => {
             });
         }
     };
+    
+    
+
+    // const handleCrearAgenda = async () => {
+    //     try {
+    //         // Obtener datos del formulario
+    //         const { horaInicio, horaFin, empleadosSeleccionados, fechaInicio, fechaFin } = formData;
+    //         const currentDate = new Date();
+    //         const fechaHoy = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()); // Fecha actual sin hora
+    //         const fechaInicioEvento = new Date(`${fechaInicio}T${horaInicio}`);
+    //         const fechaFinEvento = new Date(`${fechaFin}T${horaFin}`);
+
+    //         // Validación de fechas anteriores al día actual
+    //         if (fechaInicioEvento < fechaHoy || fechaFinEvento < fechaHoy) {
+    //             throw new Error('No puedes crear eventos en fechas anteriores al día actual');
+    //         } else {
+    //             // Validación de campos obligatorios
+    //             if (!fechaInicioEvento || !fechaFinEvento || !horaInicio || !horaFin || empleadosSeleccionados.length === 0) {
+    //                 throw new Error('Todos los campos son obligatorios');
+    //             }
+
+    //             // Validación de horas de inicio y fin
+    //             if (horaInicio > horaFin) {
+    //                 throw new Error('La hora de inicio no puede ser posterior a la hora de fin');
+    //             }
+
+    //             // Validación de empleados seleccionados
+    //             if (!empleadosSeleccionados || empleadosSeleccionados.length === 0) {
+    //                 throw new Error('Debes seleccionar al menos un empleado');
+    //             }
 
 
 
 
+    //             // Validación de fechas de inicio y fin
+    //             if (fechaInicioEvento > fechaFinEvento) {
+    //                 throw new Error('La fecha de inicio no puede ser posterior a la fecha de fin');
+    //             }
+
+    //             // Validación de campos obligatorios
+    //             if (!fechaInicioEvento || !fechaFinEvento || !horaInicio || !horaFin || empleadosSeleccionados.length === 0) {
+    //                 throw new Error('Todos los campos son obligatorios');
+    //             }
+
+
+    //             // Resto del código para la creación de eventos...
+    //             const newEvents = [];
+    //             let currentDateEvent = new Date(fechaInicioEvento);
+
+    //             while (currentDateEvent <= fechaFinEvento) {
+    //                 const newEndDate = new Date(currentDateEvent);
+    //                 newEndDate.setHours(fechaFinEvento.getHours(), fechaFinEvento.getMinutes());
+
+    //                 if (empleadosSeleccionados) {
+    //                     empleadosSeleccionados.forEach(async (empleado) => {
+    //                         const newEvent = {
+    //                             fechaInicio: currentDateEvent,
+    //                             fechaFin: newEndDate,
+    //                             horaInicio,
+    //                             horaFin,
+    //                             title: `Agenda de ${empleado.nombre} ${empleado.apellido}`,
+    //                             id_empleado: empleado,
+    //                         };
+    //                         const createdEvent = await agendaService.createAgenda(newEvent);
+    //                         if (!!createdEvent?.error) {
+    //                             throw new Error(createdEvent?.error);
+    //                         } else {
+    //                             newEvents.push(createdEvent);
+    //                         }
+    //                     });
+    //                 }
+    //                 currentDateEvent.setDate(currentDateEvent.getDate() + 1);
+    //             }
+
+    //             // Actualización de eventos y estado
+    //             setEvents((prevEvents) => [...prevEvents, ...newEvents]);
+    //             await fetchAgendas();
+    //             setShowCreateModal(false);
+
+    //             // Limpiar el formulario
+    //             setFormData({
+    //                 fechaInicio: '',
+    //                 fechaFin: '',
+    //                 horaInicio: '',
+    //                 horaFin: '',
+    //                 empleadosSeleccionados: [],
+    //                 busquedaEmpleado: '',
+    //             });
+
+    //             // Mostrar mensaje de éxito y actualizar calendario
+    //             swal({
+    //                 title: 'Éxito',
+    //                 text: 'La agenda ha sido creada con éxito',
+    //                 icon: 'success',
+    //                 button: 'Aceptar',
+    //             });
+    //             updateCalendar();
+    //         }
+    //     } catch (error) {
+    //         // Manejo de errores
+    //         console.error('Error al crear la agenda:', error);
+    //         swal({
+    //             title: 'Error',
+    //             text: error.message, // Mostrar el mensaje de error específico
+    //             icon: 'error',
+    //             button: 'Aceptar',
+    //         });
+    //     }
+    // };
 
 
     const [searchText, setSearchText] = useState(''); // Estado para almacenar el texto de búsqueda
     const filteredEvents = events.filter((event) => {
-        const nombreEmpleado = event.title.toLowerCase(); // Obtener el nombre del empleado del título del evento
+        const nombreEmpleado = event.title.toString().toLowerCase(); // Obtener el nombre del empleado del título del evento
         console.log('Nombre del empleado:', nombreEmpleado); // Console.log para ver el nombre del empleado
 
         return (
@@ -538,12 +651,104 @@ const CrearConfiguracion = () => {
         );
     });
 
+    const handleEventDrop = async (eventDropInfo) => {
+        try {
+            const { id, start, end } = eventDropInfo.event;
+            const empleadoId = eventDropInfo.event.extendedProps.id_empleado;
+
+            // Validar si la fecha está fuera del día actual
+            const currentDate = new Date();
+            const fechaHoy = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+
+            if (start < fechaHoy || end < fechaHoy) {
+                throw new Error('No puedes arrastrar eventos a fechas anteriores al día actual');
+            }
+
+            // Verificar si la agenda está deshabilitada antes de permitir la edición
+            if (!eventDropInfo.event.extendedProps.estado) {
+                throw new Error('No puedes editar una agenda deshabilitada');
+            }
+
+            // Verificar si el evento se está moviendo a una nueva posición ocupada
+            if (eventDropInfo.oldEvent && eventDropInfo.oldEvent.id) {
+                // Filtrar eventos del mismo empleado, excluyendo el evento actual
+                const eventosEmpleado = events.filter((evento) => {
+                    return evento.extendedProps.id_empleado === empleadoId && evento.id !== id;
+                });
+
+                const nuevoEvento = {
+                    start,
+                    end,
+                };
+
+                const hayCoincidencia = eventosEmpleado.some((evento) => {
+                    const horarioEvento = {
+                        start: evento.start,
+                        end: evento.end,
+                    };
+
+                    // Verificar si hay superposición de horarios
+                    return (
+                        nuevoEvento.start < horarioEvento.end &&
+                        nuevoEvento.end > horarioEvento.start
+                    );
+                });
+
+                if (hayCoincidencia) {
+                    throw new Error('No puedes arrastrar eventos donde el empleado tiene el mismo horario');
+                }
+            }
+
+            // Actualizar la base de datos con los nuevos detalles del evento
+            await agendaService.updateAgenda(eventDropInfo.event.extendedProps.id_agenda, {
+                fechaInicio: start,
+                fechaFin: end
+            });
+
+            // Actualizar el estado local solo si la actualización en la base de datos es exitosa
+            const updatedEvents = events.map((event) => {
+                if (event.id === id) {
+                    return {
+                        ...event,
+                        start,
+                        end,
+                    };
+                }
+                return event;
+            });
+
+            setEvents(updatedEvents);
+
+            // Mostrar mensaje de éxito con SweetAlert
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: 'El evento ha sido actualizado correctamente.',
+            });
+
+        } catch (error) {
+            console.error('Error al actualizar el evento:', error);
+            // Mostrar mensaje de error con SweetAlert
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message,
+            });
+        }
+    };
+
+
+
+
+
+
+
+
+
+
     const motivosPredefinidos = [
         'Enfermedad',
         'Emergencia familiar',
-        ''
-
-        // Agrega más motivos según sea necesario
     ];
 
     return (
@@ -595,6 +800,33 @@ const CrearConfiguracion = () => {
                                 }}
                                 locale={esLocale}
                                 events={filteredEvents.length > 0 ? filteredEvents : events}
+                                eventContent={(arg) => {
+                                    // Obtener el empleado asociado al evento
+                                    const empleadoSeleccionado = empleados.find(
+                                        (empleado) => empleado.value === arg.event.extendedProps.empleado
+                                    );
+
+                                    // Verificar si la agenda está deshabilitada
+                                    const isDisabled = !arg.event.extendedProps.estado;
+
+                                    // Obtener el nombre del empleado o mostrar "Desactivado" si la agenda está deshabilitada
+                                    const nombreEmpleado = isDisabled ? 'Desactivado ' : (empleadoSeleccionado ? empleadoSeleccionado.label : 'Desconocido');
+
+                                    // Establecer el color del evento
+                                    const backgroundColor = isDisabled ? '#666666' : arg.event.backgroundColor;
+
+                                    const animacionDesactivado = isDisabled ? 'rotar-circular' : '';
+
+                                    return (
+                                        <span style={{ backgroundColor, color: 'white', padding: '2px 5px', borderRadius: '3px' }}>
+                                            {isDisabled ? (
+                                                <span className={`rotar-circular animacion-rotar-circular`}>😲</span>
+                                            ) : null}
+                                            {nombreEmpleado}
+                                        </span>
+                                    );
+
+                                }}
                                 eventClick={(clickInfo) => {
                                     const empleadoSeleccionado = empleados.find(
                                         (empleado) => empleado.value === clickInfo.event.extendedProps.empleado
@@ -776,7 +1008,7 @@ const CrearConfiguracion = () => {
 
                         </Modal.Footer>
                     </Modal>
-                    <Modal show={showCreateModal} onHide={handleCloseCreateModal}>
+                    <Modal show={showCreateModal} onHide={null}>
                         <Modal.Header closeButton>
                             <Modal.Title>Crear Agenda</Modal.Title>
                         </Modal.Header>

@@ -123,7 +123,7 @@ function CrearProducto() {
           if (result.isConfirmed || result.isDismissed) {
             setTimeout(() => {
               window.location.href = '/Productos/lista-Productos';
-            }, 1500); // Redirigir después de 1.5 segundos (ajusta este tiempo según tu preferencia)
+            }, 1000); // Redirigir después de 1.5 segundos (ajusta este tiempo según tu preferencia)
           }
         });
 

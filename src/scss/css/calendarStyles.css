@@ -1,5 +1,30 @@
-este es el css
+
 /* calendarStyles.css */
+
+/* Define una animación llamada 'rotar-circular' */
+/* Define una animación llamada 'rotar-circular' */
+@keyframes rotar-circular {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Agrega la clase 'animacion-rotar-circular' para iniciar la animación */
+.animacion-rotar-circular {
+    animation-name: rotar-circular;
+    animation-duration: 2s; /* Duración de la animación en segundos */
+    animation-iteration-count: infinite; /* Iteración infinita */
+    animation-timing-function: linear; /* Función de temporización de animación */
+}
+
+/* Aplica la animación al emoji */
+.rotar-circular {
+    display: inline-block;
+    /* Otros estilos que desees aplicar al emoji */
+}
+
+
+
+
 
 /* Estilos generales para mejorar la apariencia */
 .custom-calendar {

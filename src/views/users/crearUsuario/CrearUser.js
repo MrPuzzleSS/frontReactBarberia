@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-
+import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.css';
 import { CButton, CCard, CCardBody, CContainer, CForm, CFormInput, CInputGroup, CInputGroupText, CRow, CFormLabel, CFormSelect } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
@@ -14,7 +14,7 @@ const Register = () => {
     nombre_usuario: '',
     contrasena: '',
     correo: '',
-    estado: '',
+    estado: 'Activo',
   });
 
   const [roles, setRoles] = useState([]);
@@ -23,7 +23,7 @@ const Register = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    axios.get('https://resapibarberia.onrender.com/api/rol')
+    axios.get('http://localhost:8095/api/rol')
       .then(response => {
         console.log('Roles obtenidos:', response.data.listaRoles);
         setRoles(response.data.listaRoles);
@@ -48,9 +48,6 @@ const Register = () => {
     } else {
       // Validar que el nombre no contenga números ni caracteres especiales
       const nameRegex = /^[A-Za-z]+$/;
-      if (!nameRegex.test(newUser.nombre_usuario)) {
-        validationErrors.nombre_usuario = 'El nombre no debe contener números ni caracteres especiales.';
-      }
     }
   
     // Validar Contraseña
@@ -88,18 +85,26 @@ const Register = () => {
       return;
     }
   
-    // Si no hay errores de validación, continuar con el proceso de guardar el usuario
     try {
-      const response = await axios.post('https://resapibarberia.onrender.com/api/usuario', newUser);
+      const response = await axios.post('http://localhost:8095/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
   
-      // Mostrar SweetAlert de éxito (puedes personalizar según tus necesidades)
-      alert('Usuario agregado con éxito');
+      // Mostrar SweetAlert de éxito
+      Swal.fire({
+        icon: 'success',
+        title: 'Usuario agregado con éxito',
+        showConfirmButton: false,
+        timer: 1500, // Cerrar automáticamente después de 1.5 segundos
+      });
     } catch (error) {
       console.error('Error al agregar usuario:', error);
   
-      // Mostrar SweetAlert de error (puedes personalizar según tus necesidades)
-      alert('Ha ocurrido un error al intentar agregar el usuario.');
+      // Mostrar SweetAlert de error
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al agregar usuario',
+        text: 'Ha ocurrido un error al intentar agregar el usuario.',
+      });
     }
   };
 
@@ -169,15 +174,6 @@ const Register = () => {
                   {errors.correo && <div className="text-danger">{errors.correo}</div>}
                 </div>
                 <div className="mb-3">
-                  <CFormLabel>Estado</CFormLabel>
-                  <CFormSelect
-                    value={newUser.estado}
-                    onChange={(e) => handleInputChange('estado', e.target.value)}
-                  >
-                    <option value="" disabled>Selecciona el estado</option>
-                    <option value="activo">Activo</option>
-                  </CFormSelect>
-                  {errors.estado && <div className="text-danger">{errors.estado}</div>}
                 </div>
                 <div>
                   <CButton submit onClick={handleAddUser}>

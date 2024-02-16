@@ -33,15 +33,15 @@ import {
 import EmpleadoService from 'src/views/services/empleadoService';
 
 const validateNombre = (value) => {
-  return /^[A-Za-z]+$/.test(value);
+  return /^[A-Za-z ]+$/.test(value);
 };
 
 const validateApellido = (value) => {
-  return /^[A-Za-z]+$/.test(value);
+  return /^[A-Za-z ]+$/.test(value);
 };
 
 const validateCorreo = (value) => {
-  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{3,}$/.test(value);
+  return /^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/.test(value);
 };
 
 const validateDocumento = (value) => {
