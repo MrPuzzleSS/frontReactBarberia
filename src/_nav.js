@@ -1,6 +1,8 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
 import jwt_decode from 'jwt-decode';
+import PrivateRoute from './components/PrivateRoute';
+import ListaRol from '../src/views/rol/listaRoles/Roles';
 import {
   cilPuzzle,
   cilSpeedometer,
@@ -216,11 +218,13 @@ const _nav = [
           {
             component: CNavItem,
             name: 'Lista de roles',
-            to: '/ListaRol',
+            to: '/ListaRol',  // Asegúrate de que la ruta sea la correcta
             icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+    
           },
         ],
       },
+      /*
       {
         component: CNavGroup,
         name: 'Acceso',
@@ -244,6 +248,7 @@ const _nav = [
           },
         ],
       },
+      */
     ]
   }
   // {

@@ -23,7 +23,7 @@ const Register = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    axios.get('https://resapibarberia.onrender.com/api/rol')
+    axios.get('http://localhost:8095/api/rol')
       .then(response => {
         console.log('Roles obtenidos:', response.data.listaRoles);
         setRoles(response.data.listaRoles);
@@ -86,7 +86,7 @@ const Register = () => {
     }
   
     try {
-      const response = await axios.post('https://resapibarberia.onrender.com/api/usuario', newUser);
+      const response = await axios.post('http://localhost:8095/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
   
       // Mostrar SweetAlert de éxito

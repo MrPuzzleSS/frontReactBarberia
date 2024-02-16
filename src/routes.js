@@ -1,6 +1,6 @@
 import React from 'react'
 
-//import PrivateRoute from './components/privateRoute';
+
 
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
@@ -72,8 +72,7 @@ const EditarUsuarios = React.lazy(() => import('./views/users/editarUsuario/Edit
 
 const Roles = React.lazy(() => import('./views/rol/listaRoles/Roles'))
 const CrearRol = React.lazy(() => import('./views/rol/CrearRol/CreateRol'))
-const recuperarContraseña = React.lazy( ()=> import('./views/pages/login/recuperarContraseña'))
-const resetContrasena = React.lazy ( ()=> import('./views/pages/login/resetContrasena'))
+
 
 
 const ListaProductos = React.lazy(() => import('./views/productos/listaProductos'))
@@ -97,6 +96,9 @@ const routes = [
   { path: '/', exact: true, name: 'Home' },
 
   { path: '/dashboard', name: 'Dashboard', element:Dashboard },
+  //{ path: '/dashboard', name: 'Dashboard', element: <PrivateRoute path="/dashboard" element={<Dashboard />} /> },
+  
+  // ... (otras rutas públicas y protegidas)
 
 
   { path: '/proveedores', name: 'Proveedores', element: ListaProveedores },
@@ -134,10 +136,13 @@ const routes = [
   { path: '/CrearUsuarios', name: 'CrearUsuarios', element: CrearUsuarios},
   { path: '/EditarUsuarios', name: 'EditarUsuarios', element: EditarUsuarios},
   
-  { path: '/ListaRol', name: 'Roles', element: Roles},
+ { path: '/ListaRol', name: 'Roles', element: Roles},
+  //{ path: '/ListaRol', name: 'Roles', element: Roles, private: true },
+ 
+ // { path: '/ListaRol', name: 'Roles', element: <PrivateRoute element={<Roles />} /> },
+  
   { path: '/CrearRol', name: 'CrearRol', element: CrearRol},
-  {path: '/recuperarContraseña', name: 'recuperarContraseña', element: recuperarContraseña},
-  {path: '/resetContrasena', name: 'resetContrasena', element: resetContrasena},
+  
   { path: '/productos', name: 'productos', element: ListaProductos },
   { path: '/productos/lista-productos', name: 'Productos', element: ListaProductos },
   { path: '/productos/crear-producto', name: 'Nuevo producto', element: CrearProducto },
@@ -151,6 +156,8 @@ const routes = [
   { path: '/insumos/listaIsumos', name: 'Listado de Insumos', element: ListaInsumos },
   { path: '/insumos/crearInsumo', name: 'Crear Insumo', element: CrearInsumo },
   //------------------------------------------------------------------------------------
+
+
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },
   { path: '/theme/typography', name: 'Typography', element: Typography },
@@ -195,4 +202,4 @@ const routes = [
   // { path: '/widgets', name: 'Widgets', element: Widgets },
 ]
 
-export default routes
+export { routes};

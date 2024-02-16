@@ -15,12 +15,14 @@ import {
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilEnvelopeOpen } from '@coreui/icons';
-import prueba2 from '../../../assets/images/prueba2.jpg';
+import prueba2 from '../../../assets/images/ftos/mk.png';
+import logoBarberia from '../../../assets/images/logoBarberia2.png';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [resetToken, setResetToken] = useState(null);  // Add state to store the reset token
   const navigate = useNavigate();
 
   const handleResetPassword = async () => {
@@ -45,14 +47,11 @@ const ForgotPassword = () => {
       const data = await response.json();
 
       if (response.ok) {
-        const token = data.token; // Captura el token desde la respuesta
+        console.log('Token obtenido:', data.resetToken); // Verifica si el token se obtiene correctamente
+        setResetToken(data.resetToken);  // Store the reset token in the state
 
         setSuccess(data.mensaje);
-
-        // Redirige al usuario a la página de éxito con el token después de 2 segundos
-        setTimeout(() => {
-          navigate(`/resetContrasena/`);
-        }, 2000);
+        // Puedes redirigir al usuario a la página de cambio de contraseña o mostrar un mensaje adicional aquí.
       } else {
         setError(data.mensaje);
       }
@@ -98,12 +97,15 @@ const ForgotPassword = () => {
                   <CButton color="primary" className="w-100" onClick={handleResetPassword}>
                     Enviar Instrucciones
                   </CButton>
-                  <div className="text-center mt-3">
-                    <CButton color="link" onClick={() => navigate('/login')}>
-                      Volver al Inicio de Sesión
-                    </CButton>
-                  </div>
                 </CForm>
+              </CCardBody>
+              <CCardBody className="text-center">
+                <img src={logoBarberia} alt="logo empresa" width="96%" />
+                <div className="text-center mt-3">
+                  <CButton color="link" onClick={() => navigate('/login')}>
+                    Volver al Inicio de Sesión
+                  </CButton>
+                </div>
               </CCardBody>
             </CCard>
           </CCol>

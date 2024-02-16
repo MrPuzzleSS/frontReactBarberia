@@ -1,5 +1,8 @@
+import { jwtDecode as jwt_decode } from 'jwt-decode';
+import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { setSession, isAuthenticated } from '../../../components/auht'; // Ajusta la ruta de importación
 import {
   CButton,
   CCard,
@@ -25,48 +28,41 @@ const Login = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
- 
   const handleLogin = async () => {
     try {
       setError(null);
-  
-      const response = await fetch('https://resapibarberia.onrender.com/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ nombre_usuario: nombreUsuario, contrasena }),
+
+      const response = await axios.post('http://localhost:8095/api/login', {
+        nombre_usuario: nombreUsuario,
+        contrasena,
       });
-  
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(`Error al autenticar el usuario: ${errorMessage}`);
-      }
-  
-      const { token, userId } = await response.json();
-  
-      if (token) {
-        // Verificar el estado del usuario
-        const userResponse = await fetch(`https://resapibarberia.onrender.com/api/usuario/${userId}`);
-        const userData = await userResponse.json();
-  
-        if (userData && userData.estado === 'Inactivo') {
-          setError('Usuario inactivo, no puede iniciar sesión');
-          return;
-        }
-  
-        localStorage.setItem('token', token);
-        console.log('Token guardado correctamente:', token);
-        navigate('/dashboard'); // Redirige al dashboard después de guardar el token
+
+      const { token } = response.data;
+
+      // Decodificar el token para obtener información del usuario
+      const decodedToken = jwt_decode(token);
+
+      // Almacenar la sesión y la información del usuario
+      setSession(token, new Date(decodedToken.exp * 1000), response.data.usuario);
+
+      // Verificar autenticación después de almacenar la sesión
+      if (isAuthenticated()) {
+        console.log('tu token ', token)
+        // Redirigir después de almacen,ar la sesión
+        navigate('/dashboard');
       } else {
-        setError('Token no válido recibido del servidor');
+        // Manejar caso en que la autenticación falla
+        setError('La autenticación falló después de iniciar sesión');
       }
     } catch (error) {
-      console.error('Error al iniciar sesión:', error);
-      setError('Usuario o contraseña incorrectos');
+      // Manejar errores al iniciar sesión
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Usuario y /o contraseña incorrectos');
+      }
     }
   };
-  
 
   return (
     <div
@@ -118,7 +114,11 @@ const Login = () => {
                         </CButton>
                       </CCol>
                       <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0" onClick={() => navigate('/recuperarContraseña')}>
+                        <CButton
+                          color="link"
+                          className="px-0"
+                          onClick={() => navigate('/resetPassword')}
+                        >
                           ¿Olvidó su contraseña?
                         </CButton>
                       </CCol>

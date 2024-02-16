@@ -1,22 +1,22 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Navigate, Route } from 'react-router-dom';
-import { isAuthenticated } from './auht';  // Asegúrate de que la importación sea correcta
-import ListaUsuarios from '../views/users/listaUsuarios/Usuarios';  // Ajusta la importación según la ubicación real
+/*import React from 'react';
+import { Route, Navigate } from 'react-router-dom';
+import PropTypes from 'prop-types'; // Importa PropTypes
+import { isAuthenticated } from '../components/auht'; // Importa tus funciones de autenticación
 
-
-const PrivateRoute = ({ element: Element, ...rest }) => {
-  const isAuth = isAuthenticated();
-
-  return isAuth ? (
-    <Route {...rest} element={<ListaUsuarios />} />
-  ) : (
-    <Navigate to="/login" />
+const PrivateRoute = ({ element, ...rest }) => {
+  return (
+    <Route
+      {...rest}
+      element={isAuthenticated() ? element : <Navigate to="/login" replace />}
+    />
   );
 };
 
+// Define los PropTypes para el componente
 PrivateRoute.propTypes = {
-  element: PropTypes.elementType.isRequired,
+  element: PropTypes.node.isRequired,
+  // Otras props que puedas tener en el futuro
 };
 
 export default PrivateRoute;
+*/
