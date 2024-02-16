@@ -1,6 +1,4 @@
-/* eslint-disable prettier/prettier */
 import React, { useEffect, useState } from "react";
-
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import ProveedoresDataService from "src/views/services/ProveedoresService";
@@ -25,6 +23,7 @@ import {
   CFormLabel,
   CFormInput,
   CFormSwitch,
+  CInputGroup,
 } from "@coreui/react";
 
 function ListaProveedores() {
@@ -38,6 +37,7 @@ function ListaProveedores() {
     email: "",
     tipo_de_producto_servicio: "",
   });
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,6 +95,18 @@ function ListaProveedores() {
     }
   };
 
+  // Filtrar proveedores basado en el término de búsqueda
+  const filteredProveedores = proveedores.filter((proveedor) => {
+    const nombreMatches = proveedor.nombre.toLowerCase().includes(searchTerm.toLowerCase());
+    const direccionMatches = proveedor.direccion.toLowerCase().includes(searchTerm.toLowerCase());
+    const telefonoMatches = proveedor.telefono.toLowerCase().includes(searchTerm.toLowerCase());
+    const emailMatches = proveedor.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const tipoMatches = proveedor.tipo_de_producto_servicio.toLowerCase().includes(searchTerm.toLowerCase());
+  
+    return nombreMatches || direccionMatches || telefonoMatches || emailMatches || tipoMatches;
+  }
+  );
+
   return (
     <CRow>
       <CCol xs={12}>
@@ -105,6 +117,17 @@ function ListaProveedores() {
               <Link to="/proveedores/crear-proveedor">
                 <CButton color="success">Agregar Proveedor</CButton>
               </Link>
+            </div>
+            <div className="mt-3">
+              <CInputGroup className="mt-3" style={{ maxWidth: "200px" }}>
+                <CFormInput
+                  type="text"
+                  placeholder="Buscar proveedor..."
+                  className="form-control-sm"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </CInputGroup>
             </div>
           </CCardHeader>
           <CCardBody>
@@ -125,7 +148,7 @@ function ListaProveedores() {
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {proveedores.map((proveedor, i) => (
+                {filteredProveedores.map((proveedor, i) => (
                   <CTableRow key={proveedor.id_proveedor}>
                     <CTableHeaderCell scope="row">{i + 1}</CTableHeaderCell>
                     <CTableDataCell>{proveedor.nombre}</CTableDataCell>
