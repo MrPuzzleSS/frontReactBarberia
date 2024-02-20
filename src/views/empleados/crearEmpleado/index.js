@@ -38,7 +38,18 @@ function CrearEmpleado() {
         setError(false)
         if (documento.length > 0) {
             try {
-                const respuesta = await fetch(`http://localhost:8095/api/validar?documento=${documento}`);
+                const token = localStorage.getItem('token');
+                if (!token){
+                    console.error('No hay token disponible');
+                    return;
+                }
+    
+                const respuesta = await fetch(`http://localhost:8095/api/validar?documento=${documento}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+    
                 const datosRespuesta = await respuesta.json();
                 if (datosRespuesta.documento == 'El documento ya existe') {
                     setError(true);
@@ -49,6 +60,7 @@ function CrearEmpleado() {
             }
         }
     };
+    
 
 
     //Estados para manejar mensajes de error

@@ -97,11 +97,17 @@ function CargarVentas() {
     }
   };
 
+
+
   const fetchCitasData = async (cedulaCliente) => {
     setErrorCedula(false);
     try {
       const response = await axios.post(`${API_URL}/citashoy`, {
         cedula_cliente: cedulaCliente,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
       });
       console.log(response.data);
       setCitaData(response.data);
@@ -111,10 +117,14 @@ function CargarVentas() {
       setErrorCedula(true);
     }
   };
-
+  
   const fetchEmpleados = async () => {
     try {
-      const response = await fetch(`${API_URL}/empleado`);
+      const response = await fetch(`${API_URL}/empleado`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
       const data = await response.json();
       if (data && data.empleados) {
         setEmpleados(data.empleados);
@@ -125,24 +135,27 @@ function CargarVentas() {
       console.error("Error la lista de empleados:", error);
     }
   };
-
+  
   const fetchClientes = async () => {
     try {
-      const response = await fetch(`${API_URL}/cliente`);
-      const data = await response.json();
-      if (data && data.listClientes) {
-        setClientes(data.listClientes);
-      } else {
-        console.error("Error al obtener la lista de clientes:", data);
-      }
+      const response = await axios.get(`${API_URL}/cliente`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      setClientes(response.data.listClientes);
     } catch (error) {
       console.error("Error al obtener la lista de clientes:", error);
     }
   };
-
+  
   const fetchServicios = async () => {
     try {
-      const response = await fetch(`${API_URL}/servicio`);
+      const response = await fetch(`${API_URL}/servicio`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
       const data = await response.json();
       if (data && data.listServicios) {
         setServicios(data.listServicios);
@@ -154,10 +167,14 @@ function CargarVentas() {
       console.error("Error al obtener la lista de servicios:", error);
     }
   };
-
+  
   const fetchProductos = async () => {
     try {
-      const response = await fetch(`${API_URL}/producto`);
+      const response = await fetch(`${API_URL}/producto`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
       const data = await response.json();
       if (data && data.productos) {
         setProductos(data.productos);
@@ -168,6 +185,8 @@ function CargarVentas() {
       console.error("Error al obtener la lista de productos:", error);
     }
   };
+
+
 
   const fetchVentas = async () => {
     try {

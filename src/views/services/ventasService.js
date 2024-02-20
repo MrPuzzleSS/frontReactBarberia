@@ -2,7 +2,12 @@ const api_url = 'http://localhost:8095/api/venta';
 
 const VentaService = {
     getVentas: () => {
-        return fetch(`${api_url}`)
+        const token = localStorage.getItem('token');
+        return fetch(`${api_url}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Error al obtener las ventas: ${response.status} - ${response.statusText}`);
@@ -15,10 +20,12 @@ const VentaService = {
     },
 
     crearVenta: (nuevaVenta) => {
+        const token = localStorage.getItem('token');
         return fetch(`${api_url}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({ nueva_venta: nuevaVenta }),
         })
@@ -29,8 +36,12 @@ const VentaService = {
     },
 
     cancelarVenta: (id_ventas) => {
+        const token = localStorage.getItem('token');
         return fetch(`${api_url}/cancelar/${id_ventas}`, {
-            method: 'PUT', 
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         })
             .then(response => response.json())
             .catch(error => {
@@ -39,8 +50,12 @@ const VentaService = {
     },
 
     cambiarEstado: (id_ventas) => {
+        const token = localStorage.getItem('token');
         return fetch(`${api_url}/estadoventa/${id_ventas}`, {
             method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         })
             .then(response => response.json())
             .catch(error => {
@@ -50,5 +65,3 @@ const VentaService = {
 };
 
 export default VentaService;
-
-
