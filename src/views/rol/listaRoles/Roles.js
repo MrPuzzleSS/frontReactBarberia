@@ -38,7 +38,7 @@ const ListaRol = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const rolesResponse = await axios.get('http://localhost:8095/api/rol');
+        const rolesResponse = await axios.get('https://restapibarberia.onrender.com/api/rol');
         setRoles(rolesResponse.data?.listaRoles || []);
         setLoading(false);
       } catch (error) {
@@ -52,7 +52,7 @@ const ListaRol = () => {
     // Fetch all permissions for later use
     const fetchAllPermisos = async () => {
       try {
-        const permisosResponse = await axios.get('http://localhost:8095/api/permisos');
+        const permisosResponse = await axios.get('https://restapibarberia.onrender.com/api/permisos');
         setAllPermisos(permisosResponse.data?.listaPermisos || []);
       } catch (error) {
         console.error('Error al obtener permisos:', error);
@@ -104,7 +104,7 @@ const ListaRol = () => {
         permisos: editRolePermisos,
       };
 
-      await axios.put(`http://localhost:8095/api/rol/${editRoleId}`, editedRole);
+      await axios.put(`https://restapibarberia.onrender.com/api/rol/${editRoleId}`, editedRole);
 
       setVisible(false);
       Swal.fire({
@@ -131,7 +131,7 @@ const ListaRol = () => {
 
   const handleAssignPermiso = async (permisoId) => {
     try {
-      const response = await axios.post(`http://localhost:8095/api/rol/${editRoleId}/permiso`, { id_permiso: permisoId });
+      const response = await axios.post(`https://restapibarberia.onrender.com/api/${editRoleId}/permiso`, { id_permiso: permisoId });
       console.log(response.data); // Manejar la respuesta según sea necesario
       // Actualizar el estado o realizar cualquier acción adicional
     } catch (error) {
@@ -142,7 +142,7 @@ const ListaRol = () => {
   
   const handleRemovePermiso = async (permisoId) => {
     try {
-      const response = await axios.delete(`http://localhost:8095/api/rol/${editRoleId}/permisos/${permisoId}`);
+      const response = await axios.delete(`https://restapibarberia.onrender.com/api/${editRoleId}/permisos/${permisoId}`);
       console.log(response.data); // Manejar la respuesta según sea necesario
       // Actualizar el estado o realizar cualquier acción adicional
     } catch (error) {

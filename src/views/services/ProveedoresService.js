@@ -20,6 +20,10 @@ const update = (id, data) => {
     return http.put(`/proveedores/${id}`, data);
 }
 
+const cambiarEstado = (id, data) => {
+    return http.put(`/proveedores/${id}/cambiarestado`, data);
+}
+
 const remove = id => {
     return http.delete(`/proveedores/${id}`);
 }
@@ -34,6 +38,7 @@ const ProveedoresService = {
     getProveedoresProductos,
     create,
     update,
+    cambiarEstado,
     remove,
     findByTitle
 }

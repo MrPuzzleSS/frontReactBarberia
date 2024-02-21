@@ -1,4 +1,4 @@
-const apiUrl = 'http://localhost:8095/api/servicio'; // Cambiar la URL de insumo a servicio
+const apiUrl = 'https://restapibarberia.onrender.com/api/servicio'; // Cambiar la URL de insumo a servicio
 
 const ServicioService = { // Cambiar el nombre del objeto de InsumoService a ServicioService
     getAllServicios: async () => { // Cambiar el nombre de la función de getAllInsumos a getAllServicios

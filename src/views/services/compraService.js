@@ -5,7 +5,7 @@ const getAll = () => {
 };
 
 const getAllProductos = () => {
-    return http.get("/productos");
+    return http.get("/producto");
 };
 
 const getCompraDetalle = () => {
