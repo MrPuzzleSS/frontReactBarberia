@@ -7,6 +7,9 @@ import { getUserInfo } from '../../../components/auht'; // Corregí el nombre de
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
+
+
+
 const EditProfilePage = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -125,26 +128,20 @@ const EditProfilePage = () => {
         }
     }
 
+
     return (
-        <div
-            className="min-vh-100 d-flex flex-row align-items-center"
-            style={{
-                backgroundImage: `url(${fondo})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-            }}
-        >
+        <div className="min-vh-100 d-flex flex-row align-items-center">
             <CContainer className="text-center">
                 <CRow className="justify-content-center">
-                    <CCol md={8}>
-                        <CCard>
+                    <CCol md={9}>
+                        <CCard style={{ marginTop: '-290px' }}>
                             <CCardHeader className="bg-dark text-white">
                                 <CRow className="justify-content-between align-items-center">
                                     <CCol>
                                         <h3 className="display-4 mb-0 font-weight-bold">Editar Perfil</h3>
                                     </CCol>
                                     <CCol xs="auto">
-                                        <FontAwesomeIcon icon={faUserEdit} style={{ fontSize: '1.5rem' }} />
+                                        <FontAwesomeIcon icon={faUserEdit} style={{ fontSize: '2rem' }} />
                                     </CCol>
                                 </CRow>
                             </CCardHeader>
@@ -198,8 +195,6 @@ const EditProfilePage = () => {
                                         placeholder="Nueva Contraseña"
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
-                                        disabled={editingField !== 'password'}
-                                        className={!validatePassword(newPassword) ? 'is-invalid' : ''}
                                     />
                                     <CButton
                                         color="info"
@@ -218,7 +213,6 @@ const EditProfilePage = () => {
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         disabled={editingField !== 'confirmPassword'}
-                                        className={(confirmPassword !== newPassword || !validatePassword(confirmPassword)) ? 'is-invalid' : ''}
                                     />
                                     <CButton
                                         color="info"
@@ -229,18 +223,27 @@ const EditProfilePage = () => {
                                 </CInputGroup>
                             </CCardBody>
                             <CCardFooter className="text-center">
-                                <div className="text-center">
-                                    <Link to="/dashboard" className="mr-3">
-                                        <button className="btn btn-secondary">VOLVER</button>
+
+
+                                <CButton
+                                    color="primary"
+                                    onClick={handleUpdateProfile}
+                                    disabled={!isProfileUpdated}
+                                >
+                                    Actualizar Perfil
+                                </CButton>
+                                <div className="d-inline-block mx-3">
+                                    <Link to="/dashboard">
+                                        <button className="btn btn-secondary">REGRESAR</button>
                                     </Link>
-                                    <CButton
-                                        color="primary"
-                                        onClick={handleUpdateProfile}
-                                        disabled={!isProfileUpdated} // Deshabilitar el botón si ningún campo ha sido actualizado
-                                    >
-                                        Actualizar Perfil
-                                    </CButton>
                                 </div>
+                                <div className="d-inline-block mx-3">
+
+                                </div>
+
+
+
+
                                 {showConfirmationAlert && (
                                     <div className="alert alert-warning mt-3" role="alert">
                                         ¿Estás seguro de que deseas actualizar tus datos?
@@ -264,6 +267,7 @@ const EditProfilePage = () => {
             </CContainer>
         </div>
     );
+
 };
 
 export default EditProfilePage;
