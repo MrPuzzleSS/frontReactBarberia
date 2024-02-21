@@ -55,89 +55,74 @@ const RegisterCliente = () => {
     setErrors({});
   };
 
-
-
-
   return (
-    <div
-      className="min-vh-100 d-flex flex-row align-items-center"
-      style={{
-        backgroundImage: `url(${prueba2})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        width: '100%',
-        height: '100%',
-        zIndex: '1',
-      }}
-    >
-      
-<CContainer>
-  <CRow className="justify-content-center">
-    <CCol md={10} lg={12} xl={8}>
-      <CCard className="text-white" style={{ backgroundColor: '#4a4e69', paddingTop: '4rem', width: '70%' }}>
-        <CCardBody className="text-center">
-          <img src={logoBarberia} alt="logo empresa" width="60%" />
-        </CCardBody>
-        <CCardBody className="p-4">
-          <CForm>
-            <CInputGroup className="mb-3">
-              <CInputGroupText>
-                <CIcon icon={cilUser} />
-              </CInputGroupText>
-              <CFormInput
-                placeholder="Nombre de usuario"
-                autoComplete="username"
-                value={newUser.nombre_usuario}
-                onChange={(e) => handleInputChange('nombre_usuario', e.target.value)}
-              />
-            </CInputGroup>
-            <CInputGroup className="mb-3">
-              <CInputGroupText>@</CInputGroupText>
-              <CFormInput
-                type="email"
-                placeholder="Correo electrónico"
-                autoComplete="email"
-                value={newUser.correo}
-                onChange={(e) => handleInputChange('correo', e.target.value)}
-              />
-            </CInputGroup>
-            <CInputGroup className="mb-3">
-              <CInputGroupText>
-                <CIcon icon={cilLockLocked} />
-              </CInputGroupText>
-              <CFormInput
-                type="password"
-                placeholder="Contraseña"
-                autoComplete="new-password"
-                value={newUser.contrasena}
-                onChange={(e) => handleInputChange('contrasena', e.target.value)}
-              />
-            </CInputGroup>
-            <CInputGroup className="mb-4">
-              <CInputGroupText>
-                <CIcon icon={cilLockLocked} />
-              </CInputGroupText>
-              <CFormInput
-                type="password"
-                placeholder="Confirmar contraseña"
-                autoComplete="new-password"
-              />
-            </CInputGroup>
-            <CButton color="primary" onClick={handleAddUser}>
-              REGISTRAR
-            </CButton>
-            <Link to="/login">
-              <CButton color="secondary" className="ms-2">
-                Cancelar
-              </CButton>
-            </Link>
-          </CForm>
-        </CCardBody>
-      </CCard>
-    </CCol>
-  </CRow>
-</CContainer>
-
+    <div className="min-vh-100 d-flex align-items-center" style={{ backgroundImage: `url(${prueba2})`, backgroundSize: 'cover' }}>
+      <CContainer>
+        <CRow className="justify-content-center">
+          <CCol md={10} lg={8} xl={6}>
+            <CCard className="text-white" style={{ backgroundColor: '#4a4e69', paddingTop: '5rem' }}>
+              <CCardBody className="text-center">
+                <img src={logoBarberia} alt="logo empresa" width="60%" />
+              </CCardBody>
+              <CCardBody className="p-8">
+                <CForm>
+                  <CInputGroup className="mb-3">
+                    <CInputGroupText>
+                      <CIcon icon={cilUser} />
+                    </CInputGroupText>
+                    <CFormInput
+                      placeholder="Nombre de usuario"
+                      autoComplete="username"
+                      value={newUser.nombre_usuario}
+                      onChange={(e) => handleInputChange('nombre_usuario', e.target.value)}
+                    />
+                  </CInputGroup>
+                  <CInputGroup className="mb-3">
+                    <CInputGroupText>@</CInputGroupText>
+                    <CFormInput
+                      type="email"
+                      placeholder="Correo electrónico"
+                      autoComplete="email"
+                      value={newUser.correo}
+                      onChange={(e) => handleInputChange('correo', e.target.value)}
+                    />
+                  </CInputGroup>
+                  <CInputGroup className="mb-3">
+                    <CInputGroupText>
+                      <CIcon icon={cilLockLocked} />
+                    </CInputGroupText>
+                    <CFormInput
+                      type="password"
+                      placeholder="Contraseña"
+                      autoComplete="new-password"
+                      value={newUser.contrasena}
+                      onChange={(e) => handleInputChange('contrasena', e.target.value)}
+                    />
+                  </CInputGroup>
+                  <CInputGroup className="mb-4">
+                    <CInputGroupText>
+                      <CIcon icon={cilLockLocked} />
+                    </CInputGroupText>
+                    <CFormInput
+                      type="password"
+                      placeholder="Confirmar contraseña"
+                      autoComplete="new-password"
+                    />
+                  </CInputGroup>
+                  <CButton color="primary" onClick={handleAddUser}>
+                    REGISTRAR
+                  </CButton>
+                  <Link to="/login">
+                    <CButton color="secondary" className="ms-2">
+                      REGRESAR
+                    </CButton>
+                  </Link>
+                </CForm>
+              </CCardBody>
+            </CCard>
+          </CCol>
+        </CRow>
+      </CContainer>
     </div>
   );
 };
