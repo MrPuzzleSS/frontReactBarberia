@@ -9,12 +9,14 @@ import {
     CCollapse,
   } from '@coreui/react'
 import logoBarberia from '../assets/images/logoBarberia2.png'
-
+// Importa el componente AppHeaderDropdown
+import AppHeaderDropdown from '../components/header/AppHeaderDropdown';
 
 const NavBarCliente = () => {
     const [visible, setVisible] = useState(false)
     return (
         <>
+        
         <CNavbar expand="lg" colorScheme="dark" className="bg-dark">
           <CContainer fluid>
           <img src={logoBarberia} alt="SION BARBERSHOP" width="9%" />
@@ -40,9 +42,12 @@ const NavBarCliente = () => {
                   <CNavLink href="#">QUIENES SOMOS</CNavLink>
                 </CNavItem>
               </CNavbarNav>
+              
             </CCollapse>
           </CContainer>
+          
         </CNavbar>
+        <AppHeaderDropdown> </AppHeaderDropdown>
         </>
     )
 }

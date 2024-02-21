@@ -15,7 +15,7 @@ import {
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilEnvelopeOpen } from '@coreui/icons';
-import prueba2 from '../../../assets/images/ftos/mk.png';
+import prueba2 from '../../../assets/images/ftos/bb.jpg';
 import logoBarberia from '../../../assets/images/logoBarberia2.png';
 
 const ForgotPassword = () => {
@@ -79,7 +79,7 @@ const ForgotPassword = () => {
             <CCard className="p-4">
               <CCardBody>
                 <CForm>
-                  <h3 className="text-center mb-4">Recuperar Contraseña</h3>
+                  <h3 className="text-center mb-4">Recuperar contraseña</h3>
                   {error && <CAlert color="danger">{error}</CAlert>}
                   {success && <CAlert color="success">{success}</CAlert>}
                   <CInputGroup className="mb-3">

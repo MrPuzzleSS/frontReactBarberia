@@ -1,5 +1,6 @@
 import { jwtDecode as jwt_decode } from 'jwt-decode';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setSession, isAuthenticated } from '../../../components/auht'; // Ajusta la ruta de importación
@@ -81,7 +82,7 @@ const Login = () => {
                 <CCardBody>
                   <CForm>
                     <br />
-                    <h3>Iniciar sesión en tu cuenta</h3>
+                    <h3>Inicia sesión en tu cuenta</h3>
                     <br />
                     {error && <CAlert color="danger">{error}</CAlert>}
                     <CInputGroup className="mb-3">
@@ -107,22 +108,28 @@ const Login = () => {
                         onChange={(e) => setContrasena(e.target.value)}
                       />
                     </CInputGroup>
-                    <CRow>
-                      <CCol xs={6}>
+                    <CRow className="mt-3">
+                      <CCol xs={12} className="text-center">
                         <CButton color="primary" className="px-4" onClick={handleLogin}>
                           INGRESAR
                         </CButton>
                       </CCol>
-                      <CCol xs={6} className="text-right">
-                        <CButton
-                          color="link"
-                          className="px-0"
-                          onClick={() => navigate('/resetPassword')}
-                        >
+                    </CRow>
+                    <CRow className="mt-3">
+                      <CCol xs={12} className="text-center">
+                        <CButton color="link" className="px-0" onClick={() => navigate('/resetPassword')}>
                           ¿Olvidó su contraseña?
                         </CButton>
                       </CCol>
                     </CRow>
+                    <CRow className="mt-3">
+                      <CCol xs={12} className="text-center">
+                        <Link to="/register">
+                          <CButton color="secondary">REGISTRARSE</CButton>
+                        </Link>
+                      </CCol>
+                    </CRow>
+
                   </CForm>
                 </CCardBody>
               </CCard>

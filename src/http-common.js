@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export default axios.create({
-    baseURL: "https://resapibarberia.onrender.com/api/",
+    baseURL: "http://localhost:8095/api/",
     headers: {
         "Content-Type": "application/json"
     }

@@ -13,6 +13,8 @@ import {
   CFormInput,
   CButton,
 } from '@coreui/react';
+
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUser,
@@ -22,6 +24,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import fondo from '../../../assets/images/ftos/bk.jpg';
 import './UserInforPage.css';
+
 
 const UserInformationPage = () => {
   const [userData, setUserData] = useState(null);
@@ -37,17 +40,13 @@ const UserInformationPage = () => {
 
   return (
     <div
-      className="min-vh-100 d-flex flex-row align-items-center"
-      style={{
-        backgroundImage: `url(${fondo})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
+  
     >
+      
       <CContainer className="text-center">
         <CRow className="justify-content-center">
-          <CCol md={8}>
-            <CCard className="mb-4 user-info-card">
+          <CCol md={6}>
+            <CCard className="mb-3 user-info-card">
               <CCardHeader className="bg-dark text-white">
                 <h3 className="h4">Información del Usuario</h3>
               </CCardHeader>
@@ -118,9 +117,9 @@ const UserInformationPage = () => {
                       </div>
                     </div>
 
-                    {/* Botón para regresar al dashboard */}
+       
                     <Link to="/dashboard">
-                      <button className="btn btn-secondary">VOLVER</button>
+                      <button className="btn btn-secondary">REGRESAR</button>
                     </Link>
                   </div>
                 ) : (
@@ -133,6 +132,8 @@ const UserInformationPage = () => {
       </CContainer>
     </div>
   );
+
+  
 };
 
 export default UserInformationPage;
