@@ -467,8 +467,11 @@ function CargarVentas() {
   
         try {
           const response = await fetch(
-            `${API_URL}/citas_servicios/${citaDataResponse.id_cita}`,
-          );
+            `${API_URL}/citas_servicios/${citaDataResponse.id_cita}`, {
+              headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+            });
           
           const data = await response.json();
           infoServicio = data;

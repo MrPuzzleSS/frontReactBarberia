@@ -98,21 +98,7 @@ function FormularioVentas() {
         const nextNumber = parseInt(lastNumeroFactura, 10) + 1;
         return nextNumber < 10 ? `0${nextNumber}` : `${nextNumber}`;
     };
-/*
-    const fetchEmpleados = async () => {
-        try {
-            const response = await fetch(`${API_URL}/empleado`);
-            const data = await response.json();
-            if (data && data.empleados) {
-                setEmpleados(data.empleados);
-            } else {
-                console.error('Error la lista de empleados:', data);
-            }
-        } catch (error) {
-            console.error('Error la lista de empleados:', error);
-        }
-    };
-*/
+
     const fetchEmpleados = async () => {
         try {
           const token = localStorage.getItem('token');
@@ -132,21 +118,6 @@ function FormularioVentas() {
         }
       };
 
-/*
-    const fetchClientes = async () => {
-        try {
-            const response = await fetch(`${API_URL}/cliente`);
-            const data = await response.json();
-            if (data && data.listClientes) {
-                setClientes(data.listClientes);
-            } else {
-                console.error('Error al obtener la lista de clientes:', data);
-            }
-        } catch (error) {
-            console.error('Error al obtener la lista de clientes:', error);
-        }
-    };
-*/
 
     const fetchClientes = async () => {
         try {
@@ -167,21 +138,6 @@ function FormularioVentas() {
         }
       };
 
-/*
-    const fetchServicios = async () => {
-        try {
-            const response = await fetch(`${API_URL}/servicio`);
-            const data = await response.json();
-            if (data && data.listServicios) {
-                setServicios(data.listServicios);
-            } else {
-                console.error('Error al obtener la lista de servicios:', data);
-            }
-        } catch (error) {
-            console.error('Error al obtener la lista de servicios:', error);
-        }
-    };
-*/
 
     const fetchServicios = async () => {
         try {
@@ -202,21 +158,6 @@ function FormularioVentas() {
         }
       };
 
-/*
-    const fetchProductos = async () => {
-        try {
-            const response = await fetch(`${API_URL}/producto`);
-            const data = await response.json();
-            if (data && data.productos) {
-                setProductos(data.productos);
-            } else {
-                console.error('Error al obtener la lista de productos:', data);
-            }
-        } catch (error) {
-            console.error('Error al obtener la lista de productos:', error);
-        }
-    };
-*/
 
     const fetchProductos = async () => {
         try {
@@ -339,9 +280,6 @@ function FormularioVentas() {
                     <CCardHeader>
                         <div className="d-flex justify-content-between align-items-center">
                             <strong>Crear Venta</strong>
-                            <Link to="ventas/cargarVentas">
-                                <CButton color="primary">Agregar Venta</CButton>
-                            </Link>
                         </div>
                     </CCardHeader>
                     <CCardBody>
