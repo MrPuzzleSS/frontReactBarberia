@@ -34,7 +34,8 @@ const API_URL = "http://localhost:8095/api";
 
 function CargarVentas() {
   const history = useNavigate();
-  const [visible, setVisible] = useState(true);
+
+  const [visible, setVisible] = useState(false);
   const [clientes, setClientes] = useState([]);
   const [servicios, setServicios] = useState([]);
   const [productos, setProductos] = useState([]);
@@ -503,7 +504,17 @@ function CargarVentas() {
       console.error('Error al obtener la cédula del cliente:', error);
       return null;
     }
-  };  
+  }; 
+  
+  // Función para abrir el modal
+    const abrirModal = () => {
+      setVisible(true);
+    };
+
+  // Función para cerrar el modal
+  const cerrarModal = () => {
+      setVisible(false);
+  };
 
   return (
     <CRow>
@@ -513,19 +524,12 @@ function CargarVentas() {
             <div className="d-flex justify-content-between align-items-center">
               <strong>Crear Venta</strong>
 
-              <Link to="ruta/de/tu/agregar/ventas">
+              {/* <Link to="ruta/de/tu/agregar/ventas">
                 <CButton color="primary">Agregar Venta</CButton>
-              </Link>
-              
-              {/* <CButton
-              color="info"
-              size="sm"
-              variant="outline"
-              onClick={() => handleEditar(empleado)}
-              >
-                Editar
-                </CButton> */}
+              </Link> */}
 
+              <CButton onClick={abrirModal}>Pendientes</CButton>
+              
             </div>
           </CCardHeader>
           <CCardBody>
@@ -534,7 +538,8 @@ function CargarVentas() {
                 className="mb-3"
                 style={{ display: "flex", justifyContent: "space-between" }}
               >
-                <CModal visible={visible} onClose={() => setVisible(false)}>
+                {/* <CModal visible={visible} onClose={() => setVisible(false)}> */}
+                <CModal visible={visible} onClose={cerrarModal}>
                   <CModalHeader>
                     <CModalTitle>Seleccionar cita</CModalTitle>
                   </CModalHeader>
