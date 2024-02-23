@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import {
@@ -80,9 +81,12 @@ function CrearProducto() {
  
   
 
-  const handleGuardarProducto = async (e,) => {
+  const handleGuardarProducto = async (e) => {
     e.preventDefault();
-
+  
+    // Obtener el token del localStorage
+    const token = localStorage.getItem('token');
+  
     // Validación de campos requeridos
     if (!nombre || !descripcion) {
       Swal.fire({
@@ -92,29 +96,29 @@ function CrearProducto() {
       });
       return; // Detener la ejecución si hay campos vacíos
     }
-
+  
     const nuevoProducto = {
       nombre: nombre,
       descripcion: descripcion,
       precioCosto: precioCosto,
       precioVenta: precioVenta,
       stock: stock,
-
     };
-
+  
     try {
-      const response = await fetch('http://localhost:8095/api/producto', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(nuevoProducto),
+      // Configurar Axios para enviar el token en el encabezado de autorización
+      axios.interceptors.request.use(config => {
+        config.headers.Authorization = `Bearer ${token}`;
+        return config;
+      }, error => {
+        return Promise.reject(error);
       });
-
-      const responseData = await response.json(); // Convertir la respuesta a JSON
-
-      if (response.ok) {
-        console.log('Producto guardado:', responseData.producto);
+  
+      // Enviar la solicitud POST usando Axios
+      const response = await axios.post('http://localhost:8095/api/producto', nuevoProducto);
+  
+      if (response.status === 200) {
+        console.log('Producto guardado:', response.data.producto);
         Swal.fire({
           icon: 'success',
           title: 'Éxito',
@@ -126,10 +130,10 @@ function CrearProducto() {
             }, 1000); // Redirigir después de 1.5 segundos (ajusta este tiempo según tu preferencia)
           }
         });
-
+  
         // Resto de tu lógica de éxito
       } else {
-        console.error('Error al guardar el producto:', responseData.error);
+        console.error('Error al guardar el producto:', response.data.error);
         Swal.fire({
           icon: 'error',
           title: 'Error',

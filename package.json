@@ -88,7 +88,7 @@
     "socket.io-client": "^4.7.4",
     "stream-browserify": "^3.0.0",
     "sweetalert": "^2.1.2",
-    "sweetalert2": "^11.10.1",
+    "sweetalert2": "^11.10.5",
     "sweetalert2-react-content": "^5.0.7",
     "util": "^0.12.5",
     "validator": "^13.11.0"
