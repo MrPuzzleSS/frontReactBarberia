@@ -2,7 +2,6 @@ import React from 'react'
 
 
 
-
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -70,11 +69,13 @@ const CargarVentas = React.lazy(() => import('./views/ventas/cargarVentas'))
 
 const Usuarios = React.lazy(() => import('./views/users/listaUsuarios/Usuarios'))
 const CrearUsuarios = React.lazy(() => import('./views/users/crearUsuario/CrearUser'))
-const EditarUsuarios = React.lazy(() => import('./views/users/editarUsuario/EditUser'))
+const EditarUsuarios = React.lazy(() => import('./views/pages/login/editProfile'))
+const UserInformationPage = React.lazy(() => import('./views/pages/login/UserInfo'));
+
 
 const Roles = React.lazy(() => import('./views/rol/listaRoles/Roles'))
 const CrearRol = React.lazy(() => import('./views/rol/CrearRol/CreateRol'))
-const recuperarContraseña = React.lazy( ()=> import('./views/pages/login/recuperarContraseña'))
+
 
 
 
@@ -135,17 +136,14 @@ const routes = [
   { path: '/ventas/listaVentas', name: 'Ventas', element: ListarVentas},
 
   { path: '/ListaUsuarios', name: 'Usuarios',element : Usuarios},
-
-
   { path: '/CrearUsuarios', name: 'CrearUsuarios', element: CrearUsuarios},
-  { path: '/EditarUsuarios', name: 'EditarUsuarios', element: EditarUsuarios},
-  
+  { path: '/EditProfile', name: 'EditarUsuario', element: EditarUsuarios},
+  { path: '/UserInfo', name: 'InfoUsuario', element: UserInformationPage},
+
  { path: '/ListaRol', name: 'Roles', element: Roles},
-  //{ path: '/ListaRol', name: 'Roles', element: Roles, private: true },
- 
- // { path: '/ListaRol', name: 'Roles', element: <PrivateRoute element={<Roles />} /> },
-  
   { path: '/CrearRol', name: 'CrearRol', element: CrearRol},
+  
+
   
   { path: '/productos', name: 'productos', element: ListaProductos },
   { path: '/productos/lista-productos', name: 'Productos', element: ListaProductos },

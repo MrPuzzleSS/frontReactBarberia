@@ -31,10 +31,24 @@ const CrearProveedor = () => {
   });
 
   const [submitted, setSubmitted] = useState(false);
-
+  const [validationError, setValidationError] = useState('');
+  
   const onSubmit = async (data) => {
     console.log(data);
     try {
+      const { nombre, email } = data;
+      const { nombreExists, emailExists } = await ProveedoresDataService.checkExistence(nombre, email);
+      
+      if (nombreExists) {
+        setValidationError('El nombre del proveedor ya existe');
+        return;
+      }
+
+      if (emailExists) {
+        setValidationError('El correo electrónico ya está en uso');
+        return;
+      }
+
       // Convertir el objeto a JSON
       const jsonData = JSON.stringify(data);
 
@@ -62,6 +76,7 @@ const CrearProveedor = () => {
             <strong>Crear Proveedor</strong>
           </CCardHeader>
           <CCardBody>
+          {validationError && <p style={{ color: 'red' }}>{validationError}</p>}
             <CForm className="row g-3" onSubmit={handleSubmit(onSubmit)}>
               <CCol sm={6}>
                 <CFormLabel>Nombre del Proveedor</CFormLabel>

@@ -128,16 +128,44 @@ function ListaProveedores() {
 
   const handleEstadoChange = (proveedor) => {
     const nuevoEstado = proveedor.estado === 'Activo' ? 'Inactivo' : 'Activo';
-    ProveedoresDataService.cambiarEstado(proveedor.id_proveedor, { estado: nuevoEstado });
-
-    const updatedProveedores = proveedores.map(p => {
-      if (p.id_proveedor === proveedor.id_proveedor) {
-        return { ...p, estado: nuevoEstado };
+    Swal.fire({
+      title: `¿Estás seguro de cambiar el estado del proveedor a ${nuevoEstado}?`,
+      text: "¡No podrás revertir esto!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, cambiar estado"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await ProveedoresDataService.cambiarEstado(proveedor.id_proveedor, { estado: nuevoEstado });
+          const updatedProveedores = proveedores.map(p => {
+            if (p.id_proveedor === proveedor.id_proveedor) {
+              return { ...p, estado: nuevoEstado };
+            }
+            return p;
+          });
+          setProveedores(updatedProveedores);
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "¡El estado del proveedor ha sido cambiado exitosamente!",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        } catch (error) {
+          console.error("Error al cambiar el estado del proveedor:", error);
+          Swal.fire({
+            icon: "error",
+            title: "¡Error!",
+            text: "Hubo un problema al cambiar el estado del proveedor.",
+          });
+        }
       }
-      return p;
     });
-    setProveedores(updatedProveedores);
   };
+  
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
