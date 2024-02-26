@@ -75,7 +75,6 @@ const ServicioService = { // Cambiar el nombre del objeto de InsumoService a Ser
         try {
             const response = await fetch(`${apiUrl}/${id_servicio}`, {
                 method: 'DELETE',
-                // Options such as headers, authentication, etc.
             });
 
             if (!response.ok) {
