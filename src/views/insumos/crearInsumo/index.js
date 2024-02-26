@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import {
     CButton,
     CCard,
@@ -10,39 +12,96 @@ import {
     CFormInput,
     CRow,
 } from '@coreui/react';
-import InsumoService from 'src/views/services/insumoService'; // Actualiza el servicio si es necesario
+import InsumoService from 'src/views/services/insumoService';
 
 function CrearInsumo() {
     const [nombre, setNombre] = useState('');
-    const [stock, setStock] = useState(0);
-    const [precio, setPrecio] = useState(0);
-    const [error, setError] = useState('');
+    const [cantidad, setCantidad] = useState('');
+    const [precio, setPrecio] = useState('');
+
+    const [nombreError, setNombreError] = useState('');
+    const [cantidadError, setCantidadError] = useState('');
+    const [precioError, setPrecioError] = useState('');
+
+    const navigate = useNavigate(); // Utiliza useNavigate para la redirección
+
+    const fetchInsumos = async () => {
+        try {
+            const data = await InsumoService.getAllInsumos();
+            console.log('Insumos obtenidos:', data.Insumos);
+        } catch (error) {
+            console.log('Error al obtener insumos:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchInsumos();
+    }, []);
+
+    const validateNombre = (value) => {
+        
+        if (!/^[a-zA-Z ñÑ]{2,}$/.test(value)) {
+            setNombreError('Nombre deben contener solo letras y tener al menos 2 caracteres.');
+            return false;
+        }
+        setNombreError('');
+        return true;
+    };
+
+    const validateCantidad = (value) => {
+        
+        if (!/^\d+$/.test(value)) {
+            setCantidadError('La cantidad debe contener solo números.');
+            return false;
+        }
+        setCantidadError('');
+        return true;
+    };
+
+    const validatePrecio = (value) => {
+        
+        if (!/^\d+(\.\d{1,2})?$/.test(value)) {
+            setPrecioError('El precio no es válido.');
+            return false;
+        }
+        setPrecioError('');
+        return true;
+    };
 
     const handleGuardarInsumo = async (e) => {
         e.preventDefault();
 
-        // Validaciones
-        if (!nombre.trim() || stock <= 0 || precio <= 0) {
-            setError('Todos los campos son obligatorios y los valores numéricos deben ser mayores que cero.');
+        if (!validateNombre(nombre) || !validateCantidad(cantidad) || !validatePrecio(precio)) {
             return;
         }
 
         const newInsumo = {
             nombre,
-            stock,
+            cantidad,
             precio,
         };
 
         try {
-            const response = await InsumoService.createInsumo(newInsumo);
-            console.log('Insumo creado:', response);
+            const token = localStorage.getItem('token');
+            const response = await axios.post('http://localhost:8095/api/insumo', newInsumo, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            console.log('Insumo creado:', response.data);
 
             setNombre('');
-            setStock(0);
-            setPrecio(0);
-            setError('');
+            setCantidad('');
+            setPrecio('');
+
+            Swal.fire('Éxito', 'Insumo creado correctamente.', 'success').then(() => {
+                navigate('/Insumos'); // Utiliza navigate para la redirección
+            });
         } catch (error) {
             console.error('Error al crear el insumo:', error);
+            Swal.fire('Error', 'Hubo un problema al crear el insumo.', 'error');
         }
     };
 
@@ -60,31 +119,44 @@ function CrearInsumo() {
                                 <CFormInput
                                     type="text"
                                     value={nombre}
-                                    onChange={(e) => setNombre(e.target.value)}
+                                    onChange={(e) => {
+                                        setNombre(e.target.value);
+                                        validateNombre(e.target.value);
+                                    }}
                                 />
+                                {nombreError && <div className="text-danger">{nombreError}</div>}
                             </div>
+
                             <div className="mb-3">
-                                <CFormLabel>Stock</CFormLabel>
+                                <CFormLabel>Cantidad</CFormLabel>
                                 <CFormInput
-                                    type="number"
-                                    value={stock}
-                                    onChange={(e) => setStock(e.target.value)}
+                                    type="text"
+                                    value={cantidad}
+                                    onChange={(e) => {
+                                        setCantidad(e.target.value);
+                                        validateCantidad(e.target.value);
+                                    }}
                                 />
+                                {cantidadError && <div className="text-danger">{cantidadError}</div>}
                             </div>
+
                             <div className="mb-3">
                                 <CFormLabel>Precio</CFormLabel>
                                 <CFormInput
-                                    type="number"
+                                    type="text"
                                     value={precio}
-                                    onChange={(e) => setPrecio(e.target.value)}
+                                    onChange={(e) => {
+                                        setPrecio(e.target.value);
+                                        validatePrecio(e.target.value);
+                                    }}
                                 />
+                                {precioError && <div className="text-danger">{precioError}</div>}
                             </div>
-                            {/* Mensaje de error */}
-                            {error && <div style={{ color: 'red' }}>{error}</div>}
-                            <CButton type="submit" color="primary" className="mr-2">
+
+                            <CButton type="submit" color="primary">
                                 Guardar Insumo
                             </CButton>
-                            <Link to="/insumos/listaInsumos">
+                            <Link to="/Insumos">
                                 <CButton type="button" color="secondary">
                                     Cancelar
                                 </CButton>

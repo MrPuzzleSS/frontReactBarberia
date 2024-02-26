@@ -24,18 +24,20 @@ import {
     CFormLabel,
     CFormInput,
 } from '@coreui/react';
-import InsumoService from 'src/views/services/insumoService'; // Actualiza el servicio si es necesario
+import InsumoService from 'src/views/services/insumoService';
 
 const ListaInsumos = () => {
     const [visible, setVisible] = useState(false);
     const [insumos, setInsumos] = useState(null);
     const [selectedInsumoId, setSelectedInsumoId] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const fetchInsumos = async () => {
         try {
             const response = await InsumoService.getAllInsumos();
-            const data = response || [];
+            const data = response.listInsumos || [];
             setInsumos(data);
+            console.log('Insumos traidos:', data);
         } catch (error) {
             console.error('Error al obtener insumos:', error);
             setInsumos([]);
@@ -51,16 +53,27 @@ const ListaInsumos = () => {
         setVisible(true);
     };
 
-    const handleEliminar = async (id_insumo) => {
+    const handleEliminar = async (id) => {
         try {
-            await InsumoService.eliminarInsumo(id_insumo);
-            fetchInsumos();
-            Swal.fire({
-                icon: 'success',
-                title: 'Insumo eliminado',
-                showConfirmButton: false,
-                timer: 1500,
-            });
+            const insumo = insumos.find((item) => item.id === id);
+    
+            if (insumo && insumo.estado) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No se puede eliminar un insumo activo',
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+            } else {
+                await InsumoService.eliminarInsumo(id);
+                fetchInsumos();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Insumo eliminado',
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+            }
         } catch (error) {
             console.error('Error al eliminar el insumo:', error);
         }
@@ -69,11 +82,10 @@ const ListaInsumos = () => {
     const handleGuardarCambios = async () => {
         try {
             console.log('selectedInsumoId:', selectedInsumoId);
-            console.log('selectedInsumoId.id:', selectedInsumoId.id_insumo);
-            if (selectedInsumoId && selectedInsumoId.id_insumo) {
-                // Reemplazar las funciones y variables relacionadas con insumos
-                await InsumoService.updateInsumo(selectedInsumoId.id_insumo, selectedInsumoId);
-                fetchInsumos(); // Asegúrate de tener una función llamada fetchInsumos para actualizar la lista de insumos
+            console.log('selectedInsumoId.id:', selectedInsumoId.id);
+            if (selectedInsumoId && selectedInsumoId.id) {
+                await InsumoService.updateInsumo(selectedInsumoId.id, selectedInsumoId);
+                fetchInsumos();
                 setVisible(false);
                 Swal.fire({
                     icon: 'success',
@@ -88,7 +100,32 @@ const ListaInsumos = () => {
             console.error('Error al guardar cambios:', error);
         }
     };
-    
+
+    const handleCambiarEstado = async (id) => {
+        try {
+            const insumoIndex = insumos.findIndex((item) => item.id === id);
+
+            if (insumoIndex !== -1) {
+                const updatedInsumos = [...insumos];
+                updatedInsumos[insumoIndex] = { ...updatedInsumos[insumoIndex], estado: !updatedInsumos[insumoIndex].estado };
+
+                await InsumoService.updateInsumo(id, { ...updatedInsumos[insumoIndex] });
+                setInsumos(updatedInsumos);
+            } else {
+                console.error('Insumo no encontrado.');
+            }
+        } catch (error) {
+            console.error('Error al cambiar el estado del insumo:', error);
+        }
+    };
+
+    const filteredInsumos = insumos
+        ? insumos.filter((insumo) =>
+            insumo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            insumo.cantidad.toString().includes(searchTerm) ||
+            insumo.precio.toString().includes(searchTerm)
+        )
+        : [];
 
     return (
         <CRow>
@@ -101,53 +138,74 @@ const ListaInsumos = () => {
                                 <CButton color="primary">Agregar Insumo</CButton>
                             </Link>
                         </div>
+                        <CCol xs={3}>
+                            <div className="mt-2">
+                                <CFormInput
+                                    type="text"
+                                    placeholder="Buscar insumo..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </CCol>
                     </CCardHeader>
                     <CCardBody>
-                        <CTable>
+                        <CTable align="middle" className="mb-0 border" hover responsive>
                             <CTableHead>
                                 <CTableRow>
-                                    <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Id</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
-                                    <CTableHeaderCell scope="col">Stock</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Cantidad</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Precio</CTableHeaderCell>
-                                    <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col"></CTableHeaderCell>
                                 </CTableRow>
                             </CTableHead>
                             <CTableBody>
-                                {Array.isArray(insumos) && insumos.length > 0 && insumos.map((insumo, index) => (
-                                    <CTableRow key={insumo.id_insumo}>
-                                        <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                                        <CTableDataCell>{insumo.nombre}</CTableDataCell>
-                                        <CTableDataCell>{insumo.stock}</CTableDataCell>
-                                        <CTableDataCell>{insumo.precio}</CTableDataCell>
-                                        <CTableDataCell>
-                                            <CButtonGroup aria-label="Acciones del Insumo">
-                                                <CButton
-                                                    color="info"
-                                                    size="sm"
-                                                    variant="outline"
-                                                    onClick={() => handleEditar(insumo)}
-                                                >
-                                                    Editar
-                                                </CButton>
-                                                <CButton
-                                                    color="danger"
-                                                    size="sm"
-                                                    variant="outline"
-                                                    onClick={() => handleEliminar(insumo.id_insumo)}
-                                                >
-                                                    Eliminar
-                                                </CButton>
-                                            </CButtonGroup>
-                                        </CTableDataCell>
-                                    </CTableRow>
-                                ))}
+                                {Array.isArray(filteredInsumos) &&
+                                    filteredInsumos.length > 0 &&
+                                    filteredInsumos.map((insumo, index) => (
+                                        <CTableRow key={insumo.id}>
+                                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+                                            <CTableDataCell>{insumo.nombre}</CTableDataCell>
+                                            <CTableDataCell>{insumo.cantidad}</CTableDataCell>
+                                            <CTableDataCell>{insumo.precio}</CTableDataCell>
+                                            <CTableDataCell>
+                                                {insumo.estado ? 'Activo' : 'Inactivo'}
+                                            </CTableDataCell>
+                                            <CTableDataCell>
+                                                <CButtonGroup aria-label="Acciones del insumo">
+                                                    <CButton
+                                                        color="primary"
+                                                        size="sm"
+                                                        onClick={() => handleEditar(insumo)}
+                                                        disabled={insumo.estado} // Deshabilitar el botón si el insumo está activo
+                                                    >
+                                                        Editar
+                                                    </CButton>
+                                                    <CButton
+                                                        color="danger"
+                                                        size="sm"
+                                                        onClick={() => handleEliminar(insumo.id)}
+                                                    >
+                                                        Eliminar
+                                                    </CButton>
+                                                    <CButton
+                                                        color={insumo.estado ? 'warning' : 'success'}
+                                                        size="sm"
+                                                        onClick={() => handleCambiarEstado(insumo.id)}
+                                                    >
+                                                        {insumo.estado ? 'Desactivar' : 'Activar'}
+                                                    </CButton>
+                                                </CButtonGroup>
+                                            </CTableDataCell>
+                                        </CTableRow>
+                                    ))}
                             </CTableBody>
                         </CTable>
                     </CCardBody>
                 </CCard>
             </CCol>
-
             <CModal visible={visible} onClose={() => setVisible(false)}>
                 <CModalHeader>
                     <CModalTitle>Editar Insumo</CModalTitle>
@@ -167,19 +225,21 @@ const ListaInsumos = () => {
                                 }
                             />
                         </div>
+
                         <div className="mb-3">
-                            <CFormLabel>Stock</CFormLabel>
+                            <CFormLabel>Cantidad</CFormLabel>
                             <CFormInput
                                 type="number"
-                                value={selectedInsumoId ? selectedInsumoId.stock : ''}
+                                value={selectedInsumoId ? selectedInsumoId.cantidad : ''}
                                 onChange={(e) =>
                                     setSelectedInsumoId({
                                         ...selectedInsumoId,
-                                        stock: e.target.value,
+                                        cantidad: e.target.value,
                                     })
                                 }
                             />
                         </div>
+
                         <div className="mb-3">
                             <CFormLabel>Precio</CFormLabel>
                             <CFormInput
@@ -207,6 +267,6 @@ const ListaInsumos = () => {
             </CModal>
         </CRow>
     );
-}
+};
 
 export default ListaInsumos;

@@ -24,18 +24,20 @@ import {
     CFormLabel,
     CFormInput,
 } from '@coreui/react';
-import ServicioService from 'src/views/services/servicioService'; // Actualiza el servicio si es necesario
+import ServicioService from 'src/views/services/servicioService';
 
-const ListaServicios = () => { // Cambiar el nombre de la función de ListaInsumos a ListaServicios
+const ListaServicios = () => {
     const [visible, setVisible] = useState(false);
-    const [servicios, setServicios] = useState(null); // Cambiar el nombre de insumos a servicios
-    const [selectedServicioId, setSelectedServicioId] = useState(null); // Cambiar el nombre de selectedInsumoId a selectedServicioId
+    const [servicios, setServicios] = useState(null);
+    const [selectedServicioId, setSelectedServicioId] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
-    const fetchServicios = async () => { // Cambiar el nombre de fetchInsumos a fetchServicios
+    const fetchServicios = async () => {
         try {
-            const response = await ServicioService.getAllServicios(); // Cambiar el nombre del servicio de InsumoService a ServicioService
-            const data = response || [];
-            setServicios(data); // Cambiar el nombre de insumos a servicios
+            const response = await ServicioService.getAllServicios();
+            const data = response.listServicios || [];
+            setServicios(data);
+            console.log('Servicios:', data);
         } catch (error) {
             console.error('Error al obtener servicios:', error);
             setServicios([]);
@@ -43,51 +45,110 @@ const ListaServicios = () => { // Cambiar el nombre de la función de ListaInsum
     };
 
     useEffect(() => {
-        fetchServicios(); // Cambiar el nombre de fetchInsumos a fetchServicios
+        fetchServicios();
     }, []);
 
-    const handleEditar = (servicio) => { // Cambiar el nombre de handleEditarInsumo a handleEditarServicio
-        setSelectedServicioId(servicio); // Cambiar el nombre de selectedInsumoId a selectedServicioId
+    const handleEditar = (servicio) => {
+        console.log('Editando servicio:', servicio);
+        setSelectedServicioId(servicio);
         setVisible(true);
     };
 
-    const handleEliminar = async (id_servicio) => { // Cambiar el nombre de handleEliminarInsumo a handleEliminarServicio
+    const handleEliminar = async (id) => {
         try {
-            await ServicioService.eliminarServicio(id_servicio); // Cambiar el nombre del servicio de InsumoService a ServicioService
-            fetchServicios(); // Cambiar el nombre de fetchInsumos a fetchServicios
-            Swal.fire({
-                icon: 'success',
-                title: 'Servicio eliminado',
-                showConfirmButton: false,
-                timer: 1500,
-            });
+            const servicio = servicios.find((item) => item.id === id);
+    
+            if (servicio && servicio.estado) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No se puede eliminar un servicio activo',
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+            } else {
+                await ServicioService.eliminarServicio(id);
+                fetchServicios();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Servicio eliminado',
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+            }
         } catch (error) {
             console.error('Error al eliminar el servicio:', error);
         }
     };
 
-    const handleGuardarCambios = async () => { // Cambiar el nombre de handleGuardarCambiosInsumo a handleGuardarCambiosServicio
+    const handleGuardarCambios = async () => {
         try {
             console.log('selectedServicioId:', selectedServicioId);
-            console.log('selectedServicioId.id:', selectedServicioId.id_servicio);
-            if (selectedServicioId && selectedServicioId.id_servicio) { // Cambiar el nombre de id_insumo a id_servicio
-                // Reemplazar las funciones y variables relacionadas con insumos
-                await ServicioService.updateServicio(selectedServicioId.id_servicio, selectedServicioId); // Cambiar el nombre del servicio de InsumoService a ServicioService
-                fetchServicios(); // Asegúrate de tener una función llamada fetchServicios para actualizar la lista de servicios
-                setVisible(false);
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Cambios guardados',
-                    showConfirmButton: false,
-                    timer: 1500,
-                });
+
+            if (selectedServicioId && typeof selectedServicioId === 'object') {
+                if ('id' in selectedServicioId) {
+                    console.log('selectedServicioId.id:', selectedServicioId.id);
+
+                    // Actualizar el servicio en el servidor
+                    await ServicioService.updateServicio(selectedServicioId.id, selectedServicioId);
+
+                    fetchServicios(); // Actualizar la lista de servicios después de la edición
+
+                    setVisible(false);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Cambios guardados',
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                } else {
+                    console.error('Error: ID de servicio no definido o válido.');
+                }
             } else {
-                console.error('Error: ID de servicio no definido o válido.');
+                console.error('Error: Objeto de servicio no definido o válido.');
             }
         } catch (error) {
             console.error('Error al guardar cambios:', error);
         }
     };
+
+    const handleCambiarEstado = async (id) => {
+        try {
+            // Obtener el servicio por ID
+            const servicioIndex = servicios.findIndex((item) => item.id === id);
+
+            if (servicioIndex !== -1) {
+                const updatedServicios = [...servicios];
+                updatedServicios[servicioIndex] = { ...updatedServicios[servicioIndex], estado: !updatedServicios[servicioIndex].estado };
+
+                // Actualizar el servicio en el servidor
+                await ServicioService.updateServicio(id, { ...updatedServicios[servicioIndex] });
+
+                // Actualizar la lista de servicios después de la edición
+                setServicios(updatedServicios);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: `Estado del servicio actualizado: ${updatedServicios[servicioIndex].estado ? 'Activo' : 'Inactivo'}`,
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+            } else {
+                console.error('Servicio no encontrado.');
+            }
+        } catch (error) {
+            console.error('Error al cambiar el estado del servicio:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al cambiar el estado del servicio',
+            });
+        }
+    };
+
+    const filteredServicios = servicios
+        ? servicios.filter((servicio) =>
+            servicio.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        : [];
 
     return (
         <CRow>
@@ -96,49 +157,71 @@ const ListaServicios = () => { // Cambiar el nombre de la función de ListaInsum
                     <CCardHeader>
                         <div className="d-flex justify-content-between align-items-center">
                             <strong>Lista de Servicios</strong>
-                            <Link to="/servicios/crearServicio"> {/* Cambiar la ruta de /insumos/crearInsumo a /servicios/crearServicio */}
+                            <Link to="/servicios/crearServicio">
                                 <CButton color="primary">Agregar Servicio</CButton>
                             </Link>
                         </div>
+                        <CCol xs={3}>
+                            <div className="mt-2">
+                                <CFormInput
+                                    type="text"
+                                    placeholder="Buscar servicio..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </CCol>
                     </CCardHeader>
                     <CCardBody>
                         <CTable>
                             <CTableHead>
                                 <CTableRow>
-                                    <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Id</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Valor</CTableHeaderCell>
-                                    <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col"></CTableHeaderCell>
                                 </CTableRow>
                             </CTableHead>
                             <CTableBody>
-                                {Array.isArray(servicios) && servicios.length > 0 && servicios.map((servicio, index) => ( // Cambiar el nombre de insumos
-                                    <CTableRow key={servicio.id_servicio}>
-                                        <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                                        <CTableDataCell>{servicio.nombre}</CTableDataCell>
-                                        <CTableDataCell>{servicio.valor}</CTableDataCell>
-                                        <CTableDataCell>
-                                            <CButtonGroup aria-label="Acciones del Servicio">
-                                                <CButton
-                                                    color="info"
-                                                    size="sm"
-                                                    variant="outline"
-                                                    onClick={() => handleEditar(servicio)}
-                                                >
-                                                    Editar
-                                                </CButton>
-                                                <CButton
-                                                    color="danger"
-                                                    size="sm"
-                                                    variant="outline"
-                                                    onClick={() => handleEliminar(servicio.id_servicio)}
-                                                >
-                                                    Eliminar
-                                                </CButton>
-                                            </CButtonGroup>
-                                        </CTableDataCell>
-                                    </CTableRow>
-                                ))}
+                                {Array.isArray(filteredServicios) &&
+                                    filteredServicios.length > 0 &&
+                                    filteredServicios.map((servicio, index) => (
+                                        <CTableRow key={servicio.id}>
+                                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+                                            <CTableDataCell>{servicio.nombre}</CTableDataCell>
+                                            <CTableDataCell>{servicio.valor}</CTableDataCell>
+                                            <CTableDataCell>
+                                                {servicio.estado ? 'Activo' : 'Inactivo'}
+                                            </CTableDataCell>
+                                            <CTableDataCell>
+                                                <CButtonGroup aria-label="Acciones del Servicio">
+                                                    <CButton
+                                                        color="primary"
+                                                        size="sm"
+                                                        onClick={() => handleEditar(servicio)}
+                                                        disabled={servicio.estado} // Deshabilitar el botón si el servicio está activo
+                                                    >
+                                                        Editar
+                                                    </CButton>
+                                                    <CButton
+                                                        color="danger"
+                                                        size="sm"
+                                                        onClick={() => handleEliminar(servicio.id)}
+                                                    >
+                                                        Eliminar
+                                                    </CButton>
+                                                    <CButton
+                                                        color={servicio.estado ? 'warning' : 'success'}
+                                                        size="sm"
+                                                        onClick={() => handleCambiarEstado(servicio.id)}
+                                                    >
+                                                        {servicio.estado ? 'Desactivar' : 'Activar'}
+                                                    </CButton>
+                                                </CButtonGroup>
+                                            </CTableDataCell>
+                                        </CTableRow>
+                                    ))}
                             </CTableBody>
                         </CTable>
                     </CCardBody>
@@ -162,6 +245,7 @@ const ListaServicios = () => { // Cambiar el nombre de la función de ListaInsum
                                         nombre: e.target.value,
                                     })
                                 }
+                                placeholder="Ingrese el nombre del servicio"
                             />
                         </div>
                         <div className="mb-3">
@@ -176,6 +260,7 @@ const ListaServicios = () => { // Cambiar el nombre de la función de ListaInsum
                                         valor: e.target.value,
                                     })
                                 }
+                                placeholder="Ingrese el valor del servicio"
                             />
                         </div>
                     </form>

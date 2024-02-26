@@ -1,97 +1,96 @@
 const apiUrl = 'http://localhost:8095/api/cliente';
 
+const addAuthorizationHeader = (headers) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+};
 
 const ClienteService = {
+    fetchWithAuthorization: async (url, options = {}) => {
+        const headers = options.headers || {};
+        addAuthorizationHeader(headers);
+
+        const response = await fetch(url, { ...options, headers });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        return response.json();
+    },
+
     getAllClientes: async () => {
         try {
-            const response = await fetch(apiUrl);
-
-            if (!response.ok) {
-                throw new Error(`Error al obtener los clientes: ${response.status} ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            console.log('Clientes obtenidos:', data); // Agrega este log para verificar la respuesta
-
-            return data;
+            return await ClienteService.fetchWithAuthorization(apiUrl);
         } catch (error) {
             console.error('Error al obtener los clientes:', error);
             throw error;
         }
     },
 
-
-    getClienteById: (id) => {
-        return fetch(`${apiUrl}/${id}`)
-            .then(response => response.json())
-            .catch(error => {
-                console.error('Error al obtener el cliente por ID:', error);
-            });
+    getClienteById: async (id) => {
+        try {
+            return await ClienteService.fetchWithAuthorization(`${apiUrl}/${id}`);
+        } catch (error) {
+            console.error('Error al obtener el cliente por ID:', error);
+            throw error;
+        }
     },
 
-    createCliente: (newCliente) => {
-        return fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newCliente),
-        })
-            .then(response => response.json())
-            .catch(error => {
-                console.error('Error al crear el cliente:', error);
+    createCliente: async (newCliente) => {
+        try {
+            return await ClienteService.fetchWithAuthorization(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newCliente),
             });
+        } catch (error) {
+            console.error('Error al crear el cliente:', error);
+            throw error;
+        }
     },
 
-    updateCliente: (id, updatedCliente) => {
-        return fetch(`${apiUrl}/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updatedCliente),
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Error al actualizar el cliente: ${response.status} ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .catch(error => {
-                console.error('Error al actualizar el cliente:', error);
-                throw error;  // Propagar el error para que se maneje en el componente
+    updateCliente: async (id, updatedCliente) => {
+        try {
+            return await ClienteService.fetchWithAuthorization(`${apiUrl}/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedCliente),
             });
+        } catch (error) {
+            console.error('Error al actualizar el cliente:', error);
+            throw error;
+        }
     },
 
-
-    cambiarEstadoCliente: (id) => {
-        return fetch(`${apiUrl}/cambiarEstado/${id}`, {
-            method: 'PUT',
-        })
-            .then(response => response.json())
-            .catch(error => {
-                console.error('Error al cambiar el estado del cliente:', error);
+    cambiarEstadoCliente: async (id) => {
+        try {
+            return await ClienteService.fetchWithAuthorization(`${apiUrl}/cambiarEstado/${id}`, {
+                method: 'PUT',
             });
+        } catch (error) {
+            console.error('Error al cambiar el estado del cliente:', error);
+            throw error;
+        }
     },
 
     eliminarCliente: async (id_cliente) => {
         try {
-            const response = await fetch(`${apiUrl}/${id_cliente}`, {
+            return await ClienteService.fetchWithAuthorization(`${apiUrl}/${id_cliente}`, {
                 method: 'DELETE',
                 // Options such as headers, authentication, etc.
             });
-
-            if (!response.ok) {
-                throw new Error('Error al eliminar el cliente');
-            }
-
-            return response.json();
         } catch (error) {
-            throw new Error(`Error al eliminar el cliente: ${error.message}`);
+            console.error(`Error al eliminar el cliente: ${error.message}`);
+            throw error;
         }
     },
-
-
 };
 
 export default ClienteService;

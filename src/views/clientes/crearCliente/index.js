@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import {
     CButton,
@@ -18,14 +18,22 @@ function CrearCliente() {
     const [apellido, setApellido] = useState('');
     const [correo, setCorreo] = useState('');
     const [telefono, setTelefono] = useState('');
-    const [documento, setDocumento] = useState(''); // Nuevo estado para el campo de documento
+    const [documento, setDocumento] = useState('');
+
+    const [errorNombre, setErrorNombre] = useState('');
+    const [errorApellido, setErrorApellido] = useState('');
+    const [errorCorreo, setErrorCorreo] = useState('');
+    const [errorTelefono, setErrorTelefono] = useState('');
+    const [errorDocumento, setErrorDocumento] = useState('');
+
+    const navigate = useNavigate();
 
     const fetchClientes = async () => {
         try {
             const data = await ClienteService.getAllClientes();
             console.log('Clientes obtenidos:', data.Clientes);
         } catch (error) {
-            console.log('Error al obtener clientes:', error);
+            console.error('Error al obtener clientes:', error);
         }
     };
 
@@ -33,35 +41,56 @@ function CrearCliente() {
         fetchClientes();
     }, []);
 
+    const validateNombre = (value) => {
+        if (!/^[a-zA-Z ñÑ]{2,}$/.test(value)) {
+            setErrorNombre('Nombre debe contener solo letras y tener al menos 2 caracteres.');
+            return false;
+        }
+        setErrorNombre('');
+        return true;
+    };
+
+    const validateApellido = (value) => {
+        if (!/^[a-zA-Z ñÑ]{2,}$/.test(value)) {
+            setErrorApellido('Apellido debe contener solo letras y tener al menos 2 caracteres.');
+            return false;
+        }
+        setErrorApellido('');
+        return true;
+    };
+
+    const validateCorreo = (value) => {
+        if (!/^\S+@\S+\.\S+$/.test(value)) {
+            setErrorCorreo('El correo electrónico no es válido.');
+            return false;
+        }
+        setErrorCorreo('');
+        return true;
+    };
+
+    const validateTelefono = (value) => {
+        if (!/^\d{7,}$/.test(value)) {
+            setErrorTelefono('El teléfono no es válido.');
+            return false;
+        }
+        setErrorTelefono('');
+        return true;
+    };
+
+    const validateDocumento = (value) => {
+        if (!/^\d+$/.test(value)) {
+            setErrorDocumento('El documento debe contener solo números.');
+            return false;
+        }
+        setErrorDocumento('');
+        return true;
+    };
+
     const handleGuardarCliente = async (e) => {
         e.preventDefault();
 
-        if (!nombre.trim() || !apellido.trim() || !correo.trim() || !telefono.trim() || !documento.trim()) { // Añadido documento a la validación
-            Swal.fire('Error', 'Todos los campos son obligatorios.', 'error');
-            return;
-        }
-
-        if (!/^[a-zA-Z]{2,}$/.test(nombre) || !/^[a-zA-Z]{2,}$/.test(apellido)) {
-            Swal.fire('Error', 'Nombre y apellido deben contener solo letras y tener al menos 2 caracteres.', 'error');
-            return;
-        }
-
-        // Dentro de la función handleGuardarCliente
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
-            Swal.fire('Error', 'El correo electrónico no es válido.', 'error');
-            return;
-        }
-
-
-
-        if (!/^\d{7,}$/.test(telefono)) {
-            Swal.fire('Error', 'El teléfono no es válido.', 'error');
-            return;
-        }
-
-        // Validación para el documento, que en este caso se asume como un número
-        if (!/^\d+$/.test(documento)) {
-            Swal.fire('Error', 'El documento debe contener solo números.', 'error');
+        if (!validateNombre(nombre) || !validateApellido(apellido) || !validateCorreo(correo) ||
+            !validateTelefono(telefono) || !validateDocumento(documento)) {
             return;
         }
 
@@ -70,27 +99,27 @@ function CrearCliente() {
             apellido,
             correo,
             telefono,
-            documento, 
-            // Se agrega el documento al objeto del nuevo cliente
+            documento,
         };
-        console.log('este es ',newCliente);
 
         try {
             const response = await ClienteService.createCliente(newCliente);
-            console.log('Cliente creado:', response);
+            console.log('Cliente creado:', response.data);
 
             setNombre('');
             setApellido('');
             setCorreo('');
             setTelefono('');
-            setDocumento(''); // Se reinicia el estado del documento
+            setDocumento('');
 
-            Swal.fire('Éxito', 'Cliente creado correctamente.', 'success');
+            Swal.fire('Éxito', 'Cliente creado correctamente.', 'success').then(() => {
+                navigate('/clientes/listaClientes');
+            });
         } catch (error) {
             console.error('Error al crear el cliente:', error);
-            Swal.fire('Error', 'Hubo un problema al crear el cliente.', 'error');
-        }
 
+            Swal.fire('Error', 'Hubo un problema al crear el cliente. Por favor, inténtalo de nuevo.', 'error');
+        }
     };
 
     return (
@@ -109,6 +138,7 @@ function CrearCliente() {
                                     value={nombre}
                                     onChange={(e) => setNombre(e.target.value)}
                                 />
+                                <div className="text-danger">{errorNombre}</div>
                             </div>
                             <div className="mb-3">
                                 <CFormLabel>Apellido</CFormLabel>
@@ -117,6 +147,7 @@ function CrearCliente() {
                                     value={apellido}
                                     onChange={(e) => setApellido(e.target.value)}
                                 />
+                                <div className="text-danger">{errorApellido}</div>
                             </div>
                             <div className="mb-3">
                                 <CFormLabel>Correo</CFormLabel>
@@ -125,8 +156,8 @@ function CrearCliente() {
                                     value={correo}
                                     onChange={(e) => setCorreo(e.target.value)}
                                 />
+                                <div className="text-danger">{errorCorreo}</div>
                             </div>
-
                             <div className="mb-3">
                                 <CFormLabel>Teléfono</CFormLabel>
                                 <CFormInput
@@ -134,6 +165,7 @@ function CrearCliente() {
                                     value={telefono}
                                     onChange={(e) => setTelefono(e.target.value)}
                                 />
+                                <div className="text-danger">{errorTelefono}</div>
                             </div>
                             <div className="mb-3">
                                 <CFormLabel>Documento</CFormLabel>
@@ -142,9 +174,9 @@ function CrearCliente() {
                                     value={documento}
                                     onChange={(e) => setDocumento(e.target.value)}
                                 />
+                                <div className="text-danger">{errorDocumento}</div>
                             </div>
-
-                            <CButton type="submit" color="primary" onClick={handleGuardarCliente}>
+                            <CButton type="submit" color="primary">
                                 Guardar Cliente
                             </CButton>
                             <Link to="/clientes/listaClientes">

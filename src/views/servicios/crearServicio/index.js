@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom'; // Importa useNavigate
+import Swal from 'sweetalert2';
 import {
     CButton,
     CCard,
@@ -14,15 +16,49 @@ import ServicioService from 'src/views/services/servicioService';
 
 function CrearServicio() {
     const [nombre, setNombre] = useState('');
-    const [valor, setValor] = useState(0);
-    const [error, setError] = useState('');
+    const [valor, setValor] = useState('');
+
+    const [nombreError, setNombreError] = useState('');
+    const [valorError, setValorError] = useState('');
+
+    const navigate = useNavigate(); // Utiliza useNavigate en lugar de useHistory
+
+    const fetchServicios = async () => {
+        try {
+            const data = await ServicioService.getAllServicios();
+            console.log('Servicios obtenidos:', data.Servicios);
+        } catch (error) {
+            console.log('Error al obtener servicios:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchServicios();
+    }, []);
+
+    const validateNombre = (value) => {
+        if (!/^[a-zA-Z ñÑ]{2,}$/.test(value)) {
+            setNombreError('Nombre debe contener solo letras y tener al menos 2 caracteres.');
+            return false;
+        }
+        setNombreError('');
+        return true;
+    };
+
+    const validateValor = (value) => {
+        
+        if (!/^\d{3,}$/.test(value)) {
+            setValorError('El valor debe contener solo números y tener al menos 3 caracteres.');
+            return false;
+        }
+        setValorError('');
+        return true;
+    };
 
     const handleGuardarServicio = async (e) => {
         e.preventDefault();
 
-        // Validaciones
-        if (!nombre.trim() || valor <= 0) {
-            setError('El nombre es obligatorio y el valor debe ser mayor que cero.');
+        if (!validateNombre(nombre) || !validateValor(valor)) {
             return;
         }
 
@@ -32,14 +68,25 @@ function CrearServicio() {
         };
 
         try {
-            const response = await ServicioService.createServicio(newServicio);
-            console.log('Servicio creado:', response);
+            const token = localStorage.getItem('token');
+            const response = await axios.post('http://localhost:8095/api/servicio', newServicio, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            console.log('Servicio creado:', response.data);
 
             setNombre('');
-            setValor(0);
-            setError('');
+            setValor('');
+
+            Swal.fire('Éxito', 'Servicio creado correctamente.', 'success').then(() => {
+                navigate('/servicios/listaServicios'); // Utiliza navigate en lugar de history.push
+            });
         } catch (error) {
             console.error('Error al crear el servicio:', error);
+            Swal.fire('Error', 'Hubo un problema al crear el servicio.', 'error');
         }
     };
 
@@ -57,20 +104,27 @@ function CrearServicio() {
                                 <CFormInput
                                     type="text"
                                     value={nombre}
-                                    onChange={(e) => setNombre(e.target.value)}
+                                    onChange={(e) => {
+                                        setNombre(e.target.value);
+                                        validateNombre(e.target.value);
+                                    }}
                                 />
+                                {nombreError && <div className="text-danger">{nombreError}</div>}
                             </div>
                             <div className="mb-3">
                                 <CFormLabel>Valor</CFormLabel>
                                 <CFormInput
-                                    type="number"
+                                    type="text"
                                     value={valor}
-                                    onChange={(e) => setValor(e.target.value)}
+                                    onChange={(e) => {
+                                        setValor(e.target.value);
+                                        validateValor(e.target.value);
+                                    }}
                                 />
+                                {valorError && <div className="text-danger">{valorError}</div>}
                             </div>
-                            {/* Mensaje de error */}
-                            {error && <div style={{ color: 'red' }}>{error}</div>}
-                            <CButton type="submit" color="primary" className="mr-2">
+
+                            <CButton type="submit" color="primary">
                                 Guardar Servicio
                             </CButton>
                             <Link to="/servicios/listaServicios">

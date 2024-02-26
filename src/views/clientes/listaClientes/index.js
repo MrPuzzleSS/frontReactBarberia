@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -24,24 +23,25 @@ import {
     CFormLabel,
     CFormInput,
 } from '@coreui/react';
-import ClienteService from 'src/views/services/clienteService'; // Actualiza el servicio si es necesario
+import ClienteService from 'src/views/services/clienteService';
 
 const ListaClientes = () => {
     const [visible, setVisible] = useState(false);
     const [clientes, setClientes] = useState(null);
     const [selectedClienteId, setSelectedClienteId] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const fetchClientes = async () => {
         try {
             const response = await ClienteService.getAllClientes();
             const data = response.listClientes || [];
             setClientes(data);
+            console.log('Clientes:', data);
         } catch (error) {
             console.error('Error al obtener clientes:', error);
             setClientes([]);
         }
     };
-
 
     useEffect(() => {
         fetchClientes();
@@ -89,7 +89,15 @@ const ListaClientes = () => {
         }
     };
 
-
+    const filteredClientes = clientes
+        ? clientes.filter((cliente) =>
+            cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cliente.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cliente.documento.toString().includes(searchTerm) ||
+            cliente.correo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cliente.telefono.toString().includes(searchTerm)
+        )
+        : [];
 
     return (
         <CRow>
@@ -97,30 +105,37 @@ const ListaClientes = () => {
                 <CCard>
                     <CCardHeader>
                         <div className="d-flex justify-content-between align-items-center">
-                            
                             <strong>Lista de Clientes</strong>
                             <Link to="/Clientes/CrearClientes">
                                 <CButton color="primary">Agregar Cliente</CButton>
                             </Link>
                         </div>
+                        <CCol xs={3}>
+                            <div className="mt-2">
+                                <CFormInput
+                                    type="text"
+                                    placeholder="Buscar cliente..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </CCol>
                     </CCardHeader>
                     <CCardBody>
-                       
                         <CTable align="middle" className="mb-0 border" hover responsive>
-
                             <CTableHead>
                                 <CTableRow>
-                                    <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col"></CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Apellido</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Documento</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Correo</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Teléfono</CTableHeaderCell>
-                                    <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col"></CTableHeaderCell>
                                 </CTableRow>
                             </CTableHead>
                             <CTableBody>
-                                {Array.isArray(clientes) && clientes.length > 0 && clientes.map((cliente, index) => (
+                                {Array.isArray(filteredClientes) && filteredClientes.length > 0 && filteredClientes.map((cliente, index) => (
                                     <CTableRow key={cliente.id_cliente}>
                                         <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                                         <CTableDataCell>{cliente.nombre}</CTableDataCell>
@@ -131,7 +146,7 @@ const ListaClientes = () => {
                                         <CTableDataCell>
                                             <CButtonGroup aria-label="Acciones del Cliente">
                                                 <CButton
-                                                    color="primary" // Cambiado a "primary" para hacerlo azul
+                                                    color="primary"
                                                     size="sm"
                                                     variant="outline"
                                                     onClick={() => handleEditar(cliente)}
@@ -139,7 +154,7 @@ const ListaClientes = () => {
                                                     Editar
                                                 </CButton>
                                                 <CButton
-                                                    color="danger" // Cambiado a "danger" para hacerlo rojo
+                                                    color="danger"
                                                     size="sm"
                                                     variant="outline"
                                                     onClick={() => handleEliminar(cliente.id_cliente)}
@@ -148,7 +163,6 @@ const ListaClientes = () => {
                                                 </CButton>
                                             </CButtonGroup>
                                         </CTableDataCell>
-
                                     </CTableRow>
                                 ))}
                             </CTableBody>
@@ -200,7 +214,7 @@ const ListaClientes = () => {
                                         documento: e.target.value,
                                     })
                                 }
-                                disabled={true} // Aquí estableces el campo como deshabilitado
+                                disabled={true}
                             />
                         </div>
                         <div className="mb-3">
@@ -211,13 +225,11 @@ const ListaClientes = () => {
                                 onChange={(e) =>
                                     setSelectedClienteId({
                                         ...selectedClienteId,
-                                        correo: e.target.value, // Aquí debes usar `correo` en lugar de `Correo`
+                                        correo: e.target.value,
                                     })
                                 }
                             />
-
                         </div>
-
                         <div className="mb-3">
                             <CFormLabel>Teléfono</CFormLabel>
                             <CFormInput
@@ -244,6 +256,6 @@ const ListaClientes = () => {
             </CModal>
         </CRow>
     );
-}
+};
 
 export default ListaClientes;
