@@ -1,10 +1,8 @@
-
-
-
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
 import ProductoService from '../../services/productoService';
+import { FaEdit, FaTrash, } from 'react-icons/fa'; // Importar los iconos de FontAwesome
 import {
   CCard,
   CCardBody,
@@ -12,6 +10,7 @@ import {
   CCol,
   CRow,
   CModal,
+  CFormLabel,
   CModalHeader,
   CModalTitle,
   CModalBody,
@@ -28,7 +27,7 @@ import {
   CPagination,
   CPaginationItem,
   CBadge,
-  CFormLabel
+  CInputGroup,
 } from '@coreui/react';
 
 function ListaProductos() {
@@ -110,8 +109,19 @@ function ListaProductos() {
     }
   };
 
+  
+
   const handleEliminarProducto = async (id_producto) => {
     try {
+      // Obtener el producto
+      const producto = await ProductoService.getProductoById(id_producto);
+
+      // Verificar si el producto está inactivo
+      if (producto.estado === 'Inactivo') {
+        throw new Error('No se puede eliminar un producto inactivo.');
+      }
+
+      // Si el producto no está inactivo, proceder con la eliminación
       await ProductoService.eliminarProducto(id_producto);
       fetchProductos();
       Swal.fire({
@@ -122,6 +132,12 @@ function ListaProductos() {
       });
     } catch (error) {
       console.error('Error al eliminar el producto:', error);
+      // Mostrar mensaje de error en caso de que el producto esté inactivo
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al eliminar el producto',
+        text: error.message, // Mostrar el mensaje de error
+      });
     }
   };
 
@@ -129,8 +145,20 @@ function ListaProductos() {
     setCurrentPage(pageNumber);
   };
 
+  // Función para determinar el color basado en el estado del producto
   const getColorForEstado = (estado) => {
     return estado === "Activo" ? "success" : "danger";
+  };
+
+
+  const getColorForCantidad = (cantidad) => {
+    if (cantidad <= 10) {
+      return "danger"; // Rojo
+    } else if (cantidad <= 20) {
+      return "warning"; // Naranja
+    } else {
+      return ""; // Sin color
+    }
   };
 
   useEffect(() => {
@@ -157,6 +185,16 @@ function ListaProductos() {
                 <CButton color="primary">Agregar Producto</CButton>
               </Link>
             </div>
+            <CInputGroup className="mt-2">
+              <CCol xs={3}>
+                <CFormInput
+                  type="text"
+                  placeholder="Buscar..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </CCol>
+            </CInputGroup>
           </CCardHeader>
           <CCardBody>
             <CTable>
@@ -167,6 +205,7 @@ function ListaProductos() {
                   <CTableHeaderCell>Precio costo</CTableHeaderCell>
                   <CTableHeaderCell>Precio venta</CTableHeaderCell>
                   <CTableHeaderCell>Stock</CTableHeaderCell>
+                  <CTableHeaderCell>Estado</CTableHeaderCell>
                   <CTableHeaderCell>Acciones</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
@@ -177,9 +216,12 @@ function ListaProductos() {
                     <CTableDataCell>{producto.descripcion}</CTableDataCell>
                     <CTableDataCell>{producto.precioCosto}</CTableDataCell>
                     <CTableDataCell>{producto.precioVenta}</CTableDataCell>
-                    <CTableDataCell>{producto.stock}</CTableDataCell>
+                    <CTableDataCell>
+                      <CBadge color={getColorForCantidad(producto.stock)}>{producto.stock}</CBadge>
+                    </CTableDataCell>
+
                     <CTableDataCell style={{ display: "flex", alignItems: "center" }}>
-                      <CBadge color={getColorForEstado(producto.estado)} style={{ transform: 'scaleY(1.3)', marginRight: '4px', color: getColorForEstado(producto.estado) }}>{producto.estado}</CBadge>
+                      <CBadge color={getColorForEstado(producto.estado)} style={{ transform: 'scaleY(1.3)', marginRight: '25px', color: getColorForEstado(producto.estado) }}>{producto.estado}</CBadge>
                       <CFormSwitch
                         checked={producto.estado === 'Activo'}
                         onChange={() =>
@@ -194,17 +236,17 @@ function ListaProductos() {
                         color="primary"
                         size="sm"
                         onClick={() => handleEditar(producto)}
-                        style={{ transform: 'scaleY(1.1)', marginRight: '5px', color: getColorForEstado(producto.estado) }}
+                        style={{ marginLeft: '10px' }} // Ajustar el espacio entre los botones
                       >
-                        Editar
+                        <FaEdit /> {/* Icono de editar */}
                       </CButton>
                       <CButton
                         color="danger"
                         size="sm"
                         onClick={() => handleEliminarProducto(producto.id_producto)}
-                        style={{ transform: 'scaleY(1.1)', color: getColorForEstado(producto.estado) }}
+                        style={{ marginLeft: '10px' }} // Ajustar el espacio entre los botones
                       >
-                        Eliminar
+                        <FaTrash /> {/* Icono de eliminar */}
                       </CButton>
                     </CTableDataCell>
                   </CTableRow>
