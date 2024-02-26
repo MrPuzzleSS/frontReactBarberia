@@ -229,6 +229,7 @@ function FormularioVentas() {
                 id: selectedServicio.id,
                 nombre: selectedServicio.nombre,
                 cantidad: 1,
+                precioUnitario: selectedServicio.valor,
                 precioTotal: selectedServicio.valor,
             };
             console.log(nuevaFilaServicio)
@@ -457,7 +458,7 @@ function FormularioVentas() {
                                             <CTableDataCell>{servicio.nombre}</CTableDataCell>
                                             <CTableDataCell>{servicio.cantidad}</CTableDataCell>
                                             <CTableDataCell>
-                                                {servicio.precioUnitario.toLocaleString("es-CO", {
+                                                {servicio.precioUnitario && servicio.precioUnitario.toLocaleString("es-CO", {
                                                     style: "currency",
                                                     currency: "COP",
                                                     minimumFractionDigits: 2,
