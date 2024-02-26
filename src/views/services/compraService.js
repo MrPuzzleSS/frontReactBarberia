@@ -4,6 +4,14 @@ const getAll = () => {
     return http.get("/compras");
 };
 
+const getAllProductos = () => {
+    return http.get("/producto");
+};
+
+const getAllProductosbyId = id => {
+    return http.get(`/producto/${id}`);
+};
+
 const getCompraDetalle = () => {
     return http.get("/compras/detalles")
 }
@@ -41,6 +49,8 @@ const cambiarEstadoCompra = async (id) => {
 const CompraDataService = {
     getAll,
     getCompraDetalle,
+    getAllProductos,
+    getAllProductosbyId,
     get,
     create,
     update,

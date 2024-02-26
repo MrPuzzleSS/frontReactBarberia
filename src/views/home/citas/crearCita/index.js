@@ -33,6 +33,7 @@ import interactionPlugin from "@fullcalendar/interaction"; // for selectable
 import CitasDataService from "src/views/services/citasService";
 import CitasServiciosDataService from "src/views/services/citasServiciosService";
 import Swal from 'sweetalert2'
+import { getUserInfo } from '../../../../components/auht';
 
 const AgendarCita = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -93,6 +94,7 @@ const AgendarCita = () => {
   };
 
   const handleAgendarClick = async () => {
+    const userInfo = await getUserInfo();
     if (selectedBarberoId && selectedDate && selectedHour) {
       // Parsea la cadena de hora a un objeto de fecha
       const parsedHour = parse(selectedHour, "hh:mm a", new Date());
@@ -103,7 +105,7 @@ const AgendarCita = () => {
       // Guarda la cita al hacer clic en "Agendar"
       const nuevaCita = {
         id_empleado: selectedBarberoId,
-        id_cliente: 1,
+        id_cliente: userInfo.id_usuario,
         Fecha_Atencion: selectedDate,
         Hora_Atencion: formattedHour,
       };

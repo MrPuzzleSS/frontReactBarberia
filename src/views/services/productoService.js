@@ -1,5 +1,5 @@
-const apiUrl = 'http://localhost:8095/api/producto';
-const apiUrlProveedores = 'http://localhost:8095/api/proveedores';
+const apiUrl = 'https://restapibarberia.onrender.com/api/producto';
+const apiUrlProveedores = 'https://restapibarberia.onrender.com/api/proveedores';
 
 const ProductoService = {
 
@@ -118,11 +118,6 @@ const ProductoService = {
             throw new Error(`Error al cambiar el estado del producto: ${error.message}`);
         }
     },
-    
-    
-    
-
-
 
     eliminarProducto: async (id_producto) => {
         try {

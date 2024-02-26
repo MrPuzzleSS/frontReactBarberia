@@ -36,7 +36,7 @@ const CreateRol = () => {
   useEffect(() => {
     const fetchPermisos = async () => {
       try {
-        const response = await axios.get('http://localhost:8095/api/permisos');
+        const response = await axios.get('https://restapibarberia.onrender.com/api/permisos');
         console.log('Respuesta de la API de permisos:', response.data);
         setPermisos(response.data.listaPermisos || []);
       } catch (error) {
@@ -75,14 +75,14 @@ const CreateRol = () => {
   
       try {
         // Agrega el nuevo rol
-        const response = await axios.post('http://localhost:8095/api/rol', newRole);
+        const response = await axios.post('https://restapibarberia.onrender.com/api/rol', newRole);
         console.log('Respuesta al agregar rol:', response.data);
     
         // Obtiene el ID del rol recién creado
         const roleId = response.data.id_rol;
     
         // Asigna los permisos al rol recién creado
-        await axios.post(`http://localhost:8095/api/rol/${roleId}/permisos`, {
+        await axios.post(`https://restapibarberia.onrender.com/api/${roleId}/permisos`, {
           id_rol: roleId,
           id_permisos: newRole.permisos,
         });
