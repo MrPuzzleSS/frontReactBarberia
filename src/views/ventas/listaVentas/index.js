@@ -101,7 +101,7 @@ function ListaVentas() {
                   <CTableRow key={venta.id_ventas}>
                     <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                     <CTableDataCell>{venta.nombre}</CTableDataCell>
-                    <CTableDataCell>{venta.id_empleado}</CTableDataCell>
+                    <CTableDataCell>{venta.nombre_empleado}</CTableDataCell>
                     <CTableDataCell>{venta.numeroFactura}</CTableDataCell>
                     <CTableDataCell>{venta.precio}</CTableDataCell>
                     <CTableDataCell>{venta.estado}</CTableDataCell>
