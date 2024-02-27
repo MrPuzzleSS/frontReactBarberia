@@ -23,6 +23,7 @@ import {
   CModalBody,
   CModalFooter,
   CFormLabel,
+  CBadge,
   CFormSelect,
   CFormInput,
   CInputGroup,
@@ -166,6 +167,16 @@ function ListaEmpleados() {
     }
   };  
 
+  function getColorForEstado(estado) {
+    if (estado === "Activo") {
+      return "success";
+    } else if (estado === "Inactivo") {
+      return "danger";
+    } else {
+      return "default";
+    }
+  }
+
   return (
     <CRow>
       <CCol xs={12}>
@@ -174,7 +185,7 @@ function ListaEmpleados() {
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Empleados</strong>
               <Link to="/empleados/crearEmpleados">
-                <CButton color="primary">Agregar Empleados</CButton>
+                <CButton color="success">Agregar Empleados</CButton>
               </Link>
             </div>
           </CCardHeader>
@@ -211,23 +222,23 @@ function ListaEmpleados() {
                     <CTableDataCell>{empleado.correo}</CTableDataCell>
                     <CTableDataCell>{empleado.documento}</CTableDataCell>
                     <CTableDataCell>{empleado.telefono}</CTableDataCell>
-                    <CTableDataCell>{empleado.estado}</CTableDataCell>
+                    <CTableDataCell><CBadge color={getColorForEstado(empleado.estado)}>{empleado.estado}</CBadge></CTableDataCell>
                     <CTableDataCell>
                       <CButtonGroup aria-label="Basic mixed styles example">
-                        <CButton
-                          color="info"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditar(empleado)}
-                        >
-                          Editar
-                        </CButton>
-                        <CFormSwitch
+                      <CFormSwitch
+                          size='xl'
                           label=""
                           id={`formSwitchCheckChecked_${empleado.id_empleado}`}
                           defaultChecked={empleado.estado === 'Activo'}
                           onChange={() => handleCambiarEstadoSwitch(empleado.id_empleado)}
                         />
+                        <CButton
+                          color="primary"
+                          size="sm"
+                          onClick={() => handleEditar(empleado)}
+                        >
+                          Editar
+                        </CButton>
                       </CButtonGroup>
                     </CTableDataCell>
                   </CTableRow>
