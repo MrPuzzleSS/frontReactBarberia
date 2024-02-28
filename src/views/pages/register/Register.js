@@ -9,7 +9,7 @@ import logoBarberia from '../../../assets/images/logoBarberia2.png';
 import prueba2 from '../../../assets/images/ftos/mk.png';
 
 const RegisterCliente = () => {
-  const roleIdCliente = 30;
+  const roleIdCliente = 1;
 
   const [newUser, setNewUser] = useState({
     id_rol: roleIdCliente,
