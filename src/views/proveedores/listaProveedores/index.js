@@ -28,6 +28,7 @@ import {
   CPagination,
   CPaginationItem
 } from "@coreui/react";
+import { FaEdit } from 'react-icons/fa';
 
 function ListaProveedores() {
   const [proveedores, setProveedores] = useState([]);
@@ -209,12 +210,12 @@ function ListaProveedores() {
                     Producto o Servicio
                   </CTableHeaderCell>
                   <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
+                  <CTableHeaderCell scope="col"></CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
                 {currentProveedores.map((proveedor, i) => (
-                  <CTableRow key={proveedor.id_proveedor}>
+                  <CTableRow key={proveedor.id_proveedor} >
                     <CTableHeaderCell scope="row">{proveedor.id_proveedor}</CTableHeaderCell>
                     <CTableDataCell>{proveedor.nombre}</CTableDataCell>
                     <CTableDataCell>{proveedor.direccion}</CTableDataCell>
@@ -235,11 +236,11 @@ function ListaProveedores() {
                         onChange={() => handleEstadoChange(proveedor)}
                       />
                       <CButton
-                        color="primary"
+                        color="warning"
                         size="sm"
                         onClick={() => handleEditClick(proveedor)}
                       >
-                        Editar
+                        <FaEdit style={{ color: 'black' }} /> 
                       </CButton>
                     </CTableDataCell>
                   </CTableRow>
