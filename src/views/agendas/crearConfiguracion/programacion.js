@@ -327,40 +327,41 @@ const CrearConfiguracion = () => {
     const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
 
-  const handleEditEvent = (clickInfo) => {
-    const eventId = clickInfo?.event?.extendedProps?.id_agenda;
-
-    if (eventId) {
-        console.log('ID del evento:', eventId);
-
-        agendaService.getAgendaById(eventId)
-            .then((eventoEdit) => {
-                console.log('Detalles del evento obtenidos:', eventoEdit);
-                setEventoSeleccionado(eventoEdit);
-
-                console.log('Empleados:', empleados);
-                console.log('Empleados seleccionados en el evento:', eventoEdit.empleadosSeleccionados);
-
-                if (eventoEdit && eventoEdit.empleadosSeleccionados) {
-                    const empleadosSeleccionados = eventoEdit.empleadosSeleccionados.map((id_empleado) =>
-                        empleados.find((empleado) => empleado.value === id_empleado)
-                    );
-
-                    setEventoSeleccionado((prevEventoSeleccionado) => ({
-                        ...prevEventoSeleccionado,
-                        empleadosSeleccionados,
-                    }));
-                }
-
-                setShowEditModal(true);
-            })
-            .catch((error) => {
-                console.error('Error al obtener detalles de la agenda:', error);
-            });
-    } else {
-        console.error('ID de agenda inválido');
-    }
-};
+    const handleEditEvent = (clickInfo) => {
+        const eventId = clickInfo?.event?.extendedProps?.id_agenda;
+    
+        if (eventId) {
+            console.log('ID del evento:', eventId);
+    
+            agendaService.getAgendaById(eventId)
+                .then((eventoEdit) => {
+                    console.log('Detalles del evento obtenidos:', eventoEdit);
+                    setEventoSeleccionado(eventoEdit);
+    
+                    console.log('Empleados:', empleados);
+                    console.log('Empleados seleccionados en el evento:', eventoEdit.empleadosSeleccionados);
+    
+                    if (eventoEdit && eventoEdit.empleadosSeleccionados) {
+                        const empleadosSeleccionados = eventoEdit.empleadosSeleccionados.map((id_empleado) =>
+                            empleados.find((empleado) => empleado.value === id_empleado)
+                        );
+    
+                        setEventoSeleccionado((prevEventoSeleccionado) => ({
+                            ...prevEventoSeleccionado,
+                            empleadosSeleccionados,
+                        }));
+                    }
+    
+                    setShowEditModal(true);
+                })
+                .catch((error) => {
+                    console.error('Error al obtener detalles de la agenda:', error);
+                });
+        } else {
+            console.error('ID de agenda inválido');
+        }
+    };
+    
 
 
     const handleGuardarCambios = () => {
@@ -669,14 +670,6 @@ const CrearConfiguracion = () => {
 
 
 
-
-
-
-
-
-
-
-
     const motivosPredefinidos = [
         'Enfermedad',
         'Emergencia familiar',
@@ -934,8 +927,6 @@ const CrearConfiguracion = () => {
 
 
 
-
-
                         </CCardBody>
                     </CCard>
                     <Modal
@@ -960,7 +951,7 @@ const CrearConfiguracion = () => {
                                             ...eventoSeleccionado,
                                             horaInicio: e.target.value
                                         })}
-                                        
+
                                     />
                                 </div>
                                 <div className="form-group">
