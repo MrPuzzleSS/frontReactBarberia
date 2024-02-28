@@ -15,7 +15,6 @@ import {
   CFormLabel,
   CModal,
   CModalBody,
-  CModalFooter,
   CModalHeader,
   CModalTitle,
   CRow,
@@ -25,18 +24,20 @@ import {
   CTableHeaderCell,
   CTableBody,
   CTableDataCell,
-  CFormTextarea
+  CFormSelect
 } from '@coreui/react';
 import { cilPlaylistAdd, cilChildFriendly } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import Toast from 'src/components/toast';
 import CompraDataService from 'src/views/services/compraService';
 import detalleCompraDataService from 'src/views/services/detalleCompraProdService';
+import ProveedoresService from 'src/views/services/ProveedoresService';
 
 const CrearCompra = () => {
   const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm({
     defaultValues: {
-      descripcion: '',
+      noFactura: '',
+      proveedor: '',
       productoSeleccionado: null,
       cantidad: '',
       precioUnitario: '',
@@ -51,8 +52,18 @@ const CrearCompra = () => {
   const [productos, setProductos] = useState([]);
   const [tempProductos, setTempProductos] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null); // Estado para almacenar el ID del producto seleccionado
+  const [proveedores, setProveedores] = useState([]);
 
   useEffect(() => {
+    const fetchProveedores = async () => {
+      try {
+        const response = await ProveedoresService.getAll();
+        setProveedores(response.data.listProveedores);
+      } catch (error) {
+        console.error('Error al obtener la lista de proveedores:', error);
+      }
+    };
+
     const fetchProductos = async () => {
       try {
         const response = await CompraDataService.getAllProductos();
@@ -68,6 +79,7 @@ const CrearCompra = () => {
       }
     };
 
+    fetchProveedores();
     fetchProductos();
   }, []);
 
@@ -77,16 +89,16 @@ const CrearCompra = () => {
     const cantidad = parseInt(watch('cantidad')); // Convertir a número entero
     const precioUnitario = parseFloat(watch('precioUnitario')); // Convertir a número decimal
     const precioVenta = parseFloat(watch('precioVenta')); // Convertir a número decimal
-  
-    if (!productoSeleccionadoId || !cantidad || !precioUnitario || !precioVenta ) {
+
+    if (!productoSeleccionadoId || !cantidad || !precioUnitario || !precioVenta) {
       console.error('Error: Datos de producto incompletos');
-      console.log(productoSeleccionadoId, cantidad, precioUnitario, precioVenta );
+      console.log(productoSeleccionadoId, cantidad, precioUnitario, precioVenta);
       return;
     }
-  
+
     // Verificar si el producto ya existe en la lista
     const index = tempProductos.findIndex(producto => producto.producto.id_producto === productoSeleccionadoId);
-  
+
     if (index !== -1) {
       // Si el producto existe, sumar la cantidad y actualizar precios
       const productoExistente = tempProductos[index];
@@ -94,14 +106,14 @@ const CrearCompra = () => {
       productoExistente.precioUnitario = precioUnitario;
       productoExistente.precioVenta = precioVenta;
       productoExistente.total = productoExistente.cantidad * precioUnitario;
-  
+
       const updatedTempProductos = [...tempProductos];
       updatedTempProductos[index] = productoExistente;
       setTempProductos(updatedTempProductos);
     } else {
       // Si el producto no existe, agregarlo a la lista
       const producto = productos.find(producto => producto.id_producto === productoSeleccionadoId);
-  
+
       const productoAgregado = {
         producto: producto, // Guardar el objeto completo del producto
         cantidad,
@@ -109,22 +121,22 @@ const CrearCompra = () => {
         precioVenta,
         total: cantidad * precioUnitario,
       };
-  
+
       setTempProductos([...tempProductos, productoAgregado]);
     }
-  
+
     // Limpiar los campos y mostrar mensaje de éxito
     setValue('productoSeleccionado', null);
     setValue('cantidad', '');
     setValue('precioUnitario', '');
     setValue('precioVenta', '');
     setValue('tipoCompra', '');
-  
+
     Toast.fire({
       icon: "success",
       title: "El producto se agregó correctamente"
     });
-  };  
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -136,10 +148,13 @@ const CrearCompra = () => {
 
       // Paso 1: Crear la compra
       const nuevaCompraData = {
-        estado: 'Pendiente',
+        id_proveedor: data.proveedor,
+        no_factura: data.noFactura,
         tipoCompra: 'Producto',
-        descripcion: data.descripcion
+        estado: 'Pendiente',
       };
+
+      console.log(nuevaCompraData);
 
       const nuevaCompraResponse = await CompraDataService.create(nuevaCompraData);
 
@@ -259,19 +274,41 @@ const CrearCompra = () => {
                       <strong>Total de la Compra</strong>
                     </CCardHeader>
                     <CCardBody>
-                      <CFormLabel>Total</CFormLabel>
-                      <CFormInput type="text" value={tempProductos.reduce((acc, producto) => acc + producto.total, 0)} disabled />
-                      <CCol className='mt-3'>
-                        <CFormLabel>Descripción de la compra</CFormLabel>
-                        <Controller
-                          name="descripcion"
-                          control={control}
-                          rules={{ required: false }}
-                          render={({ field }) => <CFormTextarea {...field} />}
-                        />
-                        {errors.descripcion?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
+                      <CRow className="justify-content-between align-items-center">
+                        <CCol className='mt-3' sm="5">
+                          <CFormLabel>No. Factura</CFormLabel>
+                          <Controller
+                            name="noFactura"
+                            control={control}
+                            rules={{ required: false }}
+                            render={({ field }) => <CFormInput {...field} />}
+                          />
+                          {errors.descripcion?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
+                        </CCol>
+                        <CCol className='mt-4' sm="7">
+                          <CFormLabel>Proveedor</CFormLabel>
+                          <Controller
+                            name="proveedor"
+                            control={control}
+                            rules={{ required: false }}
+                            render={({ field }) => (
+                              <CFormSelect {...field}>
+                                <option>Seleccionar Proveedor</option>
+                                {proveedores.map(proveedor => (
+                                  <option key={proveedor.id_proveedor} value={proveedor.id_proveedor}>
+                                    {proveedor.nombre}
+                                  </option>
+                                ))}
+                              </CFormSelect>
+                            )}
+                          />
+                          {errors.proveedor?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
+                        </CCol>
+                      </CRow>
+                      <CCol className='mt-3' sm="5">
+                        <CFormLabel>Total</CFormLabel>
+                        <CFormInput type="text" value={tempProductos.reduce((acc, producto) => acc + producto.total, 0)} disabled />
                       </CCol>
-
                     </CCardBody>
                     <CCardFooter>
                       <CCol xs={12}>
