@@ -43,9 +43,9 @@ const _nav = [
     component: CNavItem,
     name: 'Empleados',
     to: '/empleados',
-    icon: <CIcon icon={cilPeople} customClassName="nav-icon"/>,
+    icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
   },
-  
+
   {
     component: CNavItem,
     name: 'Agendas',
@@ -56,39 +56,39 @@ const _nav = [
     component: CNavGroup,
     name: 'Ventas',
     to: '/ventas',
-    icon: <CIcon icon={cilMoney} customClassName="nav-icon"/>,
+    icon: <CIcon icon={cilMoney} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
         name: 'Lista de Ventas',
         to: '/ventas',
-      }, 
+      },
       {
         component: CNavItem,
         name: 'Cargar Ventas',
         to: '/ventas/cargarVentas',
-      }, 
+      },
     ],
   },
   {
     component: CNavItem,
     name: 'Insumos',
     to: '/insumos',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>
+    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />
   },
 
 
   {
     component: CNavItem,
     name: 'Clientes',
-    to: '/clientes/listaClientes', 
+    to: '/clientes/listaClientes',
     icon: <CIcon icon={cilCart} customClassName="nav-icon" />
   },
   {
     component: CNavItem,
     name: 'Servicios',
     to: '/servicios',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon"/>
+    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />
   },
   {
     component: CNavItem,
@@ -98,18 +98,42 @@ const _nav = [
   },
   
   {
-    component: CNavItem,
-    name: 'Usuarios',
-    to: '/listaUsuarios',
-    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
-  },
-  
-  {
-    component: CNavItem,
-    name: 'Roles',
-    to: '/ListaRol',  // Asegúrate de que la ruta sea la correcta
-    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
-  },
+    component: CNavGroup,
+    name: 'Configuración',
+    icon: <CIcon icon={cilSettings} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavGroup,
+        name: 'Usuarios',
+        to: '/base',
+        icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
+        items: [
+          {
+            component: CNavItem,
+            name: 'Lista de Usuarios',
+            to: '/listaUsuarios',
+            icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+          },
+        ],
+      },
+      {
+        component: CNavGroup,
+        name: 'Roles',
+        to: '/base',
+        icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
+        items: [
+          {
+            component: CNavItem,
+            name: 'Lista de roles',
+            to: '/ListaRol',  // Asegúrate de que la ruta sea la correcta
+            icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+
+          },
+        ],
+      },
+    ]
+  }
+
 ]
 
 export default _nav

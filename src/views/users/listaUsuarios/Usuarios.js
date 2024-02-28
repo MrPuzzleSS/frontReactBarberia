@@ -42,14 +42,14 @@ const ListaUsuarios = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const rolesResponse = await axios.get('http://localhost:8095/api/rol');
+        const rolesResponse = await axios.get('https://restapibarberia.onrender.com/api/rol');
         let usuariosResponse;
 
         if (searchId) {
-          usuariosResponse = await axios.get(`http://localhost:8095/api/usuario/${searchId}`);
+          usuariosResponse = await axios.get(`https://restapibarberia.onrender.com/api/usuario/${searchId}`);
           setUsers(usuariosResponse.data ? [usuariosResponse.data] : []);
         } else {
-          usuariosResponse = await axios.get('http://localhost:8095/api/usuario');
+          usuariosResponse = await axios.get('https://restapibarberia.onrender.com/api/usuario');
           setUsers(usuariosResponse.data.usuarios || []);
         }
 

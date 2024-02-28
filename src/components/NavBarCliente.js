@@ -10,6 +10,7 @@ import {
 } from '@coreui/react'
 import logoBarberia from '../assets/images/logoBarberia2.png'
 import AppHeaderDropdown from '../components/header/AppHeaderDropdown';
+import AppHeaderDropdownCliente from './header/AppHeaderDropdowncliente';
 
 const NavBarCliente = () => {
   const [visible, setVisible] = useState(false)
@@ -42,7 +43,7 @@ const NavBarCliente = () => {
               </CNavItem>
             </CNavbarNav>
             <CNavbarNav className="ms-auto">
-              <AppHeaderDropdown />
+              <AppHeaderDropdownCliente />
             </CNavbarNav>
 
           </CCollapse>
