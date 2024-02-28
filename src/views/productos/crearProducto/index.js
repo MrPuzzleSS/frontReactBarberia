@@ -89,13 +89,11 @@ function CrearProducto() {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
-  const handleGuardarProducto = async (e) => {
+  const handleGuardarProducto = async (e,) => {
     e.preventDefault();
 
-
-    // Verificar si el nombre del producto ya existe
-    const productoExistente = productos.find(producto => producto.nombre === nombre);
-    if (productoExistente) {
+    // Validación de campos requeridos
+    if (!nombre || !descripcion) {
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -104,51 +102,28 @@ function CrearProducto() {
       return;
     }
 
-    if (!esNuevoProducto) {
-      // Si no es un nuevo producto, simplemente guardamos sin validar
-      guardarProducto();
-      return;
-    }
-
-    if (!nombreValido) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'El campo Nombre solo puede contener letras y espacios.',
-      });
-      return;
-    }
-
-    if (!descripcionValida) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'El campo Descripción solo puede contener letras, números y algunos caracteres especiales.',
-      });
-      return;
-    }
-
-    guardarProducto();
-  };
-
-  const guardarProducto = async () => {
-
-    const nombreCapitalizado = capitalizeFirstLetter(nombre);
-    const descripcionCapitalizado = capitalizeFirstLetter(descripcion);
-    // Crear el objeto del nuevo producto con el nombre en mayúsculas
     const nuevoProducto = {
-      nombre: nombreCapitalizado,
-      descripcion: descripcionCapitalizado,
-      precioCosto,
-      precioVenta,
-      stock,
+      nombre: nombre,
+      descripcion: descripcion,
+      precioCosto: precioCosto,
+      precioVenta: precioVenta,
+      stock: stock,
+
     };
 
     try {
-      const response = await ProductoService.createProducto(nuevoProducto);
+      const response = await fetch('http://localhost:8095/api/producto', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(nuevoProducto),
+      });
 
-      if (response) {
-        console.log('Producto guardado:', response.producto);
+      const responseData = await response.json(); // Convertir la respuesta a JSON
+
+      if (response.ok) {
+        console.log('Producto guardado:', responseData.producto);
         Swal.fire({
           icon: 'success',
           title: 'Éxito',
@@ -160,8 +135,10 @@ function CrearProducto() {
             }, 1000);
           }
         });
+
+        // Resto de tu lógica de éxito
       } else {
-        console.error('Error al guardar el producto:', response.error);
+        console.error('Error al guardar el producto:', responseData.error);
         Swal.fire({
           icon: 'error',
           title: 'Error',

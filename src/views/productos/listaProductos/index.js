@@ -3,7 +3,6 @@ import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
 import ProductoService from '../../services/productoService';
 import { FaEdit, FaTrash, } from 'react-icons/fa'; // Importar los iconos de FontAwesome
-
 import {
   CCard,
   CCardBody,
@@ -76,36 +75,19 @@ function ListaProductos() {
   };
 
   const handleGuardarCambios = async () => {
-    // Mostrar un diálogo de confirmación antes de guardar los cambios
-    const confirmacion = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: '¿Deseas guardar los cambios realizados?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, guardar cambios',
-      cancelButtonText: 'Cancelar',
-    });
-
-    // Si el usuario confirma, proceder con guardar los cambios
-    if (confirmacion.isConfirmed) {
-      try {
-        if (selectedProducto && selectedProducto.id_producto) {
-          await ProductoService.updateProducto(selectedProducto.id_producto, selectedProducto);
-          fetchProductos();
-          setVisible(false);
-          Swal.fire({
-            icon: 'success',
-            title: 'Cambios guardados',
-            showConfirmButton: false,
-            timer: 1500,
-          });
-        } else {
-          console.error('Error: ID de producto no definido o válido.');
-        }
-      } catch (error) {
-        console.error('Error al guardar cambios:', error);
+    try {
+      if (selectedProducto && selectedProducto.id_producto) {
+        await ProductoService.updateProducto(selectedProducto.id_producto, selectedProducto);
+        fetchProductos();
+        setVisible(false);
+        Swal.fire({
+          icon: 'success',
+          title: 'Cambios guardados',
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      } else {
+        console.error('Error: ID de producto no definido o válido.');
       }
     }
   };
@@ -126,53 +108,37 @@ function ListaProductos() {
     }
   };
 
-
+  
 
   const handleEliminarProducto = async (id_producto) => {
-    // Mostrar un diálogo de confirmación antes de eliminar el producto
-    const confirmacion = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: 'Esta acción eliminará permanentemente el producto.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-    });
+    try {
+      // Obtener el producto
+      const producto = await ProductoService.getProductoById(id_producto);
 
-    // Si el usuario confirma la eliminación, proceder con la eliminación del producto
-    if (confirmacion.isConfirmed) {
-      try {
-        // Obtener el producto
-        const producto = await ProductoService.getProductoById(id_producto);
-
-        // Verificar si el producto está inactivo
-        if (producto.estado === 'Inactivo') {
-          throw new Error('No se puede eliminar un producto inactivo.');
-        }
-
-        // Si el producto no está inactivo, proceder con la eliminación
-        await ProductoService.eliminarProducto(id_producto);
-        fetchProductos();
-        Swal.fire({
-          icon: 'success',
-          title: 'Producto eliminado',
-          showConfirmButton: false,
-          timer: 1500,
-        });
-      } catch (error) {
-        console.error('Error al eliminar el producto:', error);
-        // Mostrar mensaje de error en caso de que el producto esté inactivo
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al eliminar el producto',
-          text: error.message, // Mostrar el mensaje de error
-        });
+      // Verificar si el producto está inactivo
+      if (producto.estado === 'Inactivo') {
+        throw new Error('No se puede eliminar un producto inactivo.');
       }
+
+      // Si el producto no está inactivo, proceder con la eliminación
+      await ProductoService.eliminarProducto(id_producto);
+      fetchProductos();
+      Swal.fire({
+        icon: 'success',
+        title: 'Producto eliminado',
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    } catch (error) {
+      console.error('Error al eliminar el producto:', error);
+      // Mostrar mensaje de error en caso de que el producto esté inactivo
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al eliminar el producto',
+        text: error.message, // Mostrar el mensaje de error
+      });
     }
   };
-
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
