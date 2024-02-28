@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import ProveedoresService from 'src/views/services/ProveedoresService';
 import Swal from 'sweetalert2';
 import { useForm, Controller } from 'react-hook-form';
 import {
@@ -14,7 +13,6 @@ import {
   CForm,
   CFormInput,
   CFormLabel,
-  CFormSelect,
   CModal,
   CModalBody,
   CModalFooter,
@@ -26,7 +24,8 @@ import {
   CTableRow,
   CTableHeaderCell,
   CTableBody,
-  CTableDataCell
+  CTableDataCell,
+  CFormTextarea
 } from '@coreui/react';
 import { cilPlaylistAdd, cilChildFriendly } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
@@ -75,42 +74,59 @@ const CrearCompra = () => {
 
   const onAgregarProducto = () => {
     const productoSeleccionadoId = productoSeleccionado?.id_producto;
-    const cantidad = watch('cantidad');
-    const precioUnitario = watch('precioUnitario');
-    const precioVenta = watch('precioVenta');
-    const tipoCompra = watch('tipoCompra');
-
+    const cantidad = parseInt(watch('cantidad')); // Convertir a número entero
+    const precioUnitario = parseFloat(watch('precioUnitario')); // Convertir a número decimal
+    const precioVenta = parseFloat(watch('precioVenta')); // Convertir a número decimal
+    const tipoCompra = 'Producto';
+  
     if (!productoSeleccionadoId || !cantidad || !precioUnitario || !precioVenta || !tipoCompra) {
       console.error('Error: Datos de producto incompletos');
       console.log(productoSeleccionadoId, cantidad, precioUnitario, precioVenta, tipoCompra);
       return;
     }
-
-    // Obtener el producto seleccionado utilizando su ID
-    const producto = productos.find(producto => producto.id_producto === productoSeleccionadoId);
-
-    const productoAgregado = {
-      producto: producto, // Guardar el objeto completo del producto
-      cantidad,
-      precioUnitario,
-      precioVenta,
-      tipoCompra,
-      total: cantidad * precioUnitario,
-    };
-
-    setTempProductos([...tempProductos, productoAgregado]);
-
+  
+    // Verificar si el producto ya existe en la lista
+    const index = tempProductos.findIndex(producto => producto.producto.id_producto === productoSeleccionadoId);
+  
+    if (index !== -1) {
+      // Si el producto existe, sumar la cantidad y actualizar precios
+      const productoExistente = tempProductos[index];
+      productoExistente.cantidad += cantidad; // Sumar la cantidad existente con la nueva cantidad
+      productoExistente.precioUnitario = precioUnitario;
+      productoExistente.precioVenta = precioVenta;
+      productoExistente.total = productoExistente.cantidad * precioUnitario;
+  
+      const updatedTempProductos = [...tempProductos];
+      updatedTempProductos[index] = productoExistente;
+      setTempProductos(updatedTempProductos);
+    } else {
+      // Si el producto no existe, agregarlo a la lista
+      const producto = productos.find(producto => producto.id_producto === productoSeleccionadoId);
+  
+      const productoAgregado = {
+        producto: producto, // Guardar el objeto completo del producto
+        cantidad,
+        precioUnitario,
+        precioVenta,
+        tipoCompra,
+        total: cantidad * precioUnitario,
+      };
+  
+      setTempProductos([...tempProductos, productoAgregado]);
+    }
+  
+    // Limpiar los campos y mostrar mensaje de éxito
     setValue('productoSeleccionado', null);
     setValue('cantidad', '');
     setValue('precioUnitario', '');
     setValue('precioVenta', '');
     setValue('tipoCompra', '');
-
+  
     Toast.fire({
       icon: "success",
       title: "El producto se agregó correctamente"
     });
-  };
+  };  
 
   const onSubmit = async (data) => {
     try {
@@ -176,6 +192,11 @@ const CrearCompra = () => {
     }
   };
 
+  const handleProductoSeleccionado = (producto) => {
+    setProductoSeleccionado(producto);
+    setVisibleLg(false); // Cerrar el modal al seleccionar un producto
+  };
+
   return (
     <CContainer className="px-4">
       <CRow xs={{ gutterX: 5 }}>
@@ -191,68 +212,39 @@ const CrearCompra = () => {
                     <CCardHeader>
                       <strong>Productos</strong>
                     </CCardHeader>
-                    <CCardBody className='mt-2'>
+                    <CCardBody className='mt-4'>
                       <CButton onClick={() => setVisibleLg(!visibleLg)}>
                         <CIcon icon={cilPlaylistAdd} /> Agregar Producto
                       </CButton>
                       <CRow className="justify-content-between align-items-center">
-                        <CCol sm="3" className='mt-2'>
+                        <CCol sm="3" className='mt-5'>
                           <CFormLabel>Cantidad</CFormLabel>
                           <Controller
                             name="cantidad"
                             control={control}
-                            rules={{ required: false }}
-                            render={({ field }) => <CFormInput {...field} />}
+                            rules={{ required: false, min: 1 }}
+                            render={({ field }) => <CFormInput type='number' placeholder='1' {...field} />}
                           />
                         </CCol>
-                        <CCol sm="4" className='mt-2'>
+                        <CCol sm="4" className='mt-5'>
                           <CFormLabel>Precio Unitario</CFormLabel>
                           <Controller
                             name="precioUnitario"
                             control={control}
                             rules={{ required: false }}
-                            render={({ field }) => <CFormInput {...field} />}
+                            render={({ field }) => <CFormInput type='number' placeholder='$ 5.000' {...field} />}
                           />
                           {errors.precioUnitario?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
                         </CCol>
-                        <CCol sm="5" className='mt-2'>
+                        <CCol sm="5" className='mt-5'>
                           <CFormLabel>Precio Venta</CFormLabel>
                           <Controller
                             name="precioVenta"
                             control={control}
                             rules={{ required: false }}
-                            render={({ field }) => <CFormInput {...field} />}
+                            render={({ field }) => <CFormInput type='number' placeholder='$ 10.000' {...field} />}
                           />
                           {errors.precioVenta?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
-                        </CCol>
-                      </CRow>
-                      <CRow>
-                        <CCol sm="5" className='mt-2'>
-                          <CFormLabel>Tipo</CFormLabel>
-                          <Controller
-                            name="tipoCompra"
-                            control={control}
-                            rules={{ required: false }}
-                            render={({ field }) => (
-                              <CFormSelect {...field}>
-                                <option value="">Seleccione</option>
-                                <option value="Insumo">Insumo</option>
-                                <option value="Producto">Producto</option>
-                              </CFormSelect>
-                            )}
-                          />
-                          {errors.tipoCompra?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
-                        </CCol>
-                        <CCol sm="6" className='mt-2'>
-                          <CFormLabel>Total Producto</CFormLabel>
-                          <Controller
-                            name="total"
-                            control={control}
-                            rules={{ required: false }}
-                            render={({ field }) => <CFormInput {...field} />}
-                            disabled
-                          />
-                          {errors.total?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
                         </CCol>
                       </CRow>
                     </CCardBody>
@@ -271,17 +263,30 @@ const CrearCompra = () => {
                     <CCardBody>
                       <CFormLabel>Total</CFormLabel>
                       <CFormInput type="text" value={tempProductos.reduce((acc, producto) => acc + producto.total, 0)} disabled />
-                      <CCol sm="6" className='mt-2'>
+                      <CCol className='mt-3'>
                         <CFormLabel>Descripción de la compra</CFormLabel>
                         <Controller
-                          name="descripcionCompra"
+                          name="descripcion"
                           control={control}
                           rules={{ required: false }}
-                          render={({ field }) => <CFormInput {...field} />}
+                          render={({ field }) => <CFormTextarea {...field} />}
                         />
-                        {errors.descripcionCompra?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
+                        {errors.descripcion?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
                       </CCol>
+
                     </CCardBody>
+                    <CCardFooter>
+                      <CCol xs={12}>
+                        <CButton type="submit" color="primary" className="me-md-2">
+                          Crear Compra
+                        </CButton>
+                        <Link to="/compras/lista-compras">
+                          <CButton type="button" color="secondary">
+                            Cancelara
+                          </CButton>
+                        </Link>
+                      </CCol>
+                    </CCardFooter>
                   </CCard>
                 </CCol>
                 <CCard>
@@ -312,16 +317,6 @@ const CrearCompra = () => {
                     </CTableBody>
                   </CTable>
                 </CCard>
-                <CCol xs={12}>
-                  <CButton type="submit" color="primary" className="me-md-2">
-                    Crear Compra
-                  </CButton>
-                  <Link to="/compras/lista-compras">
-                    <CButton type="button" color="secondary">
-                      Cancelar
-                    </CButton>
-                  </Link>
-                </CCol>
               </CForm>
               {submitted && <Navigate to="/compras/lista-compras" />}
             </CCardBody>
@@ -349,7 +344,11 @@ const CrearCompra = () => {
             </CTableHead>
             <CTableBody>
               {productos.map((producto, index) => (
-                <CTableRow key={producto.id_producto} onClick={() => setProductoSeleccionado(producto)}>
+                <CTableRow
+                  key={producto.id_producto}
+                  onClick={() => handleProductoSeleccionado(producto)}
+                  active={productoSeleccionado === producto}
+                >
                   <CTableHeaderCell scope="row">{producto.id_producto}</CTableHeaderCell>
                   <CTableDataCell>{producto.nombre}</CTableDataCell>
                   <CTableDataCell>{producto.stock}</CTableDataCell>
@@ -358,11 +357,6 @@ const CrearCompra = () => {
             </CTableBody>
           </CTable>
         </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setVisibleLg(false)}>
-            Cerrar
-          </CButton>
-        </CModalFooter>
       </CModal>
     </CContainer>
   );

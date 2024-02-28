@@ -32,6 +32,17 @@ const findByTitle = title => {
     return http.get(`/proveedores?title=${title}`);
 }
 
+const checkExistence = async (nombre, email) => {
+    const response = await getAll();
+    const proveedores = response.data.listProveedores;
+    console.log(proveedores);
+
+    const nombreExists = proveedores.some(proveedor => proveedor.nombre === nombre);
+    const emailExists = proveedores.some(proveedor => proveedor.email === email);
+
+    return { nombreExists, emailExists };
+};
+
 const ProveedoresService = {
     getAll,
     get,
@@ -40,7 +51,8 @@ const ProveedoresService = {
     update,
     cambiarEstado,
     remove,
-    findByTitle
+    findByTitle,
+    checkExistence
 }
 
 export default ProveedoresService;

@@ -118,11 +118,6 @@ const ProductoService = {
             throw new Error(`Error al cambiar el estado del producto: ${error.message}`);
         }
     },
-    
-    
-    
-
-
 
     eliminarProducto: async (id_producto) => {
         try {
