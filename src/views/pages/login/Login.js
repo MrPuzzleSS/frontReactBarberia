@@ -29,27 +29,28 @@ const Login = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+
   const handleLogin = async () => {
     try {
       setError(null);
-
+  
       const response = await axios.post('http://localhost:8095/api/login', {
         nombre_usuario: nombreUsuario,
         contrasena,
       });
-
+  
       const { token } = response.data;
-
+  
       // Decodificar el token para obtener información del usuario
       const decodedToken = jwt_decode(token);
-
+  
       // Almacenar la sesión y la información del usuario
       setSession(token, new Date(decodedToken.exp * 1000), response.data.usuario);
-
+  
       // Verificar autenticación después de almacenar la sesión
       if (isAuthenticated()) {
         console.log('tu token ', token)
-        // Redirigir después de almacen,ar la sesión
+        // Redirigir después de almacenar la sesión
         navigate('/dashboard');
       } else {
         // Manejar caso en que la autenticación falla
@@ -57,14 +58,25 @@ const Login = () => {
       }
     } catch (error) {
       // Manejar errores al iniciar sesión
-      if (error.response && error.response.data && error.response.data.message) {
-        setError(error.response.data.message);
+      if (error.response && error.response.status) {
+        if (error.response.status === 401) {
+          setError('La contraseña ingresada es incorrecta');
+        } else if (error.response.status === 403) {
+          const { mensaje } = error.response.data;
+          setError(mensaje);
+        } else {
+          setError('Error al iniciar sesión');
+        }
       } else {
-        setError('Usuario y /o contraseña incorrectos');
+        setError('Error al iniciar sesión');
       }
     }
   };
-
+  
+  
+  
+  
+  
   return (
     <div
       className="min-vh-100 d-flex flex-row align-items-center"

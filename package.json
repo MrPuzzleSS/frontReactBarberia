@@ -74,6 +74,7 @@
     "react-app-polyfill": "^3.0.0",
     "react-bootstrap": "^2.9.1",
     "react-bootstrap-switch": "^15.5.3",
+    "react-confirm-alert": "^3.0.6",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.48.2",
     "react-icons": "^4.12.0",
