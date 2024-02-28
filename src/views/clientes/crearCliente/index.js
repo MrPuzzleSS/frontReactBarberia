@@ -14,17 +14,19 @@ import {
 import ClienteService from 'src/views/services/clienteService';
 
 function CrearCliente() {
+    const [documento, setDocumento] = useState('');
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
     const [correo, setCorreo] = useState('');
     const [telefono, setTelefono] = useState('');
-    const [documento, setDocumento] = useState('');
+    
 
+    const [errorDocumento, setErrorDocumento] = useState('');
     const [errorNombre, setErrorNombre] = useState('');
     const [errorApellido, setErrorApellido] = useState('');
     const [errorCorreo, setErrorCorreo] = useState('');
     const [errorTelefono, setErrorTelefono] = useState('');
-    const [errorDocumento, setErrorDocumento] = useState('');
+    
 
     const navigate = useNavigate();
 
@@ -40,6 +42,16 @@ function CrearCliente() {
     useEffect(() => {
         fetchClientes();
     }, []);
+
+    const validateDocumento = (value) => {
+        if (!/^\d+$/.test(value)) {
+            setErrorDocumento('El documento debe contener solo números.');
+            return false;
+        }
+        setErrorDocumento('');
+        return true;
+    };
+
 
     const validateNombre = (value) => {
         if (!/^[a-zA-Z ñÑ]{2,}$/.test(value)) {
@@ -77,40 +89,34 @@ function CrearCliente() {
         return true;
     };
 
-    const validateDocumento = (value) => {
-        if (!/^\d+$/.test(value)) {
-            setErrorDocumento('El documento debe contener solo números.');
-            return false;
-        }
-        setErrorDocumento('');
-        return true;
-    };
-
+    
     const handleGuardarCliente = async (e) => {
         e.preventDefault();
 
-        if (!validateNombre(nombre) || !validateApellido(apellido) || !validateCorreo(correo) ||
-            !validateTelefono(telefono) || !validateDocumento(documento)) {
+        if ( !validateDocumento(documento) || !validateNombre(nombre) || !validateApellido(apellido) || !validateCorreo(correo) ||
+            !validateTelefono(telefono) ) {
             return;
         }
 
         const newCliente = {
+            documento,
             nombre,
             apellido,
             correo,
             telefono,
-            documento,
+            
         };
 
         try {
             const response = await ClienteService.createCliente(newCliente);
             console.log('Cliente creado:', response.data);
 
+            setDocumento('');
             setNombre('');
             setApellido('');
             setCorreo('');
             setTelefono('');
-            setDocumento('');
+            
 
             Swal.fire('Éxito', 'Cliente creado correctamente.', 'success').then(() => {
                 navigate('/clientes/listaClientes');
@@ -131,6 +137,15 @@ function CrearCliente() {
                     </CCardHeader>
                     <CCardBody>
                         <form onSubmit={handleGuardarCliente}>
+                            <div className="mb-3">
+                                <CFormLabel>Documento</CFormLabel>
+                                <CFormInput
+                                    type="text"
+                                    value={documento}
+                                    onChange={(e) => setDocumento(e.target.value)}
+                                />
+                                <div className="text-danger">{errorDocumento}</div>
+                            </div>
                             <div className="mb-3">
                                 <CFormLabel>Nombre</CFormLabel>
                                 <CFormInput
@@ -167,15 +182,7 @@ function CrearCliente() {
                                 />
                                 <div className="text-danger">{errorTelefono}</div>
                             </div>
-                            <div className="mb-3">
-                                <CFormLabel>Documento</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    value={documento}
-                                    onChange={(e) => setDocumento(e.target.value)}
-                                />
-                                <div className="text-danger">{errorDocumento}</div>
-                            </div>
+                            
                             <CButton type="submit" color="primary">
                                 Guardar Cliente
                             </CButton>
