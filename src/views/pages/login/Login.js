@@ -1,5 +1,6 @@
 import { jwtDecode as jwt_decode } from 'jwt-decode';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setSession, isAuthenticated } from '../../../components/auht'; // Ajusta la ruta de importación
@@ -28,27 +29,28 @@ const Login = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+
   const handleLogin = async () => {
     try {
       setError(null);
-
+  
       const response = await axios.post('http://localhost:8095/api/login', {
         nombre_usuario: nombreUsuario,
         contrasena,
       });
-
+  
       const { token } = response.data;
-
+  
       // Decodificar el token para obtener información del usuario
       const decodedToken = jwt_decode(token);
-
+  
       // Almacenar la sesión y la información del usuario
       setSession(token, new Date(decodedToken.exp * 1000), response.data.usuario);
-
+  
       // Verificar autenticación después de almacenar la sesión
       if (isAuthenticated()) {
         console.log('tu token ', token)
-        // Redirigir después de almacen,ar la sesión
+        // Redirigir después de almacenar la sesión
         navigate('/dashboard');
       } else {
         // Manejar caso en que la autenticación falla
@@ -56,14 +58,25 @@ const Login = () => {
       }
     } catch (error) {
       // Manejar errores al iniciar sesión
-      if (error.response && error.response.data && error.response.data.message) {
-        setError(error.response.data.message);
+      if (error.response && error.response.status) {
+        if (error.response.status === 401) {
+          setError('La contraseña ingresada es incorrecta');
+        } else if (error.response.status === 403) {
+          const { mensaje } = error.response.data;
+          setError(mensaje);
+        } else {
+          setError('Error al iniciar sesión');
+        }
       } else {
-        setError('Usuario y /o contraseña incorrectos');
+        setError('Error al iniciar sesión');
       }
     }
   };
-
+  
+  
+  
+  
+  
   return (
     <div
       className="min-vh-100 d-flex flex-row align-items-center"
@@ -81,7 +94,7 @@ const Login = () => {
                 <CCardBody>
                   <CForm>
                     <br />
-                    <h3>Iniciar sesión en tu cuenta</h3>
+                    <h3>Inicia sesión en tu cuenta</h3>
                     <br />
                     {error && <CAlert color="danger">{error}</CAlert>}
                     <CInputGroup className="mb-3">
@@ -107,22 +120,28 @@ const Login = () => {
                         onChange={(e) => setContrasena(e.target.value)}
                       />
                     </CInputGroup>
-                    <CRow>
-                      <CCol xs={6}>
+                    <CRow className="mt-3">
+                      <CCol xs={12} className="text-center">
                         <CButton color="primary" className="px-4" onClick={handleLogin}>
                           INGRESAR
                         </CButton>
                       </CCol>
-                      <CCol xs={6} className="text-right">
-                        <CButton
-                          color="link"
-                          className="px-0"
-                          onClick={() => navigate('/resetPassword')}
-                        >
+                    </CRow>
+                    <CRow className="mt-3">
+                      <CCol xs={12} className="text-center">
+                        <CButton color="link" className="px-0" onClick={() => navigate('/resetPassword')}>
                           ¿Olvidó su contraseña?
                         </CButton>
                       </CCol>
                     </CRow>
+                    <CRow className="mt-3">
+                      <CCol xs={12} className="text-center">
+                        <Link to="/register">
+                          <CButton color="secondary">REGISTRARSE</CButton>
+                        </Link>
+                      </CCol>
+                    </CRow>
+
                   </CForm>
                 </CCardBody>
               </CCard>

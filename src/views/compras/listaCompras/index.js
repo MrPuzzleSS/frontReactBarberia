@@ -1,8 +1,7 @@
-/* eslint-disable prettier/prettier */
 import React, { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
-import CompraDataService from 'src/views/services/compraService'; // Asegúrate de que la ruta sea correcta
+import CompraDataService from 'src/views/services/compraService';
 import {
   CCard,
   CCardBody,
@@ -28,12 +27,28 @@ function formatFechaCompra(fecha) {
   return new Date(fecha).toLocaleDateString('es-ES', options);
 }
 
+async function getNombresProductos(detalle, tipoCompra) {
+  try {
+    let response;
+    if (tipoCompra === 'Producto') {
+      response = await CompraDataService.getAllProductosbyId(detalle.id_producto);
+    } else if (tipoCompra === 'Insumo') {
+      response = await CompraDataService.getAllProductosbyIdInsu(detalle.id_insumo);
+    } else {
+      throw new Error('Tipo de compra no válido');
+    }
+    return { [detalle.id_producto]: response.data.nombre };
+  } catch (error) {
+    console.error('Error al obtener el nombre del producto:', error);
+    return { [detalle.id_producto]: 'Nombre no disponible' };
+  }
+}
+
 function ListaCompras() {
   const [compras, setCompras] = useState([]);
   const [visible, setVisible] = useState(false);
   const [compraSeleccionada, setCompraSeleccionada] = useState(null);
   const [tablaActualizada, setTablaActualizada] = useState(false);
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,15 +56,16 @@ function ListaCompras() {
         const response = await CompraDataService.getCompraDetalle();
         console.log('Datos:', response.data);
 
-        const comprasConDetalle = response.data.map(item => {
+        const comprasConDetalle = await Promise.all(response.data.map(async item => {
           const compra = {
             descripcion: item.compra.descripcion,
             id_compra: item.compra.id_compra,
+            tipoCompra: item.compra.tipoCompra,
             estado: item.compra.estado,
             created_at: item.compra.created_at,
           };
 
-          const detallesCompra = item.detallesCompra.map(detalle => ({
+          const detallesCompraP = item.detallesCompraP.map(detalle => ({
             id_producto: detalle.id_producto,
             cantidad: detalle.cantidad,
             precioUnitario: detalle.precioUnitario,
@@ -57,17 +73,30 @@ function ListaCompras() {
             total: detalle.total,
           }));
 
-          // Calcular el total de los productos en detallesCompra
-          const totalCompra = detallesCompra.reduce((total, detalle) => total + detalle.total, 0);
+          const detallesCompraIn = item.detallesCompraIn.map(detalle => ({
+            id_insumo: detalle.id_insumo,
+            cantidad: detalle.cantidad,
+            precioUnitario: detalle.precioUnitario,
+            precioVenta: detalle.precioVenta,
+            total: detalle.total,
+          }));
+
+          const detallesCompra = [...detallesCompraP, ...detallesCompraIn];
+
+          const nombresPromises = detallesCompra.map(detalle => getNombresProductos(detalle, compra.tipoCompra));
+
+          const nombresProductosArray = await Promise.all(nombresPromises);
+          const nombresProductosObj = Object.assign({}, ...nombresProductosArray);
 
           return {
             compra: {
               ...compra,
-              total: totalCompra, // Agregar el total al objeto compra
+              total: detallesCompra.reduce((total, detalle) => total + detalle.total, 0),
             },
             detallesCompra,
+            nombresProductos: nombresProductosObj,
           };
-        });
+        }));
 
         setCompras(comprasConDetalle);
       } catch (error) {
@@ -87,18 +116,13 @@ function ListaCompras() {
 
   const pagarCompra = async (idCompra) => {
     try {
-      // Cambiar el estado de la compra a "Pagado"
       await CompraDataService.cambiarEstadoCompra(idCompra);
-      // Actualizar el estado para que la tabla se vuelva a renderizar
       setTablaActualizada(true);
-      // Mostrar un mensaje de éxito
       Swal.fire('Éxito', 'La compra se ha pagado exitosamente', 'success');
     } catch (error) {
-      // Mostrar un mensaje de error
       Swal.fire('Error', 'No se pudo realizar el pago', 'error');
     }
   };
-  
 
   return (
     <CRow>
@@ -107,22 +131,28 @@ function ListaCompras() {
           <CCardHeader>
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Compras</strong>
-              <Link to="/compras/crear-compra">
-                <CButton color="success">Nueva Compra</CButton>
-              </Link>
+              <div className="d-flex align-items-center">
+                <Link to="/compras/crear-compra">
+                  <CButton color="success">Agregar Producto</CButton>
+                </Link>
+                |
+                <Link to="/compras/crear-comprainsu">
+                  <CButton color="success" className="ml-2">Agregar Insumo</CButton>
+                </Link>
+              </div>
             </div>
           </CCardHeader>
           <CCardBody>
-            <CTable align="middle" className="mb-0 border" hover responsive> 
+            <CTable align="middle" className="mb-0 border" hover responsive>
               <CTableHead color="light">
                 <CTableRow>
                   <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                  {/* Agrega más encabezados según tus necesidades */}
                   <CTableHeaderCell scope="col">DESCRIPCIÓN</CTableHeaderCell>
                   <CTableHeaderCell scope="col">TOTAL</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">TIPO DE COMPRA</CTableHeaderCell>
                   <CTableHeaderCell scope="col">ESTADO</CTableHeaderCell>
                   <CTableHeaderCell scope="col">FECHA DE COMPRA</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">ACCIONES</CTableHeaderCell>
+                  <CTableHeaderCell scope="col"></CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
@@ -132,19 +162,19 @@ function ListaCompras() {
                       <CTableHeaderCell scope="row">{i + 1}</CTableHeaderCell>
                       <CTableDataCell>{compra.compra.descripcion}</CTableDataCell>
                       <CTableDataCell>{compra.compra.total}</CTableDataCell>
+                      <CTableDataCell>{compra.compra.tipoCompra}</CTableDataCell>
                       <CTableDataCell>{compra.compra.estado}</CTableDataCell>
                       <CTableDataCell>{formatFechaCompra(compra.compra.created_at)}</CTableDataCell>
                       <CTableDataCell>
-                      <CButton color="warning" onClick={() => pagarCompra(compra.compra.id_compra)}>
-                      Pagar
-                      </CButton>
-                      <CButton onClick={() => mostrarDetalleCompra(compra)} >Detalle</CButton>
+                        <CButton color="warning" onClick={() => pagarCompra(compra.compra.id_compra)}>
+                          Pagar
+                        </CButton>
+                        <CButton onClick={() => mostrarDetalleCompra(compra)}>Detalle</CButton>
                       </CTableDataCell>
                     </CTableRow>
                   ))
                 ) : (
-                  <CTableRow>
-                  </CTableRow>
+                  <CTableRow></CTableRow>
                 )}
               </CTableBody>
             </CTable>
@@ -169,6 +199,7 @@ function ListaCompras() {
                       <CTableHead>
                         <CTableRow>
                           <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Cantidad</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Precio Venta</CTableHeaderCell>
@@ -179,6 +210,9 @@ function ListaCompras() {
                         {compraSeleccionada.detallesCompra.map((detalle, index) => (
                           <CTableRow key={index}>
                             <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+                            <CTableDataCell>
+                              {compraSeleccionada.nombresProductos[detalle.id_producto] || 'Cargando...'}
+                            </CTableDataCell>
                             <CTableDataCell>{detalle.cantidad}</CTableDataCell>
                             <CTableDataCell>{detalle.precioUnitario}</CTableDataCell>
                             <CTableDataCell>{detalle.precioVenta}</CTableDataCell>

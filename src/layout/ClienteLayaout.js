@@ -2,6 +2,8 @@ import React from 'react';
 import { ClienteContent, AppFooter, NavBarCliente } from '../components/cliente';
 import '../assets/css/ClienteLayout.css'; // Importa tu archivo de estilos CSS
 
+
+
 const ClienteLayout = () => {
   return (
     <div className="cliente-layout">

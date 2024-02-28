@@ -2,7 +2,6 @@ import React from 'react'
 
 
 
-
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -59,7 +58,8 @@ const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 const ListaProveedores = React.lazy(()  => import('./views/proveedores/listaProveedores'))
 const CrearProveedor = React.lazy(() => import('./views/proveedores/crearProveedor'))
 const ListaCompras = React.lazy(() => import('./views/compras/listaCompras'))
-const CrearCompra = React.lazy(() => import('./views/compras/crearCompra'))
+const CrearCompra = React.lazy(() => import('./views/compras/crearCompraProd'))
+const CrearCompraInsumo = React.lazy(() => import('./views/compras/crearCompraInsu'))
 
 const ListaEmpleados = React.lazy(() => import('./views/empleados/listaEmpleados'))
 const CrearEmpleados = React.lazy(() => import('./views/empleados/crearEmpleado'))
@@ -70,11 +70,13 @@ const CargarVentas = React.lazy(() => import('./views/ventas/cargarVentas'))
 
 const Usuarios = React.lazy(() => import('./views/users/listaUsuarios/Usuarios'))
 const CrearUsuarios = React.lazy(() => import('./views/users/crearUsuario/CrearUser'))
-const EditarUsuarios = React.lazy(() => import('./views/users/editarUsuario/EditUser'))
+const EditarUsuarios = React.lazy(() => import('./views/pages/login/editProfile'))
+const UserInformationPage = React.lazy(() => import('./views/pages/login/UserInfo'));
+
 
 const Roles = React.lazy(() => import('./views/rol/listaRoles/Roles'))
 const CrearRol = React.lazy(() => import('./views/rol/CrearRol/CreateRol'))
-const recuperarContraseña = React.lazy( ()=> import('./views/pages/login/recuperarContraseña'))
+
 
 
 
@@ -110,6 +112,7 @@ const routes = [
   { path: '/compras', name: 'Compras', element: ListaCompras },
   { path: '/compras/lista-compras', name: 'Lista Compras', element: ListaCompras },
   { path: '/compras/crear-compra', name: 'Crear Compra', element: CrearCompra },
+  { path: '/compras/crear-comprainsu', name: 'Nueva compra insumo', element: CrearCompraInsumo},
   
   { path: '/empleados', name: 'Empleados', element: ListaEmpleados},
   { path: '/empleados/listaEmpleados', name: 'Listado', element: ListaEmpleados},
@@ -135,17 +138,14 @@ const routes = [
   { path: '/ventas/listaVentas', name: 'Ventas', element: ListarVentas},
 
   { path: '/ListaUsuarios', name: 'Usuarios',element : Usuarios},
-
-
   { path: '/CrearUsuarios', name: 'CrearUsuarios', element: CrearUsuarios},
-  { path: '/EditarUsuarios', name: 'EditarUsuarios', element: EditarUsuarios},
-  
+  { path: '/EditProfile', name: 'EditarUsuario', element: EditarUsuarios},
+  { path: '/UserInfo', name: 'InfoUsuario', element: UserInformationPage},
+
  { path: '/ListaRol', name: 'Roles', element: Roles},
-  //{ path: '/ListaRol', name: 'Roles', element: Roles, private: true },
- 
- // { path: '/ListaRol', name: 'Roles', element: <PrivateRoute element={<Roles />} /> },
-  
   { path: '/CrearRol', name: 'CrearRol', element: CrearRol},
+  
+
   
   { path: '/productos', name: 'productos', element: ListaProductos },
   { path: '/productos/lista-productos', name: 'Productos', element: ListaProductos },

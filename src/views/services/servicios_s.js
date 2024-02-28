@@ -16,6 +16,10 @@ const update = (id, data) => {
     return http.put(`/servicio/${id}`, data);
 }
 
+const cambiarEstado = (id, data) => {
+    return http.put(`/servicio/${id}/cambiarestado`, data);
+}
+
 const remove = id => {
     return http.delete(`/servicio/${id}`);
 }
@@ -24,13 +28,14 @@ const findByTitle = title => {
     return http.get(`/servicio?title=${title}`);
 }
 
-const Servicios_s = {
+const ProveedoresService = {
     getAll,
     get,
     create,
     update,
+    cambiarEstado,
     remove,
     findByTitle
 }
 
-export default Servicios_s;
+export default ProveedoresService;

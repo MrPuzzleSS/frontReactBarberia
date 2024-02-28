@@ -4,6 +4,22 @@ const getAll = () => {
     return http.get("/compras");
 };
 
+const getAllProductos = () => {
+    return http.get("/producto");
+};
+
+const getAllProductosbyId = id => {
+    return http.get(`/producto/${id}`);
+};
+
+const getAllProductosInsu = () => {
+    return http.get("/insumos");
+};
+
+const getAllProductosbyIdInsu = id => {
+    return http.get(`/insumos/${id}`);
+};
+
 const getCompraDetalle = () => {
     return http.get("/compras/detalles")
 }
@@ -41,6 +57,10 @@ const cambiarEstadoCompra = async (id) => {
 const CompraDataService = {
     getAll,
     getCompraDetalle,
+    getAllProductos,
+    getAllProductosbyId,
+    getAllProductosInsu,
+    getAllProductosbyIdInsu,
     get,
     create,
     update,

@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { CBadge } from '@coreui/react';
+import { FaEdit, FaTrash, } from 'react-icons/fa'; // Importar los iconos de FontAwesome
+import { confirmAlert } from 'react-confirm-alert'; // Importa la función confirmAlert
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Importa el CSS para estilos predeterminados
+
 import {
   CCard,
   CCardBody,
@@ -20,6 +25,8 @@ import {
   CFormLabel,
   CFormInput,
   CFormSwitch,
+  CPagination,
+  CPaginationItem
 } from '@coreui/react';
 import { Link } from 'react-router-dom';
 
@@ -29,18 +36,20 @@ const ListaUsuarios = () => {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [searchId, setSearchId] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(5);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const rolesResponse = await axios.get('http://localhost:8095/api/rol');
+        const rolesResponse = await axios.get('https://restapibarberia.onrender.com/api/rol');
         let usuariosResponse;
 
         if (searchId) {
-          usuariosResponse = await axios.get(`http://localhost:8095/api/usuario/${searchId}`);
+          usuariosResponse = await axios.get(`https://restapibarberia.onrender.com/api/usuario/${searchId}`);
           setUsers(usuariosResponse.data ? [usuariosResponse.data] : []);
         } else {
-          usuariosResponse = await axios.get('http://localhost:8095/api/usuario');
+          usuariosResponse = await axios.get('https://restapibarberia.onrender.com/api/usuario');
           setUsers(usuariosResponse.data.usuarios || []);
         }
 
@@ -59,135 +68,196 @@ const ListaUsuarios = () => {
   };
 
   const handleDelete = async (item) => {
-    try {
-      await axios.delete(`http://localhost:8095/api/usuario/${item.id_usuario}`);
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id_usuario !== item.id_usuario));
-    } catch (error) {
-      console.error('Error al eliminar usuario:', error);
-    } finally {
-      setSelectedItem(null);
-    }
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Deseas eliminar este usuario?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`http://localhost:8095/api/usuario/${item.id_usuario}`);
+          setUsers((prevUsers) => prevUsers.filter((user) => user.id_usuario !== item.id_usuario));
+  
+          Swal.fire({
+            icon: 'success',
+            title: 'Usuario eliminado con éxito',
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        } catch (error) {
+          console.error('Error al eliminar usuario:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al eliminar usuario',
+            text: 'Ha ocurrido un error al intentar eliminar el usuario.',
+          });
+        } finally {
+          setSelectedItem(null);
+        }
+      }
+    });
   };
+  
 
   const handleEdit = (item) => {
     setSelectedItem(item);
     setVisible(true);
   };
-
-  const handleSwitchChange = (item) => {
-    const newStatus = item.estado === 'Activo' ? 'Inactivo' : 'Activo';
   
-    const updatedUsers = users.map((user) =>
-      user.id_usuario === item.id_usuario
-        ? { ...user, estado: newStatus }
-        : user
-    );
-  
-    setUsers(updatedUsers);
-  
-    Swal.fire({
-      icon: newStatus === 'Activo' ? 'success' : 'error',
-      title: `¡El estado del usuario se ${newStatus} correctamente!`,
-      showConfirmButton: false,
-      timer: 1500,
-      iconHtml: newStatus === 'Inactivo' ? '<i class="fas fa-times"></i>' : null,
-    });
+  const getColorForEstado = (estado) => {
+    if (estado === 'Activo') {
+      return 'success';
+    } else if (estado === 'Inactivo') {
+      return 'danger';
+    } else {
+      return 'default';
+    }
   };
 
-  const handleSaveChanges = async () => {
+  const handleSwitchChange = async (item) => {
+    const newStatus = item.estado === 'Activo' ? 'Inactivo' : 'Activo';
+
     try {
-      const editedUser = {
-        ...selectedItem,
-        nombre_usuario: document.getElementById('nombreUsuario').value,
-        correo: document.getElementById('correoElectronico').value,
-        // Agrega más campos según tu necesidad
-      };
-  
-      await axios.put(`https://resapibarberia.onrender.com/api/usuario/${editedUser.id_usuario}`, editedUser);
-  
-      setUsers((prevUsers) =>
-        prevUsers.map((user) => (user.id_usuario === selectedItem.id_usuario ? editedUser : user))
+      await axios.put(`http://localhost:8095/api/usuario/${item.id_usuario}`, {
+        ...item,
+        estado: newStatus,
+      });
+
+      const updatedUsers = users.map((user) =>
+        user.id_usuario === item.id_usuario ? { ...user, estado: newStatus } : user
       );
-  
-      // Mostrar SweetAlert de éxito para la edición
+
+      setUsers(updatedUsers);
+
       Swal.fire({
         icon: 'success',
-        title: 'Usuario editado con éxito',
+        title: `El estado del usuario se ha cambiado a ${newStatus}`,
         showConfirmButton: false,
-        timer: 1500, // Cerrar automáticamente después de 1.5 segundos
+        timer: 1500,
+      });
+    } catch (error) {
+      console.error('Error al cambiar el estado del usuario:', error);
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al cambiar el estado del usuario',
+        text: 'Ha ocurrido un error al intentar cambiar el estado del usuario.',
+      });
+    }
+  };const handleSaveChanges = async () => {
+    try {
+      const confirmSave = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Deseas guardar los cambios realizados?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, guardar cambios',
+        cancelButtonText: 'Cancelar',
       });
   
+      if (confirmSave.isConfirmed) {
+        const editedUser = {
+          ...selectedItem,
+          nombre_usuario: document.getElementById('nombreUsuario').value,
+          correo: document.getElementById('correoElectronico').value,
+          // Agrega más campos según tu necesidad
+        };
+  
+        await axios.put(`http://localhost:8095/api/usuario/${editedUser.id_usuario}`, editedUser);
+  
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => (user.id_usuario === selectedItem.id_usuario ? editedUser : user))
+        );
+  
+        Swal.fire({
+          icon: 'success',
+          title: 'Usuario editado con éxito',
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
     } catch (error) {
       console.error('Error al editar usuario:', error);
   
-      // Mostrar SweetAlert de error
       Swal.fire({
         icon: 'error',
         title: 'Error al editar usuario',
         text: 'Ha ocurrido un error al intentar editar el usuario.',
       });
-  
     } finally {
       setVisible(false);
     }
   };
   
+  
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastUser = currentPage * pageSize;
+  const indexOfFirstUser = indexOfLastUser - pageSize;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
 
   return (
+
     <>
       <br />
       <CCard className="mb-4">
-        <CCardHeader>LISTA DE USUARIOS</CCardHeader>
-        <CCardBody>
-          <div className="mb-3">
-            <CFormLabel>BUSCAR USUARIO POR ID</CFormLabel>
-            <div className="d-flex">
-              <CFormInput
-                type="text"
-                value={searchId}
-                onChange={(e) => setSearchId(e.target.value)}
-              />
-            </div>
-          </div>
-
+        <CCardHeader className="d-flex justify-content-between align-items-center">
+          <strong>Lista de usuarios</strong>
           <Link to="/CrearUsuarios">
-            <CButton color="success" className="me-1">
-              CREAR
+            <CButton color="primary" className="me-1">
+              AGREGAR USUARIO
             </CButton>
           </Link>
-          <CTable align="middle" className="mb-0 border" hover responsive>
+        </CCardHeader>
+        <CCardBody>
+          <div className="mb-3" style={{ maxWidth: "200px" }}>
+
+            <CFormInput
+              type="text"
+              placeholder="Buscar usuario por ID..."
+              value={searchId}
+              onChange={(e) => setSearchId(e.target.value)}
+              className="form-control-sm"
+            />
+          </div>
+
+          <CTable align="middle" className="mb-0 border table-sm" hover responsive>
             <CTableHead color="light">
               <CTableRow>
                 <CTableHeaderCell>ID</CTableHeaderCell>
                 <CTableHeaderCell>NOMBRE</CTableHeaderCell>
                 <CTableHeaderCell>CORREO</CTableHeaderCell>
-                <CTableHeaderCell>ESTADO</CTableHeaderCell>
                 <CTableHeaderCell>ROL</CTableHeaderCell>
+                <CTableHeaderCell>ESTADO</CTableHeaderCell>
                 <CTableHeaderCell>ACCIONES</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>
-              {users.map((item) => (
+              {currentUsers.map((item) => (
                 <CTableRow key={item.id_usuario}>
+                  <CTableDataCell>{item.id_usuario}</CTableDataCell>
+                  <CTableDataCell>{item.nombre_usuario}</CTableDataCell>
+                  <CTableDataCell>{item.correo}</CTableDataCell>
+                  <CTableDataCell>{getRolNombre(item.id_rol)}</CTableDataCell>
                   <CTableDataCell>
-                    <div>{item.id_usuario}</div>
+                    <strong>
+                      <CBadge color={getColorForEstado(item.estado)}>
+                        {item.estado}
+                      </CBadge>
+                    </strong>
                   </CTableDataCell>
-                  <CTableDataCell>
-                    <div>{item.nombre_usuario}</div>
-                  </CTableDataCell>
-                  <CTableDataCell>
-                    <div>{item.correo}</div>
-                  </CTableDataCell>
-                  <CTableDataCell>
-                    <strong>{item.estado}</strong>
-                  </CTableDataCell>
-                  <CTableDataCell>
-                    <div>{getRolNombre(item.id_rol)}</div>
-                  </CTableDataCell>
-                  <CTableDataCell>
-                    <CButton color="primary" className="me-1" onClick={() => handleEdit(item)}>
-                      Editar
-                    </CButton>
+
+                  <CTableDataCell className="d-flex">
                     <CFormSwitch
                       size="xl"
                       label=""
@@ -195,14 +265,63 @@ const ListaUsuarios = () => {
                       defaultChecked={item.estado === 'Activo'}
                       onChange={() => handleSwitchChange(item)}
                     />
-                    <CButton color="danger" className="me-1" onClick={() => handleDelete(item)}>
-                      Eliminar
-                    </CButton>
+                    <>
+                      <CButton
+                        color="primary"
+                        size="sm"
+                        onClick={() => handleEdit(item)}
+                        style={{
+                          marginLeft: '5px',
+                          backgroundColor: 'orange',
+                          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+                          padding: '3px 10px'
+                        }}
+                      >
+                        <FaEdit style={{ color: 'black' }} />
+                      </CButton>
+
+                      <CButton
+                        color="danger"
+                        size="sm"
+                        onClick={() => handleDelete(item)}
+                        style={{ marginLeft: '10px' }}
+                      >
+                        <FaTrash />
+                      </CButton>
+                    </>
+
                   </CTableDataCell>
                 </CTableRow>
               ))}
             </CTableBody>
           </CTable>
+          <CPagination
+            align="center"
+            aria-label="Page navigation example"
+            className="mt-3"
+          >
+            <CPaginationItem
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </CPaginationItem>
+            {Array.from({ length: Math.ceil(users.length / pageSize) }, (_, i) => (
+              <CPaginationItem
+                key={i}
+                onClick={() => handlePageChange(i + 1)}
+                active={i + 1 === currentPage}
+              >
+                {i + 1}
+              </CPaginationItem>
+            ))}
+            <CPaginationItem
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === Math.ceil(users.length / pageSize)}
+            >
+              Siguiente
+            </CPaginationItem>
+          </CPagination>
         </CCardBody>
       </CCard>
 
@@ -240,6 +359,9 @@ const ListaUsuarios = () => {
         </CModalFooter>
       </CModal>
     </>
+
+
+
   );
 };
 

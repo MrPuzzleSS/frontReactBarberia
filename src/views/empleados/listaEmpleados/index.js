@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
-import validator from 'validator';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import {
   CCard,
   CCardBody,
@@ -24,6 +24,7 @@ import {
   CModalBody,
   CModalFooter,
   CFormLabel,
+  CBadge,
   CFormSelect,
   CFormInput,
   CInputGroup,
@@ -167,6 +168,16 @@ function ListaEmpleados() {
     }
   };  
 
+  function getColorForEstado(estado) {
+    if (estado === "Activo") {
+      return "success";
+    } else if (estado === "Inactivo") {
+      return "danger";
+    } else {
+      return "default";
+    }
+  }
+
   return (
     <CRow>
       <CCol xs={12}>
@@ -175,13 +186,15 @@ function ListaEmpleados() {
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Empleados</strong>
               <Link to="/empleados/crearEmpleados">
-                <CButton color="primary">Agregar Empleados</CButton>
+                <CButton color="success">Agregar Empleados</CButton>
               </Link>
             </div>
-          </CCardHeader>
-          <input
+          <div className="mt-3">
+          <CInputGroup className="mt-3" style={{ maxWidth: "200px" }}>
+          <CFormInput
             type="text"
             placeholder="Buscar..."
+            className="form-control-sm"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -189,6 +202,9 @@ function ListaEmpleados() {
               fetchEmpleados();
             }}
           />
+          </CInputGroup>
+          </div>
+          </CCardHeader>
           <CCardBody>
             <CTable align='middle' className='mb-0 border' hover responsive>
               <CTableHead>
@@ -212,23 +228,29 @@ function ListaEmpleados() {
                     <CTableDataCell>{empleado.correo}</CTableDataCell>
                     <CTableDataCell>{empleado.documento}</CTableDataCell>
                     <CTableDataCell>{empleado.telefono}</CTableDataCell>
-                    <CTableDataCell>{empleado.estado}</CTableDataCell>
+                    <CTableDataCell><CBadge color={getColorForEstado(empleado.estado)}>{empleado.estado}</CBadge></CTableDataCell>
                     <CTableDataCell>
                       <CButtonGroup aria-label="Basic mixed styles example">
-                        <CButton
-                          color="info"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditar(empleado)}
-                        >
-                          Editar
-                        </CButton>
-                        <CFormSwitch
+                      <CFormSwitch
+                          size='xl'
                           label=""
                           id={`formSwitchCheckChecked_${empleado.id_empleado}`}
                           defaultChecked={empleado.estado === 'Activo'}
                           onChange={() => handleCambiarEstadoSwitch(empleado.id_empleado)}
                         />
+                        <CButton
+                          color="primary"
+                          size="sm"
+                          onClick={() => handleEditar(empleado)}
+                          style={{
+                            marginLeft: '5px',
+                            backgroundColor: 'orange',
+                            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)', // Sombra para dar relieve
+                            padding: '3px 10px' // Ajusta el tamaño del botón reduciendo el padding vertical
+                          }}
+                        >
+                          <FaEdit style={{ color: 'black' }} /> {/* Ícono de editar en negro */}
+                        </CButton>
                       </CButtonGroup>
                     </CTableDataCell>
                   </CTableRow>

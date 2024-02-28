@@ -36,8 +36,15 @@ export const setSession = (token, expirationDate, userInfo) => {
   localStorage.setItem('userInfo', JSON.stringify(userInfo));
 
   console.log('Token del usuario:', token);
-  window.location.href = '/dashboard'; // Reemplaza '/dashboard' con la ruta correcta de tu dashboard
+
+  if (userInfo.rol.nombre === 'cliente') {
+    window.location.href = '/cliente'; // Redirigir al usuario con rol de cliente
+  } else {
+    window.location.href = '/dashboard'; // Redirigir a la ruta de dashboard para otros roles
+  }
 };
+
+
 export const removeSession = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('tokenExpiration');

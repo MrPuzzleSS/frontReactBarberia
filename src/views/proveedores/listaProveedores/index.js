@@ -1,6 +1,4 @@
-/* eslint-disable prettier/prettier */
 import React, { useEffect, useState } from "react";
-
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import ProveedoresDataService from "src/views/services/ProveedoresService";
@@ -25,7 +23,12 @@ import {
   CFormLabel,
   CFormInput,
   CFormSwitch,
+  CInputGroup,
+  CBadge,
+  CPagination,
+  CPaginationItem
 } from "@coreui/react";
+import { FaEdit } from 'react-icons/fa';
 
 function ListaProveedores() {
   const [proveedores, setProveedores] = useState([]);
@@ -38,6 +41,9 @@ function ListaProveedores() {
     email: "",
     tipo_de_producto_servicio: "",
   });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(5);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,6 +101,77 @@ function ListaProveedores() {
     }
   };
 
+  // Filtrar proveedores basado en el término de búsqueda
+  const filteredProveedores = proveedores.filter((proveedor) => {
+    const nombreMatches = proveedor.nombre.toLowerCase().includes(searchTerm.toLowerCase());
+    const direccionMatches = proveedor.direccion.toLowerCase().includes(searchTerm.toLowerCase());
+    const telefonoMatches = proveedor.telefono.toLowerCase().includes(searchTerm.toLowerCase());
+    const emailMatches = proveedor.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const tipoMatches = proveedor.tipo_de_producto_servicio.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return nombreMatches || direccionMatches || telefonoMatches || emailMatches || tipoMatches;
+  }
+  );
+
+  const indexOfLastProveedor = currentPage * pageSize;
+  const indexOfFirstProveedor = indexOfLastProveedor - pageSize;
+  const currentProveedores = filteredProveedores.slice(indexOfFirstProveedor, indexOfLastProveedor);
+
+  function getColorForEstado(estado) {
+    if (estado === "Activo") {
+      return "success";
+    } else if (estado === "Inactivo") {
+      return "danger";
+    } else {
+      return "default";
+    }
+  }
+
+  const handleEstadoChange = (proveedor) => {
+    const nuevoEstado = proveedor.estado === 'Activo' ? 'Inactivo' : 'Activo';
+    Swal.fire({
+      title: `¿Estás seguro de cambiar el estado del proveedor a ${nuevoEstado}?`,
+      text: "¡No podrás revertir esto!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, cambiar estado"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await ProveedoresDataService.cambiarEstado(proveedor.id_proveedor, { estado: nuevoEstado });
+          const updatedProveedores = proveedores.map(p => {
+            if (p.id_proveedor === proveedor.id_proveedor) {
+              return { ...p, estado: nuevoEstado };
+            }
+            return p;
+          });
+          setProveedores(updatedProveedores);
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "¡El estado del proveedor ha sido cambiado exitosamente!",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        } catch (error) {
+          console.error("Error al cambiar el estado del proveedor:", error);
+          Swal.fire({
+            icon: "error",
+            title: "¡Error!",
+            text: "Hubo un problema al cambiar el estado del proveedor.",
+          });
+        }
+      }
+    });
+  };
+  
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <CRow>
       <CCol xs={12}>
@@ -106,12 +183,23 @@ function ListaProveedores() {
                 <CButton color="success">Agregar Proveedor</CButton>
               </Link>
             </div>
+            <div className="mt-3">
+              <CInputGroup className="mt-3" style={{ maxWidth: "200px" }}>
+                <CFormInput
+                  type="text"
+                  placeholder="Buscar proveedor..."
+                  className="form-control-sm"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </CInputGroup>
+            </div>
           </CCardHeader>
           <CCardBody>
             <CTable align="middle" className="mb-0 border" hover responsive>
               <CTableHead>
                 <CTableRow>
-                  <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Id</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Dirección</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Teléfono</CTableHeaderCell>
@@ -121,13 +209,14 @@ function ListaProveedores() {
                   <CTableHeaderCell scope="col">
                     Producto o Servicio
                   </CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
+                  <CTableHeaderCell scope="col"></CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {proveedores.map((proveedor, i) => (
-                  <CTableRow key={proveedor.id_proveedor}>
-                    <CTableHeaderCell scope="row">{i + 1}</CTableHeaderCell>
+                {currentProveedores.map((proveedor, i) => (
+                  <CTableRow key={proveedor.id_proveedor} >
+                    <CTableHeaderCell scope="row">{proveedor.id_proveedor}</CTableHeaderCell>
                     <CTableDataCell>{proveedor.nombre}</CTableDataCell>
                     <CTableDataCell>{proveedor.direccion}</CTableDataCell>
                     <CTableDataCell>{proveedor.telefono}</CTableDataCell>
@@ -135,27 +224,48 @@ function ListaProveedores() {
                     <CTableDataCell>
                       {proveedor.tipo_de_producto_servicio}
                     </CTableDataCell>
+                    <CTableDataCell><CBadge color={getColorForEstado(proveedor.estado)}>{proveedor.estado}</CBadge></CTableDataCell>
                     <CTableDataCell
                       style={{ display: "flex", alignItems: "center" }}
                     >
                       <CFormSwitch
                         size="xl"
                         label=""
-                        id="formSwitchCheckChecked"
-                        defaultChecked
+                        id={`cambiarEstado-${proveedor.id_proveedor}`}
+                        defaultChecked={proveedor.estado === 'Activo'}
+                        onChange={() => handleEstadoChange(proveedor)}
                       />
                       <CButton
-                        color="primary"
+                        color="warning"
                         size="sm"
                         onClick={() => handleEditClick(proveedor)}
                       >
-                        Editar
+                        <FaEdit style={{ color: 'black' }} /> 
                       </CButton>
                     </CTableDataCell>
                   </CTableRow>
                 ))}
               </CTableBody>
             </CTable>
+            <CPagination align="center" aria-label="Page navigation example" className="mt-3">
+              <CPaginationItem onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}>Anterior</CPaginationItem>
+              {Array.from({ length: Math.ceil(filteredProveedores.length / pageSize) }, (_, i) => (
+                <CPaginationItem
+                  key={i}
+                  onClick={() => handlePageChange(i + 1)}
+                  active={i + 1 === currentPage}
+                >
+                  {i + 1}
+                </CPaginationItem>
+              ))}
+              <CPaginationItem
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === Math.ceil(filteredProveedores.length / pageSize)}
+              >
+                Siguiente
+              </CPaginationItem>
+            </CPagination>
           </CCardBody>
         </CCard>
       </CCol>

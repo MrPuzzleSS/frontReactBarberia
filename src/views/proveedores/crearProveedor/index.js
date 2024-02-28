@@ -31,10 +31,24 @@ const CrearProveedor = () => {
   });
 
   const [submitted, setSubmitted] = useState(false);
-
+  const [validationError, setValidationError] = useState('');
+  
   const onSubmit = async (data) => {
     console.log(data);
     try {
+      const { nombre, email } = data;
+      const { nombreExists, emailExists } = await ProveedoresDataService.checkExistence(nombre, email);
+      
+      if (nombreExists) {
+        setValidationError('El nombre del proveedor ya existe');
+        return;
+      }
+
+      if (emailExists) {
+        setValidationError('El correo electrónico ya está en uso');
+        return;
+      }
+
       // Convertir el objeto a JSON
       const jsonData = JSON.stringify(data);
 
@@ -62,6 +76,7 @@ const CrearProveedor = () => {
             <strong>Crear Proveedor</strong>
           </CCardHeader>
           <CCardBody>
+          {validationError && <p style={{ color: 'red' }}>{validationError}</p>}
             <CForm className="row g-3" onSubmit={handleSubmit(onSubmit)}>
               <CCol sm={6}>
                 <CFormLabel>Nombre del Proveedor</CFormLabel>
@@ -71,9 +86,13 @@ const CrearProveedor = () => {
                   rules={{
                     required: 'El nombre del proveedor es requerido',
                     maxLength: {
-                      value: 100,
-                      message: 'El nombre no puede tener más de 100 caracteres',
+                      value: 20,
+                      message: 'El nombre no puede tener más de 15 caracteres',
                     },
+                    minLength: {
+                      value: 5,
+                      message: 'El nombre debe de tener un minimo de 5 caracteres'
+                    }
                   }}
                   render={({ field }) => <CFormInput {...field} />}
                 />
@@ -92,6 +111,10 @@ const CrearProveedor = () => {
                       value: 255,
                       message: 'La dirección no puede tener más de 255 caracteres',
                     },
+                    minLength: {
+                      value: 5,
+                      message: 'La dirección debe de tener un minimo de 5 caracteres'
+                    }
                   }}
                   render={({ field }) => <CFormInput {...field} />}
                 />
@@ -110,6 +133,10 @@ const CrearProveedor = () => {
                       value: /^[0-9]+$/,
                       message: 'El teléfono debe contener solo números',
                     },
+                    minLength: {
+                      value: 10,
+                      message: 'El telefono debe de tener un minimo de 10 caracteres'
+                    }
                   }}
                   render={({ field }) => <CFormInput {...field} />}
                 />
@@ -144,9 +171,13 @@ const CrearProveedor = () => {
                   rules={{
                     required: 'El campo producto o servicio es requerido',
                     maxLength: {
-                      value: 100,
-                      message: 'El campo producto o servicio no puede tener más de 100 caracteres',
+                      value: 20,
+                      message: 'El campo producto o servicio no puede tener más de 20 caracteres',
                     },
+                    minLength: {
+                      value: 5,
+                      message: 'El campo producto o servicio  debe de tener un minimo de 5 caracteres'
+                    }
                   }}
                   render={({ field }) => <CFormInput {...field} />}
                 />

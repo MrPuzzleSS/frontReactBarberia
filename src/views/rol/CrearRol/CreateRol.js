@@ -55,7 +55,7 @@ const CreateRol = () => {
         : [...prevRole.permisos, permisoId],
     }));
   };
-  
+
   const handleAddRole = async () => {
     const validationErrors = {};
   
@@ -73,45 +73,32 @@ const CreateRol = () => {
       return;
     }
   
-      try {
-        // Agrega el nuevo rol
-        const response = await axios.post('http://localhost:8095/api/rol', newRole);
-        console.log('Respuesta al agregar rol:', response.data);
-    
-        // Obtiene el ID del rol recién creado
-        const roleId = response.data.id_rol;
-    
-        // Asigna los permisos al rol recién creado
-        await axios.post(`http://localhost:8095/api/rol/${roleId}/permisos`, {
-          id_rol: roleId,
-          id_permisos: newRole.permisos,
+    try {
+      const response = await axios.post('http://localhost:8095/api/rol', newRole);
+      console.log('Respuesta al agregar rol:', response.data);
+  
+      if (response.status === 200) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Rol agregado con éxito',
+          showConfirmButton: false,
+          timer: 1500,
         });
   
-      Swal.fire({
-        icon: 'success',
-        title: 'Rol agregado con éxito',
-        showConfirmButton: false,
-        timer: 1500,
-      });
-  
-      navigate('/listaRol');
+        setTimeout(() => {
+          navigate('/listaRol');
+        }, 1500);
+      } else {
+        toast.error('Error al agregar rol');
+      }
     } catch (error) {
       console.error('Error al agregar rol:', error);
-  
-      if (error.response) {
-        console.log('Respuesta del servidor:', error.response.data);
-        console.log('Código de estado:', error.response.status);
-  
-        toast.error(error.response.data.error || 'Error interno del servidor');
-      }
-  
-      if (error.response && error.response.status === 401) {
-        console.log('Usuario no autenticado. Redirigiendo al login.');
-        navigate('/login');
-      }
+      toast.error('Error interno del servidor');
     }
   };
-
+  
+  
+  
   return (
     <div className="bg-light min-vh-80 d-flex align-items-center">
       <CContainer>
