@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
+import { FaEdit, FaTrash, } from 'react-icons/fa'; 
+import { CBadge } from '@coreui/react';
 import {
   CCard,
   CCardBody,
@@ -12,15 +14,18 @@ import {
   CTableHeaderCell,
   CTableRow,
   CButton,
+  CFormInput,
+  CFormSwitch,
+  CPagination,
+  CPaginationItem,
   CModal,
   CModalHeader,
   CModalTitle,
   CModalBody,
   CModalFooter,
-  CFormLabel,
-  CFormInput,
-  CFormSwitch,
+  CFormLabel // Asegúrate de tener esta importación
 } from '@coreui/react';
+
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
@@ -34,11 +39,13 @@ const ListaRol = () => {
   const [editRolePermisos, setEditRolePermisos] = useState([]);
   const [allPermisos, setAllPermisos] = useState([]);
   const [visible, setVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(5);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const rolesResponse = await axios.get('https://restapibarberia.onrender.com/api/rol');
+        const rolesResponse = await axios.get('http://localhost:8095/api/rol');
         setRoles(rolesResponse.data?.listaRoles || []);
         setLoading(false);
       } catch (error) {
@@ -49,10 +56,9 @@ const ListaRol = () => {
 
     fetchData();
 
-    // Fetch all permissions for later use
     const fetchAllPermisos = async () => {
       try {
-        const permisosResponse = await axios.get('https://restapibarberia.onrender.com/api/permisos');
+        const permisosResponse = await axios.get('http://localhost:8095/api/permisos');
         setAllPermisos(permisosResponse.data?.listaPermisos || []);
       } catch (error) {
         console.error('Error al obtener permisos:', error);
@@ -62,31 +68,46 @@ const ListaRol = () => {
     fetchAllPermisos();
   }, []);
 
+  const getColorForEstado = (estado) => {
+    if (estado === 'Activo') {
+      return 'success';
+    } else if (estado === 'Inactivo') {
+      return 'danger';
+    } else {
+      return 'default';
+    }
+  };
+
   const handleSwitchChange = async (item) => {
-    const updatedRoles = roles.map((role) =>
-      role.id_rol === item.id_rol ? { ...role, estado: role.estado === 'Activo' ? 'Inactivo' : 'Activo' } : role
-    );
-  
-    setRoles(updatedRoles);
+    const newStatus = item.estado === 'Activo' ? 'Inactivo' : 'Activo';
 
-     var alertText = item.estado === 'Activo' ? 'cambiado a Inactivo' : 'cambiado a Activo';
-     var alertIcon = item.estado === 'Activo' ? 'error' : 'success';
+    try {
+      await axios.put(`http://localhost:8095/api/rol/${item.id_rol}`, {
+        ...item,
+        estado: newStatus,
+      });
 
-    Swal.fire({
-      icon: alertIcon,
-      title: 'Estado Cambiado',
-      text: `Rol ${alertText}`,
-    });
-  
-    // Mostrar SweetAlert según el estado actualizado
-    var alertText = item.estado === 'Activo' ? 'cambiado a Inactivo' : 'cambiado a Activo';
-    var alertIcon = item.estado === 'Activo' ? 'error' : 'success';
-  
-    Swal.fire({
-      icon: alertIcon,
-      title: 'Estado Cambiado',
-      text: `Rol ${alertText}`,
-    });
+      const updatedRoles = roles.map((role) =>
+        role.id_rol === item.id_rol ? { ...role, estado: newStatus } : role
+      );
+
+      setRoles(updatedRoles);
+
+      Swal.fire({
+        icon: 'success',
+        title: `El estado del rol se ha cambiado a ${newStatus}`,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    } catch (error) {
+      console.error('Error al cambiar el estado del rol:', error);
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al cambiar el estado del rol',
+        text: 'Ha ocurrido un error al intentar cambiar el estado del rol.',
+      });
+    }
   };
 
   const handleEditRole = async (roleId) => {
@@ -95,136 +116,172 @@ const ListaRol = () => {
     setEditRoleName(roleToEdit.nombre);
     setEditRolePermisos(roleToEdit.permisos.map((permiso) => permiso.id_permiso));
     setVisible(true);
+
   };
 
   const handleSaveEdit = async () => {
-    try {
-      const editedRole = {
-        nombre: editRoleName,
-        permisos: editRolePermisos,
-      };
-
-      await axios.put(`https://restapibarberia.onrender.com/api/rol/${editRoleId}`, editedRole);
-
-      setVisible(false);
-      Swal.fire({
-        icon: 'success',
-        title: 'Rol actualizado con éxito',
-        showConfirmButton: false,
-        timer: 1500,
-      });
-    } catch (error) {
-      console.error('Error al actualizar el rol:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error al actualizar el rol',
-        text: error.response?.data?.error || 'Error interno del servidor',
-      });
-    }
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Deseas guardar los cambios realizados?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, guardar cambios',
+      cancelButtonText: 'Cancelar',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const editedRole = {
+            nombre: editRoleName,
+            permisos: editRolePermisos,
+          };
+    
+          await axios.put(`http://localhost:8095/api/rol/${editRoleId}`, editedRole);
+    
+          setVisible(false);
+          Swal.fire({
+            icon: 'success',
+            title: 'Rol actualizado con éxito',
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        } catch (error) {
+          console.error('Error al actualizar el rol:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al actualizar el rol',
+            text: error.response?.data?.error || 'Error interno del servidor',
+          });
+        }
+      }
+    });
   };
   
-  const handlePermissionsError = (details) => {
-    console.error('El rol no tiene permisos o la respuesta no es válida:', details);
-    // Puedes mostrar una alerta, notificación o manejar el error según tus necesidades
-  };
-
-
-  const handleAssignPermiso = async (permisoId) => {
-    try {
-      const response = await axios.post(`https://restapibarberia.onrender.com/api/${editRoleId}/permiso`, { id_permiso: permisoId });
-      console.log(response.data); // Manejar la respuesta según sea necesario
-      // Actualizar el estado o realizar cualquier acción adicional
-    } catch (error) {
-      console.error('Error al asignar permiso:', error);
-      // Manejar el error según sea necesario
-    }
-  };
   
-  const handleRemovePermiso = async (permisoId) => {
-    try {
-      const response = await axios.delete(`https://restapibarberia.onrender.com/api/${editRoleId}/permisos/${permisoId}`);
-      console.log(response.data); // Manejar la respuesta según sea necesario
-      // Actualizar el estado o realizar cualquier acción adicional
-    } catch (error) {
-      console.error('Error al quitar permiso:', error);
-      // Manejar el error según sea necesario
-    }
+  
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
+
+  const indexOfLastUser = currentPage * pageSize;
+  const indexOfFirstUser = indexOfLastUser - pageSize;
+  const currentRoles = roles.slice(indexOfFirstUser, indexOfLastUser);
 
   return (
     <>
       <CCard className="mb-4">
-        <CCardHeader>LISTA DE ROLES</CCardHeader>
-        <CCardBody>
-          <div className="mb-3">
-            <CFormLabel>BUSCAR ROL POR ID</CFormLabel>
-            <div className="d-flex">
-              <CFormInput
-                type="text"
-                value={searchId}
-                onChange={(e) => setSearchId(e.target.value)}
-              />
-            </div>
-          </div>
-
+        <CCardHeader className="d-flex justify-content-between align-items-center">
+          <strong>LISTA DE ROLES</strong>
           <Link to="/CrearRol">
-            <CButton color="success" className="me-1">
-              CREAR
-            </CButton>
+            <CButton color="primary">AGREGAR ROL</CButton>
           </Link>
+        </CCardHeader>
+        <CCardBody>
+          <div className="mb-3" style={{ maxWidth: "200px" }}>
+            <CFormInput
+              type="text"
+              placeholder="Buscar rol por ID..."
+              value={searchId}
+              onChange={(e) => setSearchId(e.target.value)}
+              className="form-control-sm"
+            />
+          </div>
+  
           {loading ? (
             <p>Cargando roles...</p>
           ) : (
-            <CTable align="middle" className="mb-0 border" hover responsive>
-              <CTableHead color="light">
-                <CTableRow>
-                  <CTableHeaderCell>ID</CTableHeaderCell>
-                  <CTableHeaderCell>NOMBRE</CTableHeaderCell>
-                  <CTableHeaderCell>ESTADO</CTableHeaderCell>
-                  <CTableHeaderCell>PERMISOS</CTableHeaderCell>
-                  <CTableHeaderCell>CAMBIAR ESTADO</CTableHeaderCell>
-                  <CTableHeaderCell>EDITAR ROL</CTableHeaderCell>
-                </CTableRow>
-              </CTableHead>
-              <CTableBody>
-                {roles.map((item) => (
-                  <CTableRow key={item.id_rol}>
-                    <CTableDataCell>{item.id_rol}</CTableDataCell>
-                    <CTableDataCell>{item.nombre}</CTableDataCell>
-                    <CTableDataCell>
-                      <strong>{item.estado}</strong>
-                    </CTableDataCell>
-                  
-                    <CTableDataCell>
-                      {item.permisos.map((permiso) => (
-                        <div key={permiso.id_permiso} style={{ display: 'flex', alignItems: 'center' }}>
-                          <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'lightgreen', marginRight: '5px' }}></div>
-                          <div>{permiso.nombre_permiso}</div>
-                        </div>
-                      ))}
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <CFormSwitch
-                        size="xl"
-                        label=""
-                        id={`formSwitchCheckChecked_${item.id_rol}`}
-                        checked={item.estado === 'Activo'}
-                        onChange={() => handleSwitchChange(item)}
-                      />
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <CButton color="primary" size="sm" onClick={() => handleEditRole(item.id_rol)}>
-                        <FontAwesomeIcon icon={faEdit} />
-                      </CButton>
-                    </CTableDataCell>
-                  </CTableRow>
-                ))}
-              </CTableBody>
-            </CTable>
+
+            <CTable align="middle" className="mb-0 border table-sm" hover responsive>
+  <CTableHead color="light">
+    <CTableRow>
+      <CTableHeaderCell>ID</CTableHeaderCell>
+      <CTableHeaderCell>NOMBRE</CTableHeaderCell>
+      <CTableHeaderCell>ESTADO</CTableHeaderCell>
+      <CTableHeaderCell>PERMISOS</CTableHeaderCell>
+      <CTableHeaderCell>ACCIONES</CTableHeaderCell>
+    </CTableRow>
+  </CTableHead>
+  <CTableBody>
+    {currentRoles.map((item) => (
+      <CTableRow key={item.id_rol}>
+        <CTableDataCell>{item.id_rol}</CTableDataCell>
+        <CTableDataCell>{item.nombre}</CTableDataCell>
+        <CTableDataCell>
+          <strong>
+            <CBadge color={getColorForEstado(item.estado)}>
+              {item.estado}
+            </CBadge>
+          </strong>
+        </CTableDataCell>
+        <CTableDataCell>
+          {item.permisos.map((permiso) => (
+            <div key={permiso.id_permiso} style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'lightgreen', marginRight: '5px' }}></div>
+              <div>{permiso.nombre_permiso}</div>
+            </div>
+          ))}
+        </CTableDataCell>
+        <CTableDataCell className="d-flex">
+        <CFormSwitch
+            size="xl"
+            label=""
+            id={`formSwitchCheckChecked_${item.id_rol}`}
+            checked={item.estado === 'Activo'}
+            onChange={() => handleSwitchChange(item)}
+          />
+        <CButton
+  color="primary"
+  size="sm"
+  onClick={() => handleEditRole(item.id_rol)}
+  style={{
+    marginLeft: '5px',
+    backgroundColor: 'orange',
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+    padding: '3px 10px'
+  }}
+>
+  <FaEdit style={{ color: 'black' }} />
+</CButton>
+      
+          
+        </CTableDataCell>
+      </CTableRow>
+    ))}
+  </CTableBody>
+</CTable>
+
           )}
+          <CPagination
+            align="center"
+            aria-label="Page navigation example"
+            className="mt-3"
+          >
+            <CPaginationItem
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </CPaginationItem>
+            {Array.from({ length: Math.ceil(roles.length / pageSize) }, (_, i) => (
+              <CPaginationItem
+                key={i}
+                onClick={() => handlePageChange(i + 1)}
+                active={i + 1 === currentPage}
+              >
+                {i + 1}
+              </CPaginationItem>
+            ))}
+            <CPaginationItem
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === Math.ceil(roles.length / pageSize)}
+            >
+              Siguiente
+            </CPaginationItem>
+          </CPagination>
         </CCardBody>
       </CCard>
-
+  
       <CModal visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader>
           <CModalTitle>Editar Rol</CModalTitle>

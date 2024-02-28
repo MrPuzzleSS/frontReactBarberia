@@ -22,7 +22,7 @@ const ProtectedRoute = ({ component: Component, location, ...rest }) => {
           console.error('Error al verificar autenticación:', error);
           return false;
         }
-      }; // Reemplaza esto con tu lógica de autenticación real
+      }; 
 
   return (
     <Route
