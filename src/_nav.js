@@ -1,6 +1,7 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
-//import PrivateRoute from './components/PrivateRoute';
+import jwt_decode from 'jwt-decode';
+import ListaRol from '../src/views/rol/listaRoles/Roles';
 import {
   cilPuzzle,
   cilSpeedometer,
@@ -14,7 +15,6 @@ import {
   cilBasket,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react'
-
 
 const _nav = [
   {
@@ -96,6 +96,7 @@ const _nav = [
     to: '/Productos',
     icon: <CIcon icon={cilBasket} customClassName="nav-icon" />
   },
+  
   {
     component: CNavGroup,
     name: 'Configuración',

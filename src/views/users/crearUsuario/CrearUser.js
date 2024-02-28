@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.css';
-import { CButton, CCard, CCardBody, CContainer, CForm, CFormInput, CInputGroup, CInputGroupText, CRow, CFormLabel, CFormSelect } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { CButton, CCard, CCardBody, CContainer, CForm, CFormInput, CFormLabel, CFormSelect, CRow } from '@coreui/react';
 
 const Register = () => {
   const [newUser, setNewUser] = useState({
@@ -19,7 +17,7 @@ const Register = () => {
 
   const [roles, setRoles] = useState([]);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-
+  const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -82,8 +80,6 @@ const Register = () => {
       }
     }
 
-
-
     // Actualizar el estado con los errores
     setErrors(validationErrors);
 
@@ -104,6 +100,9 @@ const Register = () => {
         showConfirmButton: false,
         timer: 1500, // Cerrar automáticamente después de 1.5 segundos
       });
+
+      // Actualizar el estado para mostrar la redirección
+      setSubmitted(true);
     } catch (error) {
       console.error('Error al agregar usuario:', error);
 
@@ -116,18 +115,75 @@ const Register = () => {
     }
   };
 
-
-
-
-
-
   const handleInputChange = (fieldName, value) => {
+    // Actualizar el estado del campo con el nuevo valor
     setNewUser({ ...newUser, [fieldName]: value });
 
-    // Limpiar errores cuando se cambia un valor
-    setErrors({});
-  };
+    // Validar el campo que ha cambiado
+    const validationErrors = { ...errors };
 
+    switch (fieldName) {
+      case 'id_rol':
+        if (!value) {
+          validationErrors.id_rol = 'Por favor, selecciona un rol para el usuario.';
+        } else {
+          delete validationErrors.id_rol;
+        }
+        break;
+      case 'nombre_usuario':
+        if (!value) {
+          validationErrors.nombre_usuario = 'Por favor, ingresa el nombre de usuario.';
+        } else if (!/^[a-zA-Z]+$/.test(value)) {
+          validationErrors.nombre_usuario = 'El nombre de usuario no debe contener caracteres especiales ni números.';
+        } else if (value.length < 3) {
+          validationErrors.nombre_usuario = 'El nombre de usuario debe tener al menos 3 caracteres.';
+        } else if (value.length > 20) {
+          validationErrors.nombre_usuario = 'El nombre de usuario no debe tener más de 20 caracteres.';
+        } else if (/\s/.test(value)) {
+          validationErrors.nombre_usuario = 'El nombre de usuario no debe contener espacios en blanco.';
+        } else {
+          delete validationErrors.nombre_usuario;
+        }
+        break;
+      case 'contrasena':
+        if (!value) {
+          validationErrors.contrasena = 'Por favor, ingresa la contraseña.';
+        } else if (value.length < 8) {
+          validationErrors.contrasena = 'La contraseña debe tener al menos 8 caracteres.';
+        } else if (!/\d/.test(value)) {
+          validationErrors.contrasena = 'La contraseña debe contener al menos un número.';
+        } else if (!/[A-Z]/.test(value)) {
+          validationErrors.contrasena = 'La contraseña debe contener al menos una letra mayúscula.';
+        } else {
+          delete validationErrors.contrasena;
+        }
+        break;
+        case 'correo':
+          if (!value) {
+            validationErrors.correo = 'Por favor, ingresa el correo electrónico.';
+          } else {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+              validationErrors.correo = 'Por favor, ingresa un formato válido de correo electrónico.';
+            } else if (value.length > 254) {
+              validationErrors.correo = 'El correo electrónico no debe exceder los 254 caracteres.';
+            } else if (/[^\w@.-]/.test(value)) {
+              validationErrors.correo = 'El correo electrónico no debe contener caracteres especiales ni espacios.';
+            } else {
+              delete validationErrors.correo;
+            }
+          }
+          break;
+        
+        
+        break;
+      default:
+        break;
+    }
+
+    // Actualizar el estado de los errores
+    setErrors(validationErrors);
+  };
 
   return (
     <div className="bg-light min-vh-80 d-flex align-items-center">
@@ -183,9 +239,7 @@ const Register = () => {
                   {errors.correo && <div className="text-danger">{errors.correo}</div>}
                 </div>
                 <div className="mb-3">
-                </div>
-                <div>
-                  <CButton submit onClick={handleAddUser}>
+                  <CButton type="submit" onClick={handleAddUser}>
                     REGISTRAR USUARIO
                   </CButton>
                   <Link to="/listaUsuarios">
@@ -195,11 +249,11 @@ const Register = () => {
                   </Link>
                 </div>
               </CForm>
+              {submitted && <Navigate to="/listaUsuarios" />}
             </CCardBody>
           </CCard>
         </CRow>
       </CContainer>
-      <ToastContainer />
     </div>
   );
 };
