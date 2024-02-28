@@ -37,7 +37,7 @@ export const setSession = (token, expirationDate, userInfo) => {
 
   console.log('Token del usuario:', token);
 
-  if (userInfo.rol.nombre === 'Cliente') {
+  if (userInfo.rol.nombre === 'cliente') {
     window.location.href = '/cliente'; // Redirigir al usuario con rol de cliente
   } else {
     window.location.href = '/dashboard'; // Redirigir a la ruta de dashboard para otros roles

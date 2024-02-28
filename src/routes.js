@@ -58,7 +58,8 @@ const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 const ListaProveedores = React.lazy(()  => import('./views/proveedores/listaProveedores'))
 const CrearProveedor = React.lazy(() => import('./views/proveedores/crearProveedor'))
 const ListaCompras = React.lazy(() => import('./views/compras/listaCompras'))
-const CrearCompra = React.lazy(() => import('./views/compras/crearCompra'))
+const CrearCompra = React.lazy(() => import('./views/compras/crearCompraProd'))
+const CrearCompraInsumo = React.lazy(() => import('./views/compras/crearCompraInsu'))
 
 const ListaEmpleados = React.lazy(() => import('./views/empleados/listaEmpleados'))
 const CrearEmpleados = React.lazy(() => import('./views/empleados/crearEmpleado'))
@@ -111,6 +112,7 @@ const routes = [
   { path: '/compras', name: 'Compras', element: ListaCompras },
   { path: '/compras/lista-compras', name: 'Lista Compras', element: ListaCompras },
   { path: '/compras/crear-compra', name: 'Crear Compra', element: CrearCompra },
+  { path: '/compras/crear-comprainsu', name: 'Nueva compra insumo', element: CrearCompraInsumo},
   
   { path: '/empleados', name: 'Empleados', element: ListaEmpleados},
   { path: '/empleados/listaEmpleados', name: 'Listado', element: ListaEmpleados},

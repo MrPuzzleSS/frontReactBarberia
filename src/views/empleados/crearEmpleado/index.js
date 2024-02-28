@@ -30,15 +30,36 @@ function CrearEmpleado() {
     const [estado, setEstado] = useState('');
     const [documentoApi, setdocumentoApi] = useState('');
     const [errorDocumento, setError] = useState(false);
+    const [errordocumento, setErrorDocumento] = useState(false);
 
     const [empleados, setEmpleados] = useState([]);
 
+    const handleSuccessAlert = () => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Registro exitoso',
+            text: 'El empleado ha sido registrado correctamente',
+        }).then(() => {
+            navigate('/empleados/listaEmpleados');
+        });
+    };
 
     const validardocumento = async () => {
         setError(false)
         if (documento.length > 0) {
             try {
-                const respuesta = await fetch(`http://localhost:8095/api/validar?documento=${documento}`);
+                const token = localStorage.getItem('token');
+                if (!token){
+                    console.error('No hay token disponible');
+                    return;
+                }
+    
+                const respuesta = await fetch(`http://localhost:8095/api/validar?documento=${documento}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+    
                 const datosRespuesta = await respuesta.json();
                 if (datosRespuesta.documento == 'El documento ya existe') {
                     setError(true);
@@ -49,6 +70,7 @@ function CrearEmpleado() {
             }
         }
     };
+    
 
 
     //Estados para manejar mensajes de error
@@ -71,7 +93,12 @@ function CrearEmpleado() {
 
 
         if (!nombre || !apellido || !correo || !documento || !telefono) {
-            Swal.fire('Error', 'Por favor, complete todos los campos', 'error');
+            // Establece los mensajes de error si faltan campos
+            setNombreError(nombre ? '' : 'Este campo es obligatorio');
+            setApellidoError(apellido ? '' : 'Este campo es obligatorio');
+            setCorreoError(correo ? '' : 'Este campo es obligatorio');
+            setDocumentoError(documento ? '' : 'Este campo es obligatorio');
+            setTelefonoError(telefono ? '' : 'Este campo es obligatorio');
             return;
         }
 
@@ -116,8 +143,10 @@ function CrearEmpleado() {
 
             setEmpleados([...empleados, response]);
 
+            handleSuccessAlert();
+
             // Utiliza el método navigate para redireccionar
-            navigate('/empleados/listaEmpleados');
+            //navigate('/empleados/listaEmpleados');
 
             setNombre('');
             setApellido('');
@@ -147,7 +176,7 @@ function CrearEmpleado() {
                                         setDocumento(e.target.value);
                                     }}
                                     onBlur={validardocumento}
-                                    invalid={documentoError !== ''}
+                                    invalid={documentoError !== '' || errorDocumento}
                                 />
                                 <CFormFeedback invalid>{documentoError}</CFormFeedback>
                             </div>

@@ -9,7 +9,7 @@ import logoBarberia from '../../../assets/images/logoBarberia2.png';
 import prueba2 from '../../../assets/images/ftos/mk.png';
 
 const RegisterCliente = () => {
-  const roleIdCliente = 30;
+  const roleIdCliente = 1;
 
   const [newUser, setNewUser] = useState({
     id_rol: roleIdCliente,
@@ -26,7 +26,7 @@ const RegisterCliente = () => {
     // ...
 
     try {
-      const response = await axios.post('http://localhost:8095/api/usuario', newUser);
+      const response = await axios.post('https://restapibarberia.onrender.com/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
 
       // Mostrar SweetAlert de éxito
