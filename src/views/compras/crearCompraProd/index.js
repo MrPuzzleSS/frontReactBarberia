@@ -31,7 +31,7 @@ import { cilPlaylistAdd, cilChildFriendly } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import Toast from 'src/components/toast';
 import CompraDataService from 'src/views/services/compraService';
-import detalleCompraDataService from 'src/views/services/detalleCompraService';
+import detalleCompraDataService from 'src/views/services/detalleCompraProdService';
 
 const CrearCompra = () => {
   const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm({
@@ -77,11 +77,10 @@ const CrearCompra = () => {
     const cantidad = parseInt(watch('cantidad')); // Convertir a número entero
     const precioUnitario = parseFloat(watch('precioUnitario')); // Convertir a número decimal
     const precioVenta = parseFloat(watch('precioVenta')); // Convertir a número decimal
-    const tipoCompra = 'Producto';
   
-    if (!productoSeleccionadoId || !cantidad || !precioUnitario || !precioVenta || !tipoCompra) {
+    if (!productoSeleccionadoId || !cantidad || !precioUnitario || !precioVenta ) {
       console.error('Error: Datos de producto incompletos');
-      console.log(productoSeleccionadoId, cantidad, precioUnitario, precioVenta, tipoCompra);
+      console.log(productoSeleccionadoId, cantidad, precioUnitario, precioVenta );
       return;
     }
   
@@ -108,7 +107,6 @@ const CrearCompra = () => {
         cantidad,
         precioUnitario,
         precioVenta,
-        tipoCompra,
         total: cantidad * precioUnitario,
       };
   
@@ -138,7 +136,8 @@ const CrearCompra = () => {
 
       // Paso 1: Crear la compra
       const nuevaCompraData = {
-        estado: 'Pendiente', // Puedes ajustar el estado según tus necesidades
+        estado: 'Pendiente',
+        tipoCompra: 'Producto',
         descripcion: data.descripcion
       };
 
@@ -153,10 +152,10 @@ const CrearCompra = () => {
 
       // Paso 2: Crear detalles de la compra
       const detallesCompraPromises = tempProductos.map(async (productoAgregado) => {
-        const { producto, cantidad, precioUnitario, precioVenta, tipoCompra, total } = productoAgregado;
+        const { producto, cantidad, precioUnitario, precioVenta, total } = productoAgregado;
 
         // Verificar que los datos de detalle de compra estén completos
-        if (!producto || !cantidad || !precioUnitario || !precioVenta || !tipoCompra || !total) {
+        if (!producto || !cantidad || !precioUnitario || !precioVenta || !total) {
           console.error('Error: Datos de detalle de compra incompletos');
           return;
         }
@@ -168,7 +167,6 @@ const CrearCompra = () => {
           cantidad,
           precioUnitario,
           precioVenta,
-          tipoCompra,
           total,
         });
       });
@@ -203,7 +201,7 @@ const CrearCompra = () => {
         <CCol xs>
           <CCard className="mb-4">
             <CCardHeader>
-              <strong>Nueva Compra</strong>
+              <strong>Nueva Compra Producto</strong>
             </CCardHeader>
             <CCardBody>
               <CForm className="row g-3" onSubmit={handleSubmit(onSubmit)}>
@@ -298,7 +296,6 @@ const CrearCompra = () => {
                         <CTableHeaderCell scope="col">Cantidad</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Precio Venta</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Tipo</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Total</CTableHeaderCell>
                       </CTableRow>
                     </CTableHead>
@@ -310,7 +307,6 @@ const CrearCompra = () => {
                           <CTableDataCell>{producto.cantidad}</CTableDataCell>
                           <CTableDataCell>{producto.precioUnitario}</CTableDataCell>
                           <CTableDataCell>{producto.precioVenta}</CTableDataCell>
-                          <CTableDataCell>{producto.tipoCompra}</CTableDataCell>
                           <CTableDataCell>{producto.total}</CTableDataCell>
                         </CTableRow>
                       ))}

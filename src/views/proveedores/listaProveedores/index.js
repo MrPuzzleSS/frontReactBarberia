@@ -214,7 +214,7 @@ function ListaProveedores() {
               </CTableHead>
               <CTableBody>
                 {currentProveedores.map((proveedor, i) => (
-                  <CTableRow key={proveedor.id_proveedor}>
+                  <CTableRow key={proveedor.id_proveedor} >
                     <CTableHeaderCell scope="row">{proveedor.id_proveedor}</CTableHeaderCell>
                     <CTableDataCell>{proveedor.nombre}</CTableDataCell>
                     <CTableDataCell>{proveedor.direccion}</CTableDataCell>

@@ -34,14 +34,14 @@ const ListaUsuarios = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const rolesResponse = await axios.get('http://localhost:8095/api/rol');
+        const rolesResponse = await axios.get('https://restapibarberia.onrender.com/api/rol');
         let usuariosResponse;
 
         if (searchId) {
-          usuariosResponse = await axios.get(`http://localhost:8095/api/usuario/${searchId}`);
+          usuariosResponse = await axios.get(`https://restapibarberia.onrender.com/api/usuario/${searchId}`);
           setUsers(usuariosResponse.data ? [usuariosResponse.data] : []);
         } else {
-          usuariosResponse = await axios.get('http://localhost:8095/api/usuario');
+          usuariosResponse = await axios.get('https://restapibarberia.onrender.com/api/usuario');
           setUsers(usuariosResponse.data.usuarios || []);
         }
 
@@ -61,7 +61,7 @@ const ListaUsuarios = () => {
 
   const handleDelete = async (item) => {
     try {
-      await axios.delete(`http://localhost:8095/api/usuario/${item.id_usuario}`);
+      await axios.delete(`https://restapibarberia.onrender.com/api/usuario/${item.id_usuario}`);
       setUsers((prevUsers) => prevUsers.filter((user) => user.id_usuario !== item.id_usuario));
     } catch (error) {
       console.error('Error al eliminar usuario:', error);
