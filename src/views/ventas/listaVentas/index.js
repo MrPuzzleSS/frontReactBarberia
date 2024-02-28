@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBook } from '@fortawesome/free-solid-svg-icons';
+import {  faCheckCircle  } from '@fortawesome/free-solid-svg-icons';
+import { faBan } from '@fortawesome/free-solid-svg-icons';
 import {
   CCard,
   CCardBody,
@@ -108,7 +112,21 @@ function ListaVentas() {
                     <CTableDataCell>{venta.estado_anulado}</CTableDataCell>
                     <CTableDataCell>
                       <CButtonGroup aria-label="Basic mixed styles example">
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <CButton
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '8px 12px',
+                          border: '1px solid #17a2b8',
+                          borderRadius: '4px',
+                          backgroundColor: 'transparent',
+                          color: '#17a2b8',
+                          fontSize: '14px',
+                          textTransform: 'uppercase',
+                          cursor: 'pointer',
+                        }}
                           color="info"
                           size="sm"
                           variant="outline"
@@ -118,24 +136,36 @@ function ListaVentas() {
                             setDetalleServicio(venta.detalleservicios);
                           }}
                         >
-                          Detalle 
+                          <FontAwesomeIcon icon={faBook} />
                         </CButton>
+                        <div style={{ width: '10px' }} />
                         <CButton
-                          color="warning" 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => cancelarVentas(venta.id_ventas)}
+                        color="success" 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => cancelarVentas(venta.id_ventas)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          }}
                         >
-                          confirmar
+                            <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '5px' }} /> Cancelar
                         </CButton>
+              
+                        <div style={{ width: '10px' }} />
                         <CButton
-                          color="warning" 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => CambioAnulado(venta.id_ventas)}
+                        color="warning" 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => CambioAnulado(venta.id_ventas)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          }}
                         >
-                          anular
+                          <FontAwesomeIcon icon={faBan} style={{ marginRight: '5px' }} />
                         </CButton>
+                        </div>
                       </CButtonGroup>
                     </CTableDataCell>
                   </CTableRow>
