@@ -78,7 +78,7 @@ function ListaVentas() {
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Ventas</strong>
               <Link to="/ventas/CrearVentas">
-              <CButton color="primary">Agregar Ventas</CButton>
+              <CButton color="success">Agregar Ventas</CButton>
               </Link>
             </div>
           </CCardHeader>

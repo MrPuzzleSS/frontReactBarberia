@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import {
   CCard,
   CCardBody,
@@ -188,10 +189,12 @@ function ListaEmpleados() {
                 <CButton color="success">Agregar Empleados</CButton>
               </Link>
             </div>
-          </CCardHeader>
-          <input
+          <div className="mt-3">
+          <CInputGroup className="mt-3" style={{ maxWidth: "200px" }}>
+          <CFormInput
             type="text"
             placeholder="Buscar..."
+            className="form-control-sm"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -199,6 +202,9 @@ function ListaEmpleados() {
               fetchEmpleados();
             }}
           />
+          </CInputGroup>
+          </div>
+          </CCardHeader>
           <CCardBody>
             <CTable align='middle' className='mb-0 border' hover responsive>
               <CTableHead>
@@ -236,8 +242,14 @@ function ListaEmpleados() {
                           color="primary"
                           size="sm"
                           onClick={() => handleEditar(empleado)}
+                          style={{
+                            marginLeft: '5px',
+                            backgroundColor: 'orange',
+                            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)', // Sombra para dar relieve
+                            padding: '3px 10px' // Ajusta el tamaño del botón reduciendo el padding vertical
+                          }}
                         >
-                          Editar
+                          <FaEdit style={{ color: 'black' }} /> {/* Ícono de editar en negro */}
                         </CButton>
                       </CButtonGroup>
                     </CTableDataCell>
