@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBook } from '@fortawesome/free-solid-svg-icons';
-import {  faCheckCircle  } from '@fortawesome/free-solid-svg-icons';
-import { faBan } from '@fortawesome/free-solid-svg-icons';
+import { faBook, faCheckCircle, faBan } from '@fortawesome/free-solid-svg-icons';
 import {
   CCard,
   CCardBody,
@@ -28,6 +26,7 @@ import {
   CFormInput,
   CInputGroup,
   CInputGroupText,
+  CBadge,
 } from '@coreui/react';
 import VentaService from 'src/views/services/ventasService';
 
@@ -73,6 +72,15 @@ function ListaVentas() {
     }
   };
 
+  function getColorForEstado(estado_anulado) {
+    if (estado_anulado === "Activo") {
+      return "success";
+    } else if (estado_anulado === "Inactivo") {
+      return "danger";
+    } else {
+      return "default";
+    }
+  }
 
   return (
     <CRow>
@@ -95,9 +103,9 @@ function ListaVentas() {
                   <CTableHeaderCell scope="col">Empleado</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Nro° Factura</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Valor Total</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">estado</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">anular</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">acciones</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Anular</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
@@ -109,7 +117,7 @@ function ListaVentas() {
                     <CTableDataCell>{venta.numeroFactura}</CTableDataCell>
                     <CTableDataCell>{venta.precio}</CTableDataCell>
                     <CTableDataCell>{venta.estado}</CTableDataCell>
-                    <CTableDataCell>{venta.estado_anulado}</CTableDataCell>
+                    <CTableDataCell><CBadge color={getColorForEstado(venta.estado_anulado)}>{venta.estado_anulado}</CBadge></CTableDataCell>
                     <CTableDataCell>
                       <CButtonGroup aria-label="Basic mixed styles example">
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
