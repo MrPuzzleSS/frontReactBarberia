@@ -1,105 +1,107 @@
-const apiUrl = 'http://localhost:8095/api/agenda';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
+const apiUrl = 'https://restapibarberia.onrender.com/api/agenda';
+
+const getToken = () => {
+  // Obtener el token del localStorage
+  return localStorage.getItem('token');
+};
 
 const AgendaService = {
-  
-  getAllAgendas: () => {
-    return fetch(apiUrl)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Error al obtener las agendas');
+  getAllAgendas: async () => {
+    try {
+      const response = await axios.get(apiUrl, {
+        headers: {
+          'Authorization': `Bearer ${getToken()}` // Añadir el token al encabezado Authorization
         }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Agendas obtenidas correctamente:', data);
-        return data;
-      })
-      .catch(error => {
-        console.error('Error al obtener las agendas:', error);
-        throw error; // Propaga el error para que pueda ser manejado en otro lugar
       });
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener las agendas:', error);
+      throw error;
+    }
   },
 
-
-
-
-  getAgendaById: (id) => {
-    return fetch(`${apiUrl}/${id}`)
-      .then(response => response.json())
-      .catch(error => {
-        console.error('Error al obtener la agenda por ID:', error);
+  getAgendaById: async (id) => {
+    try {
+      const response = await axios.get(`${apiUrl}/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${getToken()}` // Añadir el token al encabezado Authorization
+        }
       });
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener la agenda por ID:', error);
+      throw error;
+    }
   },
 
-  createAgenda: (newAgenda) => {
-    return fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newAgenda),
-    })
-      .then(response => response.json())
-      .catch(error => {
-        console.error('Error al crear la agenda:', error);
-      });
-  },
-
-  updateAgenda: (id, updatedAgenda) => {
-    return fetch(`${apiUrl}/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updatedAgenda),
-    })
-      .then(response => response.json())
-      .catch(error => {
-        console.error('Error al actualizar la agenda:', error);
-      });
-  },
-
-  deleteAgenda: (id) => {
-    return fetch(`${apiUrl}/${id}`, {
-      method: 'DELETE',
-    })
-      .then(response => response.json())
-      .catch(error => {
-        console.error('Error al eliminar la agenda:', error);
-      });
-  },
-
-    disableEvent: async (id, motivo, estado) => {
-      const url = `${apiUrl}/${id}/disabled`;
-    
-      const requestOptions = {
-        method: 'PUT',
+  createAgenda: async (newAgenda) => {
+    try {
+      const response = await axios.post(apiUrl, newAgenda, {
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ motivo, newEstado: estado }), 
-      };
-    
-      try {
-        const response = await fetch(url, requestOptions);
-    
-        if (!response.ok) {
-          throw new Error('Error al inhabilitar el evento');
-        
+          'Authorization': `Bearer ${getToken()}` // Añadir el token al encabezado Authorization
         }
-    
-        const data = await response.json();
-        // Aquí puedes manejar la respuesta exitosa del servidor
-        console.log('Evento inhabilitado exitosamente:', data);
-        return data; // Retorna la respuesta o realiza alguna acción adicional si es necesario
-      } catch (error) {
-        console.error('Error al inhabilitar el evento:', error);
-        
-        throw error; // Propaga el error para manejarlo en otro lugar si es necesario
-      }
-    },
-    
-    
-  };
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error al crear la agenda:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'Error al crear la agenda',
+        icon: 'error',
+        confirmButtonText: 'Aceptar',
+      });
+      throw error;
+    }
+  },
+
+  updateAgenda: async (id, updatedAgenda) => {
+    try {
+      const response = await axios.put(`${apiUrl}/${id}`, updatedAgenda, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getToken()}` // Añadir el token al encabezado Authorization
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error al actualizar la agenda:', error);
+      throw error;
+    }
+  },
+
+  deleteAgenda: async (id) => {
+    try {
+      const response = await axios.delete(`${apiUrl}/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${getToken()}` // Añadir el token al encabezado Authorization
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error al eliminar la agenda:', error);
+      throw error;
+    }
+  },
+
+  disableEvent: async (id, motivo, estado) => {
+    const url = `${apiUrl}/${id}/disabled`;
+    try {
+      const response = await axios.put(url, { motivo, newEstado: estado }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getToken()}` // Añadir el token al encabezado Authorization
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error al inhabilitar el evento:', error);
+      throw error;
+    }
+  },
+};
 
 export default AgendaService;

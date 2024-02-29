@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
+import axios from 'axios';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import Swal from 'sweetalert2';
@@ -15,7 +15,6 @@ import { CCard, CCardHeader, CCardBody } from '@coreui/react';
 import esLocale from '@fullcalendar/core/locales/es';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import 'src/scss/css/calendarStyles.css';
-import io from 'socket.io-client';
 
 
 const CrearConfiguracion = () => {
@@ -58,26 +57,48 @@ const CrearConfiguracion = () => {
     const [empleados, setEmpleados] = useState([]);
 
 
-
+    const getToken = () => {
+        // Obtener el token del localStorage
+        return localStorage.getItem('token');
+    };
 
 
 
 
     const fetchEmpleados = async () => {
+
         try {
-            const response = await fetch('https://restapibarberia.onrender.com/empleado');
-            if (!response.ok) {
-                throw new Error('Error al obtener los empleados');
-            }
-            const data = await response.json();
+
+            console.log('Iniciando fetch de empleados...');
+
+
+            const apiUrl = 'https://restapibarberia.onrender.com/api/empleado';
+            const response = await axios.get(apiUrl, {
+                headers: {
+                    'Authorization': `Bearer ${getToken()}` // Añadir el token al encabezado Authorization
+                }
+            });
+
+            const data = response.data;
 
             if (Array.isArray(data.empleados)) {
-                const formattedEmpleados = data.empleados.map((empleado) => ({
-                    value: empleado.id_empleado, // Asegúrate de convertir el ID a cadena
-                    label: `${empleado.nombre} ${empleado.apellido}`,
-                    // Otros datos del empleado...
-                }));
+                const formattedEmpleados = data.empleados.map((empleado) => {
+                    // Agregar console.log para enviar el nombre y apellido del empleado
+                    console.log(`Nombre y Apellido del Empleado: ${empleado.nombre} ${empleado.apellido}`);
+
+                    return {
+                        value: empleado.id_empleado.toString(), // Asegúrate de convertir el ID a cadena
+                        label: `${empleado.nombre} ${empleado.apellido}`,
+                        // Otros datos del empleado...
+                    };
+                });
+
                 setEmpleados(formattedEmpleados);
+                console.log('Empleados actualizados:', formattedEmpleados);
+
+                // Opcional: guardar los datos en localStorage
+                localStorage.setItem('empleados', JSON.stringify(formattedEmpleados));
+                console.log('Datos de empleados guardados en el almacenamiento local.');
             } else {
                 console.error('La propiedad empleados no contiene un array:', data);
             }
@@ -85,6 +106,8 @@ const CrearConfiguracion = () => {
             console.error('Error al obtener empleados:', error);
         }
     };
+
+
 
     useEffect(() => {
         fetchEmpleados();
@@ -94,7 +117,7 @@ const CrearConfiguracion = () => {
         const selectedValues = selectedEmpleados.map((option) => option.value);
         const selectedEmpleadosData = empleados.filter((empleado) => selectedValues.includes(empleado.value));
         selectedEmpleadosData.forEach((empleado) => {
-            console.log('Empleado seleccionado:', empleado);
+            console.log('Empleado seleccionadsso:', empleado);
         });
 
         formData.empleadosSeleccionados = selectedValues
@@ -105,23 +128,9 @@ const CrearConfiguracion = () => {
         console.log('Estado actual de formData:', formData);
     };
 
-    const socketRef = useRef(null);
 
-    useEffect(() => {
-        socketRef.current = io('https://restapibarberia.onrender.com');
 
-        socketRef.current.on('connect', () => {
-            console.log('Conectado al servidor Socket.IO');
-        });
 
-        socketRef.current.on('connect_error', (error) => {
-            console.error('Error de conexión:', error);
-        });
-
-        return () => {
-            socketRef.current.disconnect();
-        };
-    }, []);
 
     const colorArray = [
         '#FF6633', '#FFB399', '#FF33FF', '#00B3E6',
@@ -142,37 +151,54 @@ const CrearConfiguracion = () => {
     };
 
     const fetchAgendas = useCallback(async () => {
-
-
-
         try {
             console.log('Iniciando fetch de agendas...');
-
             const data = await agendaService.getAllAgendas();
             console.log('Estos son los datos obtenidos:', data);
 
             const agendas = data.agendas || [];
 
             if (Array.isArray(agendas)) {
-                const formattedEvents = agendas.map((agenda) => ({
-                    title: `Agenda ${agenda.id_empleado}`,
-                    start: new Date(agenda.fechaInicio),
-                    end: new Date(agenda.fechaFin),
-                    horaInicio: agenda.horaInicio,
-                    horaFin: agenda.horaFin,
-                    empleado: agenda.id_empleado,
-                    id_agenda: agenda.id_agenda,
-                    estado: agenda.estado,
-                    editable: true,
-                    backgroundColor: generateColor(agenda.id_empleado)
+                const formattedEvents = await Promise.all(agendas.map(async (agenda) => {
+                    try {
+                        const empleadoResponse = await axios.get(`https://restapibarberia.onrender.com/api/empleado/${agenda.id_empleado}`, {
+                            headers: {
+                                'Authorization': `Bearer ${getToken()}`
+                            }
+                        });
+                        const empleado = empleadoResponse.data;
+
+                        return {
+                            title: `Agenda ${empleado.nombre} ${empleado.apellido}`,
+                            start: new Date(agenda.fechaInicio),
+                            end: new Date(agenda.fechaFin),
+                            horaInicio: agenda.horaInicio,
+                            horaFin: agenda.horaFin,
+                            empleado: agenda.id_empleado,
+                            id_agenda: agenda.id_agenda,
+                            estado: agenda.estado,
+                            editable: true,
+                            backgroundColor: generateColor(agenda.id_empleado)
+                        };
+                    } catch (error) {
+                        console.error('Error al obtener el empleado:', error);
+                        return {
+                            title: 'Agenda - Empleado Desconocido',
+                            start: new Date(agenda.fechaInicio),
+                            end: new Date(agenda.fechaFin),
+                            horaInicio: agenda.horaInicio,
+                            horaFin: agenda.horaFin,
+                            empleado: agenda.id_empleado,
+                            id_agenda: agenda.id_agenda,
+                            estado: agenda.estado,
+                            editable: true,
+                            backgroundColor: generateColor(agenda.id_empleado)
+                        };
+                    }
                 }));
 
                 setEvents(formattedEvents);
                 console.log('Eventos actualizados:', formattedEvents);
-
-                // Emitir el mensaje después de actualizar los eventos
-                socketRef.current.emit('agendaActualizada', { agendas: formattedEvents });
-                console.log('Mensaje emitido: agendaActualizada');
             } else {
                 console.error('Las agendas no se obtuvieron como un array:', data);
                 console.log('Estructura de las agendas:', data);
@@ -180,17 +206,16 @@ const CrearConfiguracion = () => {
         } catch (error) {
             console.error('Error al obtener las agendas:', error);
         }
-    }, [setEvents, socketRef]);
+    }, [setEvents]);
+
 
     useEffect(() => {
-        const fetchDataAndEmit = async () => {
+        const fetchData = async () => {
             await fetchAgendas();
         };
 
-        fetchDataAndEmit();
+        fetchData();
     }, [fetchAgendas]);
-
-
 
 
 
@@ -231,36 +256,14 @@ const CrearConfiguracion = () => {
                         console.log('empleadoSeleccionado', empleadoSeleccionado);
 
                         if (empleadoSeleccionado) {
-                            // empleadoSeleccionado.forEach(async (barbero) => {
-                            //     // Crear el evento con el empleado seleccionado
-                            //     const newEvent = {
-                            //         id_empleado: parseInt(barbero.value),
-                            //         fechaInicio: new Date(currentDate),
-                            //         fechaFin: newEndDate,
-                            //         horaInicio: formData.horaInicio,
-                            //         horaFin: formData.horaFin
-                            //     };
-
-                            //     console.log('newEvent', newEvent);
-
-                            //     await agendaService.createAgenda(newEvent);
-                            //     // Agregar el nuevo evento a la lista de eventos
-                            //     setEvents((prevEvents) => [...prevEvents, newEvent]);
-
-
-
-                            //     socketRef.current.emit(' es el nuevaAgendaCreada', newEvent);
-                            //     console.log('Mensaje emitido: nuevaAgendaCreada');
-
-                            // })
-
                             empleadoSeleccionado.forEach(async (barbero) => {
                                 const newEvent = {
                                     id_empleado: parseInt(barbero.value),
                                     fechaInicio: new Date(currentDate),
                                     fechaFin: newEndDate,
                                     horaInicio: formData.horaInicio,
-                                    horaFin: formData.horaFin
+                                    horaFin: formData.horaFin,
+                                    nombreEmpleado: barbero.label // Agregar la propiedad nombreEmpleado aquí
                                 };
 
                                 console.log('newEvent', newEvent);
@@ -273,14 +276,12 @@ const CrearConfiguracion = () => {
                                     setEvents((prevEvents) => [...prevEvents, newEvent]);
 
                                     // Emitir el mensaje de nueva agenda creada
-                                    socketRef.current.emit('nuevaAgendaCreada', newEvent);
+                                    setEvents.current.emit('nuevaAgendaCreada', newEvent);
                                     console.log('Mensaje emitido: nuevaAgendaCreada');
                                 } catch (error) {
                                     console.error('Error al crear la agenda:', error);
                                 }
                             });
-
-
 
                         } else {
                             console.log('No se encontraron barberos seleccionados.');
@@ -328,37 +329,40 @@ const CrearConfiguracion = () => {
 
     const handleEditEvent = (clickInfo) => {
         const eventId = clickInfo?.event?.extendedProps?.id_agenda;
-
+    
         if (eventId) {
             console.log('ID del evento:', eventId);
-
+    
             agendaService.getAgendaById(eventId)
                 .then((eventoEdit) => {
                     console.log('Detalles del evento obtenidos:', eventoEdit);
                     setEventoSeleccionado(eventoEdit);
-
+    
+                    console.log('Empleados:', empleados);
+                    console.log('Empleados seleccionados en el evento:', eventoEdit.empleadosSeleccionados);
+    
                     if (eventoEdit && eventoEdit.empleadosSeleccionados) {
                         const empleadosSeleccionados = eventoEdit.empleadosSeleccionados.map((id_empleado) =>
                             empleados.find((empleado) => empleado.value === id_empleado)
                         );
-
+    
                         setEventoSeleccionado((prevEventoSeleccionado) => ({
                             ...prevEventoSeleccionado,
                             empleadosSeleccionados,
                         }));
                     }
-
-
+    
                     setShowEditModal(true);
                 })
                 .catch((error) => {
                     console.error('Error al obtener detalles de la agenda:', error);
                 });
-
         } else {
             console.error('ID de agenda inválido');
         }
     };
+    
+
 
     const handleGuardarCambios = () => {
         console.log('Evento a actualizar:', eventoSeleccionado);
@@ -430,226 +434,117 @@ const CrearConfiguracion = () => {
             const fechaHoy = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()); // Fecha actual sin hora
             const fechaInicioEvento = new Date(`${fechaInicio}T${horaInicio}`);
             const fechaFinEvento = new Date(`${fechaFin}T${horaFin}`);
-    
+
+            // Verificar datos de empleadosSeleccionados
+            console.log("empleadosSeleccionados:", empleadosSeleccionados);
+
             // Validación de fechas anteriores al día actual
             if (fechaInicioEvento < fechaHoy || fechaFinEvento < fechaHoy) {
                 throw new Error('No puedes crear eventos en fechas anteriores al día actual');
-            }
-    
-            // Validación de campos obligatorios
-            if (!fechaInicioEvento || !fechaFinEvento || !horaInicio || !horaFin || empleadosSeleccionados.length === 0) {
-                throw new Error('Todos los campos son obligatorios');
-            }
-    
-            // Validación de horas de inicio y fin
-            if (horaInicio > horaFin) {
-                throw new Error('La hora de inicio no puede ser posterior a la hora de fin');
-            }
-    
-            // Validación de empleados seleccionados
-            if (!empleadosSeleccionados || empleadosSeleccionados.length === 0) {
-                throw new Error('Debes seleccionar al menos un empleado');
-            }
-    
-            // Validación de fechas de inicio y fin
-            if (fechaInicioEvento > fechaFinEvento) {
-                throw new Error('La fecha de inicio no puede ser posterior a la fecha de fin');
-            }
-    
-            // Verificar si hay algún evento existente con la misma hora para el mismo empleado
-            const existingEvent = events.find(existingEvent => 
-                existingEvent.extendedProps && // Verifica que extendedProps no sea undefined
-                existingEvent.extendedProps.id_empleado === empleadosSeleccionados.id && // Mismo empleado
-                ((fechaInicioEvento >= existingEvent.start && fechaInicioEvento < existingEvent.end) || (fechaFinEvento > existingEvent.start && fechaFinEvento <= existingEvent.end)) // Misma hora
-            );
-    
-            if (existingEvent) {
-                throw new Error('Ya existe un evento para este empleado en la misma hora');
-            }
-    
-            // Resto del código para la creación de eventos...
-            const newEvents = [];
-            let currentDateEvent = new Date(fechaInicioEvento);
-    
-            while (currentDateEvent <= fechaFinEvento) {
-                const newEndDate = new Date(currentDateEvent);
-                newEndDate.setHours(fechaFinEvento.getHours(), fechaFinEvento.getMinutes());
-    
-                if (empleadosSeleccionados) {
-                    empleadosSeleccionados.forEach(async (empleado) => {
-                        const newEvent = {
-                            fechaInicio: currentDateEvent,
-                            fechaFin: newEndDate,
-                            horaInicio,
-                            horaFin,
-                            title: `Agenda de ${empleado.nombre} ${empleado.apellido}`,
-                            id_empleado: empleado,
-                        };
-                        const createdEvent = await agendaService.createAgenda(newEvent);
-                        if (!!createdEvent?.error) {
-                            throw new Error(createdEvent?.error);
-                        } else {
-                            newEvents.push(createdEvent);
-                        }
-                    });
+            } else {
+                // Validación de campos obligatorios
+                if (!fechaInicioEvento || !fechaFinEvento || !horaInicio || !horaFin || !empleadosSeleccionados || empleadosSeleccionados.length === 0) {
+                    throw new Error('Todos los campos son obligatorios');
                 }
-                currentDateEvent.setDate(currentDateEvent.getDate() + 1);
+
+                // Validación de horas de inicio y fin
+                if (horaInicio > horaFin) {
+                    throw new Error('La hora de inicio no puede ser posterior a la hora de fin');
+                }
+
+                // Validación de fechas de inicio y fin
+                if (fechaInicioEvento > fechaFinEvento) {
+                    throw new Error('La fecha de inicio no puede ser posterior a la fecha de fin');
+                }
+
+                // Resto del código para la creación de eventos...
+                const newEvents = [];
+                let currentDateEvent = new Date(fechaInicioEvento);
+
+                while (currentDateEvent <= fechaFinEvento) {
+                    const newEndDate = new Date(currentDateEvent);
+                    newEndDate.setHours(fechaFinEvento.getHours(), fechaFinEvento.getMinutes());
+
+                    if (empleadosSeleccionados) {
+                        for (const empleado of empleadosSeleccionados) {
+                            const nombre = empleado.nombre ? empleado.nombre : 'Nombre desconocido';
+                            const apellido = empleado.apellido ? empleado.apellido : 'Apellido desconocido';
+                            const newEvent = {
+                                fechaInicio: currentDateEvent,
+                                fechaFin: newEndDate,
+                                horaInicio,
+                                horaFin,
+                                title: `Agenda de ${nombre} ${apellido}`,
+                                id_empleado: empleado,
+                            };
+                            console.log("Nuevo evento:", newEvent); // Verificar el nuevo evento antes de crearlo
+                            const createdEvent = await agendaService.createAgenda(newEvent);
+                            if (!!createdEvent?.error) {
+                                throw new Error(createdEvent?.error);
+                            } else {
+                                newEvents.push(createdEvent);
+                            }
+                        }
+                    }
+                    currentDateEvent.setDate(currentDateEvent.getDate() + 1);
+                }
+
+                // Actualización de eventos y estado
+                setEvents((prevEvents) => [...prevEvents, ...newEvents]);
+                await fetchAgendas();
+                setShowCreateModal(false);
+
+                // Limpiar el formulario
+                setFormData({
+                    fechaInicio: '',
+                    fechaFin: '',
+                    horaInicio: '',
+                    horaFin: '',
+                    empleadosSeleccionados: [],
+                    busquedaEmpleado: '',
+                });
+
+                // Mostrar mensaje de éxito y actualizar calendario
+                swal({
+                    title: 'Éxito',
+                    text: 'La agenda ha sido creada con éxito',
+                    icon: 'success',
+                    button: 'Aceptar',
+                });
+                updateCalendar();
             }
-    
-            // Actualización de eventos y estado
-            setEvents((prevEvents) => [...prevEvents, ...newEvents]);
-            await fetchAgendas();
-            setShowCreateModal(false);
-    
-            // Limpiar el formulario
-            setFormData({
-                fechaInicio: '',
-                fechaFin: '',
-                horaInicio: '',
-                horaFin: '',
-                empleadosSeleccionados: [],
-                busquedaEmpleado: '',
-            });
-    
-            // Mostrar mensaje de éxito y actualizar calendario
-            swal({
-                title: 'Éxito',
-                text: 'La agenda ha sido creada con éxito',
-                icon: 'success',
-                button: 'Aceptar',
-            });
-            updateCalendar();
         } catch (error) {
             // Manejo de errores
             console.error('Error al crear la agenda:', error);
+
+            let errorMessage = 'El empleado ya se encuentra registrado con horas que se solapan.';
+
+            if (error.response && error.response.data && error.response.data.sqlMessage) {
+                errorMessage = error.response.data.sqlMessage;
+            }
+
             swal({
                 title: 'Error',
-                text: error.message, // Mostrar el mensaje de error específico
+                text: errorMessage, // Mostrar el mensaje de error específico
                 icon: 'error',
                 button: 'Aceptar',
             });
         }
     };
-    
-    
-
-    // const handleCrearAgenda = async () => {
-    //     try {
-    //         // Obtener datos del formulario
-    //         const { horaInicio, horaFin, empleadosSeleccionados, fechaInicio, fechaFin } = formData;
-    //         const currentDate = new Date();
-    //         const fechaHoy = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()); // Fecha actual sin hora
-    //         const fechaInicioEvento = new Date(`${fechaInicio}T${horaInicio}`);
-    //         const fechaFinEvento = new Date(`${fechaFin}T${horaFin}`);
-
-    //         // Validación de fechas anteriores al día actual
-    //         if (fechaInicioEvento < fechaHoy || fechaFinEvento < fechaHoy) {
-    //             throw new Error('No puedes crear eventos en fechas anteriores al día actual');
-    //         } else {
-    //             // Validación de campos obligatorios
-    //             if (!fechaInicioEvento || !fechaFinEvento || !horaInicio || !horaFin || empleadosSeleccionados.length === 0) {
-    //                 throw new Error('Todos los campos son obligatorios');
-    //             }
-
-    //             // Validación de horas de inicio y fin
-    //             if (horaInicio > horaFin) {
-    //                 throw new Error('La hora de inicio no puede ser posterior a la hora de fin');
-    //             }
-
-    //             // Validación de empleados seleccionados
-    //             if (!empleadosSeleccionados || empleadosSeleccionados.length === 0) {
-    //                 throw new Error('Debes seleccionar al menos un empleado');
-    //             }
 
 
-
-
-    //             // Validación de fechas de inicio y fin
-    //             if (fechaInicioEvento > fechaFinEvento) {
-    //                 throw new Error('La fecha de inicio no puede ser posterior a la fecha de fin');
-    //             }
-
-    //             // Validación de campos obligatorios
-    //             if (!fechaInicioEvento || !fechaFinEvento || !horaInicio || !horaFin || empleadosSeleccionados.length === 0) {
-    //                 throw new Error('Todos los campos son obligatorios');
-    //             }
-
-
-    //             // Resto del código para la creación de eventos...
-    //             const newEvents = [];
-    //             let currentDateEvent = new Date(fechaInicioEvento);
-
-    //             while (currentDateEvent <= fechaFinEvento) {
-    //                 const newEndDate = new Date(currentDateEvent);
-    //                 newEndDate.setHours(fechaFinEvento.getHours(), fechaFinEvento.getMinutes());
-
-    //                 if (empleadosSeleccionados) {
-    //                     empleadosSeleccionados.forEach(async (empleado) => {
-    //                         const newEvent = {
-    //                             fechaInicio: currentDateEvent,
-    //                             fechaFin: newEndDate,
-    //                             horaInicio,
-    //                             horaFin,
-    //                             title: `Agenda de ${empleado.nombre} ${empleado.apellido}`,
-    //                             id_empleado: empleado,
-    //                         };
-    //                         const createdEvent = await agendaService.createAgenda(newEvent);
-    //                         if (!!createdEvent?.error) {
-    //                             throw new Error(createdEvent?.error);
-    //                         } else {
-    //                             newEvents.push(createdEvent);
-    //                         }
-    //                     });
-    //                 }
-    //                 currentDateEvent.setDate(currentDateEvent.getDate() + 1);
-    //             }
-
-    //             // Actualización de eventos y estado
-    //             setEvents((prevEvents) => [...prevEvents, ...newEvents]);
-    //             await fetchAgendas();
-    //             setShowCreateModal(false);
-
-    //             // Limpiar el formulario
-    //             setFormData({
-    //                 fechaInicio: '',
-    //                 fechaFin: '',
-    //                 horaInicio: '',
-    //                 horaFin: '',
-    //                 empleadosSeleccionados: [],
-    //                 busquedaEmpleado: '',
-    //             });
-
-    //             // Mostrar mensaje de éxito y actualizar calendario
-    //             swal({
-    //                 title: 'Éxito',
-    //                 text: 'La agenda ha sido creada con éxito',
-    //                 icon: 'success',
-    //                 button: 'Aceptar',
-    //             });
-    //             updateCalendar();
-    //         }
-    //     } catch (error) {
-    //         // Manejo de errores
-    //         console.error('Error al crear la agenda:', error);
-    //         swal({
-    //             title: 'Error',
-    //             text: error.message, // Mostrar el mensaje de error específico
-    //             icon: 'error',
-    //             button: 'Aceptar',
-    //         });
-    //     }
-    // };
-
-
-    const [searchText, setSearchText] = useState(''); // Estado para almacenar el texto de búsqueda
+    const [searchText, setSearchText] = useState('');
     const filteredEvents = events.filter((event) => {
-        const nombreEmpleado = event.title.toString().toLowerCase(); // Obtener el nombre del empleado del título del evento
+        const nombreEmpleado = (event.title || '').toString().toLowerCase(); // Asegúrate de que event.title esté definido antes de llamar a toString
         console.log('Nombre del empleado:', nombreEmpleado); // Console.log para ver el nombre del empleado
 
         return (
             nombreEmpleado.includes(searchText.toLowerCase()) // Filtrar por nombre del empleado
         );
     });
+
+
+
 
     const handleEventDrop = async (eventDropInfo) => {
         try {
@@ -736,6 +631,35 @@ const CrearConfiguracion = () => {
             });
         }
     };
+    // Después de la función handleEventDrop, agrega la siguiente función para eliminar eventos
+    const handleEventDelete = async (eventId) => {
+        try {
+            // Eliminar el evento de la base de datos (si es necesario)
+            await agendaService.deleteEvent(eventId);
+
+            // Filtrar los eventos para excluir el evento que se va a eliminar
+            const updatedEvents = events.filter((event) => event.id !== eventId);
+
+            // Actualizar el estado local de eventos
+            setEvents(updatedEvents);
+
+            // Mostrar un mensaje de éxito
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: 'El evento ha sido eliminado correctamente.',
+            });
+        } catch (error) {
+            console.error('Error al eliminar el evento:', error);
+            // Mostrar un mensaje de error en caso de fallo
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Ha ocurrido un error al intentar eliminar el evento.',
+            });
+        }
+    };
+
 
 
 
@@ -790,8 +714,10 @@ const CrearConfiguracion = () => {
                             </div>
                             <FullCalendar
                                 plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
+
                                 dateClick={handleDateClick}
                                 eventDrop={handleEventDrop}
+                               // deleteEvent={handleEventDelete}
                                 initialView="dayGridMonth"
                                 headerToolbar={{
                                     left: 'prev,next today',
@@ -801,36 +727,54 @@ const CrearConfiguracion = () => {
                                 locale={esLocale}
                                 events={filteredEvents.length > 0 ? filteredEvents : events}
                                 eventContent={(arg) => {
-                                    // Obtener el empleado asociado al evento
+                                    const evento = arg.event;
+                                    // Obtener el título del evento
+                                    const tituloEvento = evento.title;
+                                    // Utilizar una expresión regular para extraer el nombre del evento
+                                    const nombreEmpleadoRegex = /Agenda\s(.+)/i;
+                                    const match = tituloEvento.match(nombreEmpleadoRegex);
+                                    const nombreEmpleado1 = match ? match[1] : 'Desconocido';
+                                    // Obtener el ID del empleado seleccionado del evento
+                                    const empleadoIdSeleccionado = eventoSeleccionado?.id_empleado;
+
+                                    // Encontrar al empleado correspondiente seleccionado en el array de empleados
                                     const empleadoSeleccionado = empleados.find(
-                                        (empleado) => empleado.value === arg.event.extendedProps.empleado
+                                        (empleado) => empleado.value === empleadoIdSeleccionado
                                     );
+
+
 
                                     // Verificar si la agenda está deshabilitada
                                     const isDisabled = !arg.event.extendedProps.estado;
 
-                                    // Obtener el nombre del empleado o mostrar "Desactivado" si la agenda está deshabilitada
-                                    const nombreEmpleado = isDisabled ? 'Desactivado ' : (empleadoSeleccionado ? empleadoSeleccionado.label : 'Desconocido');
-
                                     // Establecer el color del evento
                                     const backgroundColor = isDisabled ? '#666666' : arg.event.backgroundColor;
 
-                                    const animacionDesactivado = isDisabled ? 'rotar-circular' : '';
 
                                     return (
                                         <span style={{ backgroundColor, color: 'white', padding: '2px 5px', borderRadius: '3px' }}>
                                             {isDisabled ? (
-                                                <span className={`rotar-circular animacion-rotar-circular`}>😲</span>
+                                                <span className={`rotar-circular animacion-rotar-circular`}>🚫</span>
                                             ) : null}
-                                            {nombreEmpleado}
+                                            {isDisabled ? (
+                                                <span><span style={{ color: '#FFFF11' }}>(Inac)</span> {nombreEmpleado1}</span>
+                                            ) : (
+                                                <span>{nombreEmpleado1}</span>
+                                            )}
                                         </span>
                                     );
-
                                 }}
+
+
+
                                 eventClick={(clickInfo) => {
-                                    const empleadoSeleccionado = empleados.find(
-                                        (empleado) => empleado.value === clickInfo.event.extendedProps.empleado
-                                    );
+                                    // Imprimir el título del evento en la consola
+                                    console.log('Título del evento:', clickInfo.event.title);
+                                    const nombreEmpleadoRegex = /agenda\s(.+)/i;
+                                    const match = clickInfo.event.title.match(nombreEmpleadoRegex);
+                                    const nombreEmpleado = match ? match[1] : 'Desconocido';
+
+
                                     Swal.fire({
                                         title: clickInfo.event.title,
                                         html: `
@@ -840,15 +784,22 @@ const CrearConfiguracion = () => {
                     Fecha de fin: ${clickInfo.event.end ? clickInfo.event.end.toLocaleDateString() : 'No end date'}<br/>
                     Hora de inicio: ${clickInfo.event.extendedProps.horaInicio}<br/>
                     Hora de fin: ${clickInfo.event.extendedProps.horaFin}<br/>
-                    Empleado: ${empleadoSeleccionado.label}
+                    Empleado: ${nombreEmpleado}
                 </div>
             `,
+
                                         showCancelButton: true,
                                         showConfirmButton: true,
                                         showDenyButton: true,
                                         confirmButtonText: 'Editar',
-                                        denyButtonText: !clickInfo.event.extendedProps.estado ? 'Habilitar Agenda' : 'Cancelar Agenda',
+                                        denyButtonText: !clickInfo.event.extendedProps.estado ? '✅ Agenda' : '🚫 Agenda',
                                     }).then((result) => {
+
+
+
+
+
+
                                         if (result.isConfirmed) {
                                             // Validar si la agenda está deshabilitada antes de editar
                                             if (!clickInfo.event.extendedProps.estado) {
@@ -859,52 +810,17 @@ const CrearConfiguracion = () => {
                                             }
                                         } else if (result.isDenied) {
                                             const disableEvent = !clickInfo.event.extendedProps.estado;
-                                            Swal.fire({
-                                                title: `Motivo de ${disableEvent ? 'habilitación' : 'inhabilitación'}`,
-                                                html: `
-                        <div>
-                            <label for="motivoSelect">Motivo:</label>
-                            <select id="motivoSelect">
-                                <option value="">Seleccionar motivo...</option>
-                                ${motivosPredefinidos.map((motivo) => `<option value="${motivo}">${motivo}</option>`).join('')}
-                                <option value="Otro">Otro</option> <!-- Nuevo campo 'Otro' -->
-                            </select>
-                            <br/>
-                            <label for="otroMotivo" id="otroMotivoLabel" style="display:none;">Otro motivo:</label>
-                            <input type="text" id="otroMotivo" style="display:none;">
-                        </div>
-                    `,
-                                                showCancelButton: true,
-                                                confirmButtonText: disableEvent ? 'Habilitar' : 'Inhabilitar',
-                                                preConfirm: () => {
-                                                    const motivoSeleccionado = document.getElementById('motivoSelect').value;
-                                                    const otroMotivo = document.getElementById('otroMotivo').value;
-                                                    return motivoSeleccionado === 'Otro' ? otroMotivo : motivoSeleccionado;
-                                                },
-                                                didOpen: () => {
-                                                    // Mostrar campo 'Otro' al seleccionar 'Otro' en la lista desplegable
-                                                    const motivoSelect = document.getElementById('motivoSelect');
-                                                    const otroMotivoLabel = document.getElementById('otroMotivoLabel');
-                                                    const otroMotivoInput = document.getElementById('otroMotivo');
-
-                                                    motivoSelect.addEventListener('change', () => {
-                                                        if (motivoSelect.value === 'Otro') {
-                                                            otroMotivoLabel.style.display = 'block';
-                                                            otroMotivoInput.style.display = 'block';
-                                                        } else {
-                                                            otroMotivoLabel.style.display = 'none';
-                                                            otroMotivoInput.style.display = 'none';
-                                                        }
-                                                    });
-                                                },
-                                            }).then((motivoResult) => {
-                                                if (motivoResult.isConfirmed) {
-                                                    const motivoFinal = motivoResult.value;
-                                                    if (motivoFinal && motivoFinal.trim() !== '') {
-                                                        // Resto del código para habilitar o inhabilitar el evento con el motivo proporcionado
-                                                        const disableEvent = !clickInfo.event.extendedProps.estado;
+                                            if (disableEvent) {// Solo si se está deshabilitando
+                                                Swal.fire({
+                                                    title: '¿Estás seguro de habilitar esta agenda?',
+                                                    showCancelButton: true,
+                                                    confirmButtonText: 'Sí',
+                                                    cancelButtonText: 'Cancelar',
+                                                }).then((confirmResult) => {
+                                                    if (confirmResult.isConfirmed) {
+                                                        // Resto del código para habilitar el evento sin preguntar motivo
                                                         agendaService
-                                                            .disableEvent(clickInfo?.event?._def?.extendedProps?.id_agenda, motivoFinal, clickInfo.event.extendedProps.estado)
+                                                            .disableEvent(clickInfo?.event?._def?.extendedProps?.id_agenda, '', clickInfo.event.extendedProps.estado)
                                                             .then(() => {
                                                                 // Actualizar eventos y mostrar mensaje de éxito
                                                                 fetchAgendas();
@@ -914,7 +830,7 @@ const CrearConfiguracion = () => {
                                                                             ...event,
                                                                             extendedProps: {
                                                                                 ...event.extendedProps,
-                                                                                estado: disableEvent ? true : false,
+                                                                                estado: !disableEvent,
                                                                             },
                                                                         };
                                                                     }
@@ -923,14 +839,86 @@ const CrearConfiguracion = () => {
                                                                 setEvents(updatedEvents);
 
                                                                 const successMessage = disableEvent ? 'Evento habilitado' : 'Evento inhabilitado';
-                                                                Swal.fire('¡Éxito!', `${successMessage} con motivo: ${motivoFinal}`, 'success');
+                                                                Swal.fire('¡Éxito!', `${successMessage}`, 'success');
                                                             })
                                                             .catch((error) => {
                                                                 console.error('Error al realizar la acción:', error);
                                                             });
                                                     }
-                                                }
-                                            });
+                                                });
+                                            } else {
+                                                Swal.fire({
+                                                    title: `Motivo de inhabilitación`,
+                                                    html: `
+                            <div>
+                                <label for="motivoSelect">Motivo:</label>
+                                <select id="motivoSelect">
+                                    <option value="">Seleccionar motivo...</option>
+                                    ${motivosPredefinidos.map((motivo) => `<option value="${motivo}">${motivo}</option>`).join('')}
+                                    <option value="Otro">Otro</option> <!-- Nuevo campo 'Otro' -->
+                                </select>
+                                <br/>
+                                <label for="otroMotivo" id="otroMotivoLabel" style="display:none;">Ingrese el Motivo:</label>
+                                <textarea id="otroMotivo" style="display:none; width: 100%; height: 100px;"></textarea>
+                            </div>
+                        `,
+                                                    showCancelButton: true,
+                                                    confirmButtonText: 'Inhabilitar',
+                                                    preConfirm: () => {
+                                                        const motivoSeleccionado = document.getElementById('motivoSelect').value;
+                                                        const otroMotivo = document.getElementById('otroMotivo').value;
+                                                        return motivoSeleccionado === 'Otro' ? otroMotivo : motivoSeleccionado;
+                                                    },
+                                                    didOpen: () => {
+                                                        // Mostrar campo 'Otro' al seleccionar 'Otro' en la lista desplegable
+                                                        const motivoSelect = document.getElementById('motivoSelect');
+                                                        const otroMotivoLabel = document.getElementById('otroMotivoLabel');
+                                                        const otroMotivoInput = document.getElementById('otroMotivo');
+
+                                                        motivoSelect.addEventListener('change', () => {
+                                                            if (motivoSelect.value === 'Otro') {
+                                                                otroMotivoLabel.style.display = 'block';
+                                                                otroMotivoInput.style.display = 'block';
+                                                            } else {
+                                                                otroMotivoLabel.style.display = 'none';
+                                                                otroMotivoInput.style.display = 'none';
+                                                            }
+                                                        });
+                                                    },
+                                                }).then((motivoResult) => {
+                                                    if (motivoResult.isConfirmed) {
+                                                        const motivoFinal = motivoResult.value;
+                                                        if (motivoFinal && motivoFinal.trim() !== '') {
+                                                            // Resto del código para inhabilitar el evento con el motivo proporcionado
+                                                            agendaService
+                                                                .disableEvent(clickInfo?.event?._def?.extendedProps?.id_agenda, motivoFinal, clickInfo.event.extendedProps.estado)
+                                                                .then(() => {
+                                                                    // Actualizar eventos y mostrar mensaje de éxito
+                                                                    fetchAgendas();
+                                                                    const updatedEvents = events.map((event) => {
+                                                                        if (event.id === clickInfo.event.id) {
+                                                                            return {
+                                                                                ...event,
+                                                                                extendedProps: {
+                                                                                    ...event.extendedProps,
+                                                                                    estado: !disableEvent,
+                                                                                },
+                                                                            };
+                                                                        }
+                                                                        return event;
+                                                                    });
+                                                                    setEvents(updatedEvents);
+
+                                                                    const successMessage = disableEvent ? 'Evento habilitado' : 'Evento inhabilitado';
+                                                                    Swal.fire('¡Éxito!', `${successMessage} con motivo: ${motivoFinal}`, 'success');
+                                                                })
+                                                                .catch((error) => {
+                                                                    console.error('Error al realizar la acción:', error);
+                                                                });
+                                                        }
+                                                    }
+                                                });
+                                            }
                                         }
                                     });
                                 }}
@@ -963,6 +951,7 @@ const CrearConfiguracion = () => {
                                             ...eventoSeleccionado,
                                             horaInicio: e.target.value
                                         })}
+
                                     />
                                 </div>
                                 <div className="form-group">
@@ -983,10 +972,13 @@ const CrearConfiguracion = () => {
                                         options={empleados}
                                         selectedValues={[eventoSeleccionado?.id_empleado || []]}
                                         onChange={(selected) => {
+                                            const selectedEmpleadoId = selected[0]?.value;
                                             setEventoSeleccionado({
                                                 ...eventoSeleccionado,
-                                                id_empleado: selected[0]?.value
+                                                id_empleado: selectedEmpleadoId
                                             });
+                                            // Imprimir el valor seleccionado
+                                            console.log('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww:', selectedEmpleadoId);
                                         }}
                                     />
                                 </div>
