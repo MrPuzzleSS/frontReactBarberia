@@ -1,4 +1,4 @@
-const api_url = 'http://localhost:8095/api/venta';
+const api_url = 'https://restapibarberia.onrender.com/api/venta';
 
 const VentaService = {
     getVentas: () => {
