@@ -149,6 +149,7 @@ const Register = () => {
         if (!value) {
           validationErrors.contrasena = 'Por favor, ingresa la contraseña.';
         } else if (value.length < 8) {
+          
           validationErrors.contrasena = 'La contraseña debe tener al menos 8 caracteres.';
         } else if (!/\d/.test(value)) {
           validationErrors.contrasena = 'La contraseña debe contener al menos un número.';
@@ -162,11 +163,11 @@ const Register = () => {
           if (!value) {
             validationErrors.correo = 'Por favor, ingresa el correo electrónico.';
           } else {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
             if (!emailRegex.test(value)) {
               validationErrors.correo = 'Por favor, ingresa un formato válido de correo electrónico.';
-            } else if (value.length > 254) {
-              validationErrors.correo = 'El correo electrónico no debe exceder los 254 caracteres.';
+            } else if (value.length > 50) {
+              validationErrors.correo = 'El correo electrónico no debe exceder los 50 caracteres.';
             } else if (/[^\w@.-]/.test(value)) {
               validationErrors.correo = 'El correo electrónico no debe contener caracteres especiales ni espacios.';
             } else {

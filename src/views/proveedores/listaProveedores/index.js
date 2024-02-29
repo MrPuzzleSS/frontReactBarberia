@@ -44,6 +44,7 @@ function ListaProveedores() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(5);
+  const [forceRerender, setForceRerender] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,7 +57,7 @@ function ListaProveedores() {
     };
 
     fetchData();
-  }, []);
+  }, [forceRerender]);
 
   const handleEditClick = (proveedor) => {
     setEditingProveedor(proveedor);
@@ -81,12 +82,13 @@ function ListaProveedores() {
       // Actualizar la lista después de la edición exitosa
       const updatedProveedores = proveedores.map((proveedor) =>
         proveedor.id_proveedor === editingProveedor.id_proveedor
-          ? response.data.proveedor
+          ? response.data.proveedor // Usar el proveedor editado del response
           : proveedor,
       );
 
-      setProveedores(updatedProveedores);
+      setProveedores(updatedProveedores); // Actualizar la lista de proveedores
       setVisible(false);
+      setForceRerender(!forceRerender); // Forzar el re-renderizado de la tabla
 
       Swal.fire({
         position: "top-end",
@@ -103,15 +105,16 @@ function ListaProveedores() {
 
   // Filtrar proveedores basado en el término de búsqueda
   const filteredProveedores = proveedores.filter((proveedor) => {
+    if (!proveedor) return false; // Verifica si proveedor es undefined o null
     const nombreMatches = proveedor.nombre.toLowerCase().includes(searchTerm.toLowerCase());
     const direccionMatches = proveedor.direccion.toLowerCase().includes(searchTerm.toLowerCase());
     const telefonoMatches = proveedor.telefono.toLowerCase().includes(searchTerm.toLowerCase());
     const emailMatches = proveedor.email.toLowerCase().includes(searchTerm.toLowerCase());
     const tipoMatches = proveedor.tipo_de_producto_servicio.toLowerCase().includes(searchTerm.toLowerCase());
-
+  
     return nombreMatches || direccionMatches || telefonoMatches || emailMatches || tipoMatches;
-  }
-  );
+  });
+  
 
   const indexOfLastProveedor = currentPage * pageSize;
   const indexOfFirstProveedor = indexOfLastProveedor - pageSize;
@@ -282,6 +285,7 @@ function ListaProveedores() {
                 name="nombre"
                 value={editingProveedor.nombre}
                 onChange={handleInputChange}
+                disabled
               />
             </div>
             <div className="mb-3">
@@ -309,6 +313,7 @@ function ListaProveedores() {
                 name="email"
                 value={editingProveedor.email}
                 onChange={handleInputChange}
+                disabled
               />
             </div>
             <div className="mb-3">
