@@ -1,4 +1,3 @@
-// En el componente Register
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
@@ -20,7 +19,6 @@ import { cilUser } from '@coreui/icons';
 import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 const CreateRol = () => {
   const navigate = useNavigate();
 
@@ -55,28 +53,31 @@ const CreateRol = () => {
         : [...prevRole.permisos, permisoId],
     }));
   };
-
   const handleAddRole = async () => {
     const validationErrors = {};
-  
+
     if (!newRole.nombre) {
       validationErrors.nombre = 'Por favor, ingresa un nombre para el rol.';
+    } else if (newRole.nombre.length < 3) {
+      validationErrors.nombre = 'El nombre del rol debe tener al menos 3 caracteres.';
+    } else if (newRole.nombre.length > 50) {
+      validationErrors.nombre = 'El nombre del rol no puede exceder los 50 caracteres.';
     }
-  
-    if (!newRole.estado) {
-      validationErrors.estado = 'Por favor, selecciona el estado del rol.';
+
+    if (newRole.permisos.length === 0) {
+      validationErrors.permisos = 'Por favor, selecciona al menos un permiso.';
     }
-  
+
     setErrors(validationErrors);
-  
+
     if (Object.keys(validationErrors).length > 0) {
       return;
     }
-  
+
     try {
       const response = await axios.post('http://localhost:8095/api/rol', newRole);
       console.log('Respuesta al agregar rol:', response.data);
-  
+
       if (response.status === 200) {
         Swal.fire({
           icon: 'success',
@@ -84,7 +85,7 @@ const CreateRol = () => {
           showConfirmButton: false,
           timer: 1500,
         });
-  
+
         setTimeout(() => {
           navigate('/listaRol');
         }, 1500);
@@ -96,9 +97,35 @@ const CreateRol = () => {
       toast.error('Error interno del servidor');
     }
   };
+
+
+  const handleInputChange = (fieldName, value) => {
+    const validationErrors = { ...errors };
   
+    switch (fieldName) {
+      case 'nombre':
+        setNewRole({ ...newRole, nombre: value });
   
+        if (!value) {
+          validationErrors.nombre = 'Por favor, ingresa un nombre para el rol.';
+        } else if (!/^[a-zA-Z]+$/.test(value)) {
+          validationErrors.nombre = 'El nombre del rol no debe contener números ni caracteres especiales.';
+        } else if (value.length < 3) {
+          validationErrors.nombre = 'El nombre del rol debe tener al menos 3 caracteres.';
+        } else if (value.length > 50) {
+          validationErrors.nombre = 'El nombre del rol no puede exceder los 50 caracteres.';
+        } else {
+          delete validationErrors.nombre;
+        }
+        break;
+      default:
+        break;
+    }
   
+    setErrors(validationErrors);
+  };
+
+
   return (
     <div className="bg-light min-vh-80 d-flex align-items-center">
       <CContainer>
@@ -118,7 +145,7 @@ const CreateRol = () => {
                       name="nombre"
                       value={newRole.nombre}
                       onChange={(e) =>
-                        setNewRole({ ...newRole, [e.target.name]: e.target.value })
+                        handleInputChange('nombre', e.target.value)
                       }
                     />
                   </CInputGroup>
@@ -138,6 +165,7 @@ const CreateRol = () => {
                         </label>
                       </div>
                     ))}
+                    {errors.permisos && <div className="text-danger">{errors.permisos}</div>}
                   </div>
                   <div>
                     <CButton type="button" onClick={handleAddRole}>
@@ -159,5 +187,8 @@ const CreateRol = () => {
     </div>
   );
 };
+
+
+
 
 export default CreateRol;
