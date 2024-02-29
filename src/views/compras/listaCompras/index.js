@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
 import CompraDataService from 'src/views/services/compraService';
+import ProveedoresService from 'src/views/services/ProveedoresService';
 import {
   CCard,
   CCardBody,
@@ -21,6 +22,7 @@ import {
   CModalBody,
   CModalFooter
 } from '@coreui/react';
+import PropTypes from 'prop-types'; // Importa PropTypes
 
 function formatFechaCompra(fecha) {
   const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
@@ -44,6 +46,36 @@ async function getNombresProductos(detalle, tipoCompra) {
   }
 }
 
+async function getNombreProveedor(id) {
+  try {
+    const response = await ProveedoresService.get(id);
+    return response.data.nombre;
+  } catch (error) {
+    console.error('Error al obtener el nombre del proveedor:', error);
+    return 'Nombre no disponible';
+  }
+}
+
+function ProveedorNombre({ idProveedor }) {
+  const [nombre, setNombre] = useState(null);
+
+  useEffect(() => {
+    const fetchNombreProveedor = async () => {
+      const nombreProveedor = await getNombreProveedor(idProveedor);
+      setNombre(nombreProveedor);
+    };
+
+    fetchNombreProveedor();
+  }, [idProveedor]);
+
+  return <>{nombre || 'Cargando...'}</>;
+}
+
+// Define las PropTypes para validar las props
+ProveedorNombre.propTypes = {
+  idProveedor: PropTypes.number.isRequired // Por ejemplo, si idProveedor es un número
+};
+
 function ListaCompras() {
   const [compras, setCompras] = useState([]);
   const [visible, setVisible] = useState(false);
@@ -58,7 +90,8 @@ function ListaCompras() {
 
         const comprasConDetalle = await Promise.all(response.data.map(async item => {
           const compra = {
-            descripcion: item.compra.descripcion,
+            id_proveedor: item.compra.id_proveedor,
+            no_factura: item.compra.no_factura,
             id_compra: item.compra.id_compra,
             tipoCompra: item.compra.tipoCompra,
             estado: item.compra.estado,
@@ -147,11 +180,12 @@ function ListaCompras() {
               <CTableHead color="light">
                 <CTableRow>
                   <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">DESCRIPCIÓN</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">TOTAL</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">TIPO DE COMPRA</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">ESTADO</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">FECHA DE COMPRA</CTableHeaderCell>
+                  <CTableDataCell scope="col">Proveedor</CTableDataCell>
+                  <CTableHeaderCell scope="col">No Factura</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Total</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Tipo de Compra</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Fecha de Compra</CTableHeaderCell>
                   <CTableHeaderCell scope="col"></CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
@@ -160,7 +194,10 @@ function ListaCompras() {
                   compras.map((compra, i) => (
                     <CTableRow key={i}>
                       <CTableHeaderCell scope="row">{i + 1}</CTableHeaderCell>
-                      <CTableDataCell>{compra.compra.descripcion}</CTableDataCell>
+                      <CTableDataCell>
+                        <ProveedorNombre idProveedor={compra.compra.id_proveedor} />
+                      </CTableDataCell>
+                      <CTableDataCell>{compra.compra.no_factura}</CTableDataCell>
                       <CTableDataCell>{compra.compra.total}</CTableDataCell>
                       <CTableDataCell>{compra.compra.tipoCompra}</CTableDataCell>
                       <CTableDataCell>{compra.compra.estado}</CTableDataCell>
@@ -190,7 +227,6 @@ function ListaCompras() {
               <CModalBody>
                 {compraSeleccionada && (
                   <>
-                    <p><strong>Descripción:</strong> {compraSeleccionada.compra.descripcion}</p>
                     <p><strong>Total:</strong> {compraSeleccionada.compra.total}</p>
                     <p><strong>Estado:</strong> {compraSeleccionada.compra.estado}</p>
                     <p><strong>Fecha de Compra:</strong> {formatFechaCompra(compraSeleccionada.compra.created_at)}</p>
