@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faCheckCircle, faBan } from '@fortawesome/free-solid-svg-icons';
 import {
@@ -31,6 +32,7 @@ import {
 import VentaService from 'src/views/services/ventasService';
 
 function ListaVentas() {
+  const currentLocation = useLocation();
   const [ventas, setVentas] = useState ([]);
   const [visible, setVisible] = useState(false);
   const [selectedVentaId, setSelectedVentaId] = useState ({});
@@ -39,12 +41,13 @@ function ListaVentas() {
 
   useEffect(() => {
     fetchVentas();
-  }, []);
+  }, [currentLocation]);
 
   const fetchVentas = async () => {
     try {
         const data = await VentaService.getVentas();
         if (data && data.ventas) {
+            console.log(data.ventas);
             setVentas(data.ventas);
         } else {
             console.error('La respuesta de la API no contiene la propiedad "ventas":', data);
@@ -230,4 +233,4 @@ function ListaVentas() {
   )
 }
 
-export default ListaVentas
+export default ListaVentas;
