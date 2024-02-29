@@ -165,7 +165,6 @@ const ListaRol = () => {
   const indexOfLastUser = currentPage * pageSize;
   const indexOfFirstUser = indexOfLastUser - pageSize;
   const currentRoles = roles.slice(indexOfFirstUser, indexOfLastUser);
-
   return (
     <>
       <CCard className="mb-4">
@@ -185,76 +184,69 @@ const ListaRol = () => {
               className="form-control-sm"
             />
           </div>
-
+  
           {loading ? (
             <p>Cargando roles...</p>
           ) : (
             <div className="table-responsive">
-       <CTable align="middle" className="mb-0 border table-sm" hover responsive>
-  <CTableHead color="light">
-    <tr>
-      <th>ID</th>
-      <th>NOMBRE</th>
-      <th>ESTADO</th>
-      <th>PERMISOS</th>
-      <th>ACCIONES</th>
-    </tr>
-  </CTableHead>
-  <CTableBody>
-    {currentRoles.map((item) => (
-      <tr key={item.id_rol}>
-        <td>{item.id_rol}</td>
-        <td>{item.nombre}</td>
-        <td>
-          <strong>
-            <CBadge color={getColorForEstado(item.estado)}>{item.estado}</CBadge>
-          </strong>
-        </td>
-        <td>
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-    {item.permisos.map((permiso, index) => (
-      <div key={permiso.id_permiso} className="d-flex align-items-center">
-        <FaCheckCircle style={{ color: 'green', marginRight: '5px' }} />
-        <span style={{ fontWeight: 'bold' }}>{permiso.nombre_permiso}</span>
-      </div>
-    ))}
-  </div>
-</td>
-
-<td style={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-  <CFormSwitch
-    size="xl"
-    label=""
-    id={`formSwitchCheckChecked_${item.id_rol}`}
-    checked={item.estado === 'Activo'}
-    onChange={() => handleSwitchChange(item)}
-  />
-  <CButton
-    color="primary"
-    size="sm"
-    onClick={() => handleEditRole(item.id_rol)}
-    style={{
-     marginTop: '131px',
-      marginLeft: '5px',
-      backgroundColor: 'orange',
-      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-      padding: '3px 10px',
-    }}
-  >
-    <FaEdit style={{ color: 'black' }} />
-  </CButton>
-</td>
-
-      </tr>
-    ))}
-  </CTableBody>
-</CTable>
-
-            
-
-         
-
-
+              <CTable align="middle" className="mb-0 border table-sm" hover responsive>
+                <CTableHead color="light">
+                  <tr>
+                    <th>ID</th>
+                    <th>NOMBRE</th>
+                    <th>ESTADO</th>
+                    <th>PERMISOS</th>
+                    <th></th>
+                  </tr>
+                </CTableHead>
+                <CTableBody>
+                  {currentRoles.map((item) => (
+                    <tr key={item.id_rol}>
+                      <td>{item.id_rol}</td>
+                      <td>{item.nombre}</td>
+                      <td>
+                        <strong>
+                          <CBadge color={getColorForEstado(item.estado)}>{item.estado}</CBadge>
+                        </strong>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                          {item.permisos.map((permiso, index) => (
+                            <div key={permiso.id_permiso} className="d-flex align-items-center">
+                              <FaCheckCircle style={{ color: 'green', marginRight: '5px' }} />
+                              <span style={{ fontWeight: 'bold' }}>{permiso.nombre_permiso}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                          <CFormSwitch
+                            size="xl"
+                            label=""
+                            id={`formSwitchCheckChecked_${item.id_rol}`}
+                            checked={item.estado === 'Activo'}
+                            onChange={() => handleSwitchChange(item)}
+                            style={{ marginLeft: '10px' }}
+                          />
+                          <CButton
+                            color="primary"
+                            size="sm"
+                            onClick={() => handleEditRole(item.id_rol)}
+                            style={{
+                              backgroundColor: 'orange',
+                              boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+                              padding: '3px 10px',
+                            }}
+                          >
+                            <FaEdit style={{ color: 'black' }} />
+                          </CButton>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </CTableBody>
+              </CTable>
             </div>
           )}
           <CPagination
@@ -286,7 +278,7 @@ const ListaRol = () => {
           </CPagination>
         </CCardBody>
       </CCard>
-
+  
       <CModal visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader>
           <CModalTitle>Editar Rol</CModalTitle>
@@ -330,6 +322,7 @@ const ListaRol = () => {
       </CModal>
     </>
   );
+  
 };
 
 export default ListaRol;
