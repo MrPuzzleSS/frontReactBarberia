@@ -148,8 +148,10 @@ function ListaVentas() {
                           }}
                         >
                           <FontAwesomeIcon icon={faEye} />
-                        </CButton>
+                          
+                        </CButton >
                         <div style={{ width: '10px' }} />
+                        {venta.estado.toLowerCase() !== 'cancelado' && ( // Mostrar solo si el estado no es 'cancelado'
                         <CButton
                         color="success" 
                         size="sm" 
@@ -158,10 +160,11 @@ function ListaVentas() {
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          }}
+                        }}
                         >
-                            <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '5px' }} /> Cancelar
+                          <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '5px' }} /> Cancelar
                         </CButton>
+                        )}
               
                         <div style={{ width: '10px' }} />
                         <CButton
