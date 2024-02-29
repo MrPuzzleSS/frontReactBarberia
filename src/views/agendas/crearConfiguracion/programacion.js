@@ -779,7 +779,8 @@ const CrearConfiguracion = () => {
                                         title: clickInfo.event.title,
                                         html: `
                 <div style="font-weight: bold;">
-                    Detalles del evento<br/>
+                    Detalles del  
+                    git evento<br/>
                     Fecha de inicio: ${clickInfo.event.start.toLocaleDateString()}<br/>
                     Fecha de fin: ${clickInfo.event.end ? clickInfo.event.end.toLocaleDateString() : 'No end date'}<br/>
                     Hora de inicio: ${clickInfo.event.extendedProps.horaInicio}<br/>
