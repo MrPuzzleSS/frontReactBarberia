@@ -36,7 +36,7 @@ const CreateRol = () => {
   useEffect(() => {
     const fetchPermisos = async () => {
       try {
-        const response = await axios.get('http://localhost:8095/api/permisos');
+        const response = await axios.get('https://restapibarberia.onrender.com/api/permisos');
         console.log('Respuesta de la API de permisos:', response.data);
         setPermisos(response.data.listaPermisos || []);
       } catch (error) {

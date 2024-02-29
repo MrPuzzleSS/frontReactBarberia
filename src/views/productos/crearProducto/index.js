@@ -299,7 +299,7 @@ function CrearProducto() {
                         type="number"
                         value={precioCosto}
                         onChange={(e) => handleIngresoManual('precioCosto', e.target.value)}
-                        required
+                        
                       />
                     </div>
                   </CCol>
@@ -310,7 +310,7 @@ function CrearProducto() {
                         type="number"
                         value={precioVenta}
                         onChange={(e) => handleIngresoManual('precioVenta', e.target.value)}
-                        required
+                        
                       />
                     </div>
                   </CCol>
@@ -321,7 +321,7 @@ function CrearProducto() {
                         type="number"
                         value={stock}
                         onChange={(e) => handleIngresoManual('stock', e.target.value)}
-                        required
+                      
                       />
                     </div>
                   </CCol>

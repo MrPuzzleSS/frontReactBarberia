@@ -98,7 +98,7 @@ const EditProfilePage = () => {
 
     const confirmUpdate = async () => {
         try {
-            const response = await fetch('http://localhost:8095/api/actualizarPerfil', {
+            const response = await fetch('https://restapibarberia.onrender.com/api/actualizarPerfil', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

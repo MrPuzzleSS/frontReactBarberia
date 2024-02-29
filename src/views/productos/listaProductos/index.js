@@ -63,11 +63,11 @@ function ListaProductos() {
 
   const handleEditar = (producto) => {
     console.log('Editar producto:', producto);
-    if (producto.estado === 'Inactivo') {
+    if (producto.estado === 'Activo') {
       Swal.fire({
         icon: 'warning',
-        title: 'Producto inactivo',
-        text: 'No se puede editar un producto inactivo.',
+        title: 'Producto activo',
+        text: 'No se puede editar un producto activo.',
       });
       return;
     }
@@ -140,19 +140,19 @@ function ListaProductos() {
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
     });
-
+  
     // Si el usuario confirma la eliminación, proceder con la eliminación del producto
     if (confirmacion.isConfirmed) {
       try {
         // Obtener el producto
         const producto = await ProductoService.getProductoById(id_producto);
-
-        // Verificar si el producto está inactivo
-        if (producto.estado === 'Inactivo') {
-          throw new Error('No se puede eliminar un producto inactivo.');
+  
+        // Verificar si el producto está activo
+        if (producto.estado === 'Activo') {
+          throw new Error('No se puede eliminar un producto activo.');
         }
-
-        // Si el producto no está inactivo, proceder con la eliminación
+  
+        // Si el producto no está activo, proceder con la eliminación
         await ProductoService.eliminarProducto(id_producto);
         fetchProductos();
         Swal.fire({
@@ -163,7 +163,7 @@ function ListaProductos() {
         });
       } catch (error) {
         console.error('Error al eliminar el producto:', error);
-        // Mostrar mensaje de error en caso de que el producto esté inactivo
+        // Mostrar mensaje de error en caso de que el producto esté activo
         Swal.fire({
           icon: 'error',
           title: 'Error al eliminar el producto',
@@ -172,6 +172,7 @@ function ListaProductos() {
       }
     }
   };
+  
 
 
   const handlePageChange = (pageNumber) => {
