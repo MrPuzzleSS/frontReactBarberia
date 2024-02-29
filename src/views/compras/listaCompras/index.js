@@ -182,10 +182,10 @@ function ListaCompras() {
                   <CTableHeaderCell scope="col">#</CTableHeaderCell>
                   <CTableDataCell scope="col">Proveedor</CTableDataCell>
                   <CTableHeaderCell scope="col">No Factura</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">TOTAL</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">TIPO DE COMPRA</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">ESTADO</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">FECHA DE COMPRA</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Total</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Tipo de Compra</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Fecha de Compra</CTableHeaderCell>
                   <CTableHeaderCell scope="col"></CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
