@@ -166,8 +166,8 @@ const Register = () => {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
             if (!emailRegex.test(value)) {
               validationErrors.correo = 'Por favor, ingresa un formato válido de correo electrónico.';
-            } else if (value.length > 254) {
-              validationErrors.correo = 'El correo electrónico no debe exceder los 254 caracteres.';
+            } else if (value.length > 50) {
+              validationErrors.correo = 'El correo electrónico no debe exceder los 50 caracteres.';
             } else if (/[^\w@.-]/.test(value)) {
               validationErrors.correo = 'El correo electrónico no debe contener caracteres especiales ni espacios.';
             } else {
