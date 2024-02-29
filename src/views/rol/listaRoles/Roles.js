@@ -58,7 +58,7 @@ const ListaRol = () => {
 
     const fetchAllPermisos = async () => {
       try {
-        const permisosResponse = await axios.get('http://localhost:8095/api/permisos');
+        const permisosResponse = await axios.get('https://restapibarberia.onrender.com/api/permisos');
         setAllPermisos(permisosResponse.data?.listaPermisos || []);
       } catch (error) {
         console.error('Error al obtener permisos:', error);

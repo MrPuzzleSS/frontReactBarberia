@@ -89,10 +89,10 @@ function CrearProducto() {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
+  
   const handleGuardarProducto = async (e) => {
     e.preventDefault();
-
-
+  
     // Verificar si el nombre del producto ya existe
     const productoExistente = productos.find(producto => producto.nombre === nombre);
     if (productoExistente) {
@@ -103,13 +103,13 @@ function CrearProducto() {
       });
       return;
     }
-
+  
     if (!esNuevoProducto) {
       // Si no es un nuevo producto, simplemente guardamos sin validar
       guardarProducto();
       return;
     }
-
+  
     if (!nombreValido) {
       Swal.fire({
         icon: 'error',
@@ -118,7 +118,7 @@ function CrearProducto() {
       });
       return;
     }
-
+  
     if (!descripcionValida) {
       Swal.fire({
         icon: 'error',
@@ -127,9 +127,20 @@ function CrearProducto() {
       });
       return;
     }
-
+  
+    // Validar que los campos numéricos no sean negativos
+    if (precioCosto < 0 || precioVenta < 0 || stock < 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Los campos Precio Costo, Precio Venta y Stock no pueden ser negativos.',
+      });
+      return;
+    }
+  
     guardarProducto();
   };
+  
 
   const guardarProducto = async () => {
 
