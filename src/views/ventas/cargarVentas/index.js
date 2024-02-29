@@ -30,7 +30,7 @@ import {
 } from "@coreui/react";
 import citasServiciosDataService from "src/views/services/citasServiciosService";
 
-const API_URL = "http://localhost:8095/api";
+const API_URL = "https://restapibarberia.onrender.com/api";
 
 function CargarVentas() {
   const history = useNavigate();

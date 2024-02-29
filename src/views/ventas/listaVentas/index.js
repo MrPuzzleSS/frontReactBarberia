@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBook, faCheckCircle, faBan } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faCheckCircle, faBan } from '@fortawesome/free-solid-svg-icons';
 import {
   CCard,
   CCardBody,
@@ -90,7 +90,7 @@ function ListaVentas() {
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Ventas</strong>
               <Link to="/ventas/CrearVentas">
-              <CButton color="success">Agregar Ventas</CButton>
+              <CButton color="primary">Agregar Ventas</CButton>
               </Link>
             </div>
           </CCardHeader>
@@ -144,7 +144,7 @@ function ListaVentas() {
                             setDetalleServicio(venta.detalleservicios);
                           }}
                         >
-                          <FontAwesomeIcon icon={faBook} />
+                          <FontAwesomeIcon icon={faEye} />
                         </CButton>
                         <div style={{ width: '10px' }} />
                         <CButton
@@ -169,7 +169,14 @@ function ListaVentas() {
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          }}
+                          justifyContent: 'center',
+                          padding: '8px 12px',
+                          borderRadius: '4px',
+                          backgroundColor: 'transparent',
+                          fontSize: '14px',
+                          textTransform: 'uppercase',
+                          cursor: 'pointer',
+                        }}
                         >
                           <FontAwesomeIcon icon={faBan} style={{ marginRight: '5px' }} />
                         </CButton>

@@ -54,7 +54,7 @@ function CrearEmpleado() {
                     return;
                 }
     
-                const respuesta = await fetch(`http://localhost:8095/api/validar?documento=${documento}`, {
+                const respuesta = await fetch(`https://restapibarberia.onrender.com/api/validar?documento=${documento}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
