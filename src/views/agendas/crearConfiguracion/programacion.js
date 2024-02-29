@@ -65,7 +65,7 @@ const CrearConfiguracion = () => {
 
     const fetchEmpleados = async () => {
         try {
-            const response = await fetch('http://localhost:8095/api/empleado');
+            const response = await fetch('https://restapibarberia.onrender.com/empleado');
             if (!response.ok) {
                 throw new Error('Error al obtener los empleados');
             }
@@ -108,7 +108,7 @@ const CrearConfiguracion = () => {
     const socketRef = useRef(null);
 
     useEffect(() => {
-        socketRef.current = io('http://localhost:8095');
+        socketRef.current = io('https://restapibarberia.onrender.com');
 
         socketRef.current.on('connect', () => {
             console.log('Conectado al servidor Socket.IO');

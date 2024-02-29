@@ -22,7 +22,7 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const [resetToken, setResetToken] = useState(null);  // Add state to store the reset token
+  const [resetToken, setResetToken] = useState(null); // Add state to store the reset token
   const navigate = useNavigate();
 
   const handleResetPassword = async () => {
@@ -48,7 +48,7 @@ const ForgotPassword = () => {
 
       if (response.ok) {
         console.log('Token obtenido:', data.resetToken); // Verifica si el token se obtiene correctamente
-        setResetToken(data.resetToken);  // Store the reset token in the state
+        setResetToken(data.resetToken); // Store the reset token in the state
 
         setSuccess(data.mensaje);
         // Puedes redirigir al usuario a la página de cambio de contraseña o mostrar un mensaje adicional aquí.
@@ -78,8 +78,11 @@ const ForgotPassword = () => {
           <CCol xl={5} md={10}>
             <CCard className="p-4">
               <CCardBody>
+                <div className="text-center mb-4">
+                  <h3>Recuperar contraseña</h3>
+                  <img src={logoBarberia} alt="logo empresa" width="60%" className="my-3" />
+                </div>
                 <CForm>
-                  <h3 className="text-center mb-4">Recuperar contraseña</h3>
                   {error && <CAlert color="danger">{error}</CAlert>}
                   {success && <CAlert color="success">{success}</CAlert>}
                   <CInputGroup className="mb-3">
@@ -94,18 +97,15 @@ const ForgotPassword = () => {
                       onChange={(e) => setEmail(e.target.value)}
                     />
                   </CInputGroup>
-                  <CButton color="primary" className="w-100" onClick={handleResetPassword}>
+                  <CButton color="primary" className="w-100 mb-3" onClick={handleResetPassword}>
                     Enviar Instrucciones
                   </CButton>
+                  <div className="text-center">
+                    <CButton color="link" onClick={() => navigate('/login')}>
+                      Volver al Inicio de Sesión
+                    </CButton>
+                  </div>
                 </CForm>
-              </CCardBody>
-              <CCardBody className="text-center">
-                <img src={logoBarberia} alt="logo empresa" width="96%" />
-                <div className="text-center mt-3">
-                  <CButton color="link" onClick={() => navigate('/login')}>
-                    Volver al Inicio de Sesión
-                  </CButton>
-                </div>
               </CCardBody>
             </CCard>
           </CCol>
