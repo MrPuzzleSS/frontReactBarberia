@@ -152,6 +152,7 @@ function ListaEmpleados() {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Sí, cambiar estado',
+      allowOutsideClick: false, // Evita que se cierre el modal haciendo clic fuera de él
     });
   
     if (result.isConfirmed) {
@@ -166,7 +167,7 @@ function ListaEmpleados() {
       // Cambiar el estado del interruptor al contrario de su valor actual
       setEstadoActivo((prevEstado) => !prevEstado);
     }
-  };  
+  };    
 
   function getColorForEstado(estado) {
     if (estado === "Activo") {
@@ -239,18 +240,13 @@ function ListaEmpleados() {
                           onChange={() => handleCambiarEstadoSwitch(empleado.id_empleado)}
                         />
                         <CButton
-                          color="primary"
-                          size="sm"
-                          onClick={() => handleEditar(empleado)}
-                          style={{
-                            marginLeft: '5px',
-                            backgroundColor: 'orange',
-                            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)', // Sombra para dar relieve
-                            padding: '3px 10px' // Ajusta el tamaño del botón reduciendo el padding vertical
-                          }}
-                        >
-                          <FaEdit style={{ color: 'black' }} /> {/* Ícono de editar en negro */}
-                        </CButton>
+                        color="secondary"
+                        size="sm"
+                        onClick={() => handleEditar(empleado)}
+                        style={{ marginRight: '5px' }} // Ajustar el espacio entre los botones
+                      >
+                        <FaEdit /> {/* Icono de editar */}
+                      </CButton>
                       </CButtonGroup>
                     </CTableDataCell>
                   </CTableRow>
