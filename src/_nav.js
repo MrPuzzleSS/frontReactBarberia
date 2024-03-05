@@ -1,13 +1,10 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
-import jwt_decode from 'jwt-decode';
-import ListaRol from '../src/views/rol/listaRoles/Roles';
 import {
   cilPuzzle,
   cilSpeedometer,
   cilUser,
   cilSettings,
-  cilAccountLogout,
   cilIndustry,
   cilCart,
   cilPeople,
