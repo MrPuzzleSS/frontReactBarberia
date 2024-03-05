@@ -11,6 +11,7 @@ import {
   CForm,
   CFormInput,
   CFormLabel,
+  CFormSelect,
   CRow,
 } from '@coreui/react';
 import { useForm, Controller } from 'react-hook-form';
@@ -93,12 +94,12 @@ const CrearProveedor = () => {
                     required: 'El tipo de documento es requerido',
                   }}
                   render={({ field }) => (
-                    <select {...field} className="form-select">
+                    <CFormSelect {...field} className="form-select">
                       <option value="">Seleccione un tipo de documento</option>
                       <option value="CC">Cédula de Ciudadanía</option>
                       <option value="CE">Cédula de Extranjería</option>
                       <option value="NIT">NIT</option>
-                    </select>
+                    </CFormSelect>
                   )}
                 />
                 {errors.tipo_documento && (
