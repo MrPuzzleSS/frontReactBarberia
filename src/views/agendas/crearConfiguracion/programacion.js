@@ -24,7 +24,7 @@ const CrearConfiguracion = () => {
             onChange(selectedOption);
         };
 
-        console.log('Soy felix', options, selectedValues, onChange);
+        //  console.log('Soy felix', options, selectedValues, onChange);
         const selectedOptions = options.filter((option) => selectedValues.includes(option.value));
 
         return (
@@ -69,7 +69,7 @@ const CrearConfiguracion = () => {
 
         try {
 
-            console.log('Iniciando fetch de empleados...');
+            //  console.log('Iniciando fetch de empleados...');
 
 
             const apiUrl = 'https://restapibarberia.onrender.com/api/empleado';
@@ -84,7 +84,7 @@ const CrearConfiguracion = () => {
             if (Array.isArray(data.empleados)) {
                 const formattedEmpleados = data.empleados.map((empleado) => {
                     // Agregar console.log para enviar el nombre y apellido del empleado
-                    console.log(`Nombre y Apellido del Empleado: ${empleado.nombre} ${empleado.apellido}`);
+                    //   console.log(`Nombre y Apellido del Empleado: ${empleado.nombre} ${empleado.apellido}`);
 
                     return {
                         value: empleado.id_empleado.toString(), // Asegúrate de convertir el ID a cadena
@@ -94,11 +94,11 @@ const CrearConfiguracion = () => {
                 });
 
                 setEmpleados(formattedEmpleados);
-                console.log('Empleados actualizados:', formattedEmpleados);
+                //console.log('Empleados actualizados:', formattedEmpleados);
 
                 // Opcional: guardar los datos en localStorage
                 localStorage.setItem('empleados', JSON.stringify(formattedEmpleados));
-                console.log('Datos de empleados guardados en el almacenamiento local.');
+                // console.log('Datos de empleados guardados en el almacenamiento local.');
             } else {
                 console.error('La propiedad empleados no contiene un array:', data);
             }
@@ -152,9 +152,9 @@ const CrearConfiguracion = () => {
 
     const fetchAgendas = useCallback(async () => {
         try {
-            console.log('Iniciando fetch de agendas...');
+            //  console.log('Iniciando fetch de agendas...');
             const data = await agendaService.getAllAgendas();
-            console.log('Estos son los datos obtenidos:', data);
+            //   console.log('Estos son los datos obtenidos:', data);
 
             const agendas = data.agendas || [];
 
@@ -198,10 +198,10 @@ const CrearConfiguracion = () => {
                 }));
 
                 setEvents(formattedEvents);
-                console.log('Eventos actualizados:', formattedEvents);
+                //Iniciando console.log('Eventos actualizados:', formattedEvents);
             } else {
                 console.error('Las agendas no se obtuvieron como un array:', data);
-                console.log('Estructura de las agendas:', data);
+                //     console.log('Estructura de las agendas:', data);
             }
         } catch (error) {
             console.error('Error al obtener las agendas:', error);
@@ -253,7 +253,7 @@ const CrearConfiguracion = () => {
                             formData.empleadosSeleccionados.includes(empleado.value)
                         );
 
-                        console.log('empleadoSeleccionado', empleadoSeleccionado);
+                        console.log('empledo llllll', empleadoSeleccionado);
 
                         if (empleadoSeleccionado) {
                             empleadoSeleccionado.forEach(async (barbero) => {
@@ -329,29 +329,12 @@ const CrearConfiguracion = () => {
 
     const handleEditEvent = (clickInfo) => {
         const eventId = clickInfo?.event?.extendedProps?.id_agenda;
-    
+
         if (eventId) {
-            console.log('ID del evento:', eventId);
-    
             agendaService.getAgendaById(eventId)
                 .then((eventoEdit) => {
                     console.log('Detalles del evento obtenidos:', eventoEdit);
                     setEventoSeleccionado(eventoEdit);
-    
-                    console.log('Empleados:', empleados);
-                    console.log('Empleados seleccionados en el evento:', eventoEdit.empleadosSeleccionados);
-    
-                    if (eventoEdit && eventoEdit.empleadosSeleccionados) {
-                        const empleadosSeleccionados = eventoEdit.empleadosSeleccionados.map((id_empleado) =>
-                            empleados.find((empleado) => empleado.value === id_empleado)
-                        );
-    
-                        setEventoSeleccionado((prevEventoSeleccionado) => ({
-                            ...prevEventoSeleccionado,
-                            empleadosSeleccionados,
-                        }));
-                    }
-    
                     setShowEditModal(true);
                 })
                 .catch((error) => {
@@ -361,7 +344,10 @@ const CrearConfiguracion = () => {
             console.error('ID de agenda inválido');
         }
     };
-    
+
+
+
+
 
 
     const handleGuardarCambios = () => {
@@ -477,7 +463,7 @@ const CrearConfiguracion = () => {
                                 title: `Agenda de ${nombre} ${apellido}`,
                                 id_empleado: empleado,
                             };
-                            console.log("Nuevo evento:", newEvent); // Verificar el nuevo evento antes de crearlo
+                            // console.log("Nuevo evento:", newEvent); // Verificar el nuevo evento antes de crearlo
                             const createdEvent = await agendaService.createAgenda(newEvent);
                             if (!!createdEvent?.error) {
                                 throw new Error(createdEvent?.error);
@@ -536,7 +522,7 @@ const CrearConfiguracion = () => {
     const [searchText, setSearchText] = useState('');
     const filteredEvents = events.filter((event) => {
         const nombreEmpleado = (event.title || '').toString().toLowerCase(); // Asegúrate de que event.title esté definido antes de llamar a toString
-        console.log('Nombre del empleado:', nombreEmpleado); // Console.log para ver el nombre del empleado
+        // console.log('Nombre del empleado:', nombreEmpleado); // Console.log para ver el nombre del empleado
 
         return (
             nombreEmpleado.includes(searchText.toLowerCase()) // Filtrar por nombre del empleado
@@ -717,7 +703,7 @@ const CrearConfiguracion = () => {
 
                                 dateClick={handleDateClick}
                                 eventDrop={handleEventDrop}
-                               // deleteEvent={handleEventDelete}
+                                // deleteEvent={handleEventDelete}
                                 initialView="dayGridMonth"
                                 headerToolbar={{
                                     left: 'prev,next today',
@@ -779,7 +765,8 @@ const CrearConfiguracion = () => {
                                         title: clickInfo.event.title,
                                         html: `
                 <div style="font-weight: bold;">
-                    Detalles del evento<br/>
+                    Detalles del  
+                     evento<br/>
                     Fecha de inicio: ${clickInfo.event.start.toLocaleDateString()}<br/>
                     Fecha de fin: ${clickInfo.event.end ? clickInfo.event.end.toLocaleDateString() : 'No end date'}<br/>
                     Hora de inicio: ${clickInfo.event.extendedProps.horaInicio}<br/>
@@ -951,7 +938,6 @@ const CrearConfiguracion = () => {
                                             ...eventoSeleccionado,
                                             horaInicio: e.target.value
                                         })}
-
                                     />
                                 </div>
                                 <div className="form-group">
@@ -970,20 +956,27 @@ const CrearConfiguracion = () => {
                                     <label>Barbero</label>
                                     <MultiSelect
                                         options={empleados}
-                                        selectedValues={[eventoSeleccionado?.id_empleado || []]}
+                                        selectedValues={[eventoSeleccionado?.id_empleado.toString() || ""]} 
                                         onChange={(selected) => {
                                             const selectedEmpleadoId = selected[0]?.value;
                                             setEventoSeleccionado({
                                                 ...eventoSeleccionado,
-                                                id_empleado: selectedEmpleadoId
+                                                id_empleado: parseInt(selectedEmpleadoId) 
                                             });
-                                            // Imprimir el valor seleccionado
-                                            console.log('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww:', selectedEmpleadoId);
+                                            console.log('Empleado seleccionado:', selectedEmpleadoId);
                                         }}
                                     />
+
+
+
+
+
                                 </div>
                             </form>
                         </Modal.Body>
+
+
+
                         <Modal.Footer>
                             <Button
                                 variant="secondary"

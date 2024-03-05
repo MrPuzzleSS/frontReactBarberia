@@ -105,10 +105,12 @@ const AgendarCita = () => {
       // Guarda la cita al hacer clic en "Agendar"
       const nuevaCita = {
         id_empleado: selectedBarberoId,
-        id_cliente: userInfo.id_usuario,
+        id_usuario: userInfo.userId, // TODO: Obtener el id del cliente
         Fecha_Atencion: selectedDate,
         Hora_Atencion: formattedHour,
       };
+
+      console.log("Nueva cita:", nuevaCita);
 
       try {
         // Utiliza la función create de CitasDataService para crear la cita

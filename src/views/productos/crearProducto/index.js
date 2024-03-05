@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Select from 'react-select';
 import Swal from 'sweetalert2';
 import {
   CButton,
@@ -16,13 +17,14 @@ import ProductoService from 'src/views/services/productoService';
 function CrearProducto() {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [stock, setStock] = useState('');
-  const [precioCosto, setPrecioCosto] = useState('');
-  const [precioVenta, setPrecioVenta] = useState('');
+  const [precioCosto, setPrecioCosto] = useState(0); // Inicializado en 0
+  const [precioVenta, setPrecioVenta] = useState(0); // Inicializado en 0
+  const [stock, setStock] = useState(0); // Inicializado en 0
+  const [tipo, setTipo] = useState('');
   const [esNuevoProducto, setEsNuevoProducto] = useState(false);
   const [productos, setProductos] = useState([]);
   const [selectedProducto, setSelectedProducto] = useState(null);
-  const [enableGuardar, setEnableGuardar] = useState(true); // Estado para habilitar/deshabilitar el botón
+  const [enableGuardar, setEnableGuardar] = useState(true);
   const [nombreValido, setNombreValido] = useState(true);
   const [descripcionValida, setDescripcionValida] = useState(true);
 
@@ -42,11 +44,13 @@ function CrearProducto() {
   const handleSeleccionarProductoExistente = (productoSeleccionado) => {
     setSelectedProducto(productoSeleccionado);
     if (productoSeleccionado) {
-      setNombre(productoSeleccionado.nombre || '');
-      setDescripcion(productoSeleccionado.descripcion || '');
-      setStock(productoSeleccionado.stock || '');
-      setPrecioCosto(productoSeleccionado.precioCosto || '');
-      setPrecioVenta(productoSeleccionado.precioVenta || '');
+      const { nombre, descripcion, precioCosto, precioVenta, stock, tipo } = productoSeleccionado;
+      setNombre(nombre || '');
+      setDescripcion(descripcion || '');
+      setPrecioCosto(precioCosto || '');
+      setPrecioVenta(precioVenta || '');
+      setStock(stock || '');
+      setTipo(tipo || '');
       setEnableGuardar(false);
     }
   };
@@ -61,14 +65,17 @@ function CrearProducto() {
         setDescripcion(valor);
         validarDescripcion(valor);
         break;
-      case 'stock':
-        setStock(valor);
-        break;
       case 'precioCosto':
         setPrecioCosto(valor);
         break;
       case 'precioVenta':
         setPrecioVenta(valor);
+        break;
+      case 'stock':
+        setStock(valor);
+        break;
+      case 'tipo':
+        setTipo(valor);
         break;
       default:
         break;
@@ -76,7 +83,7 @@ function CrearProducto() {
   };
 
   const validarNombre = (valor) => {
-    const nombreRegex = /^[a-zA-Z\sñáéíóúÁÉÍÓÚüÜ]+$/;
+    const nombreRegex = /^[a-zA-Z0-9\sñáéíóúÁÉÍÓÚüÜ]+$/; // Permitir letras, números y espacios
     setNombreValido(nombreRegex.test(valor));
   };
 
@@ -89,12 +96,10 @@ function CrearProducto() {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
-  
   const handleGuardarProducto = async (e) => {
     e.preventDefault();
-  
-    // Verificar si el nombre del producto ya existe
-    const productoExistente = productos.find(producto => producto.nombre === nombre);
+
+    const productoExistente = productos.find((producto) => producto.nombre === nombre);
     if (productoExistente) {
       Swal.fire({
         icon: 'error',
@@ -103,22 +108,21 @@ function CrearProducto() {
       });
       return;
     }
-  
+
     if (!esNuevoProducto) {
-      // Si no es un nuevo producto, simplemente guardamos sin validar
       guardarProducto();
       return;
     }
-  
+
     if (!nombreValido) {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'El campo Nombre solo puede contener letras y espacios.',
+        text: 'El campo Nombre solo puede contener letras, números y espacios.',
       });
       return;
     }
-  
+
     if (!descripcionValida) {
       Swal.fire({
         icon: 'error',
@@ -127,8 +131,7 @@ function CrearProducto() {
       });
       return;
     }
-  
-    // Validar que los campos numéricos no sean negativos
+
     if (precioCosto < 0 || precioVenta < 0 || stock < 0) {
       Swal.fire({
         icon: 'error',
@@ -137,22 +140,20 @@ function CrearProducto() {
       });
       return;
     }
-  
+
     guardarProducto();
   };
-  
 
   const guardarProducto = async () => {
-
     const nombreCapitalizado = capitalizeFirstLetter(nombre);
     const descripcionCapitalizado = capitalizeFirstLetter(descripcion);
-    // Crear el objeto del nuevo producto con el nombre en mayúsculas
     const nuevoProducto = {
       nombre: nombreCapitalizado,
       descripcion: descripcionCapitalizado,
       precioCosto,
       precioVenta,
       stock,
+      tipoCompra: tipo, // Cambia 'tipo' por 'tipoCompra'
     };
 
     try {
@@ -189,6 +190,11 @@ function CrearProducto() {
     }
   };
 
+  const tipoOptions = [
+    { value: 'Producto', label: 'Producto' },
+    { value: 'Insumo', label: 'Insumo' },
+  ];
+
   return (
     <CRow>
       <CCol xs={12}>
@@ -207,8 +213,9 @@ function CrearProducto() {
               {esNuevoProducto ? 'Producto Nuevo' : 'Producto Existente'}
             </CFormLabel>
           </div>
+
           <CCardBody>
-            {esNuevoProducto && (
+            {esNuevoProducto ? (
               <div>
                 <CCol xs={5}></CCol>
                 <CCol xs={5}>
@@ -222,7 +229,9 @@ function CrearProducto() {
                       onChange={(e) => handleIngresoManual('nombre', e.target.value)}
                       required
                     />
-                    {!nombreValido && <span className="text-danger">El campo Nombre solo puede contener letras y espacios.</span>}
+                    {!nombreValido && (
+                      <span className="text-danger">El campo Nombre solo puede contener letras y espacios.</span>
+                    )}
                   </div>
                   <div className="mb-3">
                     <CFormLabel style={{ fontWeight: 'bold' }}>
@@ -234,7 +243,22 @@ function CrearProducto() {
                       onChange={(e) => handleIngresoManual('descripcion', e.target.value)}
                       required
                     />
-                    {!descripcionValida && <span className="text-danger">El campo Descripción solo puede contener letras, números y algunos caracteres especiales.</span>}
+                    {!descripcionValida && (
+                      <span className="text-danger">
+                        El campo Descripción solo puede contener letras, números y algunos caracteres especiales.
+                      </span>
+                    )}
+                  </div>
+                  <div className="mb-3">
+                    <CFormLabel style={{ fontWeight: 'bold' }}>
+                      Tipo<span style={{ color: 'red' }}>*</span>
+                    </CFormLabel>
+                    <Select
+                      options={tipoOptions}
+                      value={tipoOptions.find((option) => option.value === tipo)}
+                      onChange={(selectedOption) => handleIngresoManual('tipo', selectedOption.value)}
+                      required
+                    />
                   </div>
                 </CCol>
 
@@ -249,9 +273,7 @@ function CrearProducto() {
                   </Link>
                 </CCol>
               </div>
-            )}
-
-            {!esNuevoProducto && (
+            ) : (
               <div>
                 <CRow>
                   <CCol xs={4}>
@@ -310,7 +332,6 @@ function CrearProducto() {
                         type="number"
                         value={precioCosto}
                         onChange={(e) => handleIngresoManual('precioCosto', e.target.value)}
-                        
                       />
                     </div>
                   </CCol>
@@ -321,7 +342,6 @@ function CrearProducto() {
                         type="number"
                         value={precioVenta}
                         onChange={(e) => handleIngresoManual('precioVenta', e.target.value)}
-                        
                       />
                     </div>
                   </CCol>
@@ -332,7 +352,19 @@ function CrearProducto() {
                         type="number"
                         value={stock}
                         onChange={(e) => handleIngresoManual('stock', e.target.value)}
-                      
+                      />
+                    </div>
+                  </CCol>
+                </CRow>
+                <CRow>
+                  <CCol xs={4}>
+                    <div className="mb-3">
+                      <CFormLabel>Tipo</CFormLabel>
+                      <Select
+                        options={tipoOptions}
+                        value={tipoOptions.find((option) => option.value === tipo)}
+                        onChange={(selectedOption) => handleIngresoManual('tipo', selectedOption.value)}
+                        required
                       />
                     </div>
                   </CCol>
@@ -365,4 +397,5 @@ function CrearProducto() {
     </CRow>
   );
 }
+
 export default CrearProducto;

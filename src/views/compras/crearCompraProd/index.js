@@ -282,6 +282,22 @@ const CrearCompra = () => {
                           {errors.descripcion?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
                         </CCol>
                         <CCol className='mt-4' sm="7">
+                          <CFormLabel>Tipo de compra</CFormLabel>
+                          <Controller
+                            name="tipoCompra"
+                            control={control}
+                            rules={{ required: false }}
+                            render={({ field }) => (
+                              <CFormSelect {...field} className="form-select">
+                              <option value="">Seleccione un tipo</option>
+                              <option value="Insumo">Insumo</option>
+                              <option value="Producto">Producto</option>
+                            </CFormSelect>
+                            )}
+                          />
+                          {errors.proveedor?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
+                        </CCol>
+                        <CCol className='mt-4' sm="7">
                           <CFormLabel>Proveedor</CFormLabel>
                           <Controller
                             name="proveedor"
