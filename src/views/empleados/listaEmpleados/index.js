@@ -30,6 +30,8 @@ import {
   CInputGroup,
   CInputGroupText,
   CFormSwitch,
+  CPagination, // Importa CPagination
+  CPaginationItem
 } from '@coreui/react';
 import EmpleadoService from 'src/views/services/empleadoService';
 
@@ -62,7 +64,10 @@ function ListaEmpleados() {
   const [estadoActivo, setEstadoActivo] = useState(false);
   const [selectedEmpleadoId, setSelectedEmpleadoId] = useState({});
   const [validationErrors, setValidationErrors] = useState({});
+  const [filteredEmpleados, setFilteredEmpleados] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(5);
 
   useEffect(() => {
     // Obtener la lista de empleados al cargar el componente
@@ -122,6 +127,8 @@ function ListaEmpleados() {
         );
       });
       setEmpleados(filteredEmpleados);
+      setFilteredEmpleados(filteredEmpleados); // Actualiza los empleados filtrados
+      setCurrentPage(1);
     } catch (error) {
       console.error('Error al obtener empleados:', error);
     }
@@ -144,30 +151,31 @@ function ListaEmpleados() {
 
 
   const handleCambiarEstadoSwitch = async (id_empleado) => {
-    const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: '¡Se cambiará el estado del empleado!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, cambiar estado',
-      allowOutsideClick: false, // Evita que se cierre el modal haciendo clic fuera de él
-    });
+    try {
+      // Cambiar el estado del empleado
+      await EmpleadoService.cambiarEstadoEmpleado(id_empleado);
   
-    if (result.isConfirmed) {
-      try {
-        await EmpleadoService.cambiarEstadoEmpleado(id_empleado);
-        fetchEmpleados();
-        Swal.fire('¡Cambiado!', 'El estado del empleado ha sido modificado.', 'success');
-      } catch (error) {
-        console.error('Error al cambiar el estado del empleado:', error);
-        Swal.fire('Error', 'Hubo un problema al cambiar el estado del empleado.', 'error');
-      }
+      // Actualizar la lista de empleados
+      await fetchEmpleados();
+  
+      // Mostrar una alerta de éxito
+      Swal.fire('¡Cambiado!', 'El estado del empleado ha sido modificado.', 'success');
+  
       // Cambiar el estado del interruptor al contrario de su valor actual
       setEstadoActivo((prevEstado) => !prevEstado);
+    } catch (error) {
+      console.error('Error al cambiar el estado del empleado:', error);
+      Swal.fire('Error', 'Hubo un problema al cambiar el estado del empleado.', 'error');
     }
-  };    
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastEmpleado = currentPage * pageSize;
+  const indexOfFirstEmpleado = indexOfLastEmpleado - pageSize;
+  const currentEmpleados = filteredEmpleados.slice(indexOfFirstEmpleado, indexOfLastEmpleado);
 
   function getColorForEstado(estado) {
     if (estado === "Activo") {
@@ -221,9 +229,9 @@ function ListaEmpleados() {
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {empleados && empleados.map((empleado, index) => (
-                  <CTableRow key={empleado.id_empleado}>
-                    <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+              {currentEmpleados.map((empleado, index) => (
+              <CTableRow key={empleado.id_empleado}>
+                <CTableHeaderCell scope="row">{indexOfFirstEmpleado + index + 1}</CTableHeaderCell>
                     <CTableDataCell>{empleado.nombre}</CTableDataCell>
                     <CTableDataCell>{empleado.apellido}</CTableDataCell>
                     <CTableDataCell>{empleado.correo}</CTableDataCell>
@@ -253,6 +261,26 @@ function ListaEmpleados() {
                 ))}
               </CTableBody>
             </CTable>
+            <CPagination align="center" aria-label="Page navigation example" className="mt-3">
+              <CPaginationItem onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+                Anterior
+              </CPaginationItem>
+              {Array.from({ length: Math.ceil(filteredEmpleados.length / pageSize) }, (_, i) => (
+              <CPaginationItem
+              key={i}
+              onClick={() => handlePageChange(i + 1)}
+              active={i + 1 === currentPage}
+              >
+                {i + 1}
+                </CPaginationItem>
+                ))}
+              <CPaginationItem
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === Math.ceil(filteredEmpleados.length / pageSize)}
+              >
+                Siguiente
+              </CPaginationItem>
+            </CPagination>
           </CCardBody>
         </CCard>
       </CCol>
