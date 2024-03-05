@@ -45,7 +45,7 @@ function CrearEmpleado() {
     };
 
     const validardocumento = async () => {
-        setError(false)
+        setError(true)
         if (documento.length > 0) {
             try {
                 const token = localStorage.getItem('token');
@@ -199,6 +199,7 @@ function CrearEmpleado() {
                             onBlur={async () => {
                                 // Llama a la función de validación del documento
                                 await validardocumento();
+                                
                             }}
                             invalid={documentoError !== '' || errorDocumento} // Considera el estado de error del documento
                             />
