@@ -248,6 +248,7 @@ function FormularioVentas() {
     const handleAgregarProducto = () => {
         if (selectedProducto) {
             let precioTotal = selectedProducto.precioVenta * cantidadProductos;
+            console.log("Precio total del producto:", precioTotal); 
             const nuevaFilaProducto = {
                 id: selectedProducto.id_producto,
                 nombre: selectedProducto.nombre,

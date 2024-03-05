@@ -45,7 +45,7 @@ function CrearEmpleado() {
     };
 
     const validardocumento = async () => {
-        setError(true)
+        setError(false)
         if (documento.length > 0) {
             try {
                 const token = localStorage.getItem('token');
