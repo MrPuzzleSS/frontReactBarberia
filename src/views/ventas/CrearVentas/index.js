@@ -29,7 +29,7 @@ import {
     CInputGroupText,
 } from '@coreui/react';
 
-const API_URL = 'http://localhost:8095/api';
+const API_URL = 'https://restapibarberia.onrender.com/api';
 
 function FormularioVentas() {
     const navigate = useNavigate();
@@ -73,8 +73,6 @@ function FormularioVentas() {
             // Mensaje de éxito
             Swal.fire('Éxito', 'El empleado se ha creado correctamente', 'success');
 
-            // Utiliza el método navigate para redireccionar
-            navigate('/ventas/listaVentas');
             // Adjust the following line based on your VentaService API method
             const nextNumeroFactura = getNextNumeroFactura();
             setNumeroFactura(nextNumeroFactura);
@@ -88,7 +86,9 @@ function FormularioVentas() {
                 numeroFactura: nextNumeroFactura,
             });
             console.log('Sale created:', response);
-            // Navegar a la nueva ruta después de que la venta se haya creado
+
+            // Utiliza el método navigate para redireccionar
+             navigate('/ventas/listaVentas');
         } catch (error) {
             console.error('Error creating sale:', error);
         }
@@ -199,6 +199,7 @@ function FormularioVentas() {
             setApellido(selected.apellido);
             setDocumento(selected.documento);
             setFormValid(clienteId !== '' && selectedEmpleado !== null);
+            console.log(clientes)
         } else {
             // Manejar el caso en que no se encuentra el cliente con el ID especificado
             console.error('Cliente no encontrado con el ID:', clienteId);

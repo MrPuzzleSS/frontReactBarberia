@@ -154,8 +154,6 @@ const CrearCompra = () => {
         estado: 'Pendiente',
       };
 
-      console.log(nuevaCompraData);
-
       const nuevaCompraResponse = await CompraDataService.create(nuevaCompraData);
 
       if (!nuevaCompraResponse || !nuevaCompraResponse.data || !nuevaCompraResponse.data.id_compra) {
@@ -188,8 +186,6 @@ const CrearCompra = () => {
 
       // Esperar a que todas las promesas de detalles de compra se resuelvan
       await Promise.all(detallesCompraPromises);
-
-      console.log(detallesCompraPromises);
 
       // Mensaje de éxito
       Swal.fire({
@@ -317,7 +313,7 @@ const CrearCompra = () => {
                         </CButton>
                         <Link to="/compras/lista-compras">
                           <CButton type="button" color="secondary">
-                            Cancelara
+                            Cancelar
                           </CButton>
                         </Link>
                       </CCol>

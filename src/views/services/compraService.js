@@ -13,11 +13,11 @@ const getAllProductosbyId = id => {
 };
 
 const getAllProductosInsu = () => {
-    return http.get("/insumos");
+    return http.get("/insumo");
 };
 
 const getAllProductosbyIdInsu = id => {
-    return http.get(`/insumos/${id}`);
+    return http.get(`/insumo/${id}`);
 };
 
 const getCompraDetalle = () => {

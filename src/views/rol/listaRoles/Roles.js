@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import { FaEdit, FaTrash, } from 'react-icons/fa'; 
+import { FaEdit, FaCheckCircle } from 'react-icons/fa';
 import { CBadge } from '@coreui/react';
 import {
   CCard,
@@ -23,12 +23,10 @@ import {
   CModalTitle,
   CModalBody,
   CModalFooter,
-  CFormLabel // Asegúrate de tener esta importación
+  CFormLabel
 } from '@coreui/react';
 
 import { Link } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit } from '@fortawesome/free-solid-svg-icons';
 
 const ListaRol = () => {
   const [roles, setRoles] = useState([]);
@@ -45,7 +43,7 @@ const ListaRol = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const rolesResponse = await axios.get('http://localhost:8095/api/rol');
+        const rolesResponse = await axios.get('https://restapibarberia.onrender.com/api/rol');
         setRoles(rolesResponse.data?.listaRoles || []);
         setLoading(false);
       } catch (error) {
@@ -58,7 +56,7 @@ const ListaRol = () => {
 
     const fetchAllPermisos = async () => {
       try {
-        const permisosResponse = await axios.get('http://localhost:8095/api/permisos');
+        const permisosResponse = await axios.get('https://restapibarberia.onrender.com/api/permisos');
         setAllPermisos(permisosResponse.data?.listaPermisos || []);
       } catch (error) {
         console.error('Error al obtener permisos:', error);
@@ -83,7 +81,6 @@ const ListaRol = () => {
 
     try {
       await axios.put(`http://localhost:8095/api/rol/${item.id_rol}`, {
-        ...item,
         estado: newStatus,
       });
 
@@ -116,7 +113,6 @@ const ListaRol = () => {
     setEditRoleName(roleToEdit.nombre);
     setEditRolePermisos(roleToEdit.permisos.map((permiso) => permiso.id_permiso));
     setVisible(true);
-
   };
 
   const handleSaveEdit = async () => {
@@ -136,15 +132,19 @@ const ListaRol = () => {
             nombre: editRoleName,
             permisos: editRolePermisos,
           };
-    
+
           await axios.put(`http://localhost:8095/api/rol/${editRoleId}`, editedRole);
-    
+
           setVisible(false);
           Swal.fire({
             icon: 'success',
             title: 'Rol actualizado con éxito',
             showConfirmButton: false,
-            timer: 1500,
+            timer: 1000,
+          }).then(() => {
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
           });
         } catch (error) {
           console.error('Error al actualizar el rol:', error);
@@ -157,9 +157,7 @@ const ListaRol = () => {
       }
     });
   };
-  
-  
-  
+
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -187,70 +185,77 @@ const ListaRol = () => {
               className="form-control-sm"
             />
           </div>
-  
+
           {loading ? (
             <p>Cargando roles...</p>
           ) : (
-
-            <CTable align="middle" className="mb-0 border table-sm" hover responsive>
+            <div className="table-responsive">
+       <CTable align="middle" className="mb-0 border table-sm" hover responsive>
   <CTableHead color="light">
-    <CTableRow>
-      <CTableHeaderCell>ID</CTableHeaderCell>
-      <CTableHeaderCell>NOMBRE</CTableHeaderCell>
-      <CTableHeaderCell>ESTADO</CTableHeaderCell>
-      <CTableHeaderCell>PERMISOS</CTableHeaderCell>
-      <CTableHeaderCell>ACCIONES</CTableHeaderCell>
-    </CTableRow>
+    <tr>
+      <th>ID</th>
+      <th>NOMBRE</th>
+      <th>ESTADO</th>
+      <th>PERMISOS</th>
+      <th>ACCIONES</th>
+    </tr>
   </CTableHead>
   <CTableBody>
     {currentRoles.map((item) => (
-      <CTableRow key={item.id_rol}>
-        <CTableDataCell>{item.id_rol}</CTableDataCell>
-        <CTableDataCell>{item.nombre}</CTableDataCell>
-        <CTableDataCell>
+      <tr key={item.id_rol}>
+        <td>{item.id_rol}</td>
+        <td>{item.nombre}</td>
+        <td>
           <strong>
-            <CBadge color={getColorForEstado(item.estado)}>
-              {item.estado}
-            </CBadge>
+            <CBadge color={getColorForEstado(item.estado)}>{item.estado}</CBadge>
           </strong>
-        </CTableDataCell>
-        <CTableDataCell>
-          {item.permisos.map((permiso) => (
-            <div key={permiso.id_permiso} style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'lightgreen', marginRight: '5px' }}></div>
-              <div>{permiso.nombre_permiso}</div>
-            </div>
-          ))}
-        </CTableDataCell>
-        <CTableDataCell className="d-flex">
-        <CFormSwitch
-            size="xl"
-            label=""
-            id={`formSwitchCheckChecked_${item.id_rol}`}
-            checked={item.estado === 'Activo'}
-            onChange={() => handleSwitchChange(item)}
-          />
-        <CButton
-  color="primary"
-  size="sm"
-  onClick={() => handleEditRole(item.id_rol)}
-  style={{
-    marginLeft: '5px',
-    backgroundColor: 'orange',
-    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-    padding: '3px 10px'
-  }}
->
-  <FaEdit style={{ color: 'black' }} />
-</CButton>
-      
-          
-        </CTableDataCell>
-      </CTableRow>
+        </td>
+        <td>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+    {item.permisos.map((permiso, index) => (
+      <div key={permiso.id_permiso} className="d-flex align-items-center">
+        <FaCheckCircle style={{ color: 'green', marginRight: '5px' }} />
+        <span style={{ fontWeight: 'bold' }}>{permiso.nombre_permiso}</span>
+      </div>
+    ))}
+  </div>
+</td>
+
+<td style={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+  <CFormSwitch
+    size="xl"
+    label=""
+    id={`formSwitchCheckChecked_${item.id_rol}`}
+    checked={item.estado === 'Activo'}
+    onChange={() => handleSwitchChange(item)}
+  />
+  <CButton
+    color="primary"
+    size="sm"
+    onClick={() => handleEditRole(item.id_rol)}
+    style={{
+     marginTop: '131px',
+      marginLeft: '5px',
+      backgroundColor: 'orange',
+      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+      padding: '3px 10px',
+    }}
+  >
+    <FaEdit style={{ color: 'black' }} />
+  </CButton>
+</td>
+
+      </tr>
     ))}
   </CTableBody>
 </CTable>
 
+            
+
+         
+
+
+            </div>
           )}
           <CPagination
             align="center"
@@ -281,7 +286,7 @@ const ListaRol = () => {
           </CPagination>
         </CCardBody>
       </CCard>
-  
+
       <CModal visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader>
           <CModalTitle>Editar Rol</CModalTitle>

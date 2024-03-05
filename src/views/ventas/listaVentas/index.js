@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBook, faCheckCircle, faBan } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faCheckCircle, faBan } from '@fortawesome/free-solid-svg-icons';
 import {
   CCard,
   CCardBody,
@@ -31,6 +32,7 @@ import {
 import VentaService from 'src/views/services/ventasService';
 
 function ListaVentas() {
+  const currentLocation = useLocation();
   const [ventas, setVentas] = useState ([]);
   const [visible, setVisible] = useState(false);
   const [selectedVentaId, setSelectedVentaId] = useState ({});
@@ -39,12 +41,13 @@ function ListaVentas() {
 
   useEffect(() => {
     fetchVentas();
-  }, []);
+  }, [currentLocation]);
 
   const fetchVentas = async () => {
     try {
         const data = await VentaService.getVentas();
         if (data && data.ventas) {
+            console.log(data.ventas);
             setVentas(data.ventas);
         } else {
             console.error('La respuesta de la API no contiene la propiedad "ventas":', data);
@@ -90,7 +93,7 @@ function ListaVentas() {
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Ventas</strong>
               <Link to="/ventas/CrearVentas">
-              <CButton color="success">Agregar Ventas</CButton>
+              <CButton color="primary">Agregar Ventas</CButton>
               </Link>
             </div>
           </CCardHeader>
@@ -144,7 +147,7 @@ function ListaVentas() {
                             setDetalleServicio(venta.detalleservicios);
                           }}
                         >
-                          <FontAwesomeIcon icon={faBook} />
+                          <FontAwesomeIcon icon={faEye} />
                         </CButton>
                         <div style={{ width: '10px' }} />
                         <CButton
@@ -169,7 +172,14 @@ function ListaVentas() {
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          }}
+                          justifyContent: 'center',
+                          padding: '8px 12px',
+                          borderRadius: '4px',
+                          backgroundColor: 'transparent',
+                          fontSize: '14px',
+                          textTransform: 'uppercase',
+                          cursor: 'pointer',
+                        }}
                         >
                           <FontAwesomeIcon icon={faBan} style={{ marginRight: '5px' }} />
                         </CButton>
@@ -223,4 +233,4 @@ function ListaVentas() {
   )
 }
 
-export default ListaVentas
+export default ListaVentas;

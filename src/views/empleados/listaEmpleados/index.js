@@ -186,7 +186,7 @@ function ListaEmpleados() {
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Empleados</strong>
               <Link to="/empleados/crearEmpleados">
-                <CButton color="success">Agregar Empleados</CButton>
+                <CButton color="primary">Agregar Empleados</CButton>
               </Link>
             </div>
           <div className="mt-3">

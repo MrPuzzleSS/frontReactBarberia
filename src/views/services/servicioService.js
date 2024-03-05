@@ -1,6 +1,7 @@
+const apiUrl = 'https://restapibarberia.onrender.com/api/servicio'; // Cambiar la URL de insumo a servicio
+
 // servicioService.js
 
-const apiUrl = 'http://localhost:8095/api/servicio'; // Cambia la URL base a la de servicios
 
 const addAuthorizationHeader = (headers) => {
     const token = localStorage.getItem('token');

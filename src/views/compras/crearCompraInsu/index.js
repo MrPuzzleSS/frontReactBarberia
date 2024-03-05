@@ -15,7 +15,6 @@ import {
   CFormLabel,
   CModal,
   CModalBody,
-  CModalFooter,
   CModalHeader,
   CModalTitle,
   CRow,
@@ -25,18 +24,20 @@ import {
   CTableHeaderCell,
   CTableBody,
   CTableDataCell,
-  CFormTextarea
+  CFormSelect
 } from '@coreui/react';
 import { cilPlaylistAdd, cilChildFriendly } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import Toast from 'src/components/toast';
 import CompraDataService from 'src/views/services/compraService';
 import detalleCompraDataService from 'src/views/services/detalleCompraInsuService';
+import ProveedoresService from 'src/views/services/ProveedoresService';
 
 const CrearCompraInsu = () => {
   const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm({
     defaultValues: {
-      descripcion: '',
+      noFactura: '',
+      proveedor: '',
       productoSeleccionado: null,
       cantidad: '',
       precioUnitario: '',
@@ -49,11 +50,22 @@ const CrearCompraInsu = () => {
   const [productos, setProductos] = useState([]);
   const [tempProductos, setTempProductos] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null); // Estado para almacenar el ID del producto seleccionado
+  const [proveedores, setProveedores] = useState([]);
 
   useEffect(() => {
+    const fetchProveedores = async () => {
+      try {
+        const response = await ProveedoresService.getAll();
+        setProveedores(response.data.listProveedores);
+      } catch (error) {
+        console.error('Error al obtener la lista de proveedores:', error);
+      }
+    };
+
     const fetchProductos = async () => {
       try {
         const response = await CompraDataService.getAllProductosInsu();
+        console.log(response)
         const productos = response.data.listInsumos;
 
         if (Array.isArray(productos)) {
@@ -66,6 +78,7 @@ const CrearCompraInsu = () => {
       }
     };
 
+    fetchProveedores();
     fetchProductos();
   }, []);
 
@@ -130,10 +143,13 @@ const CrearCompraInsu = () => {
 
       // Paso 1: Crear la compra
       const nuevaCompraData = {
-        estado: 'Pendiente',
+        id_proveedor: data.proveedor,
+        no_factura: data.noFactura,
         tipoCompra: 'Insumo',
-        descripcion: data.descripcion
+        estado: 'Pendiente',
       };
+
+      console.log(nuevaCompraData);
 
       const nuevaCompraResponse = await CompraDataService.create(nuevaCompraData);
 
@@ -166,8 +182,6 @@ const CrearCompraInsu = () => {
 
       // Esperar a que todas las promesas de detalles de compra se resuelvan
       await Promise.all(detallesCompraPromises);
-
-      console.log(detallesCompraPromises);
 
       // Mensaje de éxito
       Swal.fire({
@@ -236,25 +250,47 @@ const CrearCompraInsu = () => {
                     </CCardFooter>
                   </CCard>
                 </CCol>
-                <CCol xs={12} md={6}>
+                                <CCol xs={12} md={6}>
                   <CCard>
                     <CCardHeader>
                       <strong>Total de la Compra</strong>
                     </CCardHeader>
                     <CCardBody>
-                      <CFormLabel>Total</CFormLabel>
-                      <CFormInput type="text" value={tempProductos.reduce((acc, producto) => acc + producto.total, 0)} disabled />
-                      <CCol className='mt-3'>
-                        <CFormLabel>Descripción de la compra</CFormLabel>
-                        <Controller
-                          name="descripcion"
-                          control={control}
-                          rules={{ required: false }}
-                          render={({ field }) => <CFormTextarea {...field} />}
-                        />
-                        {errors.descripcion?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
+                      <CRow className="justify-content-between align-items-center">
+                        <CCol className='mt-3' sm="5">
+                          <CFormLabel>No. Factura</CFormLabel>
+                          <Controller
+                            name="noFactura"
+                            control={control}
+                            rules={{ required: false }}
+                            render={({ field }) => <CFormInput {...field} />}
+                          />
+                          {errors.descripcion?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
+                        </CCol>
+                        <CCol className='mt-4' sm="7">
+                          <CFormLabel>Proveedor</CFormLabel>
+                          <Controller
+                            name="proveedor"
+                            control={control}
+                            rules={{ required: false }}
+                            render={({ field }) => (
+                              <CFormSelect {...field}>
+                                <option>Seleccionar Proveedor</option>
+                                {proveedores.map(proveedor => (
+                                  <option key={proveedor.id_proveedor} value={proveedor.id_proveedor}>
+                                    {proveedor.nombre}
+                                  </option>
+                                ))}
+                              </CFormSelect>
+                            )}
+                          />
+                          {errors.proveedor?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
+                        </CCol>
+                      </CRow>
+                      <CCol className='mt-3' sm="5">
+                        <CFormLabel>Total</CFormLabel>
+                        <CFormInput type="text" value={tempProductos.reduce((acc, producto) => acc + producto.total, 0)} disabled />
                       </CCol>
-
                     </CCardBody>
                     <CCardFooter>
                       <CCol xs={12}>
@@ -263,7 +299,7 @@ const CrearCompraInsu = () => {
                         </CButton>
                         <Link to="/compras/lista-compras">
                           <CButton type="button" color="secondary">
-                            Cancelara
+                            Cancelar
                           </CButton>
                         </Link>
                       </CCol>
