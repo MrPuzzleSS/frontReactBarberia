@@ -1,92 +1,98 @@
 const apiUrl = 'https://restapibarberia.onrender.com/api/insumo';
 
 
+
+const addAuthorizationHeader = (headers) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+};
+
+
 const InsumoService = {
-    getAllInsumos: async () => {
+    fetchWithAuthorization: async (url, options = {}) => {
+        const headers = options.headers || {};
+        addAuthorizationHeader(headers);
+
+        const response = await fetch(url, { ...options, headers });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        return response.json();
+    },
+
+    getAllInsumos: async () => { // Cambiado desde 'getAllClientes'
         try {
-            const response = await fetch(apiUrl);
-            
-            if (!response.ok) {
-                throw new Error(`Error al obtener los insumos: ${response.status} ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            console.log('Insumos obtenidos:', data);
-
-            return data;
+            console.log('Insumos traidos');
+            return await InsumoService.fetchWithAuthorization(apiUrl);
         } catch (error) {
             console.error('Error al obtener los insumos:', error);
             throw error;
         }
     },
 
-    getClienteById: (id) => {
-        return fetch(`${apiUrl}/${id}`)
-            .then(response => response.json())
-            .catch(error => {
-                console.error('Error al obtener el insumo por ID:', error);
-            });
-    },
-
-    createInsumo: (newInsumo) => {
-        return fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newInsumo),
-        })
-            .then(response => response.json())
-            .catch(error => {
-                console.error('Error al crear el insumo:', error);
-            });
-    },
-
-    updateInsumo: (id, updatedInsumo) => {
-        return fetch(`${apiUrl}/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updatedInsumo),
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Error al actualizar el insumo: ${response.status} ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .catch(error => {
-                console.error('Error al actualizar el insumo:', error);
-                throw error;  // Propagar el error para que se maneje en el componente
-            });
-    },
-
-
-    cambiarEstadoInsumo: (id) => {
-        return fetch(`${apiUrl}/cambiarEstado/${id}`, {
-            method: 'PUT',
-        })
-            .then(response => response.json())
-            .catch(error => {
-                console.error('Error al cambiar el estado del insumo:', error);
-            });
-    },
-
-    eliminarInsumo: async (id_insumo) => {
+    getInsumoById: async (id) => { // Cambiado desde 'getClienteById'
         try {
-            const response = await fetch(`${apiUrl}/${id_insumo}`, {
-                method: 'DELETE',
-                // Options such as headers, authentication, etc.
-            });
-
-            if (!response.ok) {
-                throw new Error('Error al eliminar el insumo');
-            }
-
-            return response.json();
+            return await InsumoService.fetchWithAuthorization(`${apiUrl}/${id}`);
         } catch (error) {
-            throw new Error(`Error al eliminar el insumo: ${error.message}`);
+            console.error('Error al obtener el insumo por ID:', error);
+            throw error;
+        }
+    },
+
+    createInsumo: async (newInsumo) => { // Cambiado desde 'createCliente'
+        try {
+            return await InsumoService.fetchWithAuthorization(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newInsumo),
+            });
+        } catch (error) {
+            console.error('Error al crear el insumo:', error);
+            throw error;
+        }
+    },
+
+    updateInsumo: async (id, updatedInsumo) => { // Cambiado desde 'updateCliente'
+        try {
+            return await InsumoService.fetchWithAuthorization(`${apiUrl}/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedInsumo),
+            });
+        } catch (error) {
+            console.error('Error al actualizar el insumo:', error);
+            throw error;
+        }
+    },
+
+    cambiarEstadoInsumo: async (id) => { // Cambiado desde 'cambiarEstadoCliente'
+        try {
+            return await InsumoService.fetchWithAuthorization(`${apiUrl}/cambiarEstado/${id}`, {
+                method: 'PUT',
+            });
+        } catch (error) {
+            console.error('Error al cambiar el estado del insumo:', error);
+            throw error;
+        }
+    },
+
+    eliminarInsumo: async (id_insumo) => { // Cambiado desde 'eliminarCliente'
+        try {
+            return await InsumoService.fetchWithAuthorization(`${apiUrl}/${id_insumo}`, {
+                method: 'DELETE',
+            });
+        } catch (error) {
+            console.error(`Error al eliminar el insumo: ${error.message}`);
+            throw error;
         }
     },
 };

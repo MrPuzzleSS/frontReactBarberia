@@ -1,7 +1,16 @@
-/* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react';
+
+import { FaTrash } from 'react-icons/fa';
+import {
+    // ... Otros imports
+
+    CPaginationItem,
+} from '@coreui/react';
+import { FaEdit } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { MdDelete } from 'react-icons/md';
+import Switch from 'react-switch';
 import {
     CCard,
     CCardBody,
@@ -23,56 +32,84 @@ import {
     CModalFooter,
     CFormLabel,
     CFormInput,
+    CPagination,
 } from '@coreui/react';
-import ClienteService from 'src/views/services/clienteService'; // Actualiza el servicio si es necesario
+import ClienteService from 'src/views/services/clienteService';
 
 const ListaClientes = () => {
     const [visible, setVisible] = useState(false);
     const [clientes, setClientes] = useState(null);
     const [selectedClienteId, setSelectedClienteId] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 5;
 
     const fetchClientes = async () => {
         try {
             const response = await ClienteService.getAllClientes();
             const data = response.listClientes || [];
             setClientes(data);
+            console.log('Clientes:', data);
         } catch (error) {
             console.error('Error al obtener clientes:', error);
             setClientes([]);
         }
     };
 
-
     useEffect(() => {
         fetchClientes();
     }, []);
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
 
     const handleEditar = (cliente) => {
-        setSelectedClienteId(cliente);
-        setVisible(true);
+        if (cliente.estado) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No se puede editar un cliente activo',
+                showConfirmButton: false,
+                timer: 1500,
+            });
+        } else {
+            setSelectedClienteId(cliente);
+            setVisible(true);
+        }
     };
 
     const handleEliminar = async (id_cliente) => {
         try {
-            await ClienteService.eliminarCliente(id_cliente);
-            fetchClientes();
-            Swal.fire({
-                icon: 'success',
-                title: 'Cliente eliminado',
-                showConfirmButton: false,
-                timer: 1500,
-            });
+            const cliente = clientes.find((item) => item.id_cliente === id_cliente);
+    
+            if (cliente && cliente.estado) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No se puede eliminar un cliente activo',
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+            } else {
+                await ClienteService.eliminarCliente(id_cliente);
+                fetchClientes();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Cliente eliminado',
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+            }
         } catch (error) {
             console.error('Error al eliminar el cliente:', error);
         }
     };
-
+    
     const handleGuardarCambios = async () => {
         try {
-            console.log('selectedClienteId:', selectedClienteId);
-            console.log('selectedClienteId.id:', selectedClienteId.id_cliente);
             if (selectedClienteId && selectedClienteId.id_cliente) {
-                await ClienteService.updateCliente(selectedClienteId.id_cliente, selectedClienteId);
+                await ClienteService.updateCliente(
+                    selectedClienteId.id_cliente,
+                    selectedClienteId
+                );
                 fetchClientes();
                 setVisible(false);
                 Swal.fire({
@@ -89,7 +126,57 @@ const ListaClientes = () => {
         }
     };
 
+    const handleCambiarEstado = async (id_cliente) => {
+        try {
+            const clienteIndex = clientes.findIndex(
+                (item) => item.id_cliente === id_cliente
+            );
 
+            if (clienteIndex !== -1) {
+                const updatedClientes = [...clientes];
+                updatedClientes[clienteIndex] = {
+                    ...updatedClientes[clienteIndex],
+                    estado: !updatedClientes[clienteIndex].estado,
+                };
+
+                await ClienteService.updateCliente(
+                    id_cliente,
+                    { ...updatedClientes[clienteIndex] }
+                );
+                setClientes(updatedClientes);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: `Estado del cliente actualizado: ${updatedClientes[clienteIndex].estado ? 'Activo' : 'Inactivo'
+                        }`,
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+            } else {
+                console.error('Cliente no encontrado.');
+            }
+        } catch (error) {
+            console.error('Error al cambiar el estado del cliente:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al cambiar el estado del cliente',
+            });
+        }
+    };
+
+    const filteredClientes = clientes
+        ? clientes.filter((cliente) =>
+            cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cliente.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cliente.documento.toString().includes(searchTerm) ||
+            cliente.correo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cliente.telefono.toString().includes(searchTerm)
+        )
+        : [];
+
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedClientes = filteredClientes.slice(startIndex, endIndex);
 
     return (
         <CRow>
@@ -97,62 +184,162 @@ const ListaClientes = () => {
                 <CCard>
                     <CCardHeader>
                         <div className="d-flex justify-content-between align-items-center">
-                            
                             <strong>Lista de Clientes</strong>
                             <Link to="/Clientes/CrearClientes">
                                 <CButton color="primary">Agregar Cliente</CButton>
                             </Link>
                         </div>
+                        <CCol xs={3}>
+                            <div className="mt-2">
+                                <CFormInput
+                                    type="text"
+                                    placeholder="Buscar cliente..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </CCol>
                     </CCardHeader>
                     <CCardBody>
-                       
                         <CTable align="middle" className="mb-0 border" hover responsive>
-
                             <CTableHead>
                                 <CTableRow>
-                                    <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Id</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Documento</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Apellido</CTableHeaderCell>
-                                    <CTableHeaderCell scope="col">Documento</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Correo</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Teléfono</CTableHeaderCell>
-                                    <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col"></CTableHeaderCell>
                                 </CTableRow>
                             </CTableHead>
                             <CTableBody>
-                                {Array.isArray(clientes) && clientes.length > 0 && clientes.map((cliente, index) => (
-                                    <CTableRow key={cliente.id_cliente}>
-                                        <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                                        <CTableDataCell>{cliente.nombre}</CTableDataCell>
-                                        <CTableDataCell>{cliente.apellido}</CTableDataCell>
-                                        <CTableDataCell>{cliente.documento}</CTableDataCell>
-                                        <CTableDataCell>{cliente.correo}</CTableDataCell>
-                                        <CTableDataCell>{cliente.telefono}</CTableDataCell>
-                                        <CTableDataCell>
-                                            <CButtonGroup aria-label="Acciones del Cliente">
-                                                <CButton
-                                                    color="primary" // Cambiado a "primary" para hacerlo azul
-                                                    size="sm"
-                                                    variant="outline"
-                                                    onClick={() => handleEditar(cliente)}
-                                                >
-                                                    Editar
-                                                </CButton>
-                                                <CButton
-                                                    color="danger" // Cambiado a "danger" para hacerlo rojo
-                                                    size="sm"
-                                                    variant="outline"
-                                                    onClick={() => handleEliminar(cliente.id_cliente)}
-                                                >
-                                                    Eliminar
-                                                </CButton>
-                                            </CButtonGroup>
-                                        </CTableDataCell>
+                                {Array.isArray(paginatedClientes) &&
+                                    paginatedClientes.length > 0 &&
+                                    paginatedClientes.map((cliente, index) => (
+                                        <CTableRow key={cliente.id_cliente}>
+                                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+                                            <CTableDataCell>{cliente.documento}</CTableDataCell>
+                                            <CTableDataCell>{cliente.nombre}</CTableDataCell>
+                                            <CTableDataCell>{cliente.apellido}</CTableDataCell>
+                                            <CTableDataCell>{cliente.correo}</CTableDataCell>
+                                            <CTableDataCell>{cliente.telefono}</CTableDataCell>
 
-                                    </CTableRow>
-                                ))}
+                                            <CTableDataCell>
+                                                <CButtonGroup aria-label="Acciones del Cliente">
+                                                    <CTableDataCell>
+                                                        <CButton
+                                                            style={{
+                                                                marginRight: '20px',
+                                                                marginTop: '1px',  // Ajusta el margen superior según tus necesidades
+                                                                backgroundColor: cliente.estado ? '#12B41A  ' : 'red  ',
+                                                                color: 'white',
+                                                                fontWeight: 'bold',
+                                                                fontSize: '12px',  // Ajusta el tamaño del texto según tus necesidades
+                                                                padding: '3px 15px',  // Ajusta el espaciado interno según tus necesidades
+                                                                border: '0px solid #333',
+                                                            }}
+                                                        >
+                                                            {cliente.estado ? 'Activo' : 'Inactivo'}
+                                                        </CButton>
+                                                    </CTableDataCell>
+                                                    <div style={{ marginTop: '5px', marginRight: '20px' }}>
+                                                        <Switch
+                                                            onChange={() =>
+                                                                handleCambiarEstado(cliente.id_cliente)
+                                                            }
+                                                            checked={cliente.estado}
+                                                            onColor="#001DAE"
+                                                            onHandleColor="#FFFFFF"
+                                                            handleDiameter={15}
+                                                            uncheckedIcon={false}
+                                                            checkedIcon={false}
+                                                            boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                                                            activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                                                            height={20}
+                                                            width={33}
+                                                        />
+                                                    </div>
+                                                    <CButton
+                                                        color="primary"
+                                                        size="sm"
+                                                        onClick={() => handleEditar(cliente)}
+                                                        style={{
+                                                            marginRight: '20px',
+                                                            backgroundColor: 'orange',
+                                                            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+                                                            padding: '3px 10px',
+                                                            borderRadius: '10px',
+                                                        }}
+                                                    >
+                                                        <FaEdit style={{ color: 'black' }} />
+                                                    </CButton>
+                                                    <CButton
+                                                        color="danger"
+                                                        size="sm"
+                                                        onClick={() => {
+                                                            Swal.fire({
+                                                                title:
+                                                                    '¿Estás seguro que desea  eliminar este cliente?',
+                                                                text:
+                                                                    'Esta acción no se puede deshacer.',
+                                                                icon: 'warning',
+                                                                showCancelButton: true,
+                                                                confirmButtonColor: '#d33',
+                                                                cancelButtonColor: '#3085d6',
+                                                                confirmButtonText: 'Sí, eliminar',
+                                                                cancelButtonText: 'Cancelar',
+                                                            }).then((result) => {
+                                                                if (result.isConfirmed) {
+                                                                    handleEliminar(cliente.id_cliente);
+                                                                }
+                                                            });
+                                                        }}
+                                                        style={{
+                                                            borderRadius: '10px',  // Ajusta el radio de los bordes según tus necesidades
+                                                        }}
+                                                    >
+                                                        <FaTrash /> {/* Icono de eliminar */}
+                                                    </CButton>
+                                                </CButtonGroup>
+                                            </CTableDataCell>
+                                        </CTableRow>
+                                    ))}
                             </CTableBody>
                         </CTable>
+                        <CPagination
+                            align="center"
+                            aria-label="Page navigation example"
+                            className="mt-3"
+                        >
+                            <CPaginationItem
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                Anterior
+                            </CPaginationItem>
+                            {Array.from(
+                                { length: Math.ceil(filteredClientes.length / pageSize) },
+                                (_, i) => (
+                                    <CPaginationItem
+                                        key={i}
+                                        onClick={() => handlePageChange(i + 1)}
+                                        active={i + 1 === currentPage}
+                                    >
+                                        {i + 1}
+                                    </CPaginationItem>
+                                )
+                            )}
+                            <CPaginationItem
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={
+                                    currentPage === Math.ceil(filteredClientes.length / pageSize)
+                                }
+                            >
+                                Siguiente
+                            </CPaginationItem>
+                        </CPagination>
                     </CCardBody>
                 </CCard>
             </CCol>
@@ -200,7 +387,7 @@ const ListaClientes = () => {
                                         documento: e.target.value,
                                     })
                                 }
-                                disabled={true} // Aquí estableces el campo como deshabilitado
+                                disabled={true}
                             />
                         </div>
                         <div className="mb-3">
@@ -211,13 +398,11 @@ const ListaClientes = () => {
                                 onChange={(e) =>
                                     setSelectedClienteId({
                                         ...selectedClienteId,
-                                        correo: e.target.value, // Aquí debes usar `correo` en lugar de `Correo`
+                                        correo: e.target.value,
                                     })
                                 }
                             />
-
                         </div>
-
                         <div className="mb-3">
                             <CFormLabel>Teléfono</CFormLabel>
                             <CFormInput
@@ -244,6 +429,6 @@ const ListaClientes = () => {
             </CModal>
         </CRow>
     );
-}
+};
 
 export default ListaClientes;

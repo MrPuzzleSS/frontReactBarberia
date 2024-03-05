@@ -9,6 +9,7 @@ import {
 import { cilUser, cilSettings, cilLockLocked } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import { logout, getUserInfo } from '../../components/auht';
+import Swal from 'sweetalert2';
 
 const AppHeaderDropdown = () => {
   const [userName, setUserName] = useState('');
@@ -27,8 +28,21 @@ const AppHeaderDropdown = () => {
   }, []);
 
   const handleLogout = () => {
-    logout();
-    window.location.href = '/login'; // Redireccionar a la página de inicio de sesión
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Deseas cerrar la sesión?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logout();
+        window.location.href = '/login'; // Redireccionar a la página de inicio de sesión
+      }
+    });
   };
 
   return (
