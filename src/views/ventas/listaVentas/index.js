@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faCheckCircle, faBan } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faCheckCircle, faBan, faDedent } from '@fortawesome/free-solid-svg-icons';
 import {
   CCard,
   CCardBody,
@@ -28,6 +28,8 @@ import {
   CInputGroup,
   CInputGroupText,
   CBadge,
+  CPagination,
+  CPaginationItem
 } from '@coreui/react';
 import VentaService from 'src/views/services/ventasService';
 
@@ -38,10 +40,12 @@ function ListaVentas() {
   const [selectedVentaId, setSelectedVentaId] = useState ({});
   const [detalleproductos, setDetalleProducto] = useState(null);
   const [detalleservicios, setDetalleServicio] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(5);
 
   useEffect(() => {
     fetchVentas();
-  }, [currentLocation]);
+  }, [currentLocation, currentPage]);
 
   const fetchVentas = async () => {
     try {
@@ -55,6 +59,14 @@ function ListaVentas() {
     } catch (error) {
         console.error('Error al obtener las ventas:', error);
     }
+  };
+
+  const indexOfLastVenta = currentPage * pageSize;
+  const indexOfFirstVenta = indexOfLastVenta - pageSize;
+  const currentVentas = ventas.slice(indexOfFirstVenta, indexOfLastVenta);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   const cancelarVentas = async (id_ventas) => {
@@ -112,8 +124,8 @@ function ListaVentas() {
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {ventas && ventas.map((venta, index) => (
-                  <CTableRow key={venta.id_ventas}>
+              {currentVentas && currentVentas.map((venta, index) => (
+                <CTableRow key={venta.id_ventas}>
                     <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                     <CTableDataCell>{venta.nombre}</CTableDataCell>
                     <CTableDataCell>{venta.nombre_empleado}</CTableDataCell>
@@ -193,6 +205,26 @@ function ListaVentas() {
                 ))}
               </CTableBody>
             </CTable>
+            <CPagination align="center" aria-label="Page navigation example" className="mt-3">
+        <CPaginationItem onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+          Anterior
+        </CPaginationItem>
+        {Array.from({ length: Math.ceil(ventas.length / pageSize) }, (_, i) => (
+          <CPaginationItem
+            key={i}
+            onClick={() => handlePageChange(i + 1)}
+            active={i + 1 === currentPage}
+          >
+            {i + 1}
+          </CPaginationItem>
+        ))}
+        <CPaginationItem
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === Math.ceil(ventas.length / pageSize)}
+        >
+          Siguiente
+        </CPaginationItem>
+      </CPagination>
           </CCardBody>
         </CCard>
       </CCol>
@@ -206,8 +238,9 @@ function ListaVentas() {
               <h4>Detalles de Productos</h4>
               <ul>
                 {detalleproductos.map((detalle, index) => (
+                  
                   <li key={index}>
-                    IdDetalleProducto: {detalle.id_detalleproducto}, IdVenta: {detalle.id_ventas}, IdProducto: {detalle.id_producto}, Cantidad: {detalle.cantidad}, Valor Venta: {detalle.valor_venta}, Valor Total: {detalle.valor_total}
+                    IdDetalleProducto: {detalle.id_detalleproducto}, IdVenta: {detalle.id_ventas}, IdProducto: {detalle.id_producto}, Cantidad: {detalle.cantidad}, Precio Unitario: {detalle.valor_venta}, Valor Total: {detalle.valor_total}
                   </li>
                 ))}
               </ul>
