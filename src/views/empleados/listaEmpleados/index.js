@@ -202,7 +202,7 @@ function ListaEmpleados() {
           <CInputGroup className="mt-3" style={{ maxWidth: "200px" }}>
           <CFormInput
             type="text"
-            placeholder="Buscar..."
+            placeholder="Buscar empleados..."
             className="form-control-sm"
             value={searchTerm}
             onChange={(e) => {
