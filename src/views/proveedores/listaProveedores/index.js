@@ -165,9 +165,13 @@ function ListaProveedores() {
             text: "Hubo un problema al cambiar el estado del proveedor.",
           });
         }
+      } else {
+        // Si se cancela, volver al estado original del botón
+        document.getElementById(`cambiarEstado-${proveedor.id_proveedor}`).checked = proveedor.estado === 'Activo';
       }
     });
   };
+  
   
 
   const handlePageChange = (pageNumber) => {
