@@ -160,12 +160,17 @@ function CrearEmpleado() {
             console.error('Error al crear el empleado:', error);
         }
     };
+
+    const handleBlurDocumento = async () => {
+        await validardocumento();
+    };
+
     return (
         <CRow>
             <CCol xs={12}>
                 <CCard>
                     <CCardHeader>
-                        <strong>Crear</strong>
+                        <strong>Registrar</strong>
                     </CCardHeader>
                     <CCardBody>
                         <form onSubmit={handleGuardarEmpleado}>
@@ -195,12 +200,8 @@ function CrearEmpleado() {
                                     setDocumentoError('');
                                 }
                             }}
+                            onBlur={handleBlurDocumento}
                             
-                            onBlur={async () => {
-                                // Llama a la función de validación del documento
-                                await validardocumento();
-                                
-                            }}
                             invalid={documentoError !== '' || errorDocumento} // Considera el estado de error del documento
                             />
                             <CFormFeedback invalid>{documentoError}</CFormFeedback>
