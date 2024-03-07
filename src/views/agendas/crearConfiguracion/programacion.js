@@ -133,17 +133,25 @@ const CrearConfiguracion = () => {
 
 
     const colorArray = [
-        '#FF6633', '#FFB399', '#FF33FF', '#00B3E6',
-        '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
-        '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
-        '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
-        '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
-        '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
-        '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
-        '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
-        '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
-        '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'
+       
+       
+        '#7B68EE', '#4169E1',  '#00008B', '#0000CD',
+        '#191970', '#008080',
+        '#008B8B', '#00BFFF', '#00CED1', '#00FA9A', '#00FF00', '#00FF7F',
+        '#00FFFF', '#00FFFF', '#1874CD', '#191970', '#1E90FF', '#20B2AA',
+        '#4682B4', '#48D1CC', '#6495ED', '#66CDAA', '#66CDAA',
+        '#7FFFD4', '#7B68EE', '#87CEEB', '#87CEFA', '#8A2BE2', '#8A2BE2',
+        '#8B008B', '#9370DB', '#9400D3', '#9932CC', '#BA55D3', '#DDA0DD',
+        '#DB7093', '#DA70D6', '#D8BFD8', '#2E8B57', '#3CB371', '#20B2AA',
+        '#7FFFD4', '#8FBC8F', '#98FB98', '#48D1CC', '#20B2AA', '#5F9EA0',
+        '#6495ED', '#66CDAA', '#76EEC6', '#87CEEB', '#AFEEEE', '#E0FFFF',
+        '#F0FFFF', '#7FFFD4', '#00CED1', '#00FA9A', 
+        '#48D1CC', '#66CDAA', '#76EEC6', '#00BFFF', '#87CEFA'
     ];
+    
+    
+    
+    
 
     const generateColor = (id_empleado) => {
         const color = colorArray[id_empleado - 1] || '#CCCCCC';
@@ -994,9 +1002,7 @@ const CrearConfiguracion = () => {
                         </Modal.Footer>
                     </Modal>
                     <Modal show={showCreateModal} onHide={null}>
-                        <Modal.Header closeButton>
-                            <Modal.Title>Crear Agenda</Modal.Title>
-                        </Modal.Header>
+                      
                         <Modal.Body>
                             <div className="form-group">
                                 <label>Fecha Inicio</label>

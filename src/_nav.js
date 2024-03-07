@@ -70,12 +70,13 @@ const _nav = [
       },
     ],
   },
-  {
-    component: CNavItem,
-    name: 'Insumos',
-    to: '/insumos',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />
-  },
+
+  // {
+  //   component: CNavItem,
+  //   name: 'Insumos',
+  //   to: '/insumos',
+  //   icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />
+  // },
 
 
   {
@@ -92,7 +93,7 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Productos',
+    name: 'ProdInsumos',
     to: '/Productos',
     icon: <CIcon icon={cilBasket} customClassName="nav-icon" />
   },
