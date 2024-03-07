@@ -11,6 +11,7 @@ import {
   CForm,
   CFormInput,
   CFormLabel,
+  CFormSelect,
   CRow,
 } from '@coreui/react';
 import { useForm, Controller } from 'react-hook-form';
@@ -22,11 +23,12 @@ const CrearProveedor = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
+      tipo_documento: '',
+      num_documento: '',
       nombre: '',
       direccion: '',
       telefono: '',
       email: '',
-      tipo_de_producto_servicio: '',
     },
   });
 
@@ -36,9 +38,14 @@ const CrearProveedor = () => {
   const onSubmit = async (data) => {
     console.log(data);
     try {
-      const { nombre, email } = data;
-      const { nombreExists, emailExists } = await ProveedoresDataService.checkExistence(nombre, email);
+      const { nombre, email, num_documento } = data;
+      const { nombreExists, emailExists, documentoExist } = await ProveedoresDataService.checkExistence(nombre, email, num_documento);
       
+      if (documentoExist) {
+        setValidationError('El número de documento ya existe');
+        return;
+      }
+
       if (nombreExists) {
         setValidationError('El nombre del proveedor ya existe');
         return;
@@ -79,6 +86,53 @@ const CrearProveedor = () => {
           {validationError && <p style={{ color: 'red' }}>{validationError}</p>}
             <CForm className="row g-3" onSubmit={handleSubmit(onSubmit)}>
               <CCol sm={6}>
+                <CFormLabel>Tipo de Documento</CFormLabel>
+                <Controller
+                  name="tipo_documento"
+                  control={control}
+                  rules={{
+                    required: 'El tipo de documento es requerido',
+                  }}
+                  render={({ field }) => (
+                    <CFormSelect {...field} className="form-select">
+                      <option value="">Seleccione un tipo de documento</option>
+                      <option value="CC">Cédula de Ciudadanía</option>
+                      <option value="CE">Cédula de Extranjería</option>
+                      <option value="NIT">NIT</option>
+                    </CFormSelect>
+                  )}
+                />
+                {errors.tipo_documento && (
+                  <p style={{ color: 'red' }}>{errors.tipo_documento.message}</p>
+                )}
+              </CCol>
+              <CCol sm={6}>
+                <CFormLabel>Número de Documento</CFormLabel>
+                <Controller
+                  name="num_documento"
+                  control={control}
+                  rules={{
+                    required: 'El número de documento es requerido',
+                    pattern: {
+                      value: /^[0-9]+$/,
+                      message: 'El número de documento debe contener solo números',
+                    },
+                    minLength: {
+                      value: 5,
+                      message: 'El número de documento debe de tener un minimo de 5 caracteres'
+                    },
+                    maxLength: {
+                      value: 15,
+                      message: 'El número de documento no puede tener más de 15 caracteres',
+                    },
+                  }}
+                  render={({ field }) => <CFormInput maxLength={15}{...field} />}
+                />
+                {errors.num_documento && (
+                  <p style={{ color: 'red' }}>{errors.num_documento.message}</p>
+                )}
+              </CCol>
+              <CCol sm={6}>
                 <CFormLabel>Nombre del Proveedor</CFormLabel>
                 <Controller
                   name="nombre"
@@ -92,6 +146,10 @@ const CrearProveedor = () => {
                     minLength: {
                       value: 5,
                       message: 'El nombre debe de tener un minimo de 5 caracteres'
+                    },
+                    pattern: {
+                      value: /^[A-Za-z\s]+$/,
+                      message: 'El nombre debe contener solo letras',
                     }
                   }}
                   render={({ field }) => <CFormInput {...field} />}
@@ -135,10 +193,14 @@ const CrearProveedor = () => {
                     },
                     minLength: {
                       value: 10,
-                      message: 'El telefono debe de tener un minimo de 10 caracteres'
-                    }
+                      message: 'El telefono debe de tener un minimo de 10 digitos'
+                    },
+                    maxLength: {
+                      value: 10,
+                      message: 'El telefono no puede tener más de 10 digitos',
+                    },
                   }}
-                  render={({ field }) => <CFormInput {...field} />}
+                  render={({ field }) => <CFormInput placeholder='32030432032' type='tel' maxLength={10} {...field} />}
                 />
                 {errors.telefono && (
                   <p style={{ color: 'red' }}>{errors.telefono.message}</p>
@@ -153,7 +215,7 @@ const CrearProveedor = () => {
                     required: 'El correo electrónico es requerido',
                     pattern: {
                       // eslint-disable-next-line no-useless-escape
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                      value: /^[A-Z0-9]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
                       message: 'Ingrese un correo electrónico válido',
                     },
                   }}
@@ -161,28 +223,6 @@ const CrearProveedor = () => {
                 />
                 {errors.email && (
                   <p style={{ color: 'red' }}>{errors.email.message}</p>
-                )}
-              </CCol>
-              <CCol sm={6}>
-                <CFormLabel>Producto/Servicio</CFormLabel>
-                <Controller
-                  name="tipo_de_producto_servicio"
-                  control={control}
-                  rules={{
-                    required: 'El campo producto o servicio es requerido',
-                    maxLength: {
-                      value: 20,
-                      message: 'El campo producto o servicio no puede tener más de 20 caracteres',
-                    },
-                    minLength: {
-                      value: 5,
-                      message: 'El campo producto o servicio  debe de tener un minimo de 5 caracteres'
-                    }
-                  }}
-                  render={({ field }) => <CFormInput {...field} />}
-                />
-                {errors.tipo_de_producto_servicio && (
-                  <p style={{ color: 'red' }}>{errors.tipo_de_producto_servicio.message}</p>
                 )}
               </CCol>
               <CCol xs={12}>

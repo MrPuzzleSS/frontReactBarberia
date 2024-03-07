@@ -62,7 +62,7 @@ const CrearCompraInsu = () => {
       }
     };
 
-    const fetchProductos = async () => {
+    const fetchInsumo = async () => {
       try {
         const response = await CompraDataService.getAllProductosInsu();
         console.log(response)
@@ -79,7 +79,7 @@ const CrearCompraInsu = () => {
     };
 
     fetchProveedores();
-    fetchProductos();
+    fetchInsumo();
   }, []);
 
 
@@ -87,51 +87,51 @@ const CrearCompraInsu = () => {
     const productoSeleccionadoId = productoSeleccionado?.id_insumo;
     const cantidad = parseInt(watch('cantidad')); // Convertir a número entero
     const precioUnitario = parseFloat(watch('precioUnitario')); // Convertir a número decimal
-  
-    if (!productoSeleccionadoId || !cantidad || !precioUnitario ) {
+
+    if (!productoSeleccionadoId || !cantidad || !precioUnitario) {
       console.error('Error: Datos de producto incompletos');
-      console.log(productoSeleccionadoId, cantidad, precioUnitario );
+      console.log(productoSeleccionadoId, cantidad, precioUnitario);
       return;
     }
-  
+
     // Verificar si el producto ya existe en la lista
     const index = tempProductos.findIndex(producto => producto.producto.id_insumo === productoSeleccionadoId);
-  
+
     if (index !== -1) {
       // Si el producto existe, sumar la cantidad y actualizar precios
       const productoExistente = tempProductos[index];
       productoExistente.cantidad += cantidad; // Sumar la cantidad existente con la nueva cantidad
       productoExistente.precioUnitario = precioUnitario;
       productoExistente.total = productoExistente.cantidad * precioUnitario;
-  
+
       const updatedTempProductos = [...tempProductos];
       updatedTempProductos[index] = productoExistente;
       setTempProductos(updatedTempProductos);
     } else {
       // Si el producto no existe, agregarlo a la lista
       const producto = productos.find(producto => producto.id_insumo === productoSeleccionadoId);
-  
+
       const productoAgregado = {
         producto: producto, // Guardar el objeto completo del producto
         cantidad,
         precioUnitario,
         total: cantidad * precioUnitario,
       };
-  
+
       setTempProductos([...tempProductos, productoAgregado]);
     }
-  
+
     // Limpiar los campos y mostrar mensaje de éxito
     setValue('productoSeleccionado', null);
     setValue('cantidad', '');
     setValue('precioUnitario', '');
     setValue('tipoCompra', '');
-  
+
     Toast.fire({
       icon: "success",
       title: "El producto se agregó correctamente"
     });
-  };  
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -250,7 +250,7 @@ const CrearCompraInsu = () => {
                     </CCardFooter>
                   </CCard>
                 </CCol>
-                                <CCol xs={12} md={6}>
+                <CCol xs={12} md={6}>
                   <CCard>
                     <CCardHeader>
                       <strong>Total de la Compra</strong>
@@ -262,7 +262,7 @@ const CrearCompraInsu = () => {
                           <Controller
                             name="noFactura"
                             control={control}
-                            rules={{ required: false }}
+                            rules={{ required: true }}
                             render={({ field }) => <CFormInput {...field} />}
                           />
                           {errors.descripcion?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
@@ -272,7 +272,7 @@ const CrearCompraInsu = () => {
                           <Controller
                             name="proveedor"
                             control={control}
-                            rules={{ required: false }}
+                            rules={{ required: true }}
                             render={({ field }) => (
                               <CFormSelect {...field}>
                                 <option>Seleccionar Proveedor</option>
