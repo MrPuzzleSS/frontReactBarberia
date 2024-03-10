@@ -34,25 +34,28 @@ const API_URL = 'https://restapibarberia.onrender.com/api';
 function FormularioVentas() {
     const navigate = useNavigate();
     const [formValid, setFormValid] = useState(false);
+    const [mostrarServicio, setMostrarServicio] = useState(false);
+    const [mostrarProducto, setMostrarProducto] = useState(false);
     const [clientes, setClientes] = useState([]);
     const [servicios, setServicios] = useState([]);
     const [productos, setProductos] = useState([]);
     const [empleados, setEmpleados] = useState([]);
     const [ventas, setVentas] = useState([]);
+    const [serviciosEnVenta, setServiciosEnVenta] = useState([]);
+    const [productosEnVenta, setProductosEnVenta] = useState([]);
     const [selectedCliente, setSelectedCliente] = useState(null);
-    const [apellido, setApellido] = useState('');
-    const [documento, setDocumento] = useState('');
-    const [numeroFactura, setNumeroFactura] = useState('');
-    const [mostrarServicio, setMostrarServicio] = useState(false);
-    const [mostrarProducto, setMostrarProducto] = useState(false);
     const [selectedServicio, setSelectedServicio] = useState(null);
     const [selectedProducto, setSelectedProducto] = useState(null);
     const [selectedEmpleado, setSelectedEmpleado] = useState(null);
-    const [serviciosEnVenta, setServiciosEnVenta] = useState([]);
-    const [productosEnVenta, setProductosEnVenta] = useState([]);
     const [cantidadProductos, setCantidadProductos] = useState(null);
+    const [cantidadServicios, setCantidadServicios] = useState(null);
+    const [apellido, setApellido] = useState('');
+    const [documento, setDocumento] = useState('');
+    const [numeroFactura, setNumeroFactura] = useState('');
     const [totalVenta, setTotalVenta] = useState(0);
 
+
+    //llamo los fetch para llamar los datos de los modulos
     useEffect(() => {
         fetchClientes();
         fetchServicios();
@@ -61,19 +64,17 @@ function FormularioVentas() {
         fetchEmpleados();
     }, []);
 
+
+    //crear la venta
     const createSale = async () => {
         try {
-
             if (!formValid) {
-                // Muestra un mensaje de error o utiliza alguna otra lógica para indicar que el formulario no es válido
                 Swal.fire('Error', 'Completa todos los campos obligatorios antes de crear la venta', 'error');
                 return;
             }
             
-            // Mensaje de éxito
-            Swal.fire('Éxito', 'El empleado se ha creado correctamente', 'success');
+            Swal.fire('Venta Éxitosa', 'La Venta se ha creado correctamente', 'success');
 
-            // Adjust the following line based on your VentaService API method
             const nextNumeroFactura = getNextNumeroFactura();
             setNumeroFactura(nextNumeroFactura);
 
@@ -87,19 +88,22 @@ function FormularioVentas() {
             });
             console.log('Sale created:', response);
 
-            // Utiliza el método navigate para redireccionar
              navigate('/ventas/listaVentas');
         } catch (error) {
             console.error('Error creating sale:', error);
         }
     };
 
+
+    //numero de factura que se carga automaticamente
     const getNextNumeroFactura = () => {
         const lastNumeroFactura = ventas.length > 0 ? ventas[ventas.length - 1].numeroFactura : '00';
         const nextNumber = parseInt(lastNumeroFactura, 10) + 1;
         return nextNumber < 10 ? `0${nextNumber}` : `${nextNumber}`;
     };
 
+
+    //llamo a la lista de los empleados
     const fetchEmpleados = async () => {
         try {
           const token = localStorage.getItem('token');
@@ -120,6 +124,7 @@ function FormularioVentas() {
       };
 
 
+      //llamo a la lista de clientes
     const fetchClientes = async () => {
         try {
           const token = localStorage.getItem('token');
@@ -140,6 +145,7 @@ function FormularioVentas() {
       };
 
 
+      //llamo a la lista de servicios
     const fetchServicios = async () => {
         try {
           const token = localStorage.getItem('token');
@@ -160,6 +166,7 @@ function FormularioVentas() {
       };
 
 
+      //llamo a la lista de productos
     const fetchProductos = async () => {
         try {
           const token = localStorage.getItem('token');
@@ -179,6 +186,8 @@ function FormularioVentas() {
         }
       };
 
+
+      //llamo a las ventas
     const fetchVentas = async () => {
         try {
             const data = await VentaService.getVentas();
@@ -192,6 +201,8 @@ function FormularioVentas() {
         }
     };
 
+
+    //tomo los datos para cargar el cliente
     const handleClienteChange = (clienteId) => {
         const selected = clientes.find((cliente) => cliente.id_cliente == clienteId);
         if (selected) {
@@ -201,37 +212,46 @@ function FormularioVentas() {
             setFormValid(clienteId !== '' && selectedEmpleado !== null);
             console.log(clientes)
         } else {
-            // Manejar el caso en que no se encuentra el cliente con el ID especificado
             console.error('Cliente no encontrado con el ID:', clienteId);
             console.log(typeof clienteId)
         }
     };
 
+
+    //tomo los datos para cargar el empleado
     const handleEmpleadoChange = (empleadoId) => {
         const selected = empleados.find((empleado) => empleado.id_empleado == empleadoId);
         setSelectedEmpleado(selected);
         setFormValid(selectedCliente !== null && empleadoId !== '');
     };
 
+
+    //tomo los datos para cargar los servicios
     const handleServicioChange = (servicioId) => {
         const selected = servicios.find((servicio) => servicio.id == servicioId);
         setSelectedServicio(selected);
     };
 
+
+    //tomo los datos para cargar los productos
     const handleProductoChange = (productoId) => {
         const selected = productos.find((producto) => producto.nombre == productoId);
         setSelectedProducto(selected);
         console.log(productoId)
     };
 
+
+    //creo los servicios
     const handleAgregarServicio = () => {
-        if (selectedServicio && selectedServicio.valor) {
+        if (selectedServicio) {
+            let precioTotal = selectedServicio.valor * cantidadServicios;
+            console.log("precio total del servicio:", precioTotal)
             const nuevaFilaServicio = {
                 id: selectedServicio.id,
                 nombre: selectedServicio.nombre,
-                cantidad: 1,
+                cantidad: cantidadServicios,
                 precioUnitario: selectedServicio.valor,
-                precioTotal: selectedServicio.valor,
+                precioTotal: precioTotal,
             };
             console.log(nuevaFilaServicio)
 
@@ -245,6 +265,7 @@ function FormularioVentas() {
     };
 
 
+    //creo los productos
     const handleAgregarProducto = () => {
         if (selectedProducto) {
             let precioTotal = selectedProducto.precioVenta * cantidadProductos;
@@ -259,42 +280,49 @@ function FormularioVentas() {
             console.log(nuevaFilaProducto)
 
             setProductosEnVenta([...productosEnVenta, nuevaFilaProducto]);
-            // Limpiar la selección después de agregar el producto
             setSelectedProducto(null);
 
             setTotalVenta(totalVenta + nuevaFilaProducto.precioTotal);
         }
     };
 
+
+    //elimino los servicios creados
     const handleEliminarServicio = (index) => {
         const nuevasFilas = [...serviciosEnVenta];
         const servicioEliminado = nuevasFilas[index];
         nuevasFilas.splice(index, 1);
         setServiciosEnVenta(nuevasFilas);
         
-        // Restar el valor del servicio eliminado del totalVenta
         setTotalVenta(totalVenta - servicioEliminado.precioTotal);
     };
 
+
+    //elimino los productos creados
     const handleEliminarProducto = (index) => {
         const nuevasFilas = [...productosEnVenta];
         const productoEliminado = nuevasFilas[index];
         nuevasFilas.splice(index, 1);
         setProductosEnVenta(nuevasFilas);
 
-        // Restar el valor del producto eliminado del totalVenta
         setTotalVenta(totalVenta - productoEliminado.precioTotal);
     };
 
+
+    //mostrar la lista en el select con la cantidad
     const handleMostrarServicio = () => {
         setMostrarServicio(true);
         setMostrarProducto(false);
       };
-    
-      const handleMostrarProducto = () => {
+
+
+      //mostrar la lista en el select con la cantidad
+    const handleMostrarProducto = () => {
         setMostrarProducto(true);
         setMostrarServicio(false);
       };
+
+
 
     return (
         <CRow>
@@ -308,6 +336,7 @@ function FormularioVentas() {
                     <CCardBody>
                          <form>
 
+                            
                             <div style={{ flex: 1, marginRight: "10px" }}>
                                 <CFormLabel>Cliente</CFormLabel>
                                 <CFormSelect onChange={(e) => handleClienteChange(e.target.value)}>
@@ -319,16 +348,15 @@ function FormularioVentas() {
                                     ))}
                                 </CFormSelect>
                             </div>
-                            
                             <div style={{ flex: 1, marginRight: "10px" }}>
                                 <CFormLabel>Apellido</CFormLabel>
                                 <CFormInput value={apellido} readOnly />
                             </div>
-
                             <div style={{ flex: 1, marginRight: "10px" }}>
                                 <CFormLabel>Documento</CFormLabel>
                                 <CFormInput value={documento} readOnly />
                             </div >
+
 
                             <div style={{ flex: 1, marginRight: "10px" }}>
                                 <CFormLabel>Empleado</CFormLabel>
@@ -342,6 +370,7 @@ function FormularioVentas() {
                                 </CFormSelect>
                             </div>
                             
+
                             <div className="mb-3" style={{ display: 'none' }}>
                                 <CFormLabel>Número de Factura</CFormLabel>
                                 <CFormInput
@@ -371,27 +400,51 @@ function FormularioVentas() {
                             {mostrarServicio && (
                                 <div>
                                     <CFormLabel>Agregar Servicios</CFormLabel>
-                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                        <CFormSelect 
-                                        onChange={(e) => handleServicioChange(e.target.value)}
+                                    <div 
+                                    className="mb-3"
+                                    style={{ display: "flex", alignItems: "center" }}
+                                    >
+                                        <div
+                                        style={{
+                                            flex: 1,
+                                            marginRight: "5px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                        }}
                                         >
+                                    <CFormSelect 
+                                        onChange={(e) => handleServicioChange(e.target.value)}
+                                    >
                                         <option value="">Seleccionar Servicio</option>
                                         {servicios.map((servicio) => (
-                                            <option key={servicio.id} value={servicio.id}>
+                                            <option 
+                                            key={servicio.id} 
+                                            value={servicio.id}
+                                            >
                                                 {servicio.nombre}
                                             </option>
                                         ))}
                                     </CFormSelect>
-                                    <CButton
-                                    color="success"
-                                    onClick={handleAgregarServicio}
+                                    <CFormInput
+                                    type="number"
+                                    name="cantidadServicios"
+                                    placeholder="Ingrese la cantidad"
+                                    value={cantidadServicios}
+                                    onChange={(e) => setCantidadServicios(e.target.value)}
                                     style={{ marginLeft: "5px" }}
+                                    />
+                                    <CButton
+                                        color="success"
+                                        onClick={handleAgregarServicio}
+                                        style={{ marginLeft: "5px" }}
                                     >
                                         +
                                     </CButton>
                                     </div>
+                                    </div>
                                 </div>
                             )}
+
 
                             {mostrarProducto && (
                                 <div>
@@ -453,6 +506,7 @@ function FormularioVentas() {
                                         <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
                                     </CTableRow>
                                 </CTableHead>
+
                                 <CTableBody>
                                     {serviciosEnVenta.map((servicio, index) => (
                                         <CTableRow key={index}>
@@ -467,6 +521,7 @@ function FormularioVentas() {
                                                     maximumFractionDigits: 2,
                                                     })}
                                             </CTableDataCell>
+                                            
                                             <CTableDataCell>
                                                 {servicio.precioTotal.toLocaleString("es-CO", {
                                                     style: "currency",
@@ -475,6 +530,7 @@ function FormularioVentas() {
                                                     maximumFractionDigits: 2,
                                                     })}
                                             </CTableDataCell>
+                                            
                                             <CTableDataCell>
                                                 {/* Agrega botón de eliminar o cualquier otra acción que necesites */}
                                                 <CButton 
