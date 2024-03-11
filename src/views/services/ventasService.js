@@ -1,6 +1,7 @@
 const api_url = 'https://restapibarberia.onrender.com/api/venta';
 
 const VentaService = {
+
     getVentas: () => {
         const token = localStorage.getItem('token');
         return fetch(`${api_url}`, {
@@ -62,6 +63,27 @@ const VentaService = {
                 console.error('Error al cambiar el estado de la venta:', error);
             });
     },
+    
+    
+    getVentaById: (id) => {
+        const token = localStorage.getItem('token');
+        return fetch(`${api_url}/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error al obtener la venta: ${response.status} - ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .catch(error => {
+            console.error(`Error al obtener la venta con ID ${id}:`, error.message);
+        });
+    },
+    
 };
+
 
 export default VentaService;

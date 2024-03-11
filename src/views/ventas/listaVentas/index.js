@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faCheckCircle, faBan } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faCheckCircle, faBan, faHandHoldingDollar } from '@fortawesome/free-solid-svg-icons';
 import {
   CCard,
   CCardBody,
@@ -22,43 +22,63 @@ import {
   CModalTitle,
   CModalBody,
   CModalFooter,
-  CFormLabel,
-  CFormSelect,
-  CFormInput,
-  CInputGroup,
-  CInputGroupText,
   CBadge,
+  CFormInput,
+  CPagination,
+  CPaginationItem,
+  CInputGroup,
 } from '@coreui/react';
 import VentaService from 'src/views/services/ventasService';
 
 function ListaVentas() {
   const currentLocation = useLocation();
-  const [ventas, setVentas] = useState ([]);
+  const [ventas, setVentas] = useState([]);
   const [visible, setVisible] = useState(false);
-  const [selectedVentaId, setSelectedVentaId] = useState ({});
+  const [modalVisible, setModalVisible] = useState(false);
   const [detalleproductos, setDetalleProducto] = useState(null);
   const [detalleservicios, setDetalleServicio] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(5);
+  const [searchTerm, setSearchTerm] = useState('');
+
+
 
   useEffect(() => {
     fetchVentas();
-  }, [currentLocation]);
+  }, [currentLocation, currentPage]);
+
+  
 
   const fetchVentas = async () => {
     try {
-        const data = await VentaService.getVentas();
-        if (data && data.ventas) {
-            console.log(data.ventas);
-            setVentas(data.ventas);
-        } else {
-            console.error('La respuesta de la API no contiene la propiedad "ventas":', data);
-        }
+      const data = await VentaService.getVentas();
+      if (data && data.ventas) {
+        console.log(data.ventas);
+        setVentas(data.ventas);
+      } else {
+        console.error('La respuesta de la API no contiene la propiedad "ventas":', data);
+      }
     } catch (error) {
-        console.error('Error al obtener las ventas:', error);
+      console.error('Error al obtener las ventas:', error);
     }
   };
 
+
+
+  const indexOfLastVenta = currentPage * pageSize;
+  const indexOfFirstVenta = indexOfLastVenta - pageSize;
+  const currentVentas = ventas.slice(indexOfFirstVenta, indexOfLastVenta);
+
+
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+
+
   const cancelarVentas = async (id_ventas) => {
-    try{
+    try {
       await VentaService.cancelarVenta(id_ventas);
       fetchVentas();
     } catch (error) {
@@ -66,8 +86,10 @@ function ListaVentas() {
     }
   };
 
+
+
   const CambioAnulado = async (id_ventas) => {
-    try{
+    try {
       await VentaService.cambiarEstado(id_ventas);
       fetchVentas();
     } catch (error) {
@@ -75,15 +97,43 @@ function ListaVentas() {
     }
   };
 
+
+
   function getColorForEstado(estado_anulado) {
-    if (estado_anulado === "Activo") {
-      return "success";
-    } else if (estado_anulado === "Inactivo") {
-      return "danger";
+    if (estado_anulado === 'Activo') {
+      return 'success';
+    } else if (estado_anulado === 'Inactivo') {
+      return 'danger';
     } else {
-      return "default";
+      return 'default';
     }
   }
+
+
+
+  const filteredVentas = ventas.filter(venta => {
+    const ventaEntries = Object.entries(venta);
+    
+    for (const [key, value] of ventaEntries) {
+      if (typeof value === 'string' && value.toLowerCase().includes(searchTerm.toLowerCase())) {
+        return true;
+      }
+      if (key === 'numeroFactura' && value.toString().includes(searchTerm)) {
+        return true;
+      }
+      if (typeof value === 'object' && value !== null) {
+        const innerEntries = Object.entries(value);
+        for (const [innerKey, innerValue] of innerEntries) {
+          if (typeof innerValue === 'string' && innerValue.toLowerCase().includes(searchTerm.toLowerCase())) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  });
+
+
 
   return (
     <CRow>
@@ -93,8 +143,19 @@ function ListaVentas() {
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Ventas</strong>
               <Link to="/ventas/CrearVentas">
-              <CButton color="primary">Agregar Ventas</CButton>
+                <CButton color="primary">Agregar Ventas</CButton>
               </Link>
+            </div>
+            <div className="mt-3">
+            <CInputGroup className="mt-3" style={{ maxWidth: "200px" }}>
+            <CFormInput
+              type="text"
+              className="form-control-sm"
+              placeholder="Buscar ventas..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            </CInputGroup>
             </div>
           </CCardHeader>
           <CCardBody>
@@ -112,7 +173,7 @@ function ListaVentas() {
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {ventas && ventas.map((venta, index) => (
+                {filteredVentas && filteredVentas.map((venta, index) => (
                   <CTableRow key={venta.id_ventas}>
                     <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                     <CTableDataCell>{venta.nombre}</CTableDataCell>
@@ -123,14 +184,41 @@ function ListaVentas() {
                     <CTableDataCell><CBadge color={getColorForEstado(venta.estado_anulado)}>{venta.estado_anulado}</CBadge></CTableDataCell>
                     <CTableDataCell>
                       <CButtonGroup aria-label="Basic mixed styles example">
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <CButton
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '8px 12px',
+                            border: '1px solid #17a2b8',
+                            borderRadius: '4px',
+                            backgroundColor: 'transparent',
+                            color: '#17a2b8',
+                            fontSize: '14px',
+                            textTransform: 'uppercase',
+                            cursor: 'pointer',
+                          }}
+                          color="info"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setVisible(!visible);
+                            setDetalleProducto(venta.detalleproductos);
+                            setDetalleServicio(venta.detalleservicios);
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faEye} />
+                        </CButton>
+
+                        <div style={{ width: '10px' }} />
+                        {venta.estado.toLowerCase() !== 'cancelado' && (
                         <CButton
                         style={{
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           padding: '8px 12px',
-                          border: '1px solid #17a2b8',
+                          border: '1px solid #28a745',
                           borderRadius: '4px',
                           backgroundColor: 'transparent',
                           color: '#17a2b8',
@@ -138,96 +226,150 @@ function ListaVentas() {
                           textTransform: 'uppercase',
                           cursor: 'pointer',
                         }}
-                          color="info"
+                        size="xl"
+                        onClick={() => {
+                          setModalVisible(!modalVisible);
+                          setDetalleProducto(venta.detalleproductos);
+                          setDetalleServicio(venta.detalleservicios);
+                        }}
+                        >
+                          <FontAwesomeIcon icon={faHandHoldingDollar} style={{ color: '#28a745', fontSize: '20px' }}/>
+                          </CButton>
+                        )}
+
+
+                        <div style={{ width: '10px' }} />
+                        {venta.estado.toLowerCase() !== 'cancelado' && (
+                          <CButton
+                            color="success"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => cancelarVentas(venta.id_ventas)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '5px' }} /> Cancelar
+                          </CButton>
+                        )}
+
+                        <div style={{ width: '10px' }} />
+                        <CButton
+                          color="warning"
                           size="sm"
                           variant="outline"
-                          onClick={() => {
-                            setVisible(!visible);
-                            setDetalleProducto(venta.detalleproductos); 
-                            setDetalleServicio(venta.detalleservicios);
+                          onClick={() => CambioAnulado(venta.id_ventas)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '8px 12px',
+                            borderRadius: '4px',
+                            backgroundColor: 'transparent',
+                            fontSize: '14px',
+                            textTransform: 'uppercase',
+                            cursor: 'pointer',
                           }}
-                        >
-                          <FontAwesomeIcon icon={faEye} />
-                        </CButton>
-                        <div style={{ width: '10px' }} />
-                        <CButton
-                        color="success" 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => cancelarVentas(venta.id_ventas)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          }}
-                        >
-                            <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '5px' }} /> Cancelar
-                        </CButton>
-              
-                        <div style={{ width: '10px' }} />
-                        <CButton
-                        color="warning" 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => CambioAnulado(venta.id_ventas)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          padding: '8px 12px',
-                          borderRadius: '4px',
-                          backgroundColor: 'transparent',
-                          fontSize: '14px',
-                          textTransform: 'uppercase',
-                          cursor: 'pointer',
-                        }}
                         >
                           <FontAwesomeIcon icon={faBan} style={{ marginRight: '5px' }} />
                         </CButton>
-                        </div>
                       </CButtonGroup>
                     </CTableDataCell>
                   </CTableRow>
                 ))}
               </CTableBody>
             </CTable>
+            <CPagination align="center" aria-label="Page navigation example" className="mt-3">
+              <CPaginationItem onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+                Anterior
+              </CPaginationItem>
+              {Array.from({ length: Math.ceil(ventas.length / pageSize) }, (_, i) => (
+                <CPaginationItem
+                  key={i}
+                  onClick={() => handlePageChange(i + 1)}
+                  active={i + 1 === currentPage}
+                >
+                  {i + 1}
+                </CPaginationItem>
+              ))}
+              <CPaginationItem
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === Math.ceil(ventas.length / pageSize)}
+              >
+                Siguiente
+              </CPaginationItem>
+            </CPagination>
           </CCardBody>
         </CCard>
       </CCol>
-      <CModal visible={visible} onClose={() => setVisible(false)}>
+      
+
+      <CModal visible={modalVisible} onClose={() => setModalVisible(false)}>
+        <CModalHeader>
+          <CModalTitle>Abonos</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setModalVisible(false)}>
+            Cerrar
+          </CButton>
+        </CModalFooter>
+      </CModal>
+
+
+      <CModal visible={visible} onClose={() => setVisible(false)} backdrop="static">
         <CModalHeader>
           <CModalTitle>Detalle de Ventas</CModalTitle>
         </CModalHeader>
-        <CModalBody>
+        <CModalBody style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           {detalleproductos && (
             <div>
               <h4>Detalles de Productos</h4>
-              <ul>
+              <ul style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '20px' }}>
                 {detalleproductos.map((detalle, index) => (
-                  <li key={index}>
-                    IdDetalleProducto: {detalle.id_detalleproducto}, IdVenta: {detalle.id_ventas}, IdProducto: {detalle.id_producto}, Cantidad: {detalle.cantidad}, Valor Venta: {detalle.valor_venta}, Valor Total: {detalle.valor_total}
-                  </li>
+                
+                <li key={index} style={{
+                  listStyle: 'none',
+                  marginBottom: '10px',
+                  fontSize: '16px',
+                  flex: '0 0 auto',
+                  minWidth: '200px'
+                }}>
+                  <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Nombre:</span> {detalle.nombre}, <br />
+                  <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Cantidad:</span> {detalle.cantidad}, <br />
+                  <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Precio Unitario:</span> {detalle.valor_venta}, <br />
+                  <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Valor Total:</span> {detalle.valor_total}
+                </li>
                 ))}
               </ul>
             </div>
           )}
+          <br/>
           {detalleservicios && (
             <div>
               <h4>Detalles de Servicios</h4>
-              <ul>
+              <ul style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '20px' }}>
                 {detalleservicios.map((detalle, index) => (
-                  <li key={index}>
-                    IdDetalleServicio: {detalle.id_detalleservicio}, IdVenta: {detalle.id_ventas}, IdServicio: {detalle.id_servicio}, Cantidad: {detalle.cantidad}, Valor Venta: {detalle.valor_venta}, Valor Total: {detalle.valor_total}
+                  <li key={index} style={{
+                    listStyle: 'none',
+                    marginBottom: '10px',
+                    fontSize: '16px',
+                    flex: '0 0 auto',
+                    minWidth: '200px'
+                  }}>
+                    <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Nombre:</span>{detalle.nombre}, <br />
+                    <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Cantidad:</span>{detalle.cantidad}, <br />
+                    <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Precio Unitario:</span>{detalle.valor_venta}, <br />
+                    <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Valor Total:</span>{detalle.valor_total}
                   </li>
                 ))}
               </ul>
             </div>
           )}
         </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setVisible(false)}>
-            Cerrar
-          </CButton>
-        </CModalFooter>
       </CModal>
     </CRow>
   )

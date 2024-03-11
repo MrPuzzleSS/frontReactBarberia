@@ -2,11 +2,8 @@ import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { CSidebar, CSidebarBrand, CSidebarNav, CSidebarToggler } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
 
 import { AppSidebarNav } from './AppSidebarNav'
-
-import { sygnet } from 'src/assets/brand/sygnet'
 
 import SimpleBar from 'simplebar-react'
 import 'simplebar/dist/simplebar.min.css'
@@ -14,6 +11,9 @@ import logoBarberia from '../assets/images/logoBarberia2.png'
 
 // sidebar nav config
 import navigation from '../_nav'
+import '../assets/css/Sidebar.scss'
+
+
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
@@ -30,18 +30,13 @@ const AppSidebar = () => {
       }}
     >
       <CSidebarBrand className="d-none d-md-flex" to="/">
-        <img src={logoBarberia} alt="logo empresa" width="76%" />
-        <CIcon className="sidebar-brand-narrow" icon={sygnet} height={35} />
+        <img src={logoBarberia} alt="logo empresa" width="44%" />
       </CSidebarBrand>
       <CSidebarNav>
         <SimpleBar>
           <AppSidebarNav items={navigation} />
         </SimpleBar>
       </CSidebarNav>
-      <CSidebarToggler
-        className="d-none d-lg-flex"
-        onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
-      />
     </CSidebar>
   )
 }
