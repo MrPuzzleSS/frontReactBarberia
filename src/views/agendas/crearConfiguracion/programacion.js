@@ -22,7 +22,7 @@ import 'src/scss/css/calendarStyles.css';
 
 const CrearConfiguracion = () => {
 
-    
+
     socket.on('eventoActualizado', (eventoActualizado) => {
         console.log('Evento actualizado recibido:', eventoActualizado);
         // Aquí puedes actualizar los datos relevantes en el cliente con el evento actualizado
@@ -149,10 +149,9 @@ const CrearConfiguracion = () => {
     const colorArray = [
 
 
-        '#7B68EE', '#4169E1', '#00008B', '#0000CD',
-        '#191970', '#008080',
-        '#008B8B', '#00BFFF', '#00CED1', '#00FA9A',
-        '#00FFFF', '#00FFFF', '#1874CD', '#191970', '#1E90FF', '#20B2AA',
+        '#7B68EE', '#4169E1', '#00008B',
+        '#191970', '#008080', '#48D1CC', '#00CED1',
+        '#5F9EA0', '#20B2AA',
         '#4682B4', '#48D1CC', '#6495ED', '#66CDAA', '#66CDAA',
         '#7FFFD4', '#7B68EE', '#87CEEB', '#87CEFA', '#8A2BE2', '#8A2BE2',
         '#8B008B', '#9370DB', '#9400D3', '#9932CC', '#BA55D3', '#DDA0DD',
@@ -160,7 +159,7 @@ const CrearConfiguracion = () => {
         '#7FFFD4', '#8FBC8F', '#98FB98', '#48D1CC', '#20B2AA', '#5F9EA0',
         '#6495ED', '#66CDAA', '#76EEC6', '#87CEEB', '#AFEEEE', '#E0FFFF',
         '#F0FFFF', '#7FFFD4', '#00CED1', '#00FA9A',
-        '#48D1CC', '#66CDAA', '#76EEC6', '#00BFFF', '#87CEFA'
+        '#48D1CC', '#66CDAA', '#76EEC6', '#87CEFA'
     ];
 
 
@@ -347,6 +346,8 @@ const CrearConfiguracion = () => {
 
     const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [eventos, setEventos] = useState([]);
+
 
     const handleEditEvent = async (clickInfo) => {
         const eventId = clickInfo?.event?.extendedProps?.id_agenda;
@@ -395,11 +396,19 @@ const CrearConfiguracion = () => {
                     // Actualiza el calendario después de la edición
                     updateCalendar();
 
+                    // Envía un mensaje al servidor de sockets indicando que el evento ha sido actualizado
+                    socket.emit('eventoActualizado', eventId);
+
                     Swal.fire({
                         icon: 'success',
                         title: '¡Éxito!',
                         text: 'El evento ha sido actualizado correctamente.',
                     });
+
+                    // Recarga la página después de 1 segundo (1000 milisegundos)
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 10);
                 })
                 .catch((error) => {
                     console.error('Error al actualizar la agenda:', error);
@@ -411,13 +420,29 @@ const CrearConfiguracion = () => {
         }
     };
 
+
+
     // Escuchar el evento 'eventoActualizado' desde el servidor
     socket.on('eventoActualizado', (eventoActualizado) => {
         console.log('Evento actualizado recibido:', eventoActualizado);
         // Actualizar los datos relevantes en el cliente con el evento actualizado
         // Aquí puedes implementar la lógica para actualizar los datos en tu aplicación
         // Por ejemplo, puedes actualizar el estado de los eventos o recargar la página
+
+        // Ejemplo: Actualizar el estado de los eventos en el cliente
+        const eventosActualizados = eventos.map(evento => {
+            if (evento.id_agenda === eventoActualizado.id_agenda) {
+                // Actualizar el evento con los datos recibidos del servidor
+                return eventoActualizado;
+            } else {
+                return evento;
+            }
+        });
+
+        // Actualizar el estado de los eventos en el cliente
+        setEventos(eventosActualizados);
     });
+
 
 
     //---------------------------------------------------------------------------
@@ -456,10 +481,10 @@ const CrearConfiguracion = () => {
             const fechaHoy = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()); // Fecha actual sin hora
             const fechaInicioEvento = new Date(`${fechaInicio}T${horaInicio}`);
             const fechaFinEvento = new Date(`${fechaFin}T${horaFin}`);
-
+    
             // Verificar datos de empleadosSeleccionados
             console.log("empleadosSeleccionados:", empleadosSeleccionados);
-
+    
             // Validación de fechas anteriores al día actual
             if (fechaInicioEvento < fechaHoy || fechaFinEvento < fechaHoy) {
                 throw new Error('No puedes crear eventos en fechas anteriores al día actual');
@@ -468,25 +493,25 @@ const CrearConfiguracion = () => {
                 if (!fechaInicioEvento || !fechaFinEvento || !horaInicio || !horaFin || !empleadosSeleccionados || empleadosSeleccionados.length === 0) {
                     throw new Error('Todos los campos son obligatorios');
                 }
-
+    
                 // Validación de horas de inicio y fin
                 if (horaInicio > horaFin) {
                     throw new Error('La hora de inicio no puede ser posterior a la hora de fin');
                 }
-
+    
                 // Validación de fechas de inicio y fin
                 if (fechaInicioEvento > fechaFinEvento) {
                     throw new Error('La fecha de inicio no puede ser posterior a la fecha de fin');
                 }
-
+    
                 // Resto del código para la creación de eventos...
                 const newEvents = [];
                 let currentDateEvent = new Date(fechaInicioEvento);
-
+    
                 while (currentDateEvent <= fechaFinEvento) {
                     const newEndDate = new Date(currentDateEvent);
                     newEndDate.setHours(fechaFinEvento.getHours(), fechaFinEvento.getMinutes());
-
+    
                     if (empleadosSeleccionados) {
                         for (const empleado of empleadosSeleccionados) {
                             const nombre = empleado.nombre ? empleado.nombre : 'Nombre desconocido';
@@ -499,7 +524,12 @@ const CrearConfiguracion = () => {
                                 title: `Agenda de ${nombre} ${apellido}`,
                                 id_empleado: empleado,
                             };
-                            // console.log("Nuevo evento:", newEvent); // Verificar el nuevo evento antes de crearlo
+    
+                            // Verificar si la fecha está fuera del día actual
+                            if (currentDateEvent < fechaHoy || newEndDate < fechaHoy) {
+                                throw new Error('No puedes crear eventos en fechas anteriores al día actual');
+                            }
+    
                             const createdEvent = await agendaService.createAgenda(newEvent);
                             if (!!createdEvent?.error) {
                                 throw new Error(createdEvent?.error);
@@ -510,15 +540,15 @@ const CrearConfiguracion = () => {
                     }
                     currentDateEvent.setDate(currentDateEvent.getDate() + 1);
                 }
-
+    
                 // Envía un evento de socket para notificar sobre la creación de la agenda
                 socket.emit('agendaCreada', newEvents);
-
+    
                 // Actualización de eventos y estado
                 setEvents((prevEvents) => [...prevEvents, ...newEvents]);
                 await fetchAgendas();
                 setShowCreateModal(false);
-
+    
                 // Limpiar el formulario
                 setFormData({
                     fechaInicio: '',
@@ -528,7 +558,7 @@ const CrearConfiguracion = () => {
                     empleadosSeleccionados: [],
                     busquedaEmpleado: '',
                 });
-
+    
                 // Mostrar mensaje de éxito y actualizar calendario
                 swal({
                     title: 'Éxito',
@@ -541,13 +571,13 @@ const CrearConfiguracion = () => {
         } catch (error) {
             // Manejo de errores
             console.error('Error al crear la agenda:', error);
-
+    
             let errorMessage = 'El empleado ya se encuentra registrado con horas que se solapan.';
-
+    
             if (error.response && error.response.data && error.response.data.sqlMessage) {
                 errorMessage = error.response.data.sqlMessage;
             }
-
+    
             swal({
                 title: 'Error',
                 text: errorMessage, // Mostrar el mensaje de error específico
@@ -556,6 +586,7 @@ const CrearConfiguracion = () => {
             });
         }
     };
+    
 
 
 

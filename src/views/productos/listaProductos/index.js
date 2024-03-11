@@ -112,9 +112,9 @@ function ListaProductos() {
   //   }
   // };
 
-  
 
-  
+
+
   const handleCambiarEstado = (id_producto, estado) => {
     Swal.fire({
       title: `¿Estás seguro de cambiar el estado del producto ${estado}?`,
