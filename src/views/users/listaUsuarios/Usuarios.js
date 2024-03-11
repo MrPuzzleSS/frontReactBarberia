@@ -5,7 +5,7 @@ import { CBadge } from '@coreui/react';
 import { FaEdit, FaTrash, } from 'react-icons/fa'; // Importar los iconos de FontAwesome
 import { confirmAlert } from 'react-confirm-alert'; // Importa la función confirmAlert
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Importa el CSS para estilos predeterminados
-
+import { getUserInfo } from '../../../components/auht';
 import {
   CCard,
   CCardBody,
@@ -47,7 +47,12 @@ const ListaUsuarios = () => {
 
         if (searchId) {
           usuariosResponse = await axios.get(`https://restapibarberia.onrender.com/api/usuario/${searchId}`);
-          setUsers(usuariosResponse.data ? [usuariosResponse.data] : []);
+          if (usuariosResponse.data) {
+            setUsers([usuariosResponse.data]);
+          } else {
+            setUsers([]);
+            console.log('Usuario no encontrado');
+          }
         } else {
           usuariosResponse = await axios.get('https://restapibarberia.onrender.com/api/usuario');
           setUsers(usuariosResponse.data.usuarios || []);
@@ -62,12 +67,24 @@ const ListaUsuarios = () => {
     fetchData();
   }, [searchId]);
 
+
   const getRolNombre = (id_rol) => {
     const rol = roles.find((r) => r.id_rol === id_rol);
     return rol ? rol.nombre : 'Rol Desconocido';
   };
-
+  
   const handleDelete = async (item) => {
+    const loggedUser = getUserInfo(); // Obtener el usuario logueado
+
+    if (loggedUser && item.id_usuario === loggedUser.id_usuario) {
+      Swal.fire({
+        icon: 'error',
+        title: 'No puedes eliminar al usuario logueado',
+        text: 'Por favor, cierra sesión e intenta nuevamente.'
+      });
+      return; // Evitar la eliminación del usuario logueado
+    }
+
     Swal.fire({
       title: '¿Estás seguro?',
       text: '¿Deseas eliminar este usuario?',
@@ -82,7 +99,7 @@ const ListaUsuarios = () => {
         try {
           await axios.delete(`http://localhost:8095/api/usuario/${item.id_usuario}`);
           setUsers((prevUsers) => prevUsers.filter((user) => user.id_usuario !== item.id_usuario));
-  
+
           Swal.fire({
             icon: 'success',
             title: 'Usuario eliminado con éxito',
@@ -102,13 +119,13 @@ const ListaUsuarios = () => {
       }
     });
   };
-  
+
 
   const handleEdit = (item) => {
     setSelectedItem(item);
     setVisible(true);
   };
-  
+
   const getColorForEstado = (estado) => {
     if (estado === 'Activo') {
       return 'success';
@@ -149,7 +166,7 @@ const ListaUsuarios = () => {
         text: 'Ha ocurrido un error al intentar cambiar el estado del usuario.',
       });
     }
-  };const handleSaveChanges = async () => {
+  }; const handleSaveChanges = async () => {
     try {
       const confirmSave = await Swal.fire({
         title: '¿Estás seguro?',
@@ -161,7 +178,7 @@ const ListaUsuarios = () => {
         confirmButtonText: 'Sí, guardar cambios',
         cancelButtonText: 'Cancelar',
       });
-  
+
       if (confirmSave.isConfirmed) {
         const editedUser = {
           ...selectedItem,
@@ -169,13 +186,13 @@ const ListaUsuarios = () => {
           correo: document.getElementById('correoElectronico').value,
           // Agrega más campos según tu necesidad
         };
-  
+
         await axios.put(`http://localhost:8095/api/usuario/${editedUser.id_usuario}`, editedUser);
-  
+
         setUsers((prevUsers) =>
           prevUsers.map((user) => (user.id_usuario === selectedItem.id_usuario ? editedUser : user))
         );
-  
+
         Swal.fire({
           icon: 'success',
           title: 'Usuario editado con éxito',
@@ -185,7 +202,7 @@ const ListaUsuarios = () => {
       }
     } catch (error) {
       console.error('Error al editar usuario:', error);
-  
+
       Swal.fire({
         icon: 'error',
         title: 'Error al editar usuario',
@@ -195,8 +212,8 @@ const ListaUsuarios = () => {
       setVisible(false);
     }
   };
-  
-  
+
+
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -234,7 +251,7 @@ const ListaUsuarios = () => {
           <CTable align="middle" className="mb-0 border table-sm" hover responsive>
             <CTableHead color="light">
               <CTableRow>
-                <CTableHeaderCell>ID</CTableHeaderCell>
+                
                 <CTableHeaderCell>NOMBRE</CTableHeaderCell>
                 <CTableHeaderCell>CORREO</CTableHeaderCell>
                 <CTableHeaderCell>ROL</CTableHeaderCell>
@@ -245,7 +262,7 @@ const ListaUsuarios = () => {
             <CTableBody>
               {currentUsers.map((item) => (
                 <CTableRow key={item.id_usuario}>
-                  <CTableDataCell>{item.id_usuario}</CTableDataCell>
+                 
                   <CTableDataCell>{item.nombre_usuario}</CTableDataCell>
                   <CTableDataCell>{item.correo}</CTableDataCell>
                   <CTableDataCell>{getRolNombre(item.id_rol)}</CTableDataCell>
@@ -267,18 +284,17 @@ const ListaUsuarios = () => {
                     />
                     <>
                       <CButton
-                        color="primary"
+                        color="secondary" // Utiliza el color de botón 'secondary'
                         size="sm"
                         onClick={() => handleEdit(item)}
                         style={{
                           marginLeft: '5px',
-                          backgroundColor: 'orange',
-                          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-                          padding: '3px 10px'
+                          backgroundColor: '#c0c0c0',
                         }}
                       >
-                        <FaEdit style={{ color: 'black' }} />
+                        <FaEdit style={{ color: 'black' }} /> {/* Icono de editar con color negro */}
                       </CButton>
+
 
                       <CButton
                         color="danger"

@@ -112,7 +112,6 @@ const CrearConfiguracion = () => {
     useEffect(() => {
         fetchEmpleados();
     }, []);
-
     const handleEmpleadosChange = (selectedEmpleados) => {
         const selectedValues = selectedEmpleados.map((option) => option.value);
         const selectedEmpleadosData = empleados.filter((empleado) => selectedValues.includes(empleado.value));

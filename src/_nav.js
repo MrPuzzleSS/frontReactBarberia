@@ -97,43 +97,23 @@ const _nav = [
     icon: <CIcon icon={cilBasket} customClassName="nav-icon" />
   },
   
-  {
-    component: CNavGroup,
-    name: 'Configuración',
-    icon: <CIcon icon={cilSettings} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavGroup,
-        name: 'Usuarios',
-        to: '/base',
-        icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
-        items: [
+  
+     
           {
             component: CNavItem,
-            name: 'Lista de Usuarios',
+            name: 'Usuarios',
             to: '/listaUsuarios',
             icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
-          },
-        ],
+          
       },
-      {
-        component: CNavGroup,
-        name: 'Roles',
-        to: '/base',
-        icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
-        items: [
+      
           {
             component: CNavItem,
-            name: 'Lista de roles',
+            name: 'Roles',
             to: '/ListaRol',  // Asegúrate de que la ruta sea la correcta
             icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
 
           },
-        ],
-      },
-    ]
-  }
-
-]
-
+        
+        ]
 export default _nav
