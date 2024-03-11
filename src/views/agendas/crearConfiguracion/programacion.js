@@ -86,7 +86,7 @@ const CrearConfiguracion = () => {
             //  console.log('Iniciando fetch de empleados...');
 
 
-            const apiUrl = 'http://localhost:8095/api/empleado/activos';
+            const apiUrl = 'https://restapibarberia.onrender.com/api/empleado/activos';
             const response = await axios.get(apiUrl, {
                 headers: {
                     'Authorization': `Bearer ${getToken()}` // Añadir el token al encabezado Authorization
@@ -182,7 +182,7 @@ const CrearConfiguracion = () => {
             if (Array.isArray(agendas)) {
                 const formattedEvents = await Promise.all(agendas.map(async (agenda) => {
                     try {
-                        const empleadoResponse = await axios.get(`http://localhost:8095/api/empleado/${agenda.id_empleado}`, {
+                        const empleadoResponse = await axios.get(`https://restapibarberia.onrender.com/api/empleado/${agenda.id_empleado}`, {
                             headers: {
                                 'Authorization': `Bearer ${getToken()}`
                             }

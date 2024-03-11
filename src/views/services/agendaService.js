@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-const apiUrl = 'http://localhost:8095/api/agenda';
+const apiUrl = 'https://restapibarberia.onrender.com/api/agenda';
 
 const getToken = () => {
   // Obtener el token del localStorage
