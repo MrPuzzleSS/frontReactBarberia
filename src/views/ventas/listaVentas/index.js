@@ -211,6 +211,7 @@ function ListaVentas() {
                         </CButton>
 
                         <div style={{ width: '10px' }} />
+                        {venta.estado.toLowerCase() !== 'cancelado' && (
                         <CButton
                           style={{
                             display: 'flex',
@@ -236,6 +237,7 @@ function ListaVentas() {
                         >
                           <FontAwesomeIcon icon={faHandHoldingDollar} />
                         </CButton>
+                        )}
 
                         <div style={{ width: '10px' }} />
                         {venta.estado.toLowerCase() !== 'cancelado' && (
@@ -309,7 +311,6 @@ function ListaVentas() {
           <CModalTitle>Abonos</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          
           
         </CModalBody>
         <CModalFooter>
