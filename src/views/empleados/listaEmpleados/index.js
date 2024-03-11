@@ -267,42 +267,39 @@ function ListaEmpleados() {
 
   const handleCambiarEstadoSwitch = async (id_empleado) => {
     try {
-      // Obtener el estado actual del empleado antes de mostrar la alerta
       const empleadoActual = empleados.find((emp) => emp.id_empleado === id_empleado);
-      const estadoActual = empleadoActual.estado === 'Activo';
-  
-      // Mostrar una alerta de confirmación solo si el interruptor ha cambiado
+      const nuevoEstado = empleadoActual.estado === 'Activo' ? 'Inactivo' : 'Activo';
       const result = await Swal.fire({
-        title: '¿Estás seguro?',
-        text: '¡Cambiando el estado del empleado!',
-        icon: 'warning',
+        title: `¿Estás seguro de cambiar el estado del empleado a ${nuevoEstado}?`,
+        text: "¡No podrás revertir esto!",
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí',
-        cancelButtonText: 'Cancelar',
-        allowOutsideClick: false, // Evitar cerrar la alerta haciendo clic fuera de ella
+        allowOutsideClick: false, 
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Sí, cambiar estado"
       });
-  
-      // Si el usuario confirma, proceder con el cambio de estado
       if (result.isConfirmed) {
-        // Cambiar el estado del empleado
         await EmpleadoService.cambiarEstadoEmpleado(id_empleado);
-  
-        // Actualizar la lista de empleados
         await fetchEmpleados();
-  
-        // Mostrar una alerta de éxito
-        Swal.fire('¡Cambiado!', 'El estado del empleado ha sido modificado.', 'success');
-  
-        // Obtener el nuevo estado actual después de la actualización
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "¡El estado del empleado ha sido cambiado exitosamente!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
         const empleadoActualizado = empleados.find((emp) => emp.id_empleado === id_empleado);
         const nuevoEstadoActual = empleadoActualizado.estado === 'Activo';
-  
-        // Actualizar el estado del interruptor
         setEstadoActivo(nuevoEstadoActual);
+      } else {
+        const boton = document.getElementById(`formSwitchCheckChecked_${id_empleado}`);
+        if (boton) {
+          boton.checked = empleadoActual.estado === 'Activo';
+        } else {
+          console.error('Error: Elemento del botón no encontrado');
+        }
       }
-      // No es necesario manejar el caso cuando el usuario cancela porque el estado del interruptor no debería cambiar en ese caso
     } catch (error) {
       console.error('Error al cambiar el estado del empleado:', error);
       Swal.fire('Error', 'Hubo un problema al cambiar el estado del empleado.', 'error');
@@ -310,10 +307,12 @@ function ListaEmpleados() {
   };
 
 
+
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
+  
 
   //paginado
   const indexOfLastEmpleado = currentPage * pageSize;
