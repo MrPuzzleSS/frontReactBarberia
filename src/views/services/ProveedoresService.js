@@ -8,6 +8,11 @@ const get = id => {
     return http.get(`/proveedores/${id}`);
 }
 
+const getProveedoresActivos = () => {
+    return http.get("/proveedores/activos");
+
+}
+
 const getProveedoresProductos = id => {
     return http.get(`/proveedores/productos/${id}`);
 }
@@ -47,6 +52,7 @@ const checkExistence = async (nombre, email, num_documento) => {
 const ProveedoresService = {
     getAll,
     get,
+    getProveedoresActivos,
     getProveedoresProductos,
     create,
     update,

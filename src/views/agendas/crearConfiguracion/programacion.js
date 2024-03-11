@@ -72,7 +72,7 @@ const CrearConfiguracion = () => {
             //  console.log('Iniciando fetch de empleados...');
 
 
-            const apiUrl = 'https://restapibarberia.onrender.com/api/empleado';
+            const apiUrl = 'https://restapibarberia.onrender.com/api/empleado/activos';
             const response = await axios.get(apiUrl, {
                 headers: {
                     'Authorization': `Bearer ${getToken()}` // Añadir el token al encabezado Authorization
@@ -265,8 +265,6 @@ const CrearConfiguracion = () => {
                                     horaFin: formData.horaFin,
                                     nombreEmpleado: barbero.label // Agregar la propiedad nombreEmpleado aquí
                                 };
-
-                                console.log('newEvent', newEvent);
 
                                 try {
                                     // Crear el evento con el empleado seleccionado
