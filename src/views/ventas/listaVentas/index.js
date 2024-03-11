@@ -33,9 +33,9 @@ import VentaService from 'src/views/services/ventasService';
 
 function ListaVentas() {
   const currentLocation = useLocation();
-  const [ventas, setVentas] = useState ([]);
+  const [ventas, setVentas] = useState([]);
   const [visible, setVisible] = useState(false);
-  const [selectedVentaId, setSelectedVentaId] = useState ({});
+  const [selectedVentaId, setSelectedVentaId] = useState({});
   const [detalleproductos, setDetalleProducto] = useState(null);
   const [detalleservicios, setDetalleServicio] = useState(null);
 
@@ -45,20 +45,20 @@ function ListaVentas() {
 
   const fetchVentas = async () => {
     try {
-        const data = await VentaService.getVentas();
-        if (data && data.ventas) {
-            console.log(data.ventas);
-            setVentas(data.ventas);
-        } else {
-            console.error('La respuesta de la API no contiene la propiedad "ventas":', data);
-        }
+      const data = await VentaService.getVentas();
+      if (data && data.ventas) {
+        console.log(data.ventas);
+        setVentas(data.ventas);
+      } else {
+        console.error('La respuesta de la API no contiene la propiedad "ventas":', data);
+      }
     } catch (error) {
-        console.error('Error al obtener las ventas:', error);
+      console.error('Error al obtener las ventas:', error);
     }
   };
 
   const cancelarVentas = async (id_ventas) => {
-    try{
+    try {
       await VentaService.cancelarVenta(id_ventas);
       fetchVentas();
     } catch (error) {
@@ -67,7 +67,7 @@ function ListaVentas() {
   };
 
   const CambioAnulado = async (id_ventas) => {
-    try{
+    try {
       await VentaService.cambiarEstado(id_ventas);
       fetchVentas();
     } catch (error) {
@@ -92,9 +92,14 @@ function ListaVentas() {
           <CCardHeader>
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Ventas</strong>
-              <Link to="/ventas/CrearVentas">
-              <CButton color="primary">Agregar Ventas</CButton>
-              </Link>
+              <div className="d-flex gap-1">
+                <Link to="/ventas/CrearVentas">
+                  <CButton color="primary">Agregar Ventas</CButton>
+                </Link>
+                <Link to="/ventas/cargarVentas">
+                  <CButton color="primary">Cargar Ventas</CButton>
+                </Link>
+              </div>
             </div>
           </CCardHeader>
           <CCardBody>
@@ -123,66 +128,66 @@ function ListaVentas() {
                     <CTableDataCell><CBadge color={getColorForEstado(venta.estado_anulado)}>{venta.estado_anulado}</CBadge></CTableDataCell>
                     <CTableDataCell>
                       <CButtonGroup aria-label="Basic mixed styles example">
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <CButton
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          padding: '8px 12px',
-                          border: '1px solid #17a2b8',
-                          borderRadius: '4px',
-                          backgroundColor: 'transparent',
-                          color: '#17a2b8',
-                          fontSize: '14px',
-                          textTransform: 'uppercase',
-                          cursor: 'pointer',
-                        }}
-                          color="info"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setVisible(!visible);
-                            setDetalleProducto(venta.detalleproductos); 
-                            setDetalleServicio(venta.detalleservicios);
-                          }}
-                        >
-                          <FontAwesomeIcon icon={faEye} />
-                        </CButton>
-                        <div style={{ width: '10px' }} />
-                        <CButton
-                        color="success" 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => cancelarVentas(venta.id_ventas)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          }}
-                        >
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <CButton
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '8px 12px',
+                              border: '1px solid #17a2b8',
+                              borderRadius: '4px',
+                              backgroundColor: 'transparent',
+                              color: '#17a2b8',
+                              fontSize: '14px',
+                              textTransform: 'uppercase',
+                              cursor: 'pointer',
+                            }}
+                            color="info"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setVisible(!visible);
+                              setDetalleProducto(venta.detalleproductos);
+                              setDetalleServicio(venta.detalleservicios);
+                            }}
+                          >
+                            <FontAwesomeIcon icon={faEye} />
+                          </CButton>
+                          <div style={{ width: '10px' }} />
+                          <CButton
+                            color="success"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => cancelarVentas(venta.id_ventas)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                            }}
+                          >
                             <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '5px' }} /> Cancelar
-                        </CButton>
-              
-                        <div style={{ width: '10px' }} />
-                        <CButton
-                        color="warning" 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => CambioAnulado(venta.id_ventas)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          padding: '8px 12px',
-                          borderRadius: '4px',
-                          backgroundColor: 'transparent',
-                          fontSize: '14px',
-                          textTransform: 'uppercase',
-                          cursor: 'pointer',
-                        }}
-                        >
-                          <FontAwesomeIcon icon={faBan} style={{ marginRight: '5px' }} />
-                        </CButton>
+                          </CButton>
+
+                          <div style={{ width: '10px' }} />
+                          <CButton
+                            color="warning"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => CambioAnulado(venta.id_ventas)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '8px 12px',
+                              borderRadius: '4px',
+                              backgroundColor: 'transparent',
+                              fontSize: '14px',
+                              textTransform: 'uppercase',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <FontAwesomeIcon icon={faBan} style={{ marginRight: '5px' }} />
+                          </CButton>
                         </div>
                       </CButtonGroup>
                     </CTableDataCell>

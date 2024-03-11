@@ -15,7 +15,6 @@ const NavBarCliente = () => {
   const [visible, setVisible] = useState(false)
   return (
     <>
-
       <CNavbar expand="lg" colorScheme="light" style={{ backgroundColor: '#a28c82' }}>
         <CContainer fluid>
           <img src={logoBarberia} alt="SION BARBERSHOP" width="12%" />
