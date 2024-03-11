@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
 import ProductoService from '../../services/productoService';
-import { FaEdit, FaTrash, } from 'react-icons/fa'; // Importar los iconos de FontAwesome
-
+import { FaEdit, FaTrash } from 'react-icons/fa'; // Importar los iconos de FontAwesome
 import {
   CCard,
   CCardBody,
@@ -29,7 +28,9 @@ import {
   CPaginationItem,
   CBadge,
   CInputGroup,
+
 } from '@coreui/react';
+
 
 function ListaProductos() {
   const [productos, setProductos] = useState([]);
@@ -41,7 +42,8 @@ function ListaProductos() {
     precioCosto: "",
     precioVenta: "",
     stock: "",
-    estado: ""
+    estado: "",
+    tipoCompra: ""
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,11 +65,11 @@ function ListaProductos() {
 
   const handleEditar = (producto) => {
     console.log('Editar producto:', producto);
-    if (producto.estado === 'Activo') {
+    if (producto.estado === 'Inactivo') {
       Swal.fire({
         icon: 'warning',
-        title: 'Producto activo',
-        text: 'No se puede editar un producto activo.',
+        title: 'Producto inactivo',
+        text: 'No se puede editar un producto inactivo.',
       });
       return;
     }
@@ -76,83 +78,109 @@ function ListaProductos() {
   };
 
   const handleGuardarCambios = async () => {
-    // Mostrar un diálogo de confirmación antes de guardar los cambios
-    const confirmacion = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: '¿Deseas guardar los cambios realizados?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, guardar cambios',
-      cancelButtonText: 'Cancelar',
-    });
+    try {
+      if (selectedProducto && selectedProducto.id_producto) {
+        await ProductoService.updateProducto(selectedProducto.id_producto, selectedProducto);
+        fetchProductos();
+        setVisible(false);
+        Swal.fire({
+          icon: 'success',
+          title: 'Cambios guardados',
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      } else {
+        console.error('Error: ID de producto no definido o válido.');
+      }
+    } catch (error) {
+      console.error('Error al guardar cambios:', error);
+    }
+  };
 
-    // Si el usuario confirma, proceder con guardar los cambios
-    if (confirmacion.isConfirmed) {
-      try {
-        if (selectedProducto && selectedProducto.id_producto) {
-          await ProductoService.updateProducto(selectedProducto.id_producto, selectedProducto);
-          fetchProductos();
-          setVisible(false);
+  // const handleCambiarEstado = async (id_producto, estado) => {
+  //   try {
+  //     await ProductoService.putProducto(id_producto, estado);
+  //     fetchProductos();
+  //     Swal.fire({
+  //       icon: 'success',
+  //       title: 'Estado cambiado',
+  //       showConfirmButton: false,
+  //       timer: 1500,
+  //     });
+  //   } catch (error) {
+  //     console.error('Error al cambiar el estado del producto:', error);
+  //   }
+  // };
+
+
+
+
+  const handleCambiarEstado = (id_producto, estado) => {
+    Swal.fire({
+      title: `¿Estás seguro de cambiar el estado del producto ${estado}?`,
+      text: "¡No podrás revertir esto!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, cambiar estado"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await ProductoService.putProducto(id_producto, estado);
+          const updatedProductos = productos.map(p => {
+            if (p.id_producto === id_producto) {
+              return { ...p, estado: estado };
+            }
+            return p;
+          });
+          setProductos(updatedProductos);
           Swal.fire({
-            icon: 'success',
-            title: 'Cambios guardados',
+            position: "center",
+            icon: "success",
+            title: "¡El estado del producto ha sido cambiado exitosamente!",
             showConfirmButton: false,
             timer: 1500,
           });
-        } else {
-          console.error('Error: ID de producto no definido o válido.');
+        } catch (error) {
+          console.error("Error al cambiar el estado del producto:", error);
+          Swal.fire({
+            icon: "error",
+            title: "¡Error!",
+            text: "Hubo un problema al cambiar el estado del producto.",
+          });
         }
-      } catch (error) {
-        console.error('Error al guardar cambios:', error);
+      } else {
+        // // Si se cancela, volver al estado original del botón
+        // const originalEstado = productos.find(p => p.id_producto === id_producto).estado;
+        // document.getElementById(`producto${originalEstado}`).checked = true;
       }
-    }
+    });
   };
-
-
-  const handleCambiarEstado = async (id_producto, estado) => {
-    try {
-      await ProductoService.putProducto(id_producto, estado);
-      fetchProductos();
-      Swal.fire({
-        icon: 'success',
-        title: 'Estado cambiado',
-        showConfirmButton: false,
-        timer: 1500,
-      });
-    } catch (error) {
-      console.error('Error al cambiar el estado del producto:', error);
-    }
-  };
-
-
 
   const handleEliminarProducto = async (id_producto) => {
-    // Mostrar un diálogo de confirmación antes de eliminar el producto
-    const confirmacion = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: 'Esta acción eliminará permanentemente el producto.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-    });
-  
-    // Si el usuario confirma la eliminación, proceder con la eliminación del producto
-    if (confirmacion.isConfirmed) {
-      try {
-        // Obtener el producto
-        const producto = await ProductoService.getProductoById(id_producto);
-  
-        // Verificar si el producto está activo
-        if (producto.estado === 'Activo') {
-          throw new Error('No se puede eliminar un producto activo.');
-        }
-  
-        // Si el producto no está activo, proceder con la eliminación
+    try {
+      const producto = productos.find(producto => producto.id_producto === id_producto); // Buscar el producto por su ID
+      if (producto && producto.estado === 'Activo') { // Verificar si el producto existe y está activo
+        Swal.fire({
+          icon: 'warning',
+          title: 'No se puede eliminar',
+          text: 'El producto está activo y no se puede eliminar.',
+        });
+        return; // Salir de la función si el producto está activo
+      }
+
+      // Mostrar mensaje de confirmación antes de eliminar
+      const result = await Swal.fire({
+        icon: 'question',
+        title: '¿Estás seguro?',
+        text: 'Esta acción no se puede deshacer.',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+      });
+
+      if (result.isConfirmed) { // Si el usuario confirma la eliminación
         await ProductoService.eliminarProducto(id_producto);
         fetchProductos();
         Swal.fire({
@@ -161,39 +189,33 @@ function ListaProductos() {
           showConfirmButton: false,
           timer: 1500,
         });
-      } catch (error) {
-        console.error('Error al eliminar el producto:', error);
-        // Mostrar mensaje de error en caso de que el producto esté activo
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al eliminar el producto',
-          text: error.message, // Mostrar el mensaje de error
-        });
       }
+    } catch (error) {
+      console.error('Error al eliminar el producto:', error);
     }
   };
-  
+
 
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  // Función para determinar el color basado en el estado del producto
   const getColorForEstado = (estado) => {
     return estado === "Activo" ? "success" : "danger";
   };
 
 
-  const getColorForCantidad = (cantidad) => {
-    if (cantidad <= 10) {
-      return "danger"; // Rojo
-    } else if (cantidad <= 20) {
-      return "warning"; // Naranja
+  const getColorForStock = (stock) => {
+    if (stock <= 10) {
+      return 'red';
+    } else if (stock <= 20) {
+      return 'orange';
     } else {
-      return null; // Sin color de fondo
+      return "";
     }
   };
+
 
 
 
@@ -233,15 +255,18 @@ function ListaProductos() {
                 />
               </CCol>
             </CInputGroup>
+
+
           </CCardHeader>
           <CCardBody>
-            <CTable align='middle' className="mb border" hover responsive>
+            <CTable>
               <CTableHead>
                 <CTableRow>
                   <CTableHeaderCell>Nombre</CTableHeaderCell>
                   <CTableHeaderCell>Descripción</CTableHeaderCell>
                   <CTableHeaderCell>Precio costo</CTableHeaderCell>
                   <CTableHeaderCell>Precio venta</CTableHeaderCell>
+                  <CTableHeaderCell>Tipo</CTableHeaderCell>
                   <CTableHeaderCell>Stock</CTableHeaderCell>
                   <CTableHeaderCell>Estado</CTableHeaderCell>
                 </CTableRow>
@@ -253,18 +278,36 @@ function ListaProductos() {
                     <CTableDataCell>{producto.descripcion}</CTableDataCell>
                     <CTableDataCell>{producto.precioCosto}</CTableDataCell>
                     <CTableDataCell>{producto.precioVenta}</CTableDataCell>
+                    <CTableDataCell>{producto.tipoCompra}</CTableDataCell>
+
                     <CTableDataCell>
                       {producto.stock <= 20 ? (
-                        <CBadge color={getColorForCantidad(producto.stock)}>{producto.stock}</CBadge>
+                        <div
+                          className="d-inline-flex align-items-center"
+                          style={{
+                            backgroundColor: getColorForStock(producto.stock),
+                            padding: '5px 10px',
+                            borderRadius: '2px',
+                            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+                            fontSize: '10px',
+                            fontWeight: 'bold',
+                            color: 'white',
+                          }}
+                        >
+                          {producto.stock}
+                        </div>
                       ) : (
-                        producto.stock
+                        <span>{producto.stock}</span>
                       )}
                     </CTableDataCell>
 
 
                     <CTableDataCell style={{ display: "flex", alignItems: "center" }}>
-                      <CBadge color={getColorForEstado(producto.estado)} style={{ transform: 'scaleY(1.3)', marginRight: '25px', color: getColorForEstado(producto.estado) }}>{producto.estado}</CBadge>
+                      <CBadge color={getColorForEstado(producto.estado)} style={{ transform: 'scaleY(1.3)', marginRight: '40px', color: getColorForEstado(producto.estado) }}>{producto.estado}</CBadge>
                       <CFormSwitch
+                        size="xl"
+                        label=""
+
                         checked={producto.estado === 'Activo'}
                         onChange={() =>
                           handleCambiarEstado(
@@ -272,26 +315,21 @@ function ListaProductos() {
                             producto.estado === 'Activo' ? 'Inactivo' : 'Activo'
                           )
                         }
-                        style={{ transform: 'scaleY(1.5)' }}
+                        style={{ transform: 'scaleY(1.5)', marginRight: '10px' }}
                       />
                       <CButton
-                        color="primary"
+                        color="secondary"
                         size="sm"
                         onClick={() => handleEditar(producto)}
-                        style={{
-                          marginLeft: '5px',
-                          backgroundColor: 'orange',
-                          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)', // Sombra para dar relieve
-                          padding: '3px 10px' // Ajusta el tamaño del botón reduciendo el padding vertical
-                        }}
+                        style={{ marginRight: '5px' }} // Ajustar el espacio entre los botones
                       >
-                        <FaEdit style={{ color: 'black' }} /> {/* Ícono de editar en negro */}
+                        <FaEdit /> {/* Icono de editar */}
                       </CButton>
                       <CButton
                         color="danger"
                         size="sm"
                         onClick={() => handleEliminarProducto(producto.id_producto)}
-                        style={{ marginLeft: '10px' }} // Ajustar el espacio entre los botones
+                        style={{ marginRight: '5px' }} // Ajustar el espacio entre los botones
                       >
                         <FaTrash /> {/* Icono de eliminar */}
                       </CButton>
@@ -359,6 +397,14 @@ function ListaProductos() {
               type="number"
               value={selectedProducto.stock}
               onChange={(e) => setSelectedProducto({ ...selectedProducto, stock: e.target.value })}
+            />
+          </div>
+          <div>
+            <CFormLabel>Tipo</CFormLabel>
+            <CFormInput
+              type="text"
+              value={selectedProducto.tipoCompra}
+              onChange={(e) => setSelectedProducto({ ...selectedProducto, tipo: e.target.value })}
             />
           </div>
         </CModalBody>

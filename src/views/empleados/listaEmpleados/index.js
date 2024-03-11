@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -30,28 +29,11 @@ import {
   CInputGroup,
   CInputGroupText,
   CFormSwitch,
+  CPagination,
+  CPaginationItem,
 } from '@coreui/react';
 import EmpleadoService from 'src/views/services/empleadoService';
 
-const validateNombre = (value) => {
-  return /^[A-Za-z ]+$/.test(value);
-};
-
-const validateApellido = (value) => {
-  return /^[A-Za-z ]+$/.test(value);
-};
-
-const validateCorreo = (value) => {
-  return /^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/.test(value);
-};
-
-const validateDocumento = (value) => {
-  return /^\d{1,10}$/.test(value);
-};
-
-const validateTelefono = (value) => {
-  return /^\d{1,10}$/.test(value);
-};
 
 function ListaEmpleados() {
 
@@ -61,55 +43,118 @@ function ListaEmpleados() {
   const [visible, setVisible] = useState(false);
   const [estadoActivo, setEstadoActivo] = useState(false);
   const [selectedEmpleadoId, setSelectedEmpleadoId] = useState({});
-  const [validationErrors, setValidationErrors] = useState({});
+  const [filteredEmpleados, setFilteredEmpleados] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(5);
+  const [allowSave, setAllowSave] = useState(false);
+  const [estadoOriginal, setEstadoOriginal] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({
+    nombre: '',
+    apellido: '',
+    documento: '',
+    telefono: '',
+    correo: '',
+  });
+
+
 
   useEffect(() => {
     // Obtener la lista de empleados al cargar el componente
     fetchEmpleados();
-  }, []);
+    // Al cargar el componente, establecer el estado original solo una vez
+    setEstadoOriginal(selectedEmpleadoId.estado === 'Activo');
+  }, [selectedEmpleadoId.estado]);
+
+
 
   const handleGuardarCambios = async () => {
-    if (
-      validateNombre(selectedEmpleadoId.nombre) &&
-      validateApellido(selectedEmpleadoId.apellido) &&
-      validateCorreo(selectedEmpleadoId.correo) &&
-      validateDocumento(selectedEmpleadoId.documento) &&
-      validateTelefono(selectedEmpleadoId.telefono)
-    ) {
-      try {
-        await EmpleadoService.updateEmpleado(
-          selectedEmpleadoId.id_empleado,
-          selectedEmpleadoId
-        );
-
-        // Muestra el SweetAlert de éxito
-        Swal.fire('¡Éxito!', 'La modificación ha sido exitosa.', 'success');
-
-        // Cierra el modal
-        setVisible(false);
-
-        // Actualiza el array de empleados local con la nueva información
-        setEmpleados((prevEmpleados) =>
-          prevEmpleados.map((empleado) =>
-            empleado.id_empleado === selectedEmpleadoId.id_empleado
-              ? selectedEmpleadoId
-              : empleado
-          )
-        );
-      } catch (error) {
-        console.error('Error al actualizar empleado:', error);
-        Swal.fire('Error', 'Hubo un problema al actualizar el empleado.', 'error');
-      }
+    const fieldValidation = {};
+    let isValid = true;
+  
+    if (!selectedEmpleadoId.nombre.trim()) {
+      fieldValidation.nombre = 'El nombre es requerido.';
+      isValid = false;
     } else {
-      console.error('Error de validación. Por favor, verifica los campos.');
+      fieldValidation.nombre = /^[a-zA-Z0-9\s]*$/.test(selectedEmpleadoId.nombre)
+        ? ''
+        : 'Nombre no válido. Solo se permiten letras, números y espacios.';
+    }
+  
+    if (!selectedEmpleadoId.apellido.trim()) {
+      fieldValidation.apellido = 'El apellido es requerido.';
+      isValid = false;
+    } else {
+      fieldValidation.apellido = /^[a-zA-Z\s]*$/.test(selectedEmpleadoId.apellido)
+      ? ''
+      : 'El apellido solo debe contener letras y espacios.';
+    }
+  
+    if (!selectedEmpleadoId.correo.trim()) {
+      fieldValidation.correo = 'El correo es requerido.';
+      isValid = false;
+    }
+  
+    if (!selectedEmpleadoId.documento.trim()) {
+      fieldValidation.documento = 'El documento es requerido.';
+      isValid = false;
+    } else if (!/^\d{6,10}$/.test(selectedEmpleadoId.documento.trim())) {
+      fieldValidation.documento = 'El documento debe tener entre 6 y 10 dígitos.';
+      isValid = false;
+    }
+  
+    if (!selectedEmpleadoId.telefono.trim()) {
+      fieldValidation.telefono = 'El teléfono es requerido.';
+      isValid = false;
+    } else if (!/^\d{10}$/.test(selectedEmpleadoId.telefono.trim())) {
+      fieldValidation.telefono = 'El teléfono debe tener 10 dígitos.';
+      isValid = false;
+    }
+  
+    setValidationErrors(fieldValidation);
+    setAllowSave(isValid);
+
+    if (!isValid) {
+      return;
+    }
+  
+    try {
+      await EmpleadoService.updateEmpleado(
+        selectedEmpleadoId.id_empleado,
+        selectedEmpleadoId
+      );
+  
+      Swal.fire('¡Éxito!', 'La modificación ha sido exitosa.', 'success');
+  
+      setEmpleados((prevEmpleados) =>
+        prevEmpleados.map((empleado) =>
+          empleado.id_empleado === selectedEmpleadoId.id_empleado
+            ? selectedEmpleadoId
+            : empleado
+        )
+      );
+  
+      setValidationErrors({
+        nombre: '',
+        apellido: '',
+        documento: '',
+        telefono: '',
+        correo: '',
+      });
+
+      setVisible(false);
+    } catch (error) {
+      console.error('Error al actualizar empleado:', error);
+      Swal.fire('Error', 'Hubo un problema al actualizar el empleado.', 'error');
     }
   };
+
+
 
   const fetchEmpleados = async () => {
     try {
       const data = await EmpleadoService.getAllEmpleados();
-      const empleadosArray = data.empleados || []; // Si data.empleados es undefined, asigna un array vacío
+      const empleadosArray = data.empleados || []; 
       const filteredEmpleados = empleadosArray.filter((empleado) => {
         const searchRegex = new RegExp(searchTerm, 'i');
         return (
@@ -122,51 +167,159 @@ function ListaEmpleados() {
         );
       });
       setEmpleados(filteredEmpleados);
+      setFilteredEmpleados(filteredEmpleados);
+      setCurrentPage(1);
     } catch (error) {
       console.error('Error al obtener empleados:', error);
     }
   };
 
-  const showAlert = (field, message) => {
-    setValidationErrors((prevErrors) => ({ ...prevErrors, [field]: message }));
+
+
+  const handleInputChange = (e, fieldName) => {
+    const rawValue = e.target.value;
+    let filteredValue;
+  
+    if (fieldName === 'correo') {
+      filteredValue = rawValue; 
+    } else {
+      filteredValue = filterValidCharacters(rawValue);
+    }
+  
+    let isValid = true;
+    const fieldValidation = { ...validationErrors };
+
+    switch (fieldName) {
+      case 'nombre':
+        if (!filteredValue) {
+          fieldValidation.nombre = 'El nombre es requerido.';
+          isValid = false;
+        } else {
+          fieldValidation.nombre = /^[a-zA-Z0-9\s]*$/.test(filteredValue)
+            ? ''
+            : 'Nombre no válido. Solo se permiten letras, números y espacios.';
+        }
+        break;
+  
+      case 'apellido':
+        if (!filteredValue) {
+          fieldValidation.apellido = 'El apellido es requerido.';
+          isValid = false;
+        } else {
+          fieldValidation.apellido = /^[a-zA-Z\s]*$/.test(filteredValue)
+          ? ''
+          : 'El apellido solo debe contener letras y espacios.';
+        }
+        break;
+
+      case 'correo':
+        if (!filteredValue) {
+          fieldValidation.correo = 'El correo es requerido.';
+          isValid = false;
+        } else {
+          fieldValidation.correo = /^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/.test(filteredValue)
+          ? ''
+          : 'Ingrese un correo válido.';
+        }
+        break;
+
+      case 'documento':
+        fieldValidation.documento = filteredValue
+          ? /^\d{6,10}$/.test(filteredValue)
+            ? ''
+            : 'El documento debe tener entre 6 y 10 dígitos.'
+          : 'El documento es requerido.';
+        break;
+
+      case 'telefono':
+        fieldValidation.telefono = filteredValue
+          ? /^\d{10}$/.test(filteredValue)
+            ? ''
+            : 'El teléfono debe tener 10 dígitos.'
+          : 'El teléfono es requerido.';
+        break;
+      default:
+        break;
+    }  
+    
+    setSelectedEmpleadoId({ ...selectedEmpleadoId, [fieldName]: filteredValue });
+
+    isValid = Object.values(fieldValidation).every((error) => !error);
+    setAllowSave(isValid);
+    setValidationErrors(fieldValidation);
   };
 
-  const clearAlerts = () => {
-    setValidationErrors({});
+  const filterValidCharacters = (input, allowSpecialChars = false) => {
+    if (allowSpecialChars) {
+      return input;
+    }
+    return input.replace(/[^a-zA-Z0-9\s]/g, '');
   };
+
+
 
   const handleEditar = (empleado) => {
-    // Abrir el modal y almacenar el ID del empleado seleccionado
     setSelectedEmpleadoId(empleado);
-    clearAlerts();
     setVisible(true);
   };
 
 
+
   const handleCambiarEstadoSwitch = async (id_empleado) => {
-    const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: '¡Se cambiará el estado del empleado!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, cambiar estado',
-    });
-  
-    if (result.isConfirmed) {
-      try {
+    try {
+      const empleadoActual = empleados.find((emp) => emp.id_empleado === id_empleado);
+      const nuevoEstado = empleadoActual.estado === 'Activo' ? 'Inactivo' : 'Activo';
+      const result = await Swal.fire({
+        title: `¿Estás seguro de cambiar el estado del empleado a ${nuevoEstado}?`,
+        text: "¡No podrás revertir esto!",
+        icon: "warning",
+        showCancelButton: true,
+        allowOutsideClick: false, 
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Sí, cambiar estado"
+      });
+      if (result.isConfirmed) {
         await EmpleadoService.cambiarEstadoEmpleado(id_empleado);
-        fetchEmpleados();
-        Swal.fire('¡Cambiado!', 'El estado del empleado ha sido modificado.', 'success');
-      } catch (error) {
-        console.error('Error al cambiar el estado del empleado:', error);
-        Swal.fire('Error', 'Hubo un problema al cambiar el estado del empleado.', 'error');
+        await fetchEmpleados();
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "¡El estado del empleado ha sido cambiado exitosamente!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        const empleadoActualizado = empleados.find((emp) => emp.id_empleado === id_empleado);
+        const nuevoEstadoActual = empleadoActualizado.estado === 'Activo';
+        setEstadoActivo(nuevoEstadoActual);
+      } else {
+        const boton = document.getElementById(`formSwitchCheckChecked_${id_empleado}`);
+        if (boton) {
+          boton.checked = empleadoActual.estado === 'Activo';
+        } else {
+          console.error('Error: Elemento del botón no encontrado');
+        }
       }
-      // Cambiar el estado del interruptor al contrario de su valor actual
-      setEstadoActivo((prevEstado) => !prevEstado);
+    } catch (error) {
+      console.error('Error al cambiar el estado del empleado:', error);
+      Swal.fire('Error', 'Hubo un problema al cambiar el estado del empleado.', 'error');
     }
-  };  
+  };
+
+
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  
+
+  //paginado
+  const indexOfLastEmpleado = currentPage * pageSize;
+  const indexOfFirstEmpleado = indexOfLastEmpleado - pageSize;
+  const currentEmpleados = filteredEmpleados.slice(indexOfFirstEmpleado, indexOfLastEmpleado);
+
+
 
   function getColorForEstado(estado) {
     if (estado === "Activo") {
@@ -177,6 +330,7 @@ function ListaEmpleados() {
       return "default";
     }
   }
+
 
   return (
     <CRow>
@@ -193,7 +347,7 @@ function ListaEmpleados() {
           <CInputGroup className="mt-3" style={{ maxWidth: "200px" }}>
           <CFormInput
             type="text"
-            placeholder="Buscar..."
+            placeholder="Buscar empleados..."
             className="form-control-sm"
             value={searchTerm}
             onChange={(e) => {
@@ -220,9 +374,9 @@ function ListaEmpleados() {
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {empleados && empleados.map((empleado, index) => (
-                  <CTableRow key={empleado.id_empleado}>
-                    <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+              {currentEmpleados.map((empleado, index) => (
+              <CTableRow key={empleado.id_empleado}>
+                <CTableHeaderCell scope="row">{indexOfFirstEmpleado + index + 1}</CTableHeaderCell>
                     <CTableDataCell>{empleado.nombre}</CTableDataCell>
                     <CTableDataCell>{empleado.apellido}</CTableDataCell>
                     <CTableDataCell>{empleado.correo}</CTableDataCell>
@@ -239,155 +393,117 @@ function ListaEmpleados() {
                           onChange={() => handleCambiarEstadoSwitch(empleado.id_empleado)}
                         />
                         <CButton
-                          color="primary"
-                          size="sm"
-                          onClick={() => handleEditar(empleado)}
-                          style={{
-                            marginLeft: '5px',
-                            backgroundColor: 'orange',
-                            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)', // Sombra para dar relieve
-                            padding: '3px 10px' // Ajusta el tamaño del botón reduciendo el padding vertical
-                          }}
-                        >
-                          <FaEdit style={{ color: 'black' }} /> {/* Ícono de editar en negro */}
-                        </CButton>
+                        color="secondary"
+                        size="sm"
+                        onClick={() => handleEditar(empleado)}
+                        style={{ marginRight: '5px' }} // Ajustar el espacio entre los botones
+                      >
+                        <FaEdit /> {/* Icono de editar */}
+                      </CButton>
                       </CButtonGroup>
                     </CTableDataCell>
                   </CTableRow>
                 ))}
               </CTableBody>
             </CTable>
+            <CPagination align="center" aria-label="Page navigation example" className="mt-3">
+              <CPaginationItem onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+                Anterior
+              </CPaginationItem>
+              {Array.from({ length: Math.ceil(filteredEmpleados.length / pageSize) }, (_, i) => (
+              <CPaginationItem
+              key={i}
+              onClick={() => handlePageChange(i + 1)}
+              active={i + 1 === currentPage}
+              >
+                {i + 1}
+                </CPaginationItem>
+                ))}
+              <CPaginationItem
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === Math.ceil(filteredEmpleados.length / pageSize)}
+              >
+                Siguiente
+              </CPaginationItem>
+            </CPagination>
           </CCardBody>
         </CCard>
       </CCol>
-      <CModal visible={visible} onClose={() => setVisible(false)}>
+      <CModal visible={visible} onClose={() => setVisible(false)} backdrop="static">
         <CModalHeader>
           <CModalTitle>Editar Empleados</CModalTitle>
-        </CModalHeader>
-        <CModalBody>
-          <form onSubmit={e => {
-            e.preventDefault()
-            console.log(selectedEmpleadoId)
-          }}>
-
-            <div className="mb-3">
-              <CFormLabel>Nombre</CFormLabel>
-              <CFormInput
-                type="text"
-                value={selectedEmpleadoId?.nombre}
-                onChange={(e) => {
-                  const newValue = { ...selectedEmpleadoId };
-                  if (validateNombre(e.target.value)) {
-                    newValue.nombre = e.target.value;
-                    showAlert('nombre', '');
-                  } else {
-                    showAlert('nombre', 'El nombre debe contener solo letras');
-                  }
-                  setSelectedEmpleadoId(newValue);
-                }}
-              />
-              {validationErrors.nombre && (
-                <div className="alert alert-danger mt-2">{validationErrors.nombre}</div>
-              )}
-            </div>
-
-            <div className="mb-3">
-              <CFormLabel>Apellido</CFormLabel>
-              <CFormInput
-                type="text"
-                value={selectedEmpleadoId?.apellido}
-                onChange={(e) => {
-                  const newValue = { ...selectedEmpleadoId };
-                  if (validateApellido(e.target.value)) {
-                    newValue.apellido = e.target.value;
-                    showAlert('apellido', ''); // Limpiar la alerta si la validación es exitosa
-                  } else {
-                    showAlert('apellido', 'El apellido debe contener solo letras');
-                  }
-                  setSelectedEmpleadoId(newValue);
-                }}
-              />
-              {validationErrors.apellido && (
-                <div className="alert alert-danger mt-2">{validationErrors.apellido}</div>
-              )}
-            </div>
-
-            <div className="mb-3">
-              <CFormLabel>Correo</CFormLabel>
-              <CFormInput
-                type="email"
-                value={selectedEmpleadoId?.correo}
-                onChange={(e) => {
-                  const newValue = { ...selectedEmpleadoId };
-                  if (validateCorreo(e.target.value)) {
-                    newValue.correo = e.target.value;
-                    showAlert('correo', ''); // Limpiar la alerta si la validación es exitosa
-                  } else {
-                    showAlert('correo', 'Correo electrónico no válido');
-                  }
-                  setSelectedEmpleadoId(newValue);
-                }}
-              />
-              {validationErrors.correo && (
-                <div className="alert alert-danger mt-2">{validationErrors.correo}</div>
-              )}
-            </div>
-
-            <div className="mb-3">
-              <CFormLabel>Documento</CFormLabel>
-              <CFormInput
-                type="number"
-                value={selectedEmpleadoId?.documento}
-                onChange={(e) => {
-                  const newValue = { ...selectedEmpleadoId };
-                  newValue.documento = e.target.value;
-                  if (newValue.documento.length > 10) {
-                    showAlert('documento', 'El documento no puede contener más de 10 dígitos');
-                  } else {
-                    showAlert('documento', ''); // Limpiar la alerta si la validación es exitosa
-                  }
-                  setSelectedEmpleadoId(newValue);
-                }}
-              />
-              {validationErrors.documento && (
-                <div className="alert alert-danger mt-2">{validationErrors.documento}</div>
-              )}
-            </div>
-
-            <div className="mb-3">
-              <CFormLabel>Telefono</CFormLabel>
-              <CFormInput
-                type="number"
-                value={selectedEmpleadoId?.telefono}
-                onChange={(e) => {
-                  const newValue = { ...selectedEmpleadoId };
-                  newValue.telefono = e.target.value;
-                  if (newValue.telefono.length > 10) {
-                    showAlert('telefono', 'El teléfono no puede contener más de 10 dígitos');
-                  } else {
-                    showAlert('telefono', ''); // Limpiar la alerta si la validación es exitosa
-                  }
-                  setSelectedEmpleadoId(newValue);
-                }}
-              />
-              {validationErrors.telefono && (
-                <div className="alert alert-danger mt-2">{validationErrors.telefono}</div>
-              )}
-            </div>
-
-          </form>
-        </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setVisible(false)}>
-            Cerrar
-          </CButton>
-          <CButton color="primary" onClick={handleGuardarCambios}>
-            Guardar Cambios
-          </CButton>
-        </CModalFooter>
-      </CModal>
-    </CRow>
-  )
-}
+          </CModalHeader>
+          <CModalBody>
+            <form onSubmit={e => {
+              e.preventDefault()
+              console.log(selectedEmpleadoId)
+              }}>
+                <div className="mb-3">
+                  <CFormLabel>Nombre</CFormLabel>
+                  <CFormInput
+                  type="text"
+                  value={selectedEmpleadoId?.nombre || ''}
+                  onChange={(e) => handleInputChange(e, 'nombre')}
+                  />
+                  {validationErrors.nombre && <small className="text-danger">{validationErrors.nombre}</small>}
+                  </div>
+                  
+                  <div className="mb-3">
+                    <CFormLabel>Apellido</CFormLabel>
+                    <CFormInput
+                    type="text"
+                    value={selectedEmpleadoId?.apellido || ''}
+                    onChange={(e) => handleInputChange(e, 'apellido')}
+                    />
+                    {validationErrors.apellido && <small className="text-danger">{validationErrors.apellido}</small>}
+                    </div>
+                    
+                    <div className="mb-3">
+                      <CFormLabel>Correo</CFormLabel>
+                      <CFormInput
+                      type="correo"
+                      value={selectedEmpleadoId?.correo || ''}
+                      onChange={(e) => handleInputChange(e, 'correo')}
+                      />
+                      {validationErrors.correo && <small className="text-danger">{validationErrors.correo}</small>}
+                      </div>
+                      
+                      <div className="mb-3">
+                        <CFormLabel>Documento</CFormLabel>
+                        <CFormInput
+                        type="number"
+                        minLength={6}
+                        maxLength={10}
+                        value={selectedEmpleadoId?.documento || ''}
+                        onChange={(e) =>  handleInputChange(e, 'documento')}
+                        />
+                        {validationErrors.documento && <small className="text-danger">{validationErrors.documento}</small>}
+                        </div>
+                        
+                        <div className="mb-3">
+                          <CFormLabel>Telefono</CFormLabel>
+                          <CFormInput
+                          type="number"
+                          maxLength={10}
+                          value={selectedEmpleadoId?.telefono || ''}
+                          onChange={(e) => handleInputChange(e, 'telefono')}
+                          />
+                          {validationErrors.telefono && <small className="text-danger">{validationErrors.telefono}</small>}
+                          </div>
+  
+                          </form>
+                          </CModalBody>
+                          <CModalFooter>
+                            <CButton color="secondary" onClick={() => setVisible(false)}>
+                              Cerrar
+                              </CButton>
+                              <CButton color="primary" onClick={handleGuardarCambios}>
+                                Guardar Cambios
+                                </CButton>
+                                </CModalFooter>
+                                </CModal>
+                                </CRow>
+                                )
+                              }
 
 export default ListaEmpleados

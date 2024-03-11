@@ -89,8 +89,8 @@ const CrearServicio = React.lazy(() => import('./views/servicios/crearServicio')
 const ListaClientes = React.lazy(() => import('./views/clientes/listaClientes'))
 const CrearCliente = React.lazy(() => import('./views/clientes/crearCliente'))
 
-const ListaInsumos = React.lazy(() => import('./views/insumos/listaInsumos'))
-const CrearInsumo = React.lazy(() => import('./views/insumos/crearInsumo'))
+// const ListaInsumos = React.lazy(() => import('./views/insumos/listaInsumos'))
+// const CrearInsumo = React.lazy(() => import('./views/insumos/crearInsumo'))
 
 const CrearConfiguracion = React.lazy(() => import('./views/agendas/crearConfiguracion/programacion'))
 
@@ -131,9 +131,9 @@ const routes = [
   { path: '/servicios/crearServicio', name: 'Crear Servicio', element: CrearServicio },
   
 
-  { path: '/insumos', name: 'Insumos', element: ListaInsumos },
-  { path: '/insumos/listaIsumos', name: 'Listado de Insumos', element: ListaInsumos },
-  { path: '/insumos/crearInsumo', name: 'Crear Insumo', element: CrearInsumo },
+  // { path: '/insumos', name: 'Insumos', element: ListaInsumos },
+  // { path: '/insumos/listaIsumos', name: 'Listado de Insumos', element: ListaInsumos },
+ // { path: '/insumos/crearInsumo', name: 'Crear Insumo', element: CrearInsumo },
 
   { path: '/ventas/listaVentas', name: 'Ventas', element: ListarVentas},
 
@@ -156,9 +156,9 @@ const routes = [
   { path: '/servicios', name: 'Servicios', element: ListaServicios },
   { path: '/servicios/listaServicios', name: 'Listado de Servicios', element: ListaServicios },
   { path: '/servicios/crearServicio', name: 'Crear Servicio', element: CrearServicio },
-  { path: '/insumos', name: 'Insumos', element: ListaInsumos },
-  { path: '/insumos/listaIsumos', name: 'Listado de Insumos', element: ListaInsumos },
-  { path: '/insumos/crearInsumo', name: 'Crear Insumo', element: CrearInsumo },
+  // { path: '/insumos', name: 'Insumos', element: ListaInsumos },
+  // { path: '/insumos/listaIsumos', name: 'Listado de Insumos', element: ListaInsumos },
+  // { path: '/insumos/crearInsumo', name: 'Crear Insumo', element: CrearInsumo },
   //------------------------------------------------------------------------------------
 
 

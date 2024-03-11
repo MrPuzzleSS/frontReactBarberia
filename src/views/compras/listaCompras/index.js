@@ -35,7 +35,7 @@ async function getNombresProductos(detalle, tipoCompra) {
     if (tipoCompra === 'Producto') {
       response = await CompraDataService.getAllProductosbyId(detalle.id_producto);
     } else if (tipoCompra === 'Insumo') {
-      response = await CompraDataService.getAllProductosbyIdInsu(detalle.id_insumo);
+      response = await CompraDataService.getAllProductosbyId(detalle.id_producto);
     } else {
       throw new Error('Tipo de compra no válido');
     }
@@ -108,7 +108,7 @@ function ListaCompras() {
 
           const detallesCompraIn = item.detallesCompraIn.map(detalle => ({
             id_insumo: detalle.id_insumo,
-            cantidad: detalle.cantidad,
+            stock: detalle.cantidad,
             precioUnitario: detalle.precioUnitario,
             precioVenta: detalle.precioVenta,
             total: detalle.total,
@@ -166,11 +166,7 @@ function ListaCompras() {
               <strong>Lista de Compras</strong>
               <div className="d-flex align-items-center">
                 <Link to="/compras/crear-compra">
-                  <CButton color="success">Agregar Producto</CButton>
-                </Link>
-                |
-                <Link to="/compras/crear-comprainsu">
-                  <CButton color="success" className="ml-2">Agregar Insumo</CButton>
+                  <CButton color="primary">Agregar Producto</CButton>
                 </Link>
               </div>
             </div>

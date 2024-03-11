@@ -1,13 +1,10 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
-import jwt_decode from 'jwt-decode';
-import ListaRol from '../src/views/rol/listaRoles/Roles';
 import {
   cilPuzzle,
   cilSpeedometer,
   cilUser,
   cilSettings,
-  cilAccountLogout,
   cilIndustry,
   cilCart,
   cilPeople,
@@ -19,86 +16,68 @@ import { CNavGroup, CNavItem } from '@coreui/react'
 const _nav = [
   {
     component: CNavItem,
-    name: 'Dashboard',
+    name: 'Inicio',
     to: '/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-    badge: {
-      color: 'info',
-      text: 'NEW',
-    },
   },
   {
     component: CNavItem,
-    name: 'Proveedores',
+    name: 'Proveedores', style : {color: 'black'},
     to: '/proveedores',
-    icon: <CIcon icon={cilIndustry} customClassName="nav-icon" />
+    icon: <CIcon icon={cilIndustry} customClassName="nav-icon" style={{color:'black'}}/>
   },
   {
     component: CNavItem,
-    name: 'Compras',
+    name: 'Compras', style : {color: 'black'},
     to: '/compras',
-    icon: <CIcon icon={cilCart} customClassName="nav-icon" />
+    icon: <CIcon icon={cilCart} customClassName="nav-icon" style={{color:'black'}}/>
   },
   {
     component: CNavItem,
-    name: 'Empleados',
+    name: 'Empleados', style : {color: 'black'},
     to: '/empleados',
-    icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilPeople} customClassName="nav-icon" style={{color:'black'}}/>,
   },
 
   {
     component: CNavItem,
-    name: 'Agendas',
+    name: 'Agendas', style : {color: 'black'},
     to: '/agendas/crearconfiguracion',
-    icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilCart} customClassName="nav-icon" style={{color:'black'}}/>,
   },
   {
-    component: CNavGroup,
+    component: CNavItem, style : {color: 'black'},
     name: 'Ventas',
     to: '/ventas',
-    icon: <CIcon icon={cilMoney} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Lista de Ventas',
-        to: '/ventas',
-      },
-      {
-        component: CNavItem,
-        name: 'Cargar Ventas',
-        to: '/ventas/cargarVentas',
-      },
-    ],
+    icon: <CIcon icon={cilMoney} customClassName="nav-icon" style={{color:'black'}}/>,
   },
-  {
-    component: CNavItem,
-    name: 'Insumos',
-    to: '/insumos',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />
-  },
+
+  // {
+  //   component: CNavItem,
+  //   name: 'Insumos',
+  //   to: '/insumos',
+  //   icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />
+  // },
 
 
   {
     component: CNavItem,
-    name: 'Clientes',
+    name: 'Clientes', style : {color: 'black'},
     to: '/clientes/listaClientes',
-    icon: <CIcon icon={cilCart} customClassName="nav-icon" />
+    icon: <CIcon icon={cilCart} customClassName="nav-icon" style={{color:'black'}}/>
   },
   {
     component: CNavItem,
-    name: 'Servicios',
+    name: 'Servicios', style : {color: 'black'},
     to: '/servicios',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />
+    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" style={{color:'black'}}/>
   },
   {
     component: CNavItem,
-    name: 'Productos',
+    name: 'ProdInsumos',
     to: '/Productos',
-    icon: <CIcon icon={cilBasket} customClassName="nav-icon" />
+    icon: <CIcon icon={cilBasket} customClassName="nav-icon" style={{color:'black'}}/>
   },
-  
-  
-     
           {
             component: CNavItem,
             name: 'Usuarios',
@@ -111,7 +90,7 @@ const _nav = [
             component: CNavItem,
             name: 'Roles',
             to: '/ListaRol',  // Asegúrate de que la ruta sea la correcta
-            icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+            icon: <CIcon icon={cilUser} customClassName="nav-icon" style={{color:'black'}}/>,
 
           },
         
