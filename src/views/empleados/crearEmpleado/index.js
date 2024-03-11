@@ -45,7 +45,8 @@ function CrearEmpleado() {
     };
 
     const validardocumento = async () => {
-        setError(false)
+        setError(false); // Reinicias el estado de error
+    
         if (documento.length > 0) {
             try {
                 const token = localStorage.getItem('token');
@@ -61,8 +62,8 @@ function CrearEmpleado() {
                 });
     
                 const datosRespuesta = await respuesta.json();
-                if (datosRespuesta.documento == 'El documento ya existe') {
-                    setError(true);
+                if (datosRespuesta.documento === 'El documento ya existe') {
+                    setError(true); // Estableces el estado de error en true si el documento ya existe
                 }
                 setdocumentoApi(datosRespuesta.documento);
             } catch (error) {
@@ -183,6 +184,7 @@ function CrearEmpleado() {
                             minLength={6}
                             maxLength={10}
                             value={documento}
+                            onBlur={handleBlurDocumento}
                             onChange={(e) => {
                                 // Reemplaza cualquier carácter no numérico con una cadena vacía
                                 let newValue = e.target.value.replace(/[^\d]/g, '');
@@ -200,8 +202,6 @@ function CrearEmpleado() {
                                     setDocumentoError('');
                                 }
                             }}
-                            onBlur={handleBlurDocumento}
-                            
                             invalid={documentoError !== '' || errorDocumento} // Considera el estado de error del documento
                             />
                             <CFormFeedback invalid>{documentoError}</CFormFeedback>
@@ -210,7 +210,6 @@ function CrearEmpleado() {
                             {errorDocumento &&
                                 <p style={{ color: 'red' }}>Ya existe un empleado con éste número de cédula</p>
                             }
-
 
                             <div className="mb-3">
                             <CFormLabel>Nombre</CFormLabel>
