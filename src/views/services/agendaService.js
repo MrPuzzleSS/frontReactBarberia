@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-const apiUrl = 'https://restapibarberia.onrender.com/api/agenda';
+const apiUrl = 'http://localhost:8095/api/agenda';
 
 const getToken = () => {
   // Obtener el token del localStorage
@@ -22,6 +22,8 @@ const AgendaService = {
       throw error;
     }
   },
+
+
 
   getAgendaById: async (id) => {
     try {
@@ -58,7 +60,7 @@ const AgendaService = {
     }
   },
 
-  updateAgenda: async (id, updatedAgenda) => {
+ updateAgenda: async (id, updatedAgenda) => {
     try {
       const response = await axios.put(`${apiUrl}/${id}`, updatedAgenda, {
         headers: {
@@ -68,10 +70,18 @@ const AgendaService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Error al actualizar la agenda:', error);
-      throw error;
+      // Verificar si el error proviene del servidor
+      if (error.response && error.response.data && error.response.data.error) {
+        // Si el servidor devuelve un mensaje de error específico, lo retornamos
+        return error.response.data;
+      } else {
+        // Si no, simplemente lanzamos el error
+        console.error('Error al actualizar la agenda:', error);
+        throw error;
+      }
     }
   },
+
 
   deleteAgenda: async (id) => {
     try {

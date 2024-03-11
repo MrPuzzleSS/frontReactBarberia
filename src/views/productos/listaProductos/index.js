@@ -28,9 +28,9 @@ import {
   CPaginationItem,
   CBadge,
   CInputGroup,
-  CInputGroupText,
+
 } from '@coreui/react';
-import swal from 'sweetalert';
+
 
 function ListaProductos() {
   const [productos, setProductos] = useState([]);
@@ -97,19 +97,65 @@ function ListaProductos() {
     }
   };
 
-  const handleCambiarEstado = async (id_producto, estado) => {
-    try {
-      await ProductoService.putProducto(id_producto, estado);
-      fetchProductos();
-      Swal.fire({
-        icon: 'success',
-        title: 'Estado cambiado',
-        showConfirmButton: false,
-        timer: 1500,
-      });
-    } catch (error) {
-      console.error('Error al cambiar el estado del producto:', error);
-    }
+  // const handleCambiarEstado = async (id_producto, estado) => {
+  //   try {
+  //     await ProductoService.putProducto(id_producto, estado);
+  //     fetchProductos();
+  //     Swal.fire({
+  //       icon: 'success',
+  //       title: 'Estado cambiado',
+  //       showConfirmButton: false,
+  //       timer: 1500,
+  //     });
+  //   } catch (error) {
+  //     console.error('Error al cambiar el estado del producto:', error);
+  //   }
+  // };
+
+  
+
+  
+  const handleCambiarEstado = (id_producto, estado) => {
+    Swal.fire({
+      title: `¿Estás seguro de cambiar el estado del producto ${estado}?`,
+      text: "¡No podrás revertir esto!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, cambiar estado"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await ProductoService.putProducto(id_producto, estado);
+          const updatedProductos = productos.map(p => {
+            if (p.id_producto === id_producto) {
+              return { ...p, estado: estado };
+            }
+            return p;
+          });
+          setProductos(updatedProductos);
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "¡El estado del producto ha sido cambiado exitosamente!",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        } catch (error) {
+          console.error("Error al cambiar el estado del producto:", error);
+          Swal.fire({
+            icon: "error",
+            title: "¡Error!",
+            text: "Hubo un problema al cambiar el estado del producto.",
+          });
+        }
+      } else {
+        // // Si se cancela, volver al estado original del botón
+        // const originalEstado = productos.find(p => p.id_producto === id_producto).estado;
+        // document.getElementById(`producto${originalEstado}`).checked = true;
+      }
+    });
   };
 
   const handleEliminarProducto = async (id_producto) => {
@@ -259,6 +305,9 @@ function ListaProductos() {
                     <CTableDataCell style={{ display: "flex", alignItems: "center" }}>
                       <CBadge color={getColorForEstado(producto.estado)} style={{ transform: 'scaleY(1.3)', marginRight: '40px', color: getColorForEstado(producto.estado) }}>{producto.estado}</CBadge>
                       <CFormSwitch
+                        size="xl"
+                        label=""
+
                         checked={producto.estado === 'Activo'}
                         onChange={() =>
                           handleCambiarEstado(

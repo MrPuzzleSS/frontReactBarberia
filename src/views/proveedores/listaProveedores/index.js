@@ -234,7 +234,7 @@ function ListaProveedores() {
                         size="xl"
                         label=""
                         id={`cambiarEstado-${proveedor.id_proveedor}`}
-                        defaultChecked={proveedor.estado === 'Activo'}
+                     defaultChecked   ={proveedor.estado === 'Activo'}
                         onChange={() => handleEstadoChange(proveedor)}
                       />
                       <CButton

@@ -14,10 +14,24 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { CCard, CCardHeader, CCardBody } from '@coreui/react';
 import esLocale from '@fullcalendar/core/locales/es';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import socket from '../../socket';
 import 'src/scss/css/calendarStyles.css';
 
 
+
+
 const CrearConfiguracion = () => {
+
+    
+    socket.on('eventoActualizado', (eventoActualizado) => {
+        console.log('Evento actualizado recibido:', eventoActualizado);
+        // Aquí puedes actualizar los datos relevantes en el cliente con el evento actualizado
+        // Por ejemplo, puedes actualizar el estado de los eventos o recargar la página
+    });
+
+
+
+
 
     const MultiSelect = ({ options, selectedValues, onChange }) => {
         const handleChange = (selectedOption) => {
@@ -72,7 +86,7 @@ const CrearConfiguracion = () => {
             //  console.log('Iniciando fetch de empleados...');
 
 
-            const apiUrl = 'https://restapibarberia.onrender.com/api/empleado/activos';
+            const apiUrl = 'http://localhost:8095/api/empleado/activos';
             const response = await axios.get(apiUrl, {
                 headers: {
                     'Authorization': `Bearer ${getToken()}` // Añadir el token al encabezado Authorization
@@ -133,11 +147,11 @@ const CrearConfiguracion = () => {
 
 
     const colorArray = [
-       
-       
-        '#7B68EE', '#4169E1',  '#00008B', '#0000CD',
+
+
+        '#7B68EE', '#4169E1', '#00008B', '#0000CD',
         '#191970', '#008080',
-        '#008B8B', '#00BFFF', '#00CED1', '#00FA9A', '#00FF00', '#00FF7F',
+        '#008B8B', '#00BFFF', '#00CED1', '#00FA9A',
         '#00FFFF', '#00FFFF', '#1874CD', '#191970', '#1E90FF', '#20B2AA',
         '#4682B4', '#48D1CC', '#6495ED', '#66CDAA', '#66CDAA',
         '#7FFFD4', '#7B68EE', '#87CEEB', '#87CEFA', '#8A2BE2', '#8A2BE2',
@@ -145,13 +159,13 @@ const CrearConfiguracion = () => {
         '#DB7093', '#DA70D6', '#D8BFD8', '#2E8B57', '#3CB371', '#20B2AA',
         '#7FFFD4', '#8FBC8F', '#98FB98', '#48D1CC', '#20B2AA', '#5F9EA0',
         '#6495ED', '#66CDAA', '#76EEC6', '#87CEEB', '#AFEEEE', '#E0FFFF',
-        '#F0FFFF', '#7FFFD4', '#00CED1', '#00FA9A', 
+        '#F0FFFF', '#7FFFD4', '#00CED1', '#00FA9A',
         '#48D1CC', '#66CDAA', '#76EEC6', '#00BFFF', '#87CEFA'
     ];
-    
-    
-    
-    
+
+
+
+
 
     const generateColor = (id_empleado) => {
         const color = colorArray[id_empleado - 1] || '#CCCCCC';
@@ -169,7 +183,7 @@ const CrearConfiguracion = () => {
             if (Array.isArray(agendas)) {
                 const formattedEvents = await Promise.all(agendas.map(async (agenda) => {
                     try {
-                        const empleadoResponse = await axios.get(`https://restapibarberia.onrender.com/api/empleado/${agenda.id_empleado}`, {
+                        const empleadoResponse = await axios.get(`http://localhost:8095/api/empleado/${agenda.id_empleado}`, {
                             headers: {
                                 'Authorization': `Bearer ${getToken()}`
                             }
@@ -276,13 +290,19 @@ const CrearConfiguracion = () => {
 
                                 try {
                                     // Crear el evento con el empleado seleccionado
-                                    await agendaService.createAgenda(newEvent);
+                                    const response = await agendaService.createAgenda(newEvent);
 
-                                    // Agregar el nuevo evento a la lista de eventos utilizando el callback de setEvents
-                                    setEvents((prevEvents) => [...prevEvents, newEvent]);
+                                    // Emitir un evento al servidor para notificar sobre la nueva agenda creada
+                                    socket.emit('nuevaAgendaCreada', response.data);
 
-                                    // Emitir el mensaje de nueva agenda creada
-                                    setEvents.current.emit('nuevaAgendaCreada', newEvent);
+                                    // Escuchar el evento de actualización desde el servidor
+                                    socket.on('eventoActualizado', (eventoActualizado) => {
+                                        console.log('Evento actualizado recibido:', eventoActualizado);
+                                        // Actualizar los datos relevantes en el cliente con el evento actualizado
+                                        setEvents((prevEvents) => [...prevEvents, eventoActualizado]);
+                                        updateCalendar();
+                                    });
+
                                     console.log('Mensaje emitido: nuevaAgendaCreada');
                                 } catch (error) {
                                     console.error('Error al crear la agenda:', error);
@@ -299,7 +319,7 @@ const CrearConfiguracion = () => {
 
                 swal({
                     title: 'Éxito',
-                    text: 'La agenda  ha sido programada con éxito',
+                    text: 'La agenda ha sido programada con éxito',
                     icon: 'success',
                     button: 'Aceptar',
                 });
@@ -324,30 +344,33 @@ const CrearConfiguracion = () => {
         }
     };
 
-    const updateCalendar = () => {
-        if (calendarRef.current) {
-            calendarRef.current.getApi().refetchEvents();
-        }
-    };
 
     const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
 
-    const handleEditEvent = (clickInfo) => {
+    const handleEditEvent = async (clickInfo) => {
         const eventId = clickInfo?.event?.extendedProps?.id_agenda;
 
         if (eventId) {
-            agendaService.getAgendaById(eventId)
-                .then((eventoEdit) => {
-                    console.log('Detalles del evento obtenidos:', eventoEdit);
-                    setEventoSeleccionado(eventoEdit);
-                    setShowEditModal(true);
-                })
-                .catch((error) => {
-                    console.error('Error al obtener detalles de la agenda:', error);
-                });
+            try {
+                // Obtener los detalles del evento
+                const eventoEdit = await agendaService.getAgendaById(eventId);
+                console.log('Detalles del evento obtenidos:', eventoEdit);
+
+                // Actualizar el estado con los nuevos detalles del evento
+                setEventoSeleccionado(eventoEdit); // Aquí se actualiza el estado
+                setShowEditModal(true);
+            } catch (error) {
+                console.error('Error al obtener detalles de la agenda:', error);
+            }
         } else {
             console.error('ID de agenda inválido');
+        }
+    };
+
+    const updateCalendar = () => {
+        if (calendarRef.current) {
+            calendarRef.current.getApi().refetchEvents();
         }
     };
 
@@ -370,16 +393,14 @@ const CrearConfiguracion = () => {
                     setEventoSeleccionado(null);
 
                     // Actualiza el calendario después de la edición
+                    updateCalendar();
 
                     Swal.fire({
                         icon: 'success',
                         title: '¡Éxito!',
                         text: 'El evento ha sido actualizado correctamente.',
-
                     });
-                    updateCalendar();
                 })
-
                 .catch((error) => {
                     console.error('Error al actualizar la agenda:', error);
                     // Manejo de errores
@@ -389,6 +410,15 @@ const CrearConfiguracion = () => {
             // Manejo si no hay ningún evento seleccionado para actualizar
         }
     };
+
+    // Escuchar el evento 'eventoActualizado' desde el servidor
+    socket.on('eventoActualizado', (eventoActualizado) => {
+        console.log('Evento actualizado recibido:', eventoActualizado);
+        // Actualizar los datos relevantes en el cliente con el evento actualizado
+        // Aquí puedes implementar la lógica para actualizar los datos en tu aplicación
+        // Por ejemplo, puedes actualizar el estado de los eventos o recargar la página
+    });
+
 
     //---------------------------------------------------------------------------
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -481,6 +511,9 @@ const CrearConfiguracion = () => {
                     currentDateEvent.setDate(currentDateEvent.getDate() + 1);
                 }
 
+                // Envía un evento de socket para notificar sobre la creación de la agenda
+                socket.emit('agendaCreada', newEvents);
+
                 // Actualización de eventos y estado
                 setEvents((prevEvents) => [...prevEvents, ...newEvents]);
                 await fetchAgendas();
@@ -525,6 +558,7 @@ const CrearConfiguracion = () => {
     };
 
 
+
     const [searchText, setSearchText] = useState('');
     const filteredEvents = events.filter((event) => {
         const nombreEmpleado = (event.title || '').toString().toLowerCase(); // Asegúrate de que event.title esté definido antes de llamar a toString
@@ -539,6 +573,10 @@ const CrearConfiguracion = () => {
 
 
     const handleEventDrop = async (eventDropInfo) => {
+        // Guardar las coordenadas originales del evento
+        const originalStart = eventDropInfo.oldEvent.start;
+        const originalEnd = eventDropInfo.oldEvent.end;
+
         try {
             const { id, start, end } = eventDropInfo.event;
             const empleadoId = eventDropInfo.event.extendedProps.id_empleado;
@@ -586,11 +624,19 @@ const CrearConfiguracion = () => {
                 }
             }
 
-            // Actualizar la base de datos con los nuevos detalles del evento
-            await agendaService.updateAgenda(eventDropInfo.event.extendedProps.id_agenda, {
+            // Actualizar la agenda en la base de datos
+            const response = await agendaService.updateAgenda(eventDropInfo.event.extendedProps.id_agenda, {
                 fechaInicio: start,
                 fechaFin: end
             });
+
+            // Verificar si hubo un error al actualizar la agenda
+            if (response && response.error) {
+                // Si hay un error, restaurar las coordenadas originales del evento
+                eventDropInfo.event.setDates(originalStart, originalEnd);
+
+                throw new Error(response.error);
+            }
 
             // Actualizar el estado local solo si la actualización en la base de datos es exitosa
             const updatedEvents = events.map((event) => {
@@ -612,7 +658,6 @@ const CrearConfiguracion = () => {
                 title: '¡Éxito!',
                 text: 'El evento ha sido actualizado correctamente.',
             });
-
         } catch (error) {
             console.error('Error al actualizar el evento:', error);
             // Mostrar mensaje de error con SweetAlert
@@ -623,6 +668,10 @@ const CrearConfiguracion = () => {
             });
         }
     };
+
+
+
+
     // Después de la función handleEventDrop, agrega la siguiente función para eliminar eventos
     const handleEventDelete = async (eventId) => {
         try {
@@ -962,12 +1011,12 @@ const CrearConfiguracion = () => {
                                     <label>Barbero</label>
                                     <MultiSelect
                                         options={empleados}
-                                        selectedValues={[eventoSeleccionado?.id_empleado.toString() || ""]} 
+                                        selectedValues={[eventoSeleccionado?.id_empleado.toString() || ""]}
                                         onChange={(selected) => {
                                             const selectedEmpleadoId = selected[0]?.value;
                                             setEventoSeleccionado({
                                                 ...eventoSeleccionado,
-                                                id_empleado: parseInt(selectedEmpleadoId) 
+                                                id_empleado: parseInt(selectedEmpleadoId)
                                             });
                                             console.log('Empleado seleccionado:', selectedEmpleadoId);
                                         }}
@@ -1000,7 +1049,7 @@ const CrearConfiguracion = () => {
                         </Modal.Footer>
                     </Modal>
                     <Modal show={showCreateModal} onHide={null}>
-                      
+
                         <Modal.Body>
                             <div className="form-group">
                                 <label>Fecha Inicio</label>
