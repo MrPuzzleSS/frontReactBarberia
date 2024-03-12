@@ -28,11 +28,13 @@ import {
   CPaginationItem,
   CInputGroup,
 } from '@coreui/react';
+import AbonoService from 'src/views/services/abonoService';
 import VentaService from 'src/views/services/ventasService';
 
 function ListaVentas() {
   const currentLocation = useLocation();
   const [ventas, setVentas] = useState([]);
+  const [abonos, setAbonos] = useState([]);
   const [visible, setVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [detalleproductos, setDetalleProducto] = useState(null);
@@ -40,14 +42,27 @@ function ListaVentas() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(5);
   const [searchTerm, setSearchTerm] = useState('');
-
-
+  const [montoAbono, setMontoAbono] = useState(0);
+  const [selectedVenta, setSelectedVenta] = useState(null);
 
   useEffect(() => {
     fetchVentas();
+    fetchAbonos();
   }, [currentLocation, currentPage]);
 
-  
+  const fetchAbonos = async () => {
+    try {
+      const abonos = await AbonoService.getAbonos();
+      if (abonos && abonos.length > 0) {
+        console.log(abonos);
+        setAbonos(abonos);
+      } else {
+        console.error('La respuesta de la API no contiene los abonos esperados');
+      }
+    } catch (error) {
+      console.error('Error al obtener los abonos:', error);
+    }
+  };
 
   const fetchVentas = async () => {
     try {
@@ -63,19 +78,9 @@ function ListaVentas() {
     }
   };
 
-
-
-  const indexOfLastVenta = currentPage * pageSize;
-  const indexOfFirstVenta = indexOfLastVenta - pageSize;
-  const currentVentas = ventas.slice(indexOfFirstVenta, indexOfLastVenta);
-
-
-
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-
-
 
   const cancelarVentas = async (id_ventas) => {
     try {
@@ -86,8 +91,6 @@ function ListaVentas() {
     }
   };
 
-
-
   const CambioAnulado = async (id_ventas) => {
     try {
       await VentaService.cambiarEstado(id_ventas);
@@ -97,7 +100,22 @@ function ListaVentas() {
     }
   };
 
+  const handleAbono = (venta) => {
+    setSelectedVenta(venta);
+    setMontoAbono(venta.precio);
+    setModalVisible(true);
+  };
 
+  const handleSubmitAbono = async () => {
+    try {
+      const response = await AbonoService.postAbonos(selectedVenta.id_ventas, montoAbono);
+      console.log("La respuesta: ", response); // Handle successful response from API
+      setModalVisible(false);
+      fetchVentas(); // Refresh the list of ventas after successful abono
+    } catch (error) {
+      console.error('Error al enviar el abono:', error);
+    }
+  };
 
   function getColorForEstado(estado_anulado) {
     if (estado_anulado === 'Activo') {
@@ -109,11 +127,8 @@ function ListaVentas() {
     }
   }
 
-
-
   const filteredVentas = ventas.filter(venta => {
     const ventaEntries = Object.entries(venta);
-    
     for (const [key, value] of ventaEntries) {
       if (typeof value === 'string' && value.toLowerCase().includes(searchTerm.toLowerCase())) {
         return true;
@@ -133,7 +148,9 @@ function ListaVentas() {
     return false;
   });
 
-
+  const indexOfLastVenta = currentPage * pageSize;
+  const indexOfFirstVenta = indexOfLastVenta - pageSize;
+  const currentVentas = filteredVentas.slice(indexOfFirstVenta, indexOfLastVenta);
 
   return (
     <CRow>
@@ -142,20 +159,25 @@ function ListaVentas() {
           <CCardHeader>
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Ventas</strong>
-              <Link to="/ventas/CrearVentas">
-                <CButton color="primary">Agregar Ventas</CButton>
-              </Link>
+              <div className="d-flex">
+                <Link to="/ventas/CrearVentas" style={{ marginRight: '10px' }}>
+                  <CButton color="primary">Agregar Ventas</CButton>
+                </Link>
+                <Link to="/ventas/cargarVentas">
+                  <CButton color="primary">Cargar Ventas</CButton>
+                </Link>
+              </div>
             </div>
             <div className="mt-3">
-            <CInputGroup className="mt-3" style={{ maxWidth: "200px" }}>
-            <CFormInput
-              type="text"
-              className="form-control-sm"
-              placeholder="Buscar ventas..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            </CInputGroup>
+              <CInputGroup className="mt-3" style={{ maxWidth: "200px" }}>
+                <CFormInput
+                  type="text"
+                  className="form-control-sm"
+                  placeholder="Buscar ventas..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </CInputGroup>
             </div>
           </CCardHeader>
           <CCardBody>
@@ -173,7 +195,7 @@ function ListaVentas() {
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {filteredVentas && filteredVentas.map((venta, index) => (
+                {currentVentas.map((venta, index) => (
                   <CTableRow key={venta.id_ventas}>
                     <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                     <CTableDataCell>{venta.nombre}</CTableDataCell>
@@ -212,31 +234,29 @@ function ListaVentas() {
 
                         <div style={{ width: '10px' }} />
                         {venta.estado.toLowerCase() !== 'cancelado' && (
-                        <CButton
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          padding: '8px 12px',
-                          border: '1px solid #28a745',
-                          borderRadius: '4px',
-                          backgroundColor: 'transparent',
-                          color: '#17a2b8',
-                          fontSize: '14px',
-                          textTransform: 'uppercase',
-                          cursor: 'pointer',
-                        }}
-                        size="xl"
-                        onClick={() => {
-                          setModalVisible(!modalVisible);
-                          setDetalleProducto(venta.detalleproductos);
-                          setDetalleServicio(venta.detalleservicios);
-                        }}
-                        >
-                          <FontAwesomeIcon icon={faHandHoldingDollar} style={{ color: '#28a745', fontSize: '20px' }}/>
+                          <CButton
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '8px 12px',
+                              border: '1px solid #28a745',
+                              borderRadius: '4px',
+                              backgroundColor: 'transparent',
+                              color: '#17a2b8',
+                              fontSize: '14px',
+                              textTransform: 'uppercase',
+                              cursor: 'pointer',
+                            }}
+                            size="sm"
+                            onClick={() => {
+                              setModalVisible(!modalVisible);
+                              handleAbono(venta)
+                            }}
+                          >
+                            <FontAwesomeIcon icon={faHandHoldingDollar} style={{ color: '#28a745' }}/>
                           </CButton>
                         )}
-
 
                         <div style={{ width: '10px' }} />
                         {venta.estado.toLowerCase() !== 'cancelado' && (
@@ -280,11 +300,98 @@ function ListaVentas() {
                 ))}
               </CTableBody>
             </CTable>
+            
+            <CModal visible={visible} onClose={() => setVisible(false)} backdrop="static">
+              <CModalHeader>
+                <CModalTitle>Detalle de Ventas</CModalTitle>
+                </CModalHeader>
+                <CModalBody style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  {detalleproductos && (
+                  <div>
+                    <h4>Detalles de Productos</h4>
+                    <ul style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '20px' }}>
+                      {detalleproductos.map((detalle, index) => (
+                      
+                      <li key={index} style={{
+                        listStyle: 'none',
+                        marginBottom: '10px',
+                        fontSize: '16px',
+                        flex: '0 0 auto',
+                        minWidth: '200px'
+                      }}>
+                        <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Nombre:</span> {detalle.nombre}, <br />
+                        <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Cantidad:</span> {detalle.cantidad}, <br />
+                        <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Precio Unitario:</span> {detalle.valor_venta}, <br />
+                        <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Valor Total:</span> {detalle.valor_total}
+                      </li>
+                    ))}
+                    </ul>
+                  </div>
+                )}
+                <br/>
+                {detalleservicios && (
+                <div>
+                  <h4>Detalles de Servicios</h4>
+                  <ul style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '20px' }}>
+                    {detalleservicios.map((detalle, index) => (
+                    <li key={index} style={{
+                      listStyle: 'none',
+                      marginBottom: '10px',
+                      fontSize: '16px',
+                      flex: '0 0 auto',
+                      minWidth: '200px'
+                      }}>
+                        <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Nombre:</span>{detalle.nombre}, <br />
+                        <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Cantidad:</span>{detalle.cantidad}, <br />
+                        <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Precio Unitario:</span>{detalle.valor_venta}, <br />
+                        <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Valor Total:</span>{detalle.valor_total}
+                    </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </CModalBody>
+          </CModal>
+          
+          
+          <CModal visible={modalVisible} onClose={() => setModalVisible(false)} backdrop="static">
+            <CModalHeader>
+              <CModalTitle>Abonos</CModalTitle>
+            </CModalHeader>
+            <CModalBody>
+              <p>Precio a Pagar: {selectedVenta && selectedVenta.precio}</p>
+              <CInputGroup className="mb-3">
+                <CFormInput
+                type="number"
+                value={montoAbono}
+                onChange={(e) => setMontoAbono(e.target.value)}
+              />
+              </CInputGroup>
+              <CTable align='middle' className='mb-0 border' hover responsive>
+                <CTableHead>
+                  <CTableRow>
+                    <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Precio Agregar</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Fecha</CTableHeaderCell>
+                    </CTableRow>
+                    </CTableHead>
+                    <CTableBody>
+
+                    </CTableBody>
+                  </CTable>
+                  </CModalBody>
+                  <CModalFooter>
+                    <CButton color="primary" onClick={handleSubmitAbono}>Confirmar Abono</CButton>
+                    <CButton color="secondary" onClick={() => setModalVisible(false)}>Cancelar</CButton>
+                </CModalFooter>
+          </CModal>
+
+
             <CPagination align="center" aria-label="Page navigation example" className="mt-3">
               <CPaginationItem onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
                 Anterior
               </CPaginationItem>
-              {Array.from({ length: Math.ceil(ventas.length / pageSize) }, (_, i) => (
+              {Array.from({ length: Math.ceil(filteredVentas.length / pageSize) }, (_, i) => (
                 <CPaginationItem
                   key={i}
                   onClick={() => handlePageChange(i + 1)}
@@ -295,7 +402,7 @@ function ListaVentas() {
               ))}
               <CPaginationItem
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === Math.ceil(ventas.length / pageSize)}
+                disabled={currentPage === Math.ceil(filteredVentas.length / pageSize)}
               >
                 Siguiente
               </CPaginationItem>
@@ -303,74 +410,6 @@ function ListaVentas() {
           </CCardBody>
         </CCard>
       </CCol>
-      
-
-      <CModal visible={modalVisible} onClose={() => setModalVisible(false)}>
-        <CModalHeader>
-          <CModalTitle>Abonos</CModalTitle>
-        </CModalHeader>
-        <CModalBody>
-          
-        </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setModalVisible(false)}>
-            Cerrar
-          </CButton>
-        </CModalFooter>
-      </CModal>
-
-
-      <CModal visible={visible} onClose={() => setVisible(false)} backdrop="static">
-        <CModalHeader>
-          <CModalTitle>Detalle de Ventas</CModalTitle>
-        </CModalHeader>
-        <CModalBody style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          {detalleproductos && (
-            <div>
-              <h4>Detalles de Productos</h4>
-              <ul style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '20px' }}>
-                {detalleproductos.map((detalle, index) => (
-                
-                <li key={index} style={{
-                  listStyle: 'none',
-                  marginBottom: '10px',
-                  fontSize: '16px',
-                  flex: '0 0 auto',
-                  minWidth: '200px'
-                }}>
-                  <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Nombre:</span> {detalle.nombre}, <br />
-                  <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Cantidad:</span> {detalle.cantidad}, <br />
-                  <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Precio Unitario:</span> {detalle.valor_venta}, <br />
-                  <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Valor Total:</span> {detalle.valor_total}
-                </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <br/>
-          {detalleservicios && (
-            <div>
-              <h4>Detalles de Servicios</h4>
-              <ul style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '20px' }}>
-                {detalleservicios.map((detalle, index) => (
-                  <li key={index} style={{
-                    listStyle: 'none',
-                    marginBottom: '10px',
-                    fontSize: '16px',
-                    flex: '0 0 auto',
-                    minWidth: '200px'
-                  }}>
-                    <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Nombre:</span>{detalle.nombre}, <br />
-                    <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Cantidad:</span>{detalle.cantidad}, <br />
-                    <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Precio Unitario:</span>{detalle.valor_venta}, <br />
-                    <span style={{ fontWeight: 'bold', marginRight: '5px' }}>Valor Total:</span>{detalle.valor_total}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </CModalBody>
-      </CModal>
     </CRow>
   )
 }

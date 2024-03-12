@@ -33,33 +33,37 @@ import citasServiciosDataService from "src/views/services/citasServiciosService"
 const API_URL = "https://restapibarberia.onrender.com/api";
 
 function CargarVentas() {
+
   const history = useNavigate();
 
   const [visible, setVisible] = useState(false);
+  const [errorCedula, setErrorCedula] = useState(false);
+  const [mostrarServicio, setMostrarServicio] = useState(false);
+  const [mostrarProducto, setMostrarProducto] = useState(false);
   const [clientes, setClientes] = useState([]);
   const [servicios, setServicios] = useState([]);
   const [productos, setProductos] = useState([]);
   const [citas, setCitas] = useState([]);
   const [empleados, setEmpleados] = useState([]);
   const [ventas, setVentas] = useState([]);
+  const [serviciosEnVenta, setServiciosEnVenta] = useState([]);
+  const [productosEnVenta, setProductosEnVenta] = useState([]);
   const [selectedCliente, setSelectedCliente] = useState(null);
-  const [apellido, setApellido] = useState("");
-  const [documento, setDocumento] = useState("");
-  const [numeroFactura, setNumeroFactura] = useState("");
   const [selectedServicio, setSelectedServicio] = useState(null);
   const [selectedProducto, setSelectedProducto] = useState(null);
   const [selectedEmpleado, setSelectedEmpleado] = useState(null);
   const [citaSeleccionada, setCitaSeleccionada] = useState(null);
   const [citaData, setCitaData] = useState(null);
-  const [serviciosEnVenta, setServiciosEnVenta] = useState([]);
-  const [productosEnVenta, setProductosEnVenta] = useState([]);
-  const [nuevoNumeroCedula, setNumeroCita] = useState("");
-  const [errorCedula, setErrorCedula] = useState(false);
-  const [citaId, setCitaId] = useState("");
   const [cantidadProductos, setCantidadProductos] = useState(null);
+  const [cantidadServicios, setCantidadServicios] = useState(null);
+  const [apellido, setApellido] = useState("");
+  const [documento, setDocumento] = useState("");
+  const [numeroFactura, setNumeroFactura] = useState("");
+  const [nuevoNumeroCedula, setNumeroCita] = useState("");
+  const [citaId, setCitaId] = useState("");
   const [totalVenta, setTotalVenta] = useState(0);
-  const [mostrarServicio, setMostrarServicio] = useState(false);
-  const [mostrarProducto, setMostrarProducto] = useState(false);
+
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,19 +73,18 @@ function CargarVentas() {
         const productosPromise = fetchProductos();
         const ventasPromise = fetchVentas();
         const empleadosPromise = fetchEmpleados();
-  
-        // Esperar a que todas las promesas se resuelvan
+
         await Promise.all([clientesPromise, serviciosPromise, productosPromise, ventasPromise, empleadosPromise]);
   
-        // Después de que todas las promesas se resuelvan, llamar a fetchCitas
         fetchCitas();
       } catch (error) {
         console.error('Error al cargar los datos:', error);
       }
     };
-  
     fetchData();
   }, [citaId]);
+
+
 
   const getNextNumeroFactura = () => {
     const lastNumeroFactura =
@@ -90,11 +93,12 @@ function CargarVentas() {
     return nextNumber < 10 ? `0${nextNumber}` : `${nextNumber}`;
   };
 
+
+
   const createSale = async () => {
     try {
       const nextNumeroFactura = getNextNumeroFactura();
       setNumeroFactura(nextNumeroFactura);
-      // Adjust the following line based on your VentaService API method
       const response = await VentaService.crearVenta({
         citaId: citaData.id_cita,
         clienteId: selectedCliente.id_cliente,
@@ -108,7 +112,6 @@ function CargarVentas() {
       setTimeout(() => {
         history("/ventas/listaVentas");
       }, 1000);
-      // Navegar a la nueva ruta después de que la venta se haya creado
     } catch (error) {
       console.error("Error creating sale:", error);
     }
@@ -134,6 +137,8 @@ function CargarVentas() {
     }
   };
 
+
+
   const fetchEmpleados = async () => {
     try {
       const response = await fetch(`${API_URL}/empleado`, {
@@ -152,6 +157,8 @@ function CargarVentas() {
     }
   };
 
+
+
   const fetchClientes = async () => {
     try {
       const response = await axios.get(`${API_URL}/cliente`, {
@@ -164,6 +171,8 @@ function CargarVentas() {
       console.error("Error al obtener la lista de clientes:", error);
     }
   };
+
+
 
   const fetchServicios = async () => {
     try {
@@ -184,6 +193,8 @@ function CargarVentas() {
     }
   };
 
+
+
   const fetchProductos = async () => {
     try {
       const response = await fetch(`${API_URL}/producto`, {
@@ -203,6 +214,8 @@ function CargarVentas() {
     }
   };
 
+
+
   const fetchCitas = async () => {
     try {
       const response = await fetch(`${API_URL}/citas`, {
@@ -212,7 +225,7 @@ function CargarVentas() {
       });
       const citasResponse = await response.json();
       const citasArray = citasResponse.listCitas;
-  
+
       const filteredCitas = citasArray.filter((cita) => {
         const citaDate = new Date(cita.Fecha_Atencion);
         citaDate.setDate(citaDate.getDate() + 1);
@@ -230,7 +243,6 @@ function CargarVentas() {
       });
       var arrayClientes = responseClientes.data.listClientes
 
-      // Mapear sobre filteredCitas y agregar el nombre del cliente correspondiente
       const citasConNombreCliente = filteredCitas.map(cita => {
         const cliente = arrayClientes.find(cliente => cliente.id_cliente === cita.id_cliente);
         return {
@@ -244,6 +256,7 @@ function CargarVentas() {
       console.error('Error al obtener citas:', error);
     }
   };
+
   
 
   const fetchVentas = async () => {
@@ -262,6 +275,8 @@ function CargarVentas() {
     }
   };
 
+
+
   const handleClienteChange = (clienteId) => {
     const selected = clientes.find(
       (cliente) => cliente.id_cliente == clienteId,
@@ -271,11 +286,12 @@ function CargarVentas() {
       setApellido(selected.apellido);
       setDocumento(selected.documento);
     } else {
-      // Manejar el caso en que no se encuentra el cliente con el ID especificado
       console.error("Cliente no encontrado con el ID:", clienteId);
       console.log(typeof clienteId);
     }
   };
+
+
 
   const handleEmpleadoChange = (empleadoId) => {
     const selected = empleados.find(
@@ -284,11 +300,12 @@ function CargarVentas() {
     setSelectedEmpleado(selected);
   };
 
+
+
   const handleServicioChange = (servicioId) => {
     const parsedServicioId = parseInt(servicioId, 10);
 
     if (isNaN(parsedServicioId) || !servicios) {
-      // Manejar el caso en el que servicioId no es un número válido o servicios es null/undefined
       console.error(
         "El servicioId no es un número válido o servicios no está definido",
       );
@@ -302,6 +319,8 @@ function CargarVentas() {
     setSelectedServicio(selected);
   };
 
+
+
   const handleProductoChange = (productoId) => {
     const selected = productos.find(
       (producto) => producto.nombre == productoId,
@@ -310,14 +329,17 @@ function CargarVentas() {
     console.log(productoId);
   };
 
+
+
   const handleAgregarServicio = () => {
     if (selectedServicio) {
+      let precioTotal = selectedServicio.valor * cantidadServicios;
       const nuevaFilaServicio = {
         id: selectedServicio.id,
         nombre: selectedServicio.nombre,
-        cantidad: 1,
+        cantidad: cantidadServicios,
         precioUnitario: selectedServicio.valor,
-        precioTotal: selectedServicio.valor,
+        precioTotal: precioTotal,
       };
       console.log(nuevaFilaServicio);
 
@@ -332,6 +354,8 @@ function CargarVentas() {
     }
   };
 
+
+
   const handleAgregarProducto = () => {
     if (selectedProducto) {
       let precioTotal = selectedProducto.precioVenta * cantidadProductos;
@@ -345,12 +369,13 @@ function CargarVentas() {
       console.log(nuevaFilaProducto);
 
       setProductosEnVenta([...productosEnVenta, nuevaFilaProducto]);
-      // Limpiar la selección después de agregar el producto
       setSelectedProducto(null);
 
       setTotalVenta(totalVenta + nuevaFilaProducto.precioTotal);
     }
   };
+
+
 
   const handleEliminarServicio = (index) => {
     const nuevasFilas = [...serviciosEnVenta];
@@ -358,9 +383,10 @@ function CargarVentas() {
     nuevasFilas.splice(index, 1);
     setServiciosEnVenta(nuevasFilas);
 
-    // Restar el valor del servicio eliminado del totalVenta
     setTotalVenta(totalVenta - servicioEliminado.precioTotal);
   };
+
+
 
   const handleEliminarProducto = (index) => {
     const nuevasFilas = [...productosEnVenta];
@@ -368,15 +394,18 @@ function CargarVentas() {
     nuevasFilas.splice(index, 1);
     setProductosEnVenta(nuevasFilas);
 
-    // Restar el valor del producto eliminado del totalVenta
     setTotalVenta(totalVenta - productoEliminado.precioTotal);
   };
+
+
 
   const handleCitaChange = (event) => {
     const nuevoNumeroCedula = event.target.value;
     console.log("Número de cédula del cliente:", nuevoNumeroCedula);
     setNumeroCita(nuevoNumeroCedula);
   };
+
+
 
   const handleNumeroCitaTerminado = async () => {
     try {
@@ -425,15 +454,21 @@ function CargarVentas() {
     }
   };
 
+
+
   const handleMostrarServicio = () => {
     setMostrarServicio(true);
     setMostrarProducto(false);
   };
 
+
+
   const handleMostrarProducto = () => {
     setMostrarProducto(true);
     setMostrarServicio(false);
   };
+
+
 
   const obtenerCedulaCliente = async (id_cliente) => {
     try {
@@ -505,16 +540,20 @@ function CargarVentas() {
       return null;
     }
   }; 
+
+
   
-  // Función para abrir el modal
     const abrirModal = () => {
       setVisible(true);
     };
 
-  // Función para cerrar el modal
+
+
   const cerrarModal = () => {
       setVisible(false);
   };
+
+
 
   return (
     <CRow>
@@ -523,13 +562,7 @@ function CargarVentas() {
           <CCardHeader>
             <div className="d-flex justify-content-between align-items-center">
               <strong>Crear Venta</strong>
-
-              {/* <Link to="ruta/de/tu/agregar/ventas">
-                <CButton color="primary">Agregar Venta</CButton>
-              </Link> */}
-
               <CButton onClick={abrirModal}>Pendientes</CButton>
-              
             </div>
           </CCardHeader>
           <CCardBody>
@@ -538,7 +571,6 @@ function CargarVentas() {
                 className="mb-3"
                 style={{ display: "flex", justifyContent: "space-between" }}
               >
-                {/* <CModal visible={visible} onClose={() => setVisible(false)}> */}
                 <CModal visible={visible} onClose={cerrarModal}>
                   <CModalHeader>
                     <CModalTitle>Seleccionar cita</CModalTitle>
@@ -656,7 +688,7 @@ function CargarVentas() {
               <br></br>
 
               <div>
-                <CButton onClick={handleMostrarServicio}>
+                <CButton onClick={handleMostrarServicio} style={{ marginRight: "5px" }}>
                   Agregar Servicio
                 </CButton>
                 <CButton onClick={handleMostrarProducto}>
@@ -666,24 +698,47 @@ function CargarVentas() {
                 {mostrarServicio && (
                   <div>
                     <CFormLabel>Agregar Servicios</CFormLabel>
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <div
+                    className="mb-3"
+                    style={{ display: "flex", alignItems: "center" }}
+                    >
+                      <div
+                        style={{
+                          flex: 1,
+                          marginRight: "5px",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
                       <CFormSelect
                         onChange={(e) => handleServicioChange(e.target.value)}
                       >
                         <option value="">Seleccionar Servicio</option>
                         {servicios.map((servicio) => (
-                          <option key={servicio.id} value={servicio.id}>
+                          <option 
+                          key={servicio.id} 
+                          value={servicio.id}
+                          >
                             {servicio.nombre}
                           </option>
                         ))}
                       </CFormSelect>
+                      <CFormInput
+                        type="number"
+                        name="cantidadServicios"
+                        placeholder="Ingrese su cantidad"
+                        value={cantidadServicios}
+                        onChange={(e) => setCantidadServicios(e.target.value)}
+                        style={{ marginLeft: "5px" }}
+                      />
                       <CButton
                         color="success"
                         onClick={handleAgregarServicio}
-                        style={{ marginLeft: "5px" }}
+                        style={{ marginLeft: "5px", marginRight: "-6px" }}
                       >
                         +
                       </CButton>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -829,7 +884,6 @@ function CargarVentas() {
                   ))}
                 </CTableBody>
               </CTable>
-
               <div className="mb-3">
                 <CFormLabel>Total de la Venta</CFormLabel>
                 <CFormInput
@@ -842,14 +896,12 @@ function CargarVentas() {
                   readOnly
                 />
               </div>
-
-              <Link to="/ventas/listaVentas" style={{ marginRight: "5px" }}>
-                <CButton color="danger">Cancelar</CButton>
-              </Link>
-
-              <CButton color="primary" onClick={createSale}>
-                Crear
+              <CButton color="primary" onClick={createSale} style={{ marginRight: "5px" }}>
+                Crear Venta
               </CButton>
+              <Link to="/ventas/listaVentas">
+                <CButton color="secondary">Cancelar</CButton>
+              </Link>
             </form>
           </CCardBody>
         </CCard>

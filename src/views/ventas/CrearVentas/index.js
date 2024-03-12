@@ -47,12 +47,12 @@ function FormularioVentas() {
     const [selectedServicio, setSelectedServicio] = useState(null);
     const [selectedProducto, setSelectedProducto] = useState(null);
     const [selectedEmpleado, setSelectedEmpleado] = useState(null);
-    const [cantidadProductos, setCantidadProductos] = useState(null);
-    const [cantidadServicios, setCantidadServicios] = useState(null);
     const [apellido, setApellido] = useState('');
     const [documento, setDocumento] = useState('');
     const [numeroFactura, setNumeroFactura] = useState('');
     const [totalVenta, setTotalVenta] = useState(0);
+    const [cantidadProductos, setCantidadProductos] = useState(0);
+    const [cantidadServicios, setCantidadServicios] = useState(0);
 
 
     //llamo los fetch para llamar los datos de los modulos
@@ -207,8 +207,8 @@ function FormularioVentas() {
         const selected = clientes.find((cliente) => cliente.id_cliente == clienteId);
         if (selected) {
             setSelectedCliente(selected);
-            setApellido(selected.apellido);
-            setDocumento(selected.documento);
+            setApellido(selected.apellido || '');
+            setDocumento(selected.documento || '');
             setFormValid(clienteId !== '' && selectedEmpleado !== null);
             console.log(clientes)
         } else {
@@ -221,7 +221,7 @@ function FormularioVentas() {
     //tomo los datos para cargar el empleado
     const handleEmpleadoChange = (empleadoId) => {
         const selected = empleados.find((empleado) => empleado.id_empleado == empleadoId);
-        setSelectedEmpleado(selected);
+        setSelectedEmpleado(selected || null);
         setFormValid(selectedCliente !== null && empleadoId !== '');
     };
 
@@ -350,11 +350,11 @@ function FormularioVentas() {
                             </div>
                             <div style={{ flex: 1, marginRight: "10px" }}>
                                 <CFormLabel>Apellido</CFormLabel>
-                                <CFormInput value={apellido} readOnly />
+                                <CFormInput value={apellido || ''} readOnly />
                             </div>
                             <div style={{ flex: 1, marginRight: "10px" }}>
                                 <CFormLabel>Documento</CFormLabel>
-                                <CFormInput value={documento} readOnly />
+                                <CFormInput value={documento || ''} readOnly />
                             </div >
 
 
@@ -388,7 +388,7 @@ function FormularioVentas() {
                             <br></br>
 
                             <div className="mb-3">
-                                <CButton onClick={handleMostrarServicio}>
+                                <CButton onClick={handleMostrarServicio} style={{ marginRight: "5px" }}>
                                     Agregar Servicio
                                 </CButton>
                                     
@@ -593,12 +593,12 @@ function FormularioVentas() {
                                 />
                             </div>
 
-                            <CButton color="primary" onClick={createSale}>
-                                Crear
+                            <CButton onClick={createSale} style={{ marginRight: "5px" }}>
+                                Crear Venta
                             </CButton>
 
-                            <Link to="/ventas/listaVentas" style={{ marginRight: "5px" }}>
-                                <CButton color="danger">Cancelar</CButton>
+                            <Link to="/ventas/listaVentas">
+                                <CButton color="secondary">Cancelar</CButton>
                             </Link>
                          </form> 
                     </CCardBody>
