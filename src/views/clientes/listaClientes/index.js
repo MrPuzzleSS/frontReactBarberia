@@ -262,7 +262,7 @@ const ListaClientes = () => {
                                                         />
                                                     </div>
                                                     <CButton
-                                                        color="primary"
+                                                        color="seconsary"
                                                         size="sm"
                                                         onClick={() => handleEditar(cliente)}
                                                         style={{
@@ -275,6 +275,8 @@ const ListaClientes = () => {
                                                     >
                                                         <FaEdit style={{ color: 'black' }} />
                                                     </CButton>
+
+                                                    
                                                     <CButton
                                                         color="danger"
                                                         size="sm"

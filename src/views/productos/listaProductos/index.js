@@ -315,7 +315,7 @@ function ListaProductos() {
                             producto.estado === 'Activo' ? 'Inactivo' : 'Activo'
                           )
                         }
-                        style={{ transform: 'scaleY(1.5)', marginRight: '10px' }}
+                        style={{ transform: 'scaleY(1.2)', marginRight: '10px' }}
                       />
                       <CButton
                         color="secondary"
