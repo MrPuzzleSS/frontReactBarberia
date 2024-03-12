@@ -53,6 +53,7 @@ function FormularioVentas() {
     const [totalVenta, setTotalVenta] = useState(0);
     const [cantidadProductos, setCantidadProductos] = useState(0);
     const [cantidadServicios, setCantidadServicios] = useState(0);
+    const [estadoVenta, setEstadoVenta] = useState('Pendiente');
 
 
     //llamo los fetch para llamar los datos de los modulos
@@ -85,6 +86,7 @@ function FormularioVentas() {
                 productos: productosEnVenta,
                 totalVenta: totalVenta,
                 numeroFactura: nextNumeroFactura,
+                estado: estadoVenta,
             });
             console.log('Sale created:', response);
 
@@ -335,9 +337,9 @@ function FormularioVentas() {
                     </CCardHeader>
                     <CCardBody>
                          <form>
-
-                            
-                            <div style={{ flex: 1, marginRight: "10px" }}>
+                         <CRow>
+                            <CCol xs={12} sm={6}> {/* Primera columna */}
+                            <div style={{ marginBottom: "10px" }}>
                                 <CFormLabel>Cliente</CFormLabel>
                                 <CFormSelect onChange={(e) => handleClienteChange(e.target.value)}>
                                     <option value="">Seleccionar Cliente</option>
@@ -348,17 +350,21 @@ function FormularioVentas() {
                                     ))}
                                 </CFormSelect>
                             </div>
-                            <div style={{ flex: 1, marginRight: "10px" }}>
+                            <br/>
+                            <div style={{ marginBottom: "10px" }}>
                                 <CFormLabel>Apellido</CFormLabel>
                                 <CFormInput value={apellido || ''} readOnly />
                             </div>
-                            <div style={{ flex: 1, marginRight: "10px" }}>
+                            <br/>
+                            </CCol>
+                            <CCol xs={12} sm={6}> {/* Segunda columna */}
+                            <div style={{ marginBottom: "10px" }}>
                                 <CFormLabel>Documento</CFormLabel>
                                 <CFormInput value={documento || ''} readOnly />
                             </div >
+                            <br/>
 
-
-                            <div style={{ flex: 1, marginRight: "10px" }}>
+                            <div style={{ marginBottom: "10px" }}>
                                 <CFormLabel>Empleado</CFormLabel>
                                 <CFormSelect onChange={(e) => handleEmpleadoChange(e.target.value)}>
                                     <option value="">Seleccionar Empleado</option>
@@ -369,6 +375,21 @@ function FormularioVentas() {
                                     ))}
                                 </CFormSelect>
                             </div>
+                            <br/>
+                            </CCol>
+                        </CRow>
+
+                        <div style={{ flex: 1, marginRight: "10px", marginBottom: "10px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                            <CFormLabel style={{ marginBottom: "5px" }}>Estado de la Venta</CFormLabel>
+                            <CFormSelect
+                            onChange={(e) => setEstadoVenta(e.target.value)}
+                            value={estadoVenta}
+                            style={{ width: "50%" }} // Establece el ancho del select
+                            >
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Cancelado">Cancelado</option>
+                            </CFormSelect>
+                        </div>
                             
 
                             <div className="mb-3" style={{ display: 'none' }}>
