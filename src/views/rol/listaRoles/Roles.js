@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import { FaEdit, FaCheckCircle } from 'react-icons/fa';
+import { FaEdit, FaCheckCircle, FaTrash } from 'react-icons/fa';
 import { CBadge } from '@coreui/react';
 import {
   CCard,
@@ -39,6 +39,8 @@ const ListaRol = () => {
   const [visible, setVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(5);
+  const [errors, setErrors] = useState({});
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,7 +82,7 @@ const ListaRol = () => {
     const newStatus = item.estado === 'Activo' ? 'Inactivo' : 'Activo';
 
     try {
-      await axios.put(`http://localhost:8095/api/rol/${item.id_rol}`, {
+      await axios.put(`https://restapibarberia.onrender.com/api/rol/${item.id_rol}`, {
         estado: newStatus,
       });
 
@@ -114,43 +116,97 @@ const ListaRol = () => {
     setEditRolePermisos(roleToEdit.permisos.map((permiso) => permiso.id_permiso));
     setVisible(true);
   };
-
   const handleSaveEdit = async () => {
+    const validationErrors = {};
+
+    // Validar el nombre del rol
+    if (!editRoleName) {
+      validationErrors.nombre = 'Por favor, ingresa un nombre para el rol.';
+    } else if (!/^[a-zA-Z]+$/.test(editRoleName)) {
+      validationErrors.nombre = 'El nombre del rol no debe contener números ni caracteres especiales.';
+    } else if (editRoleName.length < 3) {
+      validationErrors.nombre = 'El nombre del rol debe tener al menos 3 caracteres.';
+    } else if (editRoleName.length > 50) {
+      validationErrors.nombre = 'El nombre del rol no puede exceder los 50 caracteres.';
+    }
+
+    // Validar al menos un permiso seleccionado
+    if (editRolePermisos.length === 0) {
+      validationErrors.permisos = 'Por favor, selecciona al menos un permiso.';
+    }
+
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+
+    try {
+      const editedRole = {
+        nombre: editRoleName,
+        permisos: editRolePermisos,
+      };
+
+      await axios.put(`https://restapibarberia.onrender.com/api/rol/${editRoleId}`, editedRole);
+
+      setVisible(false);
+      Swal.fire({
+        icon: 'success',
+        title: 'Rol actualizado con éxito',
+        showConfirmButton: false,
+        timer: 1000,
+      }).then(() => {
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      });
+    } catch (error) {
+      console.error('Error al actualizar el rol:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al actualizar el rol',
+        text: error.response?.data?.error || 'Error interno del servidor',
+      });
+    }
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+  const handleDelete = async (item) => {
     Swal.fire({
       title: '¿Estás seguro?',
-      text: '¿Deseas guardar los cambios realizados?',
+      text: '¿Deseas eliminar este rol?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, guardar cambios',
+      confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const editedRole = {
-            nombre: editRoleName,
-            permisos: editRolePermisos,
-          };
+          // Realiza la solicitud de eliminación al backend utilizando el ID del ítem
+          await axios.delete(`https://restapibarberia.onrender.com/api/rol/${item.id_rol}`);
 
-          await axios.put(`http://localhost:8095/api/rol/${editRoleId}`, editedRole);
+          // Elimina el ítem de la lista actual de roles
+          const updatedRoles = roles.filter(role => role.id_rol !== item.id_rol);
+          setRoles(updatedRoles);
 
-          setVisible(false);
+          // Muestra una alerta de éxito
           Swal.fire({
             icon: 'success',
-            title: 'Rol actualizado con éxito',
+            title: 'Rol eliminado exitosamente',
             showConfirmButton: false,
-            timer: 1000,
-          }).then(() => {
-            setTimeout(() => {
-              window.location.reload();
-            }, 1500);
+            timer: 1500,
           });
         } catch (error) {
-          console.error('Error al actualizar el rol:', error);
+          console.error('Error al eliminar el rol:', error);
+
+          // Muestra una alerta de error
           Swal.fire({
             icon: 'error',
-            title: 'Error al actualizar el rol',
+            title: 'Error al eliminar el rol',
             text: error.response?.data?.error || 'Error interno del servidor',
           });
         }
@@ -158,14 +214,10 @@ const ListaRol = () => {
     });
   };
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
 
   const indexOfLastUser = currentPage * pageSize;
   const indexOfFirstUser = indexOfLastUser - pageSize;
   const currentRoles = roles.slice(indexOfFirstUser, indexOfLastUser);
-
   return (
     <>
       <CCard className="mb-4">
@@ -190,71 +242,73 @@ const ListaRol = () => {
             <p>Cargando roles...</p>
           ) : (
             <div className="table-responsive">
-       <CTable align="middle" className="mb-0 border table-sm" hover responsive>
-  <CTableHead color="light">
-    <tr>
-      <th>ID</th>
-      <th>NOMBRE</th>
-      <th>ESTADO</th>
-      <th>PERMISOS</th>
-      <th>ACCIONES</th>
-    </tr>
-  </CTableHead>
-  <CTableBody>
-    {currentRoles.map((item) => (
-      <tr key={item.id_rol}>
-        <td>{item.id_rol}</td>
-        <td>{item.nombre}</td>
-        <td>
-          <strong>
-            <CBadge color={getColorForEstado(item.estado)}>{item.estado}</CBadge>
-          </strong>
-        </td>
-        <td>
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-    {item.permisos.map((permiso, index) => (
-      <div key={permiso.id_permiso} className="d-flex align-items-center">
-        <FaCheckCircle style={{ color: 'green', marginRight: '5px' }} />
-        <span style={{ fontWeight: 'bold' }}>{permiso.nombre_permiso}</span>
-      </div>
-    ))}
-  </div>
-</td>
+              <CTable align="middle" className="mb-0 border table-sm" hover responsive>
+                <CTableHead color="light">
+                  <tr>
 
-<td style={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+                    <th>NOMBRE</th>
+                    <th>ESTADO</th>
+                    <th>PERMISOS</th>
+                    <th></th>
+                  </tr>
+                </CTableHead>
+                <CTableBody>
+                  {currentRoles.map((item) => (
+                    <tr key={item.id_rol}>
+
+                      <td>{item.nombre}</td>
+                      <td>
+                        <strong>
+                          <CBadge color={getColorForEstado(item.estado)}>{item.estado}</CBadge>
+                        </strong>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                          {item.permisos.map((permiso, index) => (
+                            <div key={permiso.id_permiso} className="d-flex align-items-center">
+                              <FaCheckCircle style={{ color: 'green', marginRight: '5px' }} />
+                              <span style={{ fontWeight: 'bold' }}>{permiso.nombre_permiso}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                      <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
   <CFormSwitch
     size="xl"
     label=""
     id={`formSwitchCheckChecked_${item.id_rol}`}
     checked={item.estado === 'Activo'}
     onChange={() => handleSwitchChange(item)}
+     // Ajusta el margen izquierdo del checkbox
   />
   <CButton
-    color="primary"
+    color="secondary"
     size="sm"
     onClick={() => handleEditRole(item.id_rol)}
-    style={{
-     marginTop: '131px',
-      marginLeft: '5px',
-      backgroundColor: 'orange',
-      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-      padding: '3px 10px',
-    }}
+    style={{ marginRight: '3px', backgroundColor: '#c0c0c0' }} // Ajusta el margen derecho del botón de editar
   >
-    <FaEdit style={{ color: 'black' }} />
+    <FaEdit /> {/* Icono de editar */}
   </CButton>
-</td>
+  <CButton
+    color="danger"
+    size="sm"
+    onClick={() => handleDelete(item)}
+    style={{ marginLeft: '5px' }} // Ajusta el margen izquierdo del botón de eliminar
+  >
+    <FaTrash  />
+  </CButton>
+</div>
 
-      </tr>
-    ))}
-  </CTableBody>
-</CTable>
-
-            
-
-         
 
 
+
+
+                      </td>
+                    </tr>
+                  ))}
+                </CTableBody>
+              </CTable>
             </div>
           )}
           <CPagination
@@ -330,6 +384,7 @@ const ListaRol = () => {
       </CModal>
     </>
   );
+
 };
 
 export default ListaRol;

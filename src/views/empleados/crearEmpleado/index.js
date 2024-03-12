@@ -45,7 +45,8 @@ function CrearEmpleado() {
     };
 
     const validardocumento = async () => {
-        setError(false)
+        setError(false); // Reinicias el estado de error
+    
         if (documento.length > 0) {
             try {
                 const token = localStorage.getItem('token');
@@ -61,8 +62,8 @@ function CrearEmpleado() {
                 });
     
                 const datosRespuesta = await respuesta.json();
-                if (datosRespuesta.documento == 'El documento ya existe') {
-                    setError(true);
+                if (datosRespuesta.documento === 'El documento ya existe') {
+                    setError(true); // Estableces el estado de error en true si el documento ya existe
                 }
                 setdocumentoApi(datosRespuesta.documento);
             } catch (error) {
@@ -103,7 +104,7 @@ function CrearEmpleado() {
         }
 
         // Validar el nombre con la expresión regular
-        if (!/^[A-Za-z ]+$/.test(nombre)) {
+        if (!/^[A-Za-z0-9 ]+$/.test(nombre)) {
             setNombreError('El nombre debe contener solo letras');
             return;
         }
@@ -118,8 +119,10 @@ function CrearEmpleado() {
             return;
         }
 
-        if (!/^\d{1,10}$/.test(documento)) {
-            setDocumentoError('Ingresa solo números y solo se ingresan menos de 10 dígitos');
+        if (!/^\d{6,10}$/.test(documento)) {
+            setDocumentoError('La cedula debe de contener solo números');
+            setDocumentoError('Debe de contener maximo 10 dígitos');
+            setDocumentoError('Debe de contener minimo 6 dígitos');
             return;
         }
 
@@ -158,68 +161,168 @@ function CrearEmpleado() {
             console.error('Error al crear el empleado:', error);
         }
     };
+
+    const handleBlurDocumento = async () => {
+        await validardocumento();
+    };
+
     return (
         <CRow>
             <CCol xs={12}>
                 <CCard>
                     <CCardHeader>
-                        <strong>Crear</strong>
+                        <strong>Registrar</strong>
                     </CCardHeader>
                     <CCardBody>
                         <form onSubmit={handleGuardarEmpleado}>
-                            <div className="mb-3">
-                                <CFormLabel>Documento</CFormLabel>
-                                <CFormInput
-                                    type="number"
-                                    value={documento}
-                                    onChange={(e) => {
-                                        setDocumento(e.target.value);
-                                    }}
-                                    onBlur={validardocumento}
-                                    invalid={documentoError !== '' || errorDocumento}
-                                />
-                                <CFormFeedback invalid>{documentoError}</CFormFeedback>
+
+
+                        <div className="mb-3">
+                            <CFormLabel>Documento</CFormLabel>
+                            <CFormInput
+                            type="text" // Cambiado a tipo texto para evitar el control de HTML5
+                            minLength={6}
+                            maxLength={10}
+                            value={documento}
+                            onBlur={handleBlurDocumento}
+                            onChange={(e) => {
+                                // Reemplaza cualquier carácter no numérico con una cadena vacía
+                                let newValue = e.target.value.replace(/[^\d]/g, '');
+                                
+                                // Limita el valor a 10 caracteres
+                                newValue = newValue.slice(0, 10);
+                                
+                                setDocumento(newValue);
+                                
+                                if (newValue.length < 6) {
+                                    setDocumentoError('La cédula debe tener como mínimo 6 caracteres');
+                                } else if (!/^\d{6,10}$/.test(newValue)) {
+                                    setDocumentoError('La cédula debe contener solo números');
+                                } else {
+                                    setDocumentoError('');
+                                }
+                            }}
+                            invalid={documentoError !== '' || errorDocumento} // Considera el estado de error del documento
+                            />
+                            <CFormFeedback invalid>{documentoError}</CFormFeedback>
                             </div>
+
                             {errorDocumento &&
                                 <p style={{ color: 'red' }}>Ya existe un empleado con éste número de cédula</p>
                             }
+
                             <div className="mb-3">
-                                <CFormLabel>Nombre</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    value={nombre}
-                                    onChange={(e) => setNombre(e.target.value)}
-                                    invalid={nombreError !== ''}
-                                />
-                                <CFormFeedback invalid>{nombreError}</CFormFeedback>
+                            <CFormLabel>Nombre</CFormLabel>
+                            <CFormInput
+                            type="text"
+                            value={nombre}
+                            onChange={(e) => {
+                                const newValue = e.target.value;
+                                setNombre(newValue);
+                                
+                                // Validar si el campo está vacío
+                                if (!newValue.trim()) {
+                                    setNombreError('Este campo es obligatorio');
+                                } else {
+                                    setNombreError('');
+                                }
+                                
+                                // Expresión regular para permitir solo letras, números y espacios
+                                const regex = /^[A-Za-z0-9\s]+$/;
+                                if (!regex.test(newValue)) {
+                                    setNombreError('El nombre debe contener solo letras, números y espacios');
+                                } else {
+                                    setNombreError('');
+                                }
+                            }}
+                            invalid={nombreError !== ''}
+                              />
+                            <CFormFeedback invalid>{nombreError}</CFormFeedback>
                             </div>
+
+
                             <div className="mb-3">
                                 <CFormLabel>Apellido</CFormLabel>
                                 <CFormInput
-                                    type='text'
-                                    value={apellido}
-                                    onChange={(e) => setApellido(e.target.value)}
-                                    invalid={apellidoError !== ''}
+                                type="text"
+                                value={apellido}
+                                onChange={(e) => {
+                                    // Expresión regular para permitir solo letras y espacios
+                                    const newValue = e.target.value.replace(/[^A-Za-z\s]/gi, '');
+                                    setApellido(newValue);
+                                    
+                                    // Validar si el campo está vacío
+                                    if (!newValue.trim()) {
+                                        setApellidoError('Este campo es obligatorio');
+                                    } else {
+                                        setApellidoError('');
+                                    }
+                                }}
+                                invalid={apellidoError !== ''}
                                 />
+                                
                                 <CFormFeedback invalid>{apellidoError}</CFormFeedback>
                             </div>
+
+
                             <div className="mb-3">
                                 <CFormLabel>Correo</CFormLabel>
                                 <CFormInput
-                                    type="email"
-                                    value={correo}
-                                    onChange={(e) => setCorreo(e.target.value)}
-                                    invalid={correoError !== ''}
-                                />
-                                <CFormFeedback invalid>{correoError}</CFormFeedback>
+                                type="email"
+                                value={correo}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    setCorreo(newValue);
+                                    
+                                // Validar si el campo está vacío
+                                if (!newValue.trim()) {
+                                    setCorreoError('Este campo es obligatorio');
+                                } else {
+                                    setCorreoError('');
+                                }
+                                
+                                // Expresión regular para validar el formato del correo electrónico
+                                const regex = /^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+                                if (!regex.test(newValue)) {
+                                    setCorreoError('Ingrese por favor un correo válido');
+                                } else {
+                                    setCorreoError('');
+                                }
+                            }}
+                            invalid={correoError !== ''}
+                            />
+                            <CFormFeedback invalid>{correoError}</CFormFeedback>
                             </div>
+
+
                             <div className="mb-3">
                                 <CFormLabel>Teléfono</CFormLabel>
                                 <CFormInput
-                                    type='number'
-                                    value={telefono}
-                                    onChange={(e) => setTelefono(e.target.value)}
-                                    invalid={telefonoError !== ''}
+                                type='text'
+                                value={telefono}
+                                maxLength={10}
+                                onChange={(e) => {
+                                    // Reemplaza cualquier carácter no numérico con una cadena vacía
+                                    const newValue = e.target.value.replace(/[^\d]/g, '');
+                                    setTelefono(newValue);
+                                    
+                                    // Validar si el campo está vacío
+                                    if (!newValue.trim()) {
+                                        setTelefonoError('Este campo es obligatorio');
+                                    } else {
+                                        setTelefonoError('');
+                                    }
+                                    
+                                    // Expresión regular para validar el formato del teléfono
+                                    const regex = /^\d{10}$/;
+                                    if (!regex.test(newValue)) {
+                                        setTelefonoError('El teléfono debe contener exactamente 10 dígitos');
+                                    } else {
+                                        setTelefonoError('');
+                                    }
+                                }}
+                                
+                                invalid={telefonoError !== ''}
                                 />
                                 <CFormFeedback invalid>{telefonoError}</CFormFeedback>
                             </div>

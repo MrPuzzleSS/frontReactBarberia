@@ -19,6 +19,8 @@ import { cilUser } from '@coreui/icons';
 import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import '../../pages/login/UserInforPage.css'; // Importa tu archivo de estilos CSS personalizados
+
 const CreateRol = () => {
   const navigate = useNavigate();
 
@@ -36,15 +38,25 @@ const CreateRol = () => {
       try {
         const response = await axios.get('https://restapibarberia.onrender.com/api/permisos');
         console.log('Respuesta de la API de permisos:', response.data);
-        setPermisos(response.data.listaPermisos || []);
+        const capitalizedPermisos = capitalizePermissions(response.data.listaPermisos || []);
+        setPermisos(capitalizedPermisos);
       } catch (error) {
         console.error('Error al obtener la lista de permisos:', error);
       }
     };
-  
+
     fetchPermisos();
   }, []);
-  
+
+  const capitalizePermissions = (permissions) => {
+    return permissions.map(permission => {
+      return {
+        ...permission,
+        nombre_permiso: permission.nombre_permiso.charAt(0).toUpperCase() + permission.nombre_permiso.slice(1)
+      };
+    });
+  };
+
   const handlePermissionChange = (permisoId) => {
     setNewRole((prevRole) => ({
       ...prevRole,
@@ -53,6 +65,7 @@ const CreateRol = () => {
         : [...prevRole.permisos, permisoId],
     }));
   };
+
   const handleAddRole = async () => {
     const validationErrors = {};
 
@@ -101,14 +114,14 @@ const CreateRol = () => {
 
   const handleInputChange = (fieldName, value) => {
     const validationErrors = { ...errors };
-  
+
     switch (fieldName) {
       case 'nombre':
         setNewRole({ ...newRole, nombre: value });
-  
+
         if (!value) {
           validationErrors.nombre = 'Por favor, ingresa un nombre para el rol.';
-        } else if (!/^[a-zA-Z]+$/.test(value)) {
+        } else if (!/^[a-zA-Z0-9]+$/.test(value)) {
           validationErrors.nombre = 'El nombre del rol no debe contener números ni caracteres especiales.';
         } else if (value.length < 3) {
           validationErrors.nombre = 'El nombre del rol debe tener al menos 3 caracteres.';
@@ -121,7 +134,7 @@ const CreateRol = () => {
       default:
         break;
     }
-  
+
     setErrors(validationErrors);
   };
 
@@ -129,17 +142,18 @@ const CreateRol = () => {
   return (
     <div className="bg-light min-vh-80 d-flex align-items-center">
       <CContainer>
-        <CRow className="justify-content-center">
-          <CCol md={12} lg={20} xl={20}>
-            <CCard className="mx-12">
-              <CCardBody className="p-8">
+        <CRow className="justify-content-center"> 
+          <CCol md={12} lg={6} xl={6}>
+          <CCard className="mx-4" style={{ marginTop: '30px', marginBottom: '20px' }}>
+              <CCardBody className="p-4">
                 <CForm>
-                  <h1 className="mb-8">CREAR ROL</h1>
+                  <h1 className="mb-4 text-center">CREAR ROL</h1>
                   <CInputGroup className="mb-3">
-                    <CInputGroupText>
+                    <CInputGroupText className="input-group-text-icon">
                       <CIcon icon={cilUser} />
                     </CInputGroupText>
                     <CFormInput
+                      className="input-nombre"
                       placeholder="Nombre del rol"
                       autoComplete="rol"
                       name="nombre"
@@ -149,34 +163,47 @@ const CreateRol = () => {
                       }
                     />
                   </CInputGroup>
+
+
+
+
+
                   {errors.nombre && <div className="text-danger">{errors.nombre}</div>}
-                  <div>
+                  <div className="mt-3">
                     <h4>Permisos:</h4>
                     {permisos.map((permiso) => (
-                      <div key={permiso.id_permiso}>
+                      <div key={permiso.id_permiso} className="mb-2 d-flex align-items-center">
                         <input
                           type="checkbox"
                           id={`permiso_${permiso.id_permiso}`}
+                          className="custom-checkbox mr-2"
                           checked={newRole.permisos.includes(permiso.id_permiso)}
                           onChange={() => handlePermissionChange(permiso.id_permiso)}
                         />
-                        <label htmlFor={`permiso_${permiso.id_permiso}`}>
+                        <label
+                          htmlFor={`permiso_${permiso.id_permiso}`}
+                          className={`font-weight-bold ${newRole.permisos.includes(permiso.id_permiso) ? 'text-success' : 'text-black'}`}
+                          style={{ marginLeft: '5px', fontWeight: 'bold' }}
+                        >
                           {permiso.nombre_permiso}
                         </label>
                       </div>
                     ))}
                     {errors.permisos && <div className="text-danger">{errors.permisos}</div>}
                   </div>
-                  <div>
-                    <CButton type="button" onClick={handleAddRole}>
+                  <div className="mt-4 d-flex justify-content-center">
+                    <CButton type="button" onClick={handleAddRole} color="primary" className="mx-2">
                       REGISTRAR ROL
                     </CButton>
                     <Link to="/listaRol">
-                      <CButton type="button" color="secondary">
+                      <CButton type="button" color="secondary" className="mx-2">
                         Cancelar
                       </CButton>
                     </Link>
                   </div>
+
+
+
                 </CForm>
               </CCardBody>
             </CCard>
@@ -186,9 +213,7 @@ const CreateRol = () => {
       <ToastContainer />
     </div>
   );
+
 };
-
-
-
 
 export default CreateRol;

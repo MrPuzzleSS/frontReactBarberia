@@ -110,9 +110,8 @@ function ListaProveedores() {
     const direccionMatches = proveedor.direccion.toLowerCase().includes(searchTerm.toLowerCase());
     const telefonoMatches = proveedor.telefono.toLowerCase().includes(searchTerm.toLowerCase());
     const emailMatches = proveedor.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const tipoMatches = proveedor.tipo_de_producto_servicio.toLowerCase().includes(searchTerm.toLowerCase());
   
-    return nombreMatches || direccionMatches || telefonoMatches || emailMatches || tipoMatches;
+    return nombreMatches || direccionMatches || telefonoMatches || emailMatches;
   });
   
 
@@ -166,9 +165,13 @@ function ListaProveedores() {
             text: "Hubo un problema al cambiar el estado del proveedor.",
           });
         }
+      } else {
+        // Si se cancela, volver al estado original del botón
+        document.getElementById(`cambiarEstado-${proveedor.id_proveedor}`).checked = proveedor.estado === 'Activo';
       }
     });
   };
+  
   
 
   const handlePageChange = (pageNumber) => {
@@ -183,7 +186,7 @@ function ListaProveedores() {
             <div className="d-flex justify-content-between align-items-center">
               <strong>Lista de Proveedores</strong>
               <Link to="/proveedores/crear-proveedor">
-                <CButton color="success">Agregar Proveedor</CButton>
+                <CButton color="primary">Agregar Proveedor</CButton>
               </Link>
             </div>
             <div className="mt-3">
@@ -202,15 +205,13 @@ function ListaProveedores() {
             <CTable align="middle" className="mb-0 border" hover responsive>
               <CTableHead>
                 <CTableRow>
-                  <CTableHeaderCell scope="col">Id</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Tipo de Documento</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Documento</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Dirección</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Teléfono</CTableHeaderCell>
                   <CTableHeaderCell scope="col">
                     Correo Electrónico
-                  </CTableHeaderCell>
-                  <CTableHeaderCell scope="col">
-                    Producto o Servicio
                   </CTableHeaderCell>
                   <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
                   <CTableHeaderCell scope="col"></CTableHeaderCell>
@@ -219,14 +220,12 @@ function ListaProveedores() {
               <CTableBody>
                 {currentProveedores.map((proveedor, i) => (
                   <CTableRow key={proveedor.id_proveedor} >
-                    <CTableHeaderCell scope="row">{proveedor.id_proveedor}</CTableHeaderCell>
+                    <CTableDataCell>{proveedor.tipo_documento}</CTableDataCell>
+                    <CTableDataCell>{proveedor.num_documento}</CTableDataCell>
                     <CTableDataCell>{proveedor.nombre}</CTableDataCell>
                     <CTableDataCell>{proveedor.direccion}</CTableDataCell>
                     <CTableDataCell>{proveedor.telefono}</CTableDataCell>
                     <CTableDataCell>{proveedor.email}</CTableDataCell>
-                    <CTableDataCell>
-                      {proveedor.tipo_de_producto_servicio}
-                    </CTableDataCell>
                     <CTableDataCell><CBadge color={getColorForEstado(proveedor.estado)}>{proveedor.estado}</CBadge></CTableDataCell>
                     <CTableDataCell
                       style={{ display: "flex", alignItems: "center" }}
@@ -235,11 +234,11 @@ function ListaProveedores() {
                         size="xl"
                         label=""
                         id={`cambiarEstado-${proveedor.id_proveedor}`}
-                        defaultChecked={proveedor.estado === 'Activo'}
+                     defaultChecked   ={proveedor.estado === 'Activo'}
                         onChange={() => handleEstadoChange(proveedor)}
                       />
                       <CButton
-                        color="warning"
+                        color="secondary"
                         size="sm"
                         onClick={() => handleEditClick(proveedor)}
                       >
@@ -272,7 +271,7 @@ function ListaProveedores() {
           </CCardBody>
         </CCard>
       </CCol>
-      <CModal visible={visible} onClose={() => setVisible(false)}>
+      <CModal backdrop="static" visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader>
           <CModalTitle>Editar Proveedor</CModalTitle>
         </CModalHeader>

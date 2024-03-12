@@ -14,17 +14,16 @@ import {
   CButton,
 } from '@coreui/react';
 
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUser,
   faEnvelope,
   faUnlockAlt,
   faCheck,
+  faLock
 } from '@fortawesome/free-solid-svg-icons';
 import fondo from '../../../assets/images/ftos/bk.jpg';
 import './UserInforPage.css';
-
 
 const UserInformationPage = () => {
   const [userData, setUserData] = useState(null);
@@ -39,10 +38,7 @@ const UserInformationPage = () => {
   }, []);
 
   return (
-    <div
-  
-    >
-      
+    <div>
       <CContainer className="text-center">
         <CRow className="justify-content-center">
           <CCol md={6}>
@@ -61,9 +57,6 @@ const UserInformationPage = () => {
                       </CInputGroupText>
                       <CFormInput type="text" value={userData.nombre_usuario} readOnly />
                     </CInputGroup>
-
-
-
 
                     <CInputGroup className="mb-3">
                       <CInputGroupText style={{ marginRight: '10px' }}>
@@ -93,21 +86,13 @@ const UserInformationPage = () => {
                       <CFormInput type="text" value={userData.estado} readOnly />
                     </CInputGroup>
 
-
-
                     <div className="permissions-container mb-3">
-                      <CInputGroupText style={{ marginRight: '10px' }}>
-                        <FontAwesomeIcon icon={faUnlockAlt} style={{ marginRight: '10px' }}  />
-                        PERMISOS
-
-                      </CInputGroupText>
-
-              
+                      <h4 className="text-center mb-2">PERMISOS</h4>
                       <div className="permissions-list">
                         {userData.rol && userData.rol.permisos ? (
                           userData.rol.permisos.map((permiso) => (
                             <div key={permiso.id_permiso} className="permission-item">
-                              <FontAwesomeIcon icon={faCheck} className="check-icon" />
+                              <FontAwesomeIcon icon={faUnlockAlt} className="lock-icon open" />
                               <span className="permission-text">{permiso.nombre_permiso}</span>
                             </div>
                           ))
@@ -117,7 +102,6 @@ const UserInformationPage = () => {
                       </div>
                     </div>
 
-       
                     <Link to="/dashboard">
                       <button className="btn btn-secondary">REGRESAR</button>
                     </Link>
@@ -132,8 +116,6 @@ const UserInformationPage = () => {
       </CContainer>
     </div>
   );
-
-  
 };
 
 export default UserInformationPage;

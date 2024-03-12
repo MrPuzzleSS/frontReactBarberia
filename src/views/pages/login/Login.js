@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setSession, isAuthenticated } from '../../../components/auht';
+import { LogIn, Lock } from 'react-feather';
 import {
   CButton,
   CCard,
@@ -31,7 +32,7 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       setError(null);
-  
+
       const response = await axios.post('https://restapibarberia.onrender.com/api/login', {
         nombre_usuario: nombreUsuario,
         contrasena,
@@ -63,17 +64,21 @@ const Login = () => {
       }
     }
   };
- 
+
   return (
     <div className="min-vh-100 d-flex flex-column">
       <div className="d-flex" style={{ flex: 1 }}>
-        <div style={{ backgroundImage: `url(${fonds})`, backgroundSize: 'cover', backgroundPosition: 'center', flex: 1 }} />
+        <div style={{ backgroundImage: `url(${fonds})`, backgroundSize: 'cover', backgroundPosition: 'center', flex: 2 }} />
         <CContainer style={{ flex: 1, backgroundColor: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+
           <CRow className="justify-content-center">
-            <CCol md={9}>
+
+            <CCol md={10}>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-                <img src={logoBarberia} alt="logo empresa" width="50%" style={{ marginBottom: '20px' }} />
+
+                <img src={logoBarberia} alt="logo empresa" width="70%" style={{ marginBottom: '20px' }} />
                 <CForm style={{ width: '80%', margin: '0 auto' }}>
+                  <h2>Iniciar sesíon</h2>
                   {error && <CAlert color="danger">{error}</CAlert>}
                   <CInputGroup className="mb-3">
                     <CInputGroupText>
@@ -100,14 +105,24 @@ const Login = () => {
                   </CInputGroup>
                   <CRow className="mt-3">
                     <CCol xs={12} className="text-center">
-                      <CButton color="primary" className="px-4" style={{ fontSize: '1.2rem', borderRadius: '5px' }} onClick={handleLogin}>
+                      <CButton
+                        color="primary"
+                        className="px-4"
+                        style={{ fontSize: '1.2rem', borderRadius: '5px' }}
+                        onClick={handleLogin}
+                      >
                         INGRESAR
                       </CButton>
                     </CCol>
                   </CRow>
                   <CRow className="mt-3">
                     <CCol xs={12} className="text-center">
-                      <CButton color="link" className="px-0" style={{ color: '#333', fontSize: '0.9rem' }} onClick={() => navigate('/resetPassword')}>
+                      <CButton
+                        color="link"
+                        className="px-0"
+                        style={{ color: '#333', fontSize: '0.9rem' }}
+                        onClick={() => navigate('/resetPassword')}
+                      >
                         ¿Olvidó su contraseña?
                       </CButton>
                     </CCol>
@@ -115,11 +130,13 @@ const Login = () => {
                   <CRow className="mt-3">
                     <CCol xs={12} className="text-center">
                       <Link to="/register">
-                        <CButton color="secondary">REGISTRARSE</CButton>
+                        <CButton color="success">NUEVA CUENTA</CButton>
                       </Link>
                     </CCol>
                   </CRow>
                 </CForm>
+
+
               </div>
             </CCol>
           </CRow>

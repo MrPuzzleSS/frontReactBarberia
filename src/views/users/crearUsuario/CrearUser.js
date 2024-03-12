@@ -1,10 +1,8 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { CButton, CCard, CCardBody, CContainer, CForm, CFormInput, CFormLabel, CFormSelect, CRow, CCol } from '@coreui/react';
 import { Link, Navigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
-import 'sweetalert2/dist/sweetalert2.css';
-import { CButton, CCard, CCardBody, CContainer, CForm, CFormInput, CFormLabel, CFormSelect, CRow } from '@coreui/react';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 const Register = () => {
   const [newUser, setNewUser] = useState({
@@ -30,10 +28,8 @@ const Register = () => {
   }, []);
 
   const handleAddUser = async () => {
-    // Realizar validación de formulario aquí
     const validationErrors = {};
 
-    // Validar ID del Usuario
     if (!newUser.id_rol) {
       validationErrors.id_rol = 'Por favor, selecciona un rol para el usuario.';
     }
@@ -50,42 +46,33 @@ const Register = () => {
       validationErrors.nombre_usuario = 'El nombre de usuario no debe contener espacios en blanco.';
     }
 
-    // Validar Contraseña
     if (!newUser.contrasena) {
       validationErrors.contrasena = 'Por favor, ingresa la contraseña.';
     } else {
-      // Validar que la contraseña tenga al menos 8 caracteres
       if (newUser.contrasena.length < 8) {
         validationErrors.contrasena = 'La contraseña debe tener al menos 8 caracteres.';
       } else {
-        // Validar que la contraseña contenga al menos un número
         if (!/\d/.test(newUser.contrasena)) {
           validationErrors.contrasena = 'La contraseña debe contener al menos un número.';
         }
-        // Validar que la contraseña contenga al menos una letra mayúscula
         if (!/[A-Z]/.test(newUser.contrasena)) {
           validationErrors.contrasena = 'La contraseña debe contener al menos una letra mayúscula.';
         }
       }
     }
 
-    // Validar Correo Electrónico
     if (!newUser.correo) {
       validationErrors.correo = 'Por favor, ingresa el correo electrónico.';
     } else {
-      // Validar formato de correo electrónico
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(newUser.correo)) {
         validationErrors.correo = 'Por favor, ingresa un formato válido de correo electrónico.';
       }
     }
 
-    // Actualizar el estado con los errores
     setErrors(validationErrors);
 
-    // Verificar si hay errores de validación
     if (Object.keys(validationErrors).length > 0) {
-      // Si hay errores de validación, no continuar con la llamada a la API
       return;
     }
 
@@ -93,20 +80,17 @@ const Register = () => {
       const response = await axios.post('https://restapibarberia.onrender.com/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
 
-      // Mostrar SweetAlert de éxito
       Swal.fire({
         icon: 'success',
         title: 'Usuario agregado con éxito',
         showConfirmButton: false,
-        timer: 1500, // Cerrar automáticamente después de 1.5 segundos
+        timer: 1500,
       });
 
-      // Actualizar el estado para mostrar la redirección
       setSubmitted(true);
     } catch (error) {
       console.error('Error al agregar usuario:', error);
 
-      // Mostrar SweetAlert de error
       Swal.fire({
         icon: 'error',
         title: 'Error al agregar usuario',
@@ -116,10 +100,8 @@ const Register = () => {
   };
 
   const handleInputChange = (fieldName, value) => {
-    // Actualizar el estado del campo con el nuevo valor
     setNewUser({ ...newUser, [fieldName]: value });
 
-    // Validar el campo que ha cambiado
     const validationErrors = { ...errors };
 
     switch (fieldName) {
@@ -133,7 +115,7 @@ const Register = () => {
       case 'nombre_usuario':
         if (!value) {
           validationErrors.nombre_usuario = 'Por favor, ingresa el nombre de usuario.';
-        } else if (!/^[a-zA-Z]+$/.test(value)) {
+        } else if (!/^[a-zA-Z0-9]+$/.test(value)) {
           validationErrors.nombre_usuario = 'El nombre de usuario no debe contener caracteres especiales ni números.';
         } else if (value.length < 3) {
           validationErrors.nombre_usuario = 'El nombre de usuario debe tener al menos 3 caracteres.';
@@ -149,7 +131,6 @@ const Register = () => {
         if (!value) {
           validationErrors.contrasena = 'Por favor, ingresa la contraseña.';
         } else if (value.length < 8) {
-          
           validationErrors.contrasena = 'La contraseña debe tener al menos 8 caracteres.';
         } else if (!/\d/.test(value)) {
           validationErrors.contrasena = 'La contraseña debe contener al menos un número.';
@@ -159,100 +140,100 @@ const Register = () => {
           delete validationErrors.contrasena;
         }
         break;
-        case 'correo':
-          if (!value) {
-            validationErrors.correo = 'Por favor, ingresa el correo electrónico.';
+      case 'correo':
+        if (!value) {
+          validationErrors.correo = 'Por favor, ingresa el correo electrónico.';
+        } else {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(value)) {
+            validationErrors.correo = 'Por favor, ingresa un formato válido de correo electrónico.';
+          } else if (value.length > 50) {
+            validationErrors.correo = 'El correo electrónico no debe exceder los 50 caracteres.';
+          } else if (/[^\w@.-]/.test(value)) {
+            validationErrors.correo = 'El correo electrónico no debe contener caracteres especiales ni espacios.';
           } else {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
-            if (!emailRegex.test(value)) {
-              validationErrors.correo = 'Por favor, ingresa un formato válido de correo electrónico.';
-            } else if (value.length > 50) {
-              validationErrors.correo = 'El correo electrónico no debe exceder los 50 caracteres.';
-            } else if (/[^\w@.-]/.test(value)) {
-              validationErrors.correo = 'El correo electrónico no debe contener caracteres especiales ni espacios.';
-            } else {
-              delete validationErrors.correo;
-            }
+            delete validationErrors.correo;
           }
-          break;
-        
-        
+        }
         break;
       default:
         break;
     }
 
-    // Actualizar el estado de los errores
     setErrors(validationErrors);
   };
-
+  
   return (
-    <div className="bg-light min-vh-80 d-flex align-items-center">
+    <div className="bg-light min-vh-100 d-flex align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
-          <CCard className="mx-12">
-            <CCardBody className="p-8">
+          <CCol md={12} lg={7} xl={8} className="mt-n5">
+            <CCard className="mx-auto" style={{ marginTop: '-300px', marginBottom: '20px' }}>
+
+              <CCardBody className="p-12">
               <CForm onSubmit={(e) => e.preventDefault()}>
-                <h2 className="mb-8">CREAR USUARIO</h2>
-                <div className="mb-3">
-                  <CFormLabel>Rol del Usuario</CFormLabel>
-                  <CFormSelect
-                    value={newUser.id_rol}
-                    onChange={(e) => handleInputChange('id_rol', e.target.value)}
-                  >
-                    <option value="" disabled>Selecciona un rol</option>
-                    {roles.map(role => (
-                      <option key={role.id_rol} value={role.id_rol}>{role.nombre}</option>
-                    ))}
-                  </CFormSelect>
-                  {errors.id_rol && <div className="text-danger">{errors.id_rol}</div>}
-                </div>
-                <div className="mb-3">
-                  <CFormLabel>Nombre de Usuario</CFormLabel>
-                  <CFormInput
-                    placeholder="Nombre de usuario"
-                    autoComplete="username"
-                    value={newUser.nombre_usuario}
-                    onChange={(e) => handleInputChange('nombre_usuario', e.target.value)}
-                  />
-                  {errors.nombre_usuario && <div className="text-danger">{errors.nombre_usuario}</div>}
-                </div>
-                <div className="mb-3">
-                  <CFormLabel>Contraseña</CFormLabel>
-                  <CFormInput
-                    type="password"
-                    placeholder="Contraseña"
-                    autoComplete="new-password"
-                    value={newUser.contrasena}
-                    onChange={(e) => handleInputChange('contrasena', e.target.value)}
-                  />
-                  {errors.contrasena && <div className="text-danger">{errors.contrasena}</div>}
-                </div>
-                <div className="mb-3">
-                  <CFormLabel>Correo Electrónico</CFormLabel>
-                  <CFormInput
-                    type="email"
-                    placeholder="Correo electrónico"
-                    autoComplete="email"
-                    value={newUser.correo}
-                    onChange={(e) => handleInputChange('correo', e.target.value)}
-                  />
-                  {errors.correo && <div className="text-danger">{errors.correo}</div>}
-                </div>
-                <div className="mb-3">
-                  <CButton type="submit" onClick={handleAddUser}>
-                    REGISTRAR USUARIO
-                  </CButton>
-                  <Link to="/listaUsuarios">
-                    <CButton type="button" color="secondary">
-                      Cancelar
-                    </CButton>
-                  </Link>
-                </div>
-              </CForm>
-              {submitted && <Navigate to="/listaUsuarios" />}
-            </CCardBody>
-          </CCard>
+  <h2 className="mb-6 text-center">REGISTRAR USUARIO</h2>
+  <div className="mb-3">
+    <CFormLabel><strong>Rol del Usuario</strong></CFormLabel>
+    <CFormSelect
+      value={newUser.id_rol}
+      onChange={(e) => handleInputChange('id_rol', e.target.value)}
+    >
+      <option value="" disabled>Selecciona un rol</option>
+      {roles.map(role => (
+        <option key={role.id_rol} value={role.id_rol}>{role.nombre}</option>
+      ))}
+    </CFormSelect>
+    {errors.id_rol && <div className="text-danger">{errors.id_rol}</div>}
+  </div>
+  <div className="mb-3">
+    <CFormLabel><strong>Nombre de Usuario</strong></CFormLabel>
+    <CFormInput
+      placeholder="Nombre de usuario"
+      autoComplete="username"
+      value={newUser.nombre_usuario}
+      onChange={(e) => handleInputChange('nombre_usuario', e.target.value)}
+    />
+    {errors.nombre_usuario && <div className="text-danger">{errors.nombre_usuario}</div>}
+  </div>
+  <div className="mb-3">
+    <CFormLabel><strong>Contraseña</strong></CFormLabel>
+    <CFormInput
+      type="password"
+      placeholder="Contraseña"
+      autoComplete="new-password"
+      value={newUser.contrasena}
+      onChange={(e) => handleInputChange('contrasena', e.target.value)}
+    />
+    {errors.contrasena && <div className="text-danger">{errors.contrasena}</div>}
+  </div>
+  <div className="mb-3">
+    <CFormLabel><strong>Correo Electrónico</strong></CFormLabel>
+    <CFormInput
+      type="email"
+      placeholder="Correo electrónico"
+      autoComplete="email"
+      value={newUser.correo}
+      onChange={(e) => handleInputChange('correo', e.target.value)}
+    />
+    {errors.correo && <div className="text-danger">{errors.correo}</div>}
+  </div>
+  <div className="mb-3 d-flex justify-content-center">
+    <CButton type="submit" onClick={handleAddUser}>
+      REGISTRAR USUARIO
+    </CButton>
+    <Link to="/listaUsuarios">
+      <CButton type="button" color="secondary" className="ms-3">
+        Cancelar
+      </CButton>
+    </Link>
+  </div>
+</CForm>
+
+                {submitted && <Navigate to="/listaUsuarios" />}
+              </CCardBody>
+            </CCard>
+          </CCol>
         </CRow>
       </CContainer>
     </div>
