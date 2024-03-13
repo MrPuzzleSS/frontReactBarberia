@@ -15,7 +15,7 @@ import {
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilEnvelopeOpen, cilArrowLeft, cilArrowCircleLeft } from '@coreui/icons';
-import prueba2 from '../../../assets/images/ftos/bb.jpg';
+import prueba2 from '../../../assets/images/fondo/shop.jpg';
 import logoBarberia from '../../../assets/images/logoBarberia2.png';
 import './UserInforPage.css';
 
