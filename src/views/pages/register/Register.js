@@ -6,7 +6,7 @@ import { cilLockLocked, cilUser } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import { Link, Navigate } from 'react-router-dom';
 import logoBarberia from '../../../assets/images/logoBarberia2.png';
-import prueba2 from '../../../assets/images/ftos/mk.png';
+import prueba2 from '../../../assets/images/fonds.jpg';
 
 const RegisterCliente = () => {
   const roleIdCliente = 3;
@@ -75,16 +75,15 @@ const RegisterCliente = () => {
 
   const isFormValid = () => {
     return Object.values(errors).every((error) => error === '');
-  };
-
-  return (
+  };return (
     <div className="min-vh-100 d-flex align-items-center">
-      <div className="w-50" style={{ backgroundImage: `url(${prueba2})`, backgroundSize: 'cover', height: '100vh' }} />
-      <div className="w-50 d-flex justify-content-center align-items-center">
+      <div className="w-100" style={{ backgroundImage: `url(${prueba2})`, backgroundSize: 'cover', height: '100vh' }} />
+      <div className="w-50 d-flex justify-content-center align-items-center flex-column">
         <CContainer>
           <CRow className="justify-content-center">
             <div className="text-center">
-              <img src={logoBarberia} alt="logo empresa" style={{ width: '40%', marginBottom: '2rem' }} />
+              <img src={logoBarberia} alt="logo empresa" style={{ width: '60%', marginBottom: '2rem' }} />
+              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Registrarse</p>
             </div>
           </CRow>
           <CRow className="justify-content-center">
@@ -137,10 +136,9 @@ const RegisterCliente = () => {
                   autoComplete="new-password"
                 />
               </CInputGroup>
-              <CButton color="primary"  onClick={handleAddUser}>
-  REGISTRAR
-</CButton>
-
+              <CButton color="primary" disabled={!isFormValid()} onClick={handleAddUser}>
+                REGISTRAR
+              </CButton>
               {redirect && <Navigate to="/login" />}
               <Link to="/login">
                 <CButton color="secondary" className="ms-2">

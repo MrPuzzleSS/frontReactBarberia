@@ -31,7 +31,7 @@ import { Link } from 'react-router-dom';
 const ListaRol = () => {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchId, setSearchId] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [editRoleId, setEditRoleId] = useState(null);
   const [editRoleName, setEditRoleName] = useState('');
   const [editRolePermisos, setEditRolePermisos] = useState([]);
@@ -40,7 +40,6 @@ const ListaRol = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(5);
   const [errors, setErrors] = useState({});
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,37 +77,66 @@ const ListaRol = () => {
     }
   };
 
+
+
+
+
   const handleSwitchChange = async (item) => {
     const newStatus = item.estado === 'Activo' ? 'Inactivo' : 'Activo';
-
+    const originalStatus = item.estado;
+  
     try {
-      await axios.put(`https://restapibarberia.onrender.com/api/rol/${item.id_rol}`, {
-        estado: newStatus,
+      const confirmed = await Swal.fire({
+        title: `¿Estás seguro de cambiar el estado del rol a ${newStatus}?`,
+        text: '¡No podrás revertir esto!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, cambiar estado'
       });
-
-      const updatedRoles = roles.map((role) =>
-        role.id_rol === item.id_rol ? { ...role, estado: newStatus } : role
-      );
-
-      setRoles(updatedRoles);
-
-      Swal.fire({
-        icon: 'success',
-        title: `El estado del rol se ha cambiado a ${newStatus}`,
-        showConfirmButton: false,
-        timer: 1500,
-      });
+  
+      if (confirmed.isConfirmed) {
+        const response = await axios.put(`https://restapibarberia.onrender.com/api/rol/${item.id_rol}`, {
+          estado: newStatus,
+        });
+  
+        if (response.status === 200) {
+          const updatedRoles = roles.map((role) =>
+            role.id_rol === item.id_rol ? { ...role, estado: newStatus } : role
+          );
+    
+          setRoles(updatedRoles);
+    
+          Swal.fire({
+            icon: 'success',
+            title: `El estado del rol se ha cambiado a ${newStatus}`,
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        } else {
+          throw new Error('Error al cambiar el estado del rol');
+        }
+      } else {
+        // Si la operación es cancelada, revertir el estado del checkbox
+        document.getElementById(`formSwitchCheckChecked_${item.id_rol}`).checked = item.estado === 'Activo';
+      }
     } catch (error) {
       console.error('Error al cambiar el estado del rol:', error);
-
+  
       Swal.fire({
         icon: 'error',
         title: 'Error al cambiar el estado del rol',
         text: 'Ha ocurrido un error al intentar cambiar el estado del rol.',
       });
+  
+      // Si ocurre un error, revertir el estado del checkbox
+      document.getElementById(`formSwitchCheckChecked_${item.id_rol}`).checked = item.estado === 'Activo';
     }
   };
 
+
+  
   const handleEditRole = async (roleId) => {
     const roleToEdit = roles.find((role) => role.id_rol === roleId);
     setEditRoleId(roleId);
@@ -116,10 +144,10 @@ const ListaRol = () => {
     setEditRolePermisos(roleToEdit.permisos.map((permiso) => permiso.id_permiso));
     setVisible(true);
   };
+
   const handleSaveEdit = async () => {
     const validationErrors = {};
 
-    // Validar el nombre del rol
     if (!editRoleName) {
       validationErrors.nombre = 'Por favor, ingresa un nombre para el rol.';
     } else if (!/^[a-zA-Z]+$/.test(editRoleName)) {
@@ -130,7 +158,6 @@ const ListaRol = () => {
       validationErrors.nombre = 'El nombre del rol no puede exceder los 50 caracteres.';
     }
 
-    // Validar al menos un permiso seleccionado
     if (editRolePermisos.length === 0) {
       validationErrors.permisos = 'Por favor, selecciona al menos un permiso.';
     }
@@ -173,6 +200,7 @@ const ListaRol = () => {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+
   const handleDelete = async (item) => {
     Swal.fire({
       title: '¿Estás seguro?',
@@ -186,14 +214,11 @@ const ListaRol = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          // Realiza la solicitud de eliminación al backend utilizando el ID del ítem
           await axios.delete(`https://restapibarberia.onrender.com/api/rol/${item.id_rol}`);
 
-          // Elimina el ítem de la lista actual de roles
           const updatedRoles = roles.filter(role => role.id_rol !== item.id_rol);
           setRoles(updatedRoles);
 
-          // Muestra una alerta de éxito
           Swal.fire({
             icon: 'success',
             title: 'Rol eliminado exitosamente',
@@ -203,7 +228,6 @@ const ListaRol = () => {
         } catch (error) {
           console.error('Error al eliminar el rol:', error);
 
-          // Muestra una alerta de error
           Swal.fire({
             icon: 'error',
             title: 'Error al eliminar el rol',
@@ -214,10 +238,16 @@ const ListaRol = () => {
     });
   };
 
+  const filteredRoles = roles.filter((role) => {
+    if (!role) return false;
+    const nombreMatches = role.nombre.toLowerCase().includes(searchTerm.toLowerCase());
+    return nombreMatches;
+  });
 
   const indexOfLastUser = currentPage * pageSize;
   const indexOfFirstUser = indexOfLastUser - pageSize;
-  const currentRoles = roles.slice(indexOfFirstUser, indexOfLastUser);
+  const currentRoles = filteredRoles.slice(indexOfFirstUser, indexOfLastUser);
+
   return (
     <>
       <CCard className="mb-4">
@@ -231,13 +261,12 @@ const ListaRol = () => {
           <div className="mb-3" style={{ maxWidth: "200px" }}>
             <CFormInput
               type="text"
-              placeholder="Buscar rol por ID..."
-              value={searchId}
-              onChange={(e) => setSearchId(e.target.value)}
+              placeholder="Buscar rol..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="form-control-sm"
             />
           </div>
-
           {loading ? (
             <p>Cargando roles...</p>
           ) : (
@@ -245,7 +274,6 @@ const ListaRol = () => {
               <CTable align="middle" className="mb-0 border table-sm" hover responsive>
                 <CTableHead color="light">
                   <tr>
-
                     <th>NOMBRE</th>
                     <th>ESTADO</th>
                     <th>PERMISOS</th>
@@ -255,7 +283,6 @@ const ListaRol = () => {
                 <CTableBody>
                   {currentRoles.map((item) => (
                     <tr key={item.id_rol}>
-
                       <td>{item.nombre}</td>
                       <td>
                         <strong>
@@ -273,37 +300,31 @@ const ListaRol = () => {
                         </div>
                       </td>
                       <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-  <CFormSwitch
-    size="xl"
-    label=""
-    id={`formSwitchCheckChecked_${item.id_rol}`}
-    checked={item.estado === 'Activo'}
-    onChange={() => handleSwitchChange(item)}
-     // Ajusta el margen izquierdo del checkbox
-  />
-  <CButton
-    color="secondary"
-    size="sm"
-    onClick={() => handleEditRole(item.id_rol)}
-    style={{ marginRight: '3px', backgroundColor: '#c0c0c0' }} // Ajusta el margen derecho del botón de editar
-  >
-    <FaEdit /> {/* Icono de editar */}
-  </CButton>
-  <CButton
-    color="danger"
-    size="sm"
-    onClick={() => handleDelete(item)}
-    style={{ marginLeft: '5px' }} // Ajusta el margen izquierdo del botón de eliminar
-  >
-    <FaTrash  />
-  </CButton>
-</div>
-
-
-
-
-
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <CFormSwitch
+                            size="xl"
+                            label=""
+                            id={`formSwitchCheckChecked_${item.id_rol}`}
+                            checked={item.estado === 'Activo'}
+                            onChange={() => handleSwitchChange(item)}
+                          />
+                          <CButton
+                            color="secondary"
+                            size="sm"
+                            onClick={() => handleEditRole(item.id_rol)}
+                            style={{ marginRight: '3px', backgroundColor: '#c0c0c0' }}
+                          >
+                            <FaEdit />
+                          </CButton>
+                          <CButton
+                            color="danger"
+                            size="sm"
+                            onClick={() => handleDelete(item)}
+                            style={{ marginLeft: '5px' }}
+                          >
+                            <FaTrash />
+                          </CButton>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -322,7 +343,7 @@ const ListaRol = () => {
             >
               Anterior
             </CPaginationItem>
-            {Array.from({ length: Math.ceil(roles.length / pageSize) }, (_, i) => (
+            {Array.from({ length: Math.ceil(filteredRoles.length / pageSize) }, (_, i) => (
               <CPaginationItem
                 key={i}
                 onClick={() => handlePageChange(i + 1)}
@@ -333,7 +354,7 @@ const ListaRol = () => {
             ))}
             <CPaginationItem
               onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === Math.ceil(roles.length / pageSize)}
+              disabled={currentPage === Math.ceil(filteredRoles.length / pageSize)}
             >
               Siguiente
             </CPaginationItem>
@@ -346,15 +367,16 @@ const ListaRol = () => {
           <CModalTitle>Editar Rol</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <CFormLabel>Nombre del Rol</CFormLabel>
+          <CFormLabel><strong>Nombre del Rol</strong></CFormLabel>
           <CFormInput
             type="text"
             value={editRoleName}
             onChange={(e) => setEditRoleName(e.target.value)}
           />
-          <CFormLabel>Permisos</CFormLabel>
+          {errors.nombre && <div className="text-danger">{errors.nombre}</div>}
+          <CFormLabel style={{ marginTop: '10px' }}><strong>Permisos</strong></CFormLabel>
           {allPermisos.map((permiso) => (
-            <div key={permiso.id_permiso}>
+            <div key={permiso.id_permiso} style={{ marginBottom: '5px' }}>
               <input
                 type="checkbox"
                 id={`editPermiso_${permiso.id_permiso}`}
@@ -367,11 +389,12 @@ const ListaRol = () => {
                   );
                 }}
               />
-              <label htmlFor={`editPermiso_${permiso.id_permiso}`}>
-                {permiso.nombre_permiso}
+              <label htmlFor={`editPermiso_${permiso.id_permiso}`} style={{ marginLeft: '5px', fontWeight: 'bold', color: editRolePermisos.includes(permiso.id_permiso) ? 'green' : 'initial' }}>
+                {permiso.nombre_permiso.charAt(0).toUpperCase() + permiso.nombre_permiso.slice(1).toLowerCase()}
               </label>
             </div>
           ))}
+          {errors.permisos && <div className="text-danger">{errors.permisos}</div>}
         </CModalBody>
         <CModalFooter>
           <CButton color="primary" onClick={handleSaveEdit}>
@@ -384,7 +407,6 @@ const ListaRol = () => {
       </CModal>
     </>
   );
-
 };
 
 export default ListaRol;
