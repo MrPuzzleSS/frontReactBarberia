@@ -1,4 +1,4 @@
-const apiUrl = 'http://localhost:8095/api/servicio'; // Cambiar la URL de insumo a servicio
+const apiUrl = 'https://restapibarberia.onrender.com/api/servicio'; // Cambiar la URL de insumo a servicio
 
 // servicioService.js
 

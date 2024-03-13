@@ -254,7 +254,8 @@ const ListaClientes = () => {
                                                             {cliente.estado ? 'Activo' : 'Inactivo'}
                                                         </CButton>
                                                     </CTableDataCell>
-                                                    <div style={{ marginTop: '5px', marginRight: '20px' }}>
+                                                    <div style={{ transform: 'scaleY(1.1)', marginRight: '10px', marginTop: '5px' }}>
+                                                        
                                                         <Switch
                                                             onChange={() =>
                                                                 handleCambiarEstado(cliente.id_cliente)
@@ -267,8 +268,8 @@ const ListaClientes = () => {
                                                             checkedIcon={false}
                                                             boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
                                                             activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
-                                                            height={20}
-                                                            width={33}
+                                                            height={24}
+                                                            width={35}
                                                         />
                                                     </div>
                                                     <CButton
@@ -280,7 +281,7 @@ const ListaClientes = () => {
                                                             backgroundColor: 'grey',
                                                             boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                                                             padding: '3px 10px',
-                                                            borderRadius: '10px',
+                                                            borderRadius: '5px',
                                                         }}
                                                     >
                                                         <FaEdit style={{ color: 'black' }} />
@@ -309,7 +310,7 @@ const ListaClientes = () => {
                                                             });
                                                         }}
                                                         style={{
-                                                            borderRadius: '10px',  // Ajusta el radio de los bordes según tus necesidades
+                                                            borderRadius: '5px',  // Ajusta el radio de los bordes según tus necesidades
                                                         }}
                                                     >
                                                         <FaTrash /> {/* Icono de eliminar */}
