@@ -379,7 +379,7 @@ const ListaClientes = () => {
                         <div className="mb-3">
                             <CFormLabel>Documento</CFormLabel>
                             <CFormInput
-                                type="number"
+                                type=""
                                 value={selectedClienteId ? selectedClienteId.documento : ''}
                                 onChange={(e) =>
                                     setSelectedClienteId({
@@ -387,7 +387,7 @@ const ListaClientes = () => {
                                         documento: e.target.value,
                                     })
                                 }
-                                disabled={true}
+                                disabled={false}
                             />
                         </div>
                         <div className="mb-3">

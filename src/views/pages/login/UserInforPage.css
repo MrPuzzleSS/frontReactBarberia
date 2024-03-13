@@ -21,10 +21,71 @@
     margin-right: 10px;
   }
   
+
+  .permissions-container {
+    margin-top: 20px;
+  }
+  
+  .permissions-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px; /* Espacio entre los elementos */
+  }
+  
+  .permission-item {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .lock-icon {
+    margin-right: 5px;
+    color: green; /* Color verde para el candado */
+  }
+  
   .permission-text {
     font-size: 16px;
     color: #333;
   }
+  .permission-text {
+    font-size: 16px;
+    color: #333;
+    font-weight: bold; /* Texto en negrita */
+  }
 
+  .arrow-icon {
+    font-size: 40px; /* Tamaño más grande */
+    color: black; /* Color negro */
+    font-weight: bold; /* Negrita */
+  }
+  
+  
+/* Estilo para el checkbox seleccionado */
+input[type="checkbox"].custom-checkbox:checked + label::before {
+  border-color: green;
+  background-color: green;
+}
+
+
+.input-nombre {
+  border: 1px solid #ced4da; /* Color del borde */
+  border-radius: 0.25rem; /* Radio del borde */
+  width: calc(100% - 50px); /* Ajusta el ancho del input */
+}
+
+.input-nombre:focus {
+  outline: none; /* Elimina el borde morado del enfoque */
+}
+
+.input-group-text-icon {
+  border: 1px solid #ced4da; /* Color del borde */
+  border-radius: 0.25rem; /* Radio del borde */
+}
+
+
+
+  
   
   

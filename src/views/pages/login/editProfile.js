@@ -133,12 +133,12 @@ const EditProfilePage = () => {
         <div className="min-vh-100 d-flex flex-row align-items-center">
             <CContainer className="text-center">
                 <CRow className="justify-content-center">
-                    <CCol md={9}>
+                    <CCol md={7}>
                         <CCard style={{ marginTop: '-290px' }}>
                             <CCardHeader className="bg-dark text-white">
                                 <CRow className="justify-content-between align-items-center">
                                     <CCol>
-                                        <h3 className="display-4 mb-0 font-weight-bold">Editar Perfil</h3>
+                                        <h1 className="display-8 mb-0 font-weight-bold">Editar perfil</h1>
                                     </CCol>
                                     <CCol xs="auto">
                                         <FontAwesomeIcon icon={faUserEdit} style={{ fontSize: '2rem' }} />

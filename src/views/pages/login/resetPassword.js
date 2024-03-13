@@ -14,9 +14,10 @@ import {
   CAlert,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilEnvelopeOpen } from '@coreui/icons';
+import { cilEnvelopeOpen, cilArrowLeft, cilArrowCircleLeft } from '@coreui/icons';
 import prueba2 from '../../../assets/images/ftos/bb.jpg';
 import logoBarberia from '../../../assets/images/logoBarberia2.png';
+import './UserInforPage.css';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -36,7 +37,7 @@ const ForgotPassword = () => {
       }
 
       // Lógica para enviar la solicitud al backend
-      const response = await fetch('https://restapibarberia.onrender.com/solicitar-restablecimiento', {
+      const response = await fetch('http://localhost:8095/api/solicitar-restablecimiento', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,10 +77,16 @@ const ForgotPassword = () => {
       <CContainer>
         <CRow className="justify-content-center">
           <CCol xl={5} md={10}>
-            <CCard className="p-4">
+            <CCard className="p-8">
+            <div className="position-absolute top-0 start-0 mt-3 ms-3">
+    <CButton color="link" onClick={() => navigate('/login')}>
+        <CIcon icon={cilArrowCircleLeft} style={{ fontSize: '8rem' }} className="text-black" />
+    </CButton>
+</div>
+              
+
               <CCardBody>
                 <div className="text-center mb-4">
-                  <h3>Recuperar contraseña</h3>
                   <img src={logoBarberia} alt="logo empresa" width="60%" className="my-3" />
                 </div>
                 <CForm>
@@ -100,11 +107,6 @@ const ForgotPassword = () => {
                   <CButton color="primary" className="w-100 mb-3" onClick={handleResetPassword}>
                     Enviar Instrucciones
                   </CButton>
-                  <div className="text-center">
-                    <CButton color="link" onClick={() => navigate('/login')}>
-                      Volver al Inicio de Sesión
-                    </CButton>
-                  </div>
                 </CForm>
               </CCardBody>
             </CCard>

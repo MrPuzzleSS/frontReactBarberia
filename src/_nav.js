@@ -51,12 +51,13 @@ const _nav = [
     to: '/ventas',
     icon: <CIcon icon={cilMoney} customClassName="nav-icon" style={{color:'black'}}/>,
   },
-  {
-    component: CNavItem,
-    name: 'Insumos', style : {color: 'black'},
-    to: '/insumos',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" style={{color:'black'}}/>
-  },
+
+  // {
+  //   component: CNavItem,
+  //   name: 'Insumos',
+  //   to: '/insumos',
+  //   icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />
+  // },
 
 
   {
@@ -73,48 +74,25 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Productos', style : {color: 'black'},
+    name: 'ProdInsumos',
     to: '/Productos',
     icon: <CIcon icon={cilBasket} customClassName="nav-icon" style={{color:'black'}}/>
   },
-  
-  {
-    component: CNavGroup,
-    name: 'Configuración', style : {color: 'black'},
-    icon: <CIcon icon={cilSettings} customClassName="nav-icon" style={{color:'black'}}/>,
-    items: [
-      {
-        component: CNavGroup,
-        name: 'Usuarios', style : {color: 'black'},
-        to: '/base',
-        icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" style={{color:'black'}}/>,
-        items: [
           {
             component: CNavItem,
-            name: 'Lista de Usuarios', style : {color: 'black'},
+            name: 'Usuarios',
             to: '/listaUsuarios',
-            icon: <CIcon icon={cilUser} customClassName="nav-icon" style={{color:'black'}}/>,
-          },
-        ],
+            icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+          
       },
-      {
-        component: CNavGroup,
-        name: 'Roles', style : {color: 'black'},
-        to: '/base',
-        icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" style={{color:'black'}}/>,
-        items: [
+      
           {
             component: CNavItem,
-            name: 'Lista de roles', style : {color: 'black'},
+            name: 'Roles',
             to: '/ListaRol',  // Asegúrate de que la ruta sea la correcta
             icon: <CIcon icon={cilUser} customClassName="nav-icon" style={{color:'black'}}/>,
 
           },
-        ],
-      },
-    ]
-  }
-
-]
-
+        
+        ]
 export default _nav
