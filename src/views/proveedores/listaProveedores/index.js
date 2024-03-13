@@ -238,7 +238,7 @@ function ListaProveedores() {
                         onChange={() => handleEstadoChange(proveedor)}
                       />
                       <CButton
-                        color="warning"
+                        color="secondary"
                         size="sm"
                         onClick={() => handleEditClick(proveedor)}
                       >

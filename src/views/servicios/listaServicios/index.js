@@ -56,19 +56,8 @@ const ListaServicios = () => {
     }, []);
 
     const handleEditar = (servicio) => {
-        if (servicio.estado) {
-            // El servicio está activo, no permitir la edición
-            Swal.fire({
-                icon: 'warning',
-                title: 'No se puede editar un servicio activo',
-                showConfirmButton: false,
-                timer: 1500,
-            });
-        } else {
-            // El servicio no está activo, permitir la edición
-            setSelectedServicioId(servicio);
-            setVisible(true);
-        }
+        setSelectedServicioId(servicio);
+        setVisible(true);
     };
 
     const handleEliminar = async (id) => {
@@ -130,25 +119,34 @@ const ListaServicios = () => {
 
     const handleCambiarEstado = async (id) => {
         try {
-            // Obtener el servicio por ID
             const servicioIndex = servicios.findIndex((item) => item.id === id);
-
+    
             if (servicioIndex !== -1) {
-                const updatedServicios = [...servicios];
-                updatedServicios[servicioIndex] = { ...updatedServicios[servicioIndex], estado: !updatedServicios[servicioIndex].estado };
-
-                // Actualizar el servicio en el servidor
-                await ServicioService.updateServicio(id, { ...updatedServicios[servicioIndex] });
-
-                // Actualizar la lista de servicios después de la edición
-                setServicios(updatedServicios);
-
-                Swal.fire({
-                    icon: 'success',
-                    title: `Estado del servicio actualizado: ${updatedServicios[servicioIndex].estado ? 'Activo' : 'Inactivo'}`,
-                    showConfirmButton: false,
-                    timer: 1500,
+                const confirmacion = await Swal.fire({
+                    title: `¿Estás seguro de cambiar el estado del servicio a ${!servicios[servicioIndex].estado ? 'Activo' : 'Inactivo'}?`,
+                    text: "¡No podrás revertir esto!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Sí, cambiar estado"
                 });
+    
+                if (confirmacion.isConfirmed) {
+                    const updatedServicios = [...servicios];
+                    updatedServicios[servicioIndex] = { ...updatedServicios[servicioIndex], estado: !updatedServicios[servicioIndex].estado };
+    
+                    await ServicioService.updateServicio(id, { ...updatedServicios[servicioIndex] });
+    
+                    setServicios(updatedServicios);
+    
+                    Swal.fire({
+                        icon: 'success',
+                        title: `Estado del servicio actualizado: ${updatedServicios[servicioIndex].estado ? 'Activo' : 'Inactivo'}`,
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                }
             } else {
                 console.error('Servicio no encontrado.');
             }
@@ -160,6 +158,7 @@ const ListaServicios = () => {
             });
         }
     };
+    
 
     const filteredServicios = servicios
         ? servicios.filter((servicio) =>
@@ -254,12 +253,12 @@ const ListaServicios = () => {
                                                         />
                                                     </div>
                                                     <CButton
-                                                        color="primary"
+                                                        color="seconsary"
                                                         size="sm"
                                                         onClick={() => handleEditar(servicio)}
                                                         style={{
                                                             marginRight: '20px',
-                                                            backgroundColor: 'orange',
+                                                            backgroundColor: 'grey',
                                                             boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                                                             padding: '3px 10px',
                                                             borderRadius: '10px',

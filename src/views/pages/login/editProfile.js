@@ -2,13 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { CContainer, CRow, CCol, CCard, CCardBody, CCardHeader, CInputGroup, CCardFooter, CInputGroupText, CFormInput, CButton } from '@coreui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faCheck, faUserEdit, faEdit } from '@fortawesome/free-solid-svg-icons';
-import fondo from '../../../assets/images/ftos/ji.jpg';
 import { getUserInfo } from '../../../components/auht'; // Corregí el nombre del archivo
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-
-
-
+import Swal from 'sweetalert2';
 
 const EditProfilePage = () => {
     const [name, setName] = useState('');
@@ -18,7 +15,6 @@ const EditProfilePage = () => {
     const [updateSuccess, setUpdateSuccess] = useState(false);
     const [updateError, setUpdateError] = useState(null);
     const [editingField, setEditingField] = useState(null);
-    const [showConfirmationAlert, setShowConfirmationAlert] = useState(false);
     const [isProfileUpdated, setIsProfileUpdated] = useState(false);
     const navigate = useNavigate();
 
@@ -88,7 +84,18 @@ const EditProfilePage = () => {
             }
 
             // Mostrar alerta de confirmación
-            setShowConfirmationAlert(true);
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: '¿Estás seguro de que deseas actualizar tus datos?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'Cancelar',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    confirmUpdate();
+                }
+            });
         } catch (error) {
             console.error('Error al realizar la actualización', error);
             setUpdateSuccess(false);
@@ -113,7 +120,6 @@ const EditProfilePage = () => {
 
             if (response.ok) {
                 setUpdateSuccess(true);
-                setShowConfirmationAlert(false);
                 setTimeout(() => {
                     navigate('/login');
                 }, 3000); // Retraso de 3 segundos antes de redirigir al usuario
@@ -223,8 +229,6 @@ const EditProfilePage = () => {
                                 </CInputGroup>
                             </CCardBody>
                             <CCardFooter className="text-center">
-
-
                                 <CButton
                                     color="primary"
                                     onClick={handleUpdateProfile}
@@ -237,19 +241,6 @@ const EditProfilePage = () => {
                                         <button className="btn btn-secondary">REGRESAR</button>
                                     </Link>
                                 </div>
-                                <div className="d-inline-block mx-3">
-
-                                </div>
-
-
-
-
-                                {showConfirmationAlert && (
-                                    <div className="alert alert-warning mt-3" role="alert">
-                                        ¿Estás seguro de que deseas actualizar tus datos?
-                                        <button className="btn btn-warning ml-2" onClick={confirmUpdate}>Sí</button>
-                                    </div>
-                                )}
                                 {updateSuccess && (
                                     <div className="alert alert-success mt-3" role="alert">
                                         Datos actualizados correctamente. Por favor, inicia sesión nuevamente con tus nuevos datos.

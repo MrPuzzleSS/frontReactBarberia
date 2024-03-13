@@ -1,14 +1,14 @@
 const apiUrl = 'https://restapibarberia.onrender.com/api/cliente';
 
-
-
-
 const addAuthorizationHeader = (headers) => {
     const token = localStorage.getItem('token');
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
 };
+
+
+
 
 const ClienteService = {
     fetchWithAuthorization: async (url, options = {}) => {

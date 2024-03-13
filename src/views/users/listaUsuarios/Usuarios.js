@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { CBadge } from '@coreui/react';
-import { FaEdit, FaTrash, } from 'react-icons/fa'; // Importar los iconos de FontAwesome
-import { confirmAlert } from 'react-confirm-alert'; // Importa la función confirmAlert
-import 'react-confirm-alert/src/react-confirm-alert.css'; // Importa el CSS para estilos predeterminados
+import { FaEdit, FaTrash } from 'react-icons/fa';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 import { getUserInfo } from '../../../components/auht';
 import {
   CCard,
@@ -36,6 +36,7 @@ const ListaUsuarios = () => {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [searchId, setSearchId] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(5);
 
@@ -43,21 +44,8 @@ const ListaUsuarios = () => {
     const fetchData = async () => {
       try {
         const rolesResponse = await axios.get('https://restapibarberia.onrender.com/api/rol');
-        let usuariosResponse;
-
-        if (searchId) {
-          usuariosResponse = await axios.get(`https://restapibarberia.onrender.com/api/usuario/${searchId}`);
-          if (usuariosResponse.data) {
-            setUsers([usuariosResponse.data]);
-          } else {
-            setUsers([]);
-            console.log('Usuario no encontrado');
-          }
-        } else {
-          usuariosResponse = await axios.get('https://restapibarberia.onrender.com/api/usuario');
-          setUsers(usuariosResponse.data.usuarios || []);
-        }
-
+        const usuariosResponse = await axios.get('https://restapibarberia.onrender.com/api/usuario');
+        setUsers(usuariosResponse.data.usuarios || []);
         setRoles(rolesResponse.data.listaRoles);
       } catch (error) {
         console.error('Error al obtener datos:', error);
@@ -65,16 +53,15 @@ const ListaUsuarios = () => {
     };
 
     fetchData();
-  }, [searchId]);
-
+  }, []);
 
   const getRolNombre = (id_rol) => {
     const rol = roles.find((r) => r.id_rol === id_rol);
     return rol ? rol.nombre : 'Rol Desconocido';
   };
-  
+
   const handleDelete = async (item) => {
-    const loggedUser = getUserInfo(); // Obtener el usuario logueado
+    const loggedUser = getUserInfo();
 
     if (loggedUser && item.id_usuario === loggedUser.id_usuario) {
       Swal.fire({
@@ -82,7 +69,7 @@ const ListaUsuarios = () => {
         title: 'No puedes eliminar al usuario logueado',
         text: 'Por favor, cierra sesión e intenta nuevamente.'
       });
-      return; // Evitar la eliminación del usuario logueado
+      return;
     }
 
     Swal.fire({
@@ -97,7 +84,7 @@ const ListaUsuarios = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:8095/api/usuario/${item.id_usuario}`);
+          await axios.delete(`https://restapibarberia.onrender.com/api/usuario/${item.id_usuario}`);
           setUsers((prevUsers) => prevUsers.filter((user) => user.id_usuario !== item.id_usuario));
 
           Swal.fire({
@@ -120,7 +107,6 @@ const ListaUsuarios = () => {
     });
   };
 
-
   const handleEdit = (item) => {
     setSelectedItem(item);
     setVisible(true);
@@ -136,37 +122,75 @@ const ListaUsuarios = () => {
     }
   };
 
+ 
+
   const handleSwitchChange = async (item) => {
     const newStatus = item.estado === 'Activo' ? 'Inactivo' : 'Activo';
+    const originalStatus = item.estado;
+    const checkbox = document.getElementById(`formSwitchCheckChecked_${item.id_usuario}`);
+  
+    // Mantener una copia del estado original del usuario
+    const originalUser = { ...item };
+  
+    Swal.fire({
+      title: `¿Estás seguro de cambiar el estado del usuario a ${newStatus}?`,
+      text: '¡No podrás revertir esto!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, cambiar estado'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.put(`https://restapibarberia.onrender.com/api/usuario/${item.id_usuario}`, {
+            ...item,
+            estado: newStatus,
+          });
+  
+          const updatedUsers = users.map((user) =>
+            user.id_usuario === item.id_usuario ? { ...user, estado: newStatus } : user
+          );
+  
+          setUsers(updatedUsers);
+  
+          Swal.fire({
+            icon: 'success',
+            title: `El estado del usuario se ha cambiado a ${newStatus}`,
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        } catch (error) {
+          console.error('Error al cambiar el estado del usuario:', error);
+  
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al cambiar el estado del usuario',
+            text: 'Ha ocurrido un error al intentar cambiar el estado del usuario.',
+          });
+  
+          // Si ocurre un error, revertir el estado al original
+          setUsers((prevUsers) =>
+            prevUsers.map((user) => (user.id_usuario === originalUser.id_usuario ? originalUser : user))
+          );
+          checkbox.checked = originalStatus === 'Activo';
+        }
+      } else {
+        // Si la operación es cancelada, revertir el estado al original
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => (user.id_usuario === originalUser.id_usuario ? originalUser : user))
+        );
+        checkbox.checked = originalStatus === 'Activo';
+      }
+    });
+  };
+  
 
-    try {
-      await axios.put(`http://localhost:8095/api/usuario/${item.id_usuario}`, {
-        ...item,
-        estado: newStatus,
-      });
+  
 
-      const updatedUsers = users.map((user) =>
-        user.id_usuario === item.id_usuario ? { ...user, estado: newStatus } : user
-      );
+  
 
-      setUsers(updatedUsers);
-
-      Swal.fire({
-        icon: 'success',
-        title: `El estado del usuario se ha cambiado a ${newStatus}`,
-        showConfirmButton: false,
-        timer: 1500,
-      });
-    } catch (error) {
-      console.error('Error al cambiar el estado del usuario:', error);
-
-      Swal.fire({
-        icon: 'error',
-        title: 'Error al cambiar el estado del usuario',
-        text: 'Ha ocurrido un error al intentar cambiar el estado del usuario.',
-      });
-    }
-  }; const handleSaveChanges = async () => {
+  const handleSaveChanges = async () => {
     try {
       const confirmSave = await Swal.fire({
         title: '¿Estás seguro?',
@@ -184,10 +208,9 @@ const ListaUsuarios = () => {
           ...selectedItem,
           nombre_usuario: document.getElementById('nombreUsuario').value,
           correo: document.getElementById('correoElectronico').value,
-          // Agrega más campos según tu necesidad
         };
 
-        await axios.put(`http://localhost:8095/api/usuario/${editedUser.id_usuario}`, editedUser);
+        await axios.put(`https://restapibarberia.onrender.com/api/usuario/${editedUser.id_usuario}`, editedUser);
 
         setUsers((prevUsers) =>
           prevUsers.map((user) => (user.id_usuario === selectedItem.id_usuario ? editedUser : user))
@@ -213,18 +236,21 @@ const ListaUsuarios = () => {
     }
   };
 
-
-
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
   const indexOfLastUser = currentPage * pageSize;
   const indexOfFirstUser = indexOfLastUser - pageSize;
-  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+
+  const currentUsers = users.filter(user =>
+    user.nombre_usuario.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.correo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    getRolNombre(user.id_rol).toLowerCase().includes(searchTerm.toLowerCase())
+  ).slice(indexOfFirstUser, indexOfLastUser);
+  
 
   return (
-
     <>
       <br />
       <CCard className="mb-4">
@@ -238,12 +264,11 @@ const ListaUsuarios = () => {
         </CCardHeader>
         <CCardBody>
           <div className="mb-3" style={{ maxWidth: "200px" }}>
-
             <CFormInput
               type="text"
-              placeholder="Buscar usuario por ID..."
-              value={searchId}
-              onChange={(e) => setSearchId(e.target.value)}
+              placeholder="Buscar usuario..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="form-control-sm"
             />
           </div>
@@ -251,7 +276,6 @@ const ListaUsuarios = () => {
           <CTable align="middle" className="mb-0 border table-sm" hover responsive>
             <CTableHead color="light">
               <CTableRow>
-                
                 <CTableHeaderCell>NOMBRE</CTableHeaderCell>
                 <CTableHeaderCell>CORREO</CTableHeaderCell>
                 <CTableHeaderCell>ROL</CTableHeaderCell>
@@ -262,7 +286,6 @@ const ListaUsuarios = () => {
             <CTableBody>
               {currentUsers.map((item) => (
                 <CTableRow key={item.id_usuario}>
-                 
                   <CTableDataCell>{item.nombre_usuario}</CTableDataCell>
                   <CTableDataCell>{item.correo}</CTableDataCell>
                   <CTableDataCell>{getRolNombre(item.id_rol)}</CTableDataCell>
@@ -273,7 +296,6 @@ const ListaUsuarios = () => {
                       </CBadge>
                     </strong>
                   </CTableDataCell>
-
                   <CTableDataCell className="d-flex">
                     <CFormSwitch
                       size="xl"
@@ -284,7 +306,7 @@ const ListaUsuarios = () => {
                     />
                     <>
                       <CButton
-                        color="secondary" // Utiliza el color de botón 'secondary'
+                        color="secondary"
                         size="sm"
                         onClick={() => handleEdit(item)}
                         style={{
@@ -292,10 +314,8 @@ const ListaUsuarios = () => {
                           backgroundColor: '#c0c0c0',
                         }}
                       >
-                        <FaEdit style={{ color: 'black' }} /> {/* Icono de editar con color negro */}
+                        <FaEdit style={{ color: 'black' }} />
                       </CButton>
-
-
                       <CButton
                         color="danger"
                         size="sm"
@@ -305,7 +325,6 @@ const ListaUsuarios = () => {
                         <FaTrash />
                       </CButton>
                     </>
-
                   </CTableDataCell>
                 </CTableRow>
               ))}
@@ -375,9 +394,6 @@ const ListaUsuarios = () => {
         </CModalFooter>
       </CModal>
     </>
-
-
-
   );
 };
 
