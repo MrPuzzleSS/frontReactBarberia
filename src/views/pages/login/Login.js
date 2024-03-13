@@ -33,6 +33,7 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       setError(null);
+      
       const response = await axios.post('https://restapibarberia.onrender.com/api/login', {
         nombre_usuario: nombreUsuario,
         contrasena,
