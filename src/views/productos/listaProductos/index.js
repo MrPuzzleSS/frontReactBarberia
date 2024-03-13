@@ -191,7 +191,7 @@ function ListaProductos() {
         });
       }
     } catch (error) {
-      console.error('Error al eliminar el producto:', error);
+      console.error('Error al eliminar el producto.:', error);
     }
   };
 
