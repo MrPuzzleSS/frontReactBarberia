@@ -201,7 +201,14 @@ function ListaVentas() {
                     <CTableDataCell>{venta.nombre}</CTableDataCell>
                     <CTableDataCell>{venta.nombre_empleado}</CTableDataCell>
                     <CTableDataCell>{venta.numeroFactura}</CTableDataCell>
-                    <CTableDataCell>{venta.precio}</CTableDataCell>
+                    <CTableDataCell>
+                    {venta.precio.toLocaleString("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                    })}
+                    </CTableDataCell>
                     <CTableDataCell>{venta.estado}</CTableDataCell>
                     <CTableDataCell><CBadge color={getColorForEstado(venta.estado_anulado)}>{venta.estado_anulado}</CBadge></CTableDataCell>
                     <CTableDataCell>
@@ -214,7 +221,7 @@ function ListaVentas() {
                             padding: '8px 12px',
                             border: '1px solid #17a2b8',
                             borderRadius: '4px',
-                            backgroundColor: 'transparent',
+                            backgroundColor: 'rgba(0, 0, 255, 0.2)',
                             color: '#17a2b8',
                             fontSize: '14px',
                             textTransform: 'uppercase',
@@ -229,7 +236,7 @@ function ListaVentas() {
                             setDetalleServicio(venta.detalleservicios);
                           }}
                         >
-                          <FontAwesomeIcon icon={faEye} />
+                          <FontAwesomeIcon icon={faEye} style={{ color: '#000000' }} />
                         </CButton>
 
                         <div style={{ width: '10px' }} />
@@ -242,7 +249,7 @@ function ListaVentas() {
                               padding: '8px 12px',
                               border: '1px solid #28a745',
                               borderRadius: '4px',
-                              backgroundColor: 'transparent',
+                              backgroundColor: 'rgba(0, 255, 0, 0.2)',
                               color: '#17a2b8',
                               fontSize: '14px',
                               textTransform: 'uppercase',
@@ -254,29 +261,14 @@ function ListaVentas() {
                               handleAbono(venta)
                             }}
                           >
-                            <FontAwesomeIcon icon={faHandHoldingDollar} style={{ color: '#28a745' }}/>
+                            <FontAwesomeIcon icon={faHandHoldingDollar} style={{ color: '#000000' }}/>
                           </CButton>
                         )}
 
-                        <div style={{ width: '10px' }} />
-                        {venta.estado.toLowerCase() !== 'cancelado' && (
-                          <CButton
-                            color="success"
-                            size="sm"
-                            variant="outline"
-                            onClick={() => cancelarVentas(venta.id_ventas)}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                            }}
-                          >
-                            <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '5px' }} /> Cancelar
-                          </CButton>
-                        )}
 
                         <div style={{ width: '10px' }} />
                         <CButton
-                          color="warning"
+                          color="danger" // Cambia el color del botón a rojo
                           size="sm"
                           variant="outline"
                           onClick={() => CambioAnulado(venta.id_ventas)}
@@ -286,13 +278,13 @@ function ListaVentas() {
                             justifyContent: 'center',
                             padding: '8px 12px',
                             borderRadius: '4px',
-                            backgroundColor: 'transparent',
+                            backgroundColor: '#FF0000',
                             fontSize: '14px',
                             textTransform: 'uppercase',
                             cursor: 'pointer',
                           }}
                         >
-                          <FontAwesomeIcon icon={faBan} style={{ marginRight: '5px' }} />
+                          <FontAwesomeIcon icon={faBan} style={{ color: '#000000' }} />
                         </CButton>
                       </CButtonGroup>
                     </CTableDataCell>

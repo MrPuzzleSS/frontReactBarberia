@@ -73,6 +73,25 @@ function FormularioVentas() {
                 Swal.fire('Error', 'Completa todos los campos obligatorios antes de crear la venta', 'error');
                 return;
             }
+             // Verificar stock de productos en la venta
+             for (const producto of productosEnVenta) {
+                const response = await fetch(`${API_URL}/producto/${producto.id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    const stockDisponible = data.stock;
+                    if (producto.cantidad > stockDisponible) {
+                        Swal.fire('Error', `No hay suficiente stock disponible para el producto ${producto.nombre}. Stock disponible: ${stockDisponible}`, 'error');
+                        return;
+                    }
+                } else {
+                    console.error('Error al obtener el stock del producto:', data);
+                    return;
+                }
+            }
             
             Swal.fire('Venta Éxitosa', 'La Venta se ha creado correctamente', 'success');
 
@@ -109,7 +128,7 @@ function FormularioVentas() {
     const fetchEmpleados = async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`${API_URL}/empleado`, {
+          const response = await fetch(`${API_URL}/empleado/activos`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -172,7 +191,7 @@ function FormularioVentas() {
     const fetchProductos = async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`${API_URL}/producto`, {
+          const response = await fetch(`${API_URL}/producto/activos`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -350,19 +369,16 @@ function FormularioVentas() {
                                     ))}
                                 </CFormSelect>
                             </div>
-                            <br/>
                             <div style={{ marginBottom: "10px" }}>
                                 <CFormLabel>Apellido</CFormLabel>
                                 <CFormInput value={apellido || ''} readOnly />
                             </div>
-                            <br/>
                             </CCol>
                             <CCol xs={12} sm={6}> {/* Segunda columna */}
                             <div style={{ marginBottom: "10px" }}>
                                 <CFormLabel>Documento</CFormLabel>
                                 <CFormInput value={documento || ''} readOnly />
                             </div >
-                            <br/>
 
                             <div style={{ marginBottom: "10px" }}>
                                 <CFormLabel>Empleado</CFormLabel>
@@ -375,12 +391,11 @@ function FormularioVentas() {
                                     ))}
                                 </CFormSelect>
                             </div>
-                            <br/>
                             </CCol>
                         </CRow>
 
-                        <div style={{ flex: 1, marginRight: "10px", marginBottom: "10px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                            <CFormLabel style={{ marginBottom: "5px" }}>Estado de la Venta</CFormLabel>
+                        <div style={{ flex: 1, marginRight: "10px", marginBottom: "10px", display: "flex", flexDirection: "column" }}>
+                            <CFormLabel>Estado de la Venta</CFormLabel>
                             <CFormSelect
                             onChange={(e) => setEstadoVenta(e.target.value)}
                             value={estadoVenta}

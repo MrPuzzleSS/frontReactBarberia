@@ -45,6 +45,7 @@ function CargarVentas() {
   const [productos, setProductos] = useState([]);
   const [citas, setCitas] = useState([]);
   const [empleados, setEmpleados] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
   const [ventas, setVentas] = useState([]);
   const [serviciosEnVenta, setServiciosEnVenta] = useState([]);
   const [productosEnVenta, setProductosEnVenta] = useState([]);
@@ -69,12 +70,13 @@ function CargarVentas() {
     const fetchData = async () => {
       try {
         const clientesPromise = fetchClientes();
+        const usuariosPromise = fetchUsuario();
         const serviciosPromise = fetchServicios();
         const productosPromise = fetchProductos();
         const ventasPromise = fetchVentas();
         const empleadosPromise = fetchEmpleados();
 
-        await Promise.all([clientesPromise, serviciosPromise, productosPromise, ventasPromise, empleadosPromise]);
+        await Promise.all([clientesPromise, serviciosPromise, productosPromise, ventasPromise, empleadosPromise, usuariosPromise]);
   
         fetchCitas();
       } catch (error) {
@@ -118,7 +120,6 @@ function CargarVentas() {
   };
 
 
-
   const fetchCitasData = async (cedulaCliente) => {
     setErrorCedula(false);
     try {
@@ -134,6 +135,27 @@ function CargarVentas() {
     } catch (error) {
       console.error("Error al obtener los datos de la cita:", error);
       setErrorCedula(true);
+    }
+  };
+
+
+
+  const fetchUsuario = async () => {
+    try {
+      const response = await fetch(`${API_URL}/usuario`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const data = await response.json();
+      if (data && data.usuarios) {
+        setUsuarios(data.usuarios);
+        console.log(data.usuarios);
+      } else {
+        console.error("Error la lista de usuarios:", data);
+      }
+    } catch (error) {
+      console.error("Error la lista de usuarios", error);
     }
   };
 
