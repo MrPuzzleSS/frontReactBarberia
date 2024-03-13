@@ -63,17 +63,8 @@ const ListaClientes = () => {
     };
 
     const handleEditar = (cliente) => {
-        if (cliente.estado) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'No se puede editar un cliente activo',
-                showConfirmButton: false,
-                timer: 1500,
-            });
-        } else {
             setSelectedClienteId(cliente);
             setVisible(true);
-        }
     };
 
     const handleEliminar = async (id_cliente) => {
@@ -125,43 +116,63 @@ const ListaClientes = () => {
         }
     };
 
-    const handleCambiarEstado = async (id_cliente) => {
-        try {
-            const clienteIndex = clientes.findIndex(
-                (item) => item.id_cliente === id_cliente
-            );
-
-            if (clienteIndex !== -1) {
-                const updatedClientes = [...clientes];
-                updatedClientes[clienteIndex] = {
-                    ...updatedClientes[clienteIndex],
-                    estado: !updatedClientes[clienteIndex].estado,
-                };
-
-                await ClienteService.updateCliente(
-                    id_cliente,
-                    { ...updatedClientes[clienteIndex] }
-                );
-                setClientes(updatedClientes);
-
-                Swal.fire({
-                    icon: 'success',
-                    title: `Estado del cliente actualizado: ${updatedClientes[clienteIndex].estado ? 'Activo' : 'Inactivo'
-                        }`,
-                    showConfirmButton: false,
-                    timer: 1500,
-                });
-            } else {
-                console.error('Cliente no encontrado.');
+    const handleCambiarEstado = async (id_cliente, estado) => {
+        Swal.fire({
+            title: `¿Estás seguro de cambiar el estado del cliente a ${estado}?`,
+            text: "¡No podrás revertir esto!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, cambiar estado"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const clienteIndex = clientes.findIndex(
+                        (item) => item.id_cliente === id_cliente
+                    );
+    
+                    if (clienteIndex !== -1) {
+                        const updatedClientes = [...clientes];
+                        updatedClientes[clienteIndex] = {
+                            ...updatedClientes[clienteIndex],
+                            estado: !updatedClientes[clienteIndex].estado,
+                        };
+    
+                        await ClienteService.updateCliente(
+                            id_cliente,
+                            { ...updatedClientes[clienteIndex] }
+                        );
+                        setClientes(updatedClientes);
+    
+                        Swal.fire({
+                            position: "center",
+                            icon: "success",
+                            title: "¡El estado del cliente ha sido cambiado exitosamente!",
+                            showConfirmButton: false,
+                            timer: 1500,
+                        });
+                    } else {
+                        console.error('Cliente no encontrado.');
+                        Swal.fire({
+                            icon: "error",
+                            title: "¡Error!",
+                            text: "Hubo un problema al cambiar el estado del cliente.",
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error al cambiar el estado del cliente:", error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "¡Error!",
+                        text: "Hubo un problema al cambiar el estado del cliente.",
+                    });
+                }
             }
-        } catch (error) {
-            console.error('Error al cambiar el estado del cliente:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error al cambiar el estado del cliente',
-            });
-        }
+        });
     };
+    
+    
 
     const filteredClientes = clientes
         ? clientes.filter((cliente) =>
@@ -266,7 +277,7 @@ const ListaClientes = () => {
                                                         onClick={() => handleEditar(cliente)}
                                                         style={{
                                                             marginRight: '20px',
-                                                            backgroundColor: 'orange',
+                                                            backgroundColor: 'grey',
                                                             boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                                                             padding: '3px 10px',
                                                             borderRadius: '10px',
