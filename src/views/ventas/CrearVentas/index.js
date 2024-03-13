@@ -47,12 +47,13 @@ function FormularioVentas() {
     const [selectedServicio, setSelectedServicio] = useState(null);
     const [selectedProducto, setSelectedProducto] = useState(null);
     const [selectedEmpleado, setSelectedEmpleado] = useState(null);
-    const [cantidadProductos, setCantidadProductos] = useState(null);
-    const [cantidadServicios, setCantidadServicios] = useState(null);
     const [apellido, setApellido] = useState('');
     const [documento, setDocumento] = useState('');
     const [numeroFactura, setNumeroFactura] = useState('');
     const [totalVenta, setTotalVenta] = useState(0);
+    const [cantidadProductos, setCantidadProductos] = useState(0);
+    const [cantidadServicios, setCantidadServicios] = useState(0);
+    const [estadoVenta, setEstadoVenta] = useState('Pendiente');
 
 
     //llamo los fetch para llamar los datos de los modulos
@@ -72,6 +73,25 @@ function FormularioVentas() {
                 Swal.fire('Error', 'Completa todos los campos obligatorios antes de crear la venta', 'error');
                 return;
             }
+             // Verificar stock de productos en la venta
+             for (const producto of productosEnVenta) {
+                const response = await fetch(`${API_URL}/producto/${producto.id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    const stockDisponible = data.stock;
+                    if (producto.cantidad > stockDisponible) {
+                        Swal.fire('Error', `No hay suficiente stock disponible para el producto ${producto.nombre}. Stock disponible: ${stockDisponible}`, 'error');
+                        return;
+                    }
+                } else {
+                    console.error('Error al obtener el stock del producto:', data);
+                    return;
+                }
+            }
             
             Swal.fire('Venta Éxitosa', 'La Venta se ha creado correctamente', 'success');
 
@@ -85,6 +105,7 @@ function FormularioVentas() {
                 productos: productosEnVenta,
                 totalVenta: totalVenta,
                 numeroFactura: nextNumeroFactura,
+                estado: estadoVenta,
             });
             console.log('Sale created:', response);
 
@@ -107,7 +128,7 @@ function FormularioVentas() {
     const fetchEmpleados = async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`${API_URL}/empleado`, {
+          const response = await fetch(`${API_URL}/empleado/activos`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -170,7 +191,7 @@ function FormularioVentas() {
     const fetchProductos = async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`${API_URL}/producto`, {
+          const response = await fetch(`${API_URL}/producto/activos`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -207,8 +228,8 @@ function FormularioVentas() {
         const selected = clientes.find((cliente) => cliente.id_cliente == clienteId);
         if (selected) {
             setSelectedCliente(selected);
-            setApellido(selected.apellido);
-            setDocumento(selected.documento);
+            setApellido(selected.apellido || '');
+            setDocumento(selected.documento || '');
             setFormValid(clienteId !== '' && selectedEmpleado !== null);
             console.log(clientes)
         } else {
@@ -221,7 +242,7 @@ function FormularioVentas() {
     //tomo los datos para cargar el empleado
     const handleEmpleadoChange = (empleadoId) => {
         const selected = empleados.find((empleado) => empleado.id_empleado == empleadoId);
-        setSelectedEmpleado(selected);
+        setSelectedEmpleado(selected || null);
         setFormValid(selectedCliente !== null && empleadoId !== '');
     };
 
@@ -335,9 +356,9 @@ function FormularioVentas() {
                     </CCardHeader>
                     <CCardBody>
                          <form>
-
-                            
-                            <div style={{ flex: 1, marginRight: "10px" }}>
+                         <CRow>
+                            <CCol xs={12} sm={6}> {/* Primera columna */}
+                            <div style={{ marginBottom: "10px" }}>
                                 <CFormLabel>Cliente</CFormLabel>
                                 <CFormSelect onChange={(e) => handleClienteChange(e.target.value)}>
                                     <option value="">Seleccionar Cliente</option>
@@ -348,17 +369,18 @@ function FormularioVentas() {
                                     ))}
                                 </CFormSelect>
                             </div>
-                            <div style={{ flex: 1, marginRight: "10px" }}>
+                            <div style={{ marginBottom: "10px" }}>
                                 <CFormLabel>Apellido</CFormLabel>
-                                <CFormInput value={apellido} readOnly />
+                                <CFormInput value={apellido || ''} readOnly />
                             </div>
-                            <div style={{ flex: 1, marginRight: "10px" }}>
+                            </CCol>
+                            <CCol xs={12} sm={6}> {/* Segunda columna */}
+                            <div style={{ marginBottom: "10px" }}>
                                 <CFormLabel>Documento</CFormLabel>
-                                <CFormInput value={documento} readOnly />
+                                <CFormInput value={documento || ''} readOnly />
                             </div >
 
-
-                            <div style={{ flex: 1, marginRight: "10px" }}>
+                            <div style={{ marginBottom: "10px" }}>
                                 <CFormLabel>Empleado</CFormLabel>
                                 <CFormSelect onChange={(e) => handleEmpleadoChange(e.target.value)}>
                                     <option value="">Seleccionar Empleado</option>
@@ -369,6 +391,20 @@ function FormularioVentas() {
                                     ))}
                                 </CFormSelect>
                             </div>
+                            </CCol>
+                        </CRow>
+
+                        <div style={{ flex: 1, marginRight: "10px", marginBottom: "10px", display: "flex", flexDirection: "column" }}>
+                            <CFormLabel>Estado de la Venta</CFormLabel>
+                            <CFormSelect
+                            onChange={(e) => setEstadoVenta(e.target.value)}
+                            value={estadoVenta}
+                            style={{ width: "50%" }} // Establece el ancho del select
+                            >
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Cancelado">Cancelado</option>
+                            </CFormSelect>
+                        </div>
                             
 
                             <div className="mb-3" style={{ display: 'none' }}>
@@ -388,7 +424,7 @@ function FormularioVentas() {
                             <br></br>
 
                             <div className="mb-3">
-                                <CButton onClick={handleMostrarServicio}>
+                                <CButton onClick={handleMostrarServicio} style={{ marginRight: "5px" }}>
                                     Agregar Servicio
                                 </CButton>
                                     
@@ -593,12 +629,12 @@ function FormularioVentas() {
                                 />
                             </div>
 
-                            <CButton color="primary" onClick={createSale}>
-                                Crear
+                            <CButton onClick={createSale} style={{ marginRight: "5px" }}>
+                                Crear Venta
                             </CButton>
 
-                            <Link to="/ventas/listaVentas" style={{ marginRight: "5px" }}>
-                                <CButton color="danger">Cancelar</CButton>
+                            <Link to="/ventas/listaVentas">
+                                <CButton color="secondary">Cancelar</CButton>
                             </Link>
                          </form> 
                     </CCardBody>
