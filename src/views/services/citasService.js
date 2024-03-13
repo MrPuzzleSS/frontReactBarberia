@@ -4,13 +4,23 @@ const getAll = () => {
     return http.get("/citas");
 }
 
-const getAllCitasServicios = () => {
-    return http.get("/citas/servicios");
+const getAllCitasServicios = (id) => {
+    return http.get(`/citas/servicios/${id}`);
 
 }
 
 const get = id => {
     return http.get(`/citas/${id}`);
+}
+
+const getEmpleado = id => {
+    return http.get(`/empleado/${id}`);
+
+}
+
+const getEmpleadoAgendas = id => {
+    return http.get(`/empleado/agendas/${id}`);
+
 }
 
 const create = data => {
@@ -42,7 +52,9 @@ const cambiarEstadoCita = async (id) => {
 const CitasDataService = {
     getAll,
     getAllCitasServicios,
+    getEmpleadoAgendas,
     get,
+    getEmpleado,
     create,
     update,
     remove,

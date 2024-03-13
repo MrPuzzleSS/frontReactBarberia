@@ -86,7 +86,6 @@ function ListaCompras() {
     const fetchData = async () => {
       try {
         const response = await CompraDataService.getCompraDetalle();
-        console.log('Datos:', response.data);
 
         const comprasConDetalle = await Promise.all(response.data.map(async item => {
           const compra = {

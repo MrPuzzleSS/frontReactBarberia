@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   CContainer,
   CCard,
@@ -29,7 +29,6 @@ import ServicioBarbero from "src/views/services/empleado_agenda";
 import { format, parse } from "date-fns";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
-import interactionPlugin from "@fullcalendar/interaction"; // for selectable
 import CitasDataService from "src/views/services/citasService";
 import CitasServiciosDataService from "src/views/services/citasServiciosService";
 import Swal from 'sweetalert2'
@@ -51,6 +50,7 @@ const AgendarCita = () => {
   const [selectedBarberoName, setSelectedBarberoName] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
   const [modalHoraVisible, setModalHoraVisible] = useState(false);
+  const [agendaEvents, setAgendaEvents] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,21 +76,11 @@ const AgendarCita = () => {
     };
 
     fetchData();
-  }, []);
+  }, [selectedBarberoId]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
     setShowAgendarButton(newPage !== 3);
-  };
-
-  const handleDateSelect = (info) => {
-    // info.start contiene la fecha seleccionada
-    const date = info.start;
-    // Conserva solo la parte de la fecha (sin la hora)
-    const formattedDate = format(date, "yyyy-MM-dd");
-    setSelectedDate(formattedDate);
-
-    setModalHoraVisible(true);
   };
 
   const handleAgendarClick = async () => {
@@ -110,8 +100,6 @@ const AgendarCita = () => {
         Hora_Atencion: formattedHour,
       };
 
-      console.log("Nueva cita:", nuevaCita);
-
       try {
         // Utiliza la función create de CitasDataService para crear la cita
         const response = await CitasDataService.create(nuevaCita);
@@ -130,15 +118,13 @@ const AgendarCita = () => {
           // Utiliza la función create de CitasServiciosDataService para crear la cita_servicio
           await CitasServiciosDataService.create(citaServicio);
         }
-        
+
         Swal.fire({
           icon: "success",
           title: "Se creo la cita correctamente",
           showConfirmButton: false,
           timer: 1500
         });
-
-        <Navigate to="/cliente/listacitas" />
 
       } catch (error) {
         console.error("Error al intentar agendar la cita:", error);
@@ -171,9 +157,12 @@ const AgendarCita = () => {
     setSelectedBarberoId(id_empleado);
 
     try {
-      const response = await ServicioBarbero.getEmpleadoAgenda(id_empleado);
-      setAgendaData(response);
-      console.log("Agenda del empleado:", response.data);
+      const response = await CitasDataService.getEmpleadoAgendas(id_empleado);
+      setSelectedBarbero(response.data.empleado);
+      setAgendaData(response.data.agendas);
+
+      const events = transformAgendaToEvents(response.data.agendas);
+      setAgendaEvents(events);
 
       // Obtener y almacenar el nombre del empleado
       const empleadoSeleccionado = empleados.find(
@@ -207,6 +196,17 @@ const AgendarCita = () => {
     setSelectedHour(selectedHour);
 
     setModalHoraVisible(false);
+  };
+
+  const transformAgendaToEvents = (agendas) => {
+    const events = agendas.map(agenda => ({
+      title: "Disponible", // Título del evento
+      start: agenda.fechaInicio, // Fecha de inicio del evento
+      end: agenda.fechaFin, // Fecha de fin del evento
+      backgroundColor: "green", // Color del evento (verde para disponible)
+    }));
+
+    return events;
   };
 
   return (
@@ -417,10 +417,8 @@ const AgendarCita = () => {
                   <CCard>
                     <CCardBody>
                       <FullCalendar
-                        plugins={[dayGridPlugin, interactionPlugin]}
+                        plugins={[dayGridPlugin]}
                         initialView="dayGridMonth"
-                        selectable={true}
-                        select={handleDateSelect}
                       />
 
                       <CModal
@@ -537,13 +535,15 @@ const AgendarCita = () => {
               Siguiente
             </CButton>
           ) : (
-            <CButton
-              color="success"
-              onClick={handleAgendarClick}
-              disabled={!selectedHour}
-            >
-              Agendar
-            </CButton>
+            <Link to="/cliente/listacitas">
+              <CButton
+                color="success"
+                onClick={handleAgendarClick}
+                disabled={!selectedHour}
+              >
+                Agendar
+              </CButton>
+            </Link>
           )}
         </CCol>
       </CRow>
