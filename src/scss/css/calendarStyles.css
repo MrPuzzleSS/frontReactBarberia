@@ -1,19 +1,26 @@
 
-/* calendarStyles.css */
 
 /* Define una animación llamada 'rotar-circular' */
 /* Define una animación llamada 'rotar-circular' */
 @keyframes rotar-circular {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Agrega la clase 'animacion-rotar-circular' para iniciar la animación */
 .animacion-rotar-circular {
     animation-name: rotar-circular;
-    animation-duration: 2s; /* Duración de la animación en segundos */
-    animation-iteration-count: infinite; /* Iteración infinita */
-    animation-timing-function: linear; /* Función de temporización de animación */
+    animation-duration: 2s;
+    /* Duración de la animación en segundos */
+    animation-iteration-count: infinite;
+    /* Iteración infinita */
+    animation-timing-function: linear;
+    /* Función de temporización de animación */
 }
 
 /* Aplica la animación al emoji */
@@ -23,18 +30,20 @@
 }
 
 
-
-
-
-/* Estilos generales para mejorar la apariencia */
-.custom-calendar {
-    height: 700px;
-    width: 800px;
-    border: 2px solid #070202;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
+body {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: var(--cui-body-font-size);
+    font-weight: var(--cui-body-font-weight);
+    line-height: var(--cui-body-line-height);
+    color: var(--cui-body-color);
+    text-align: var(--cui-body-text-align);
+    -webkit-text-size-adjust: 100%;
 }
+
+
+
+
+
 
 /* Estilos para el encabezado del calendario */
 .fc-header-toolbar {
@@ -44,7 +53,7 @@
     /* Cambia el color del texto en el encabezado */
     font-family: 'Times New Roman', Times, serif;
     /* Cambia la fuente del calendario */
-    
+
 }
 
 /* Estilos para las celdas de fecha */
@@ -60,30 +69,12 @@
 }
 
 
-
-/* Estilos para las celdas de fecha */
-
-
-
 /* Efecto de hover para los eventos */
 .fc-event:hover {
-    background-color: #c005bc;
+    background-color: #C0C0C0;
     /* Cambia el color de fondo al pasar el mouse */
 }
 
-/* Estilos para el botón "Buscar" */
-.input-group-append button.btn.btn-primary {
-    font-family: 'Times New Roman', Times, serif;
-    /* Estilo de fuente */
-    /* Otros estilos que desees aplicar al botón "Buscar" */
-}
-
-/* Estilos para el área de programar agenda */
-.input-group input.form-control {
-    font-family: 'Times New Roman', Times, serif;
-    /* Estilo de fuente */
-    /* Otros estilos que desees aplicar al área de entrada de texto */
-}
 
 /* Estilos para el bloque del campo de entrada y el botón de búsqueda */
 .custom-input-group {
@@ -95,58 +86,13 @@
 
 
 
-/* Estilos para el botón de búsqueda */
-.btn-buscar {
-    width: 80px;
-    /* Ancho del botón */
-    border-radius: 0 5px 5px 0;
-    /* Borde redondeado a la derecha */
-    background-color: #3c4b64;
-    
-    color: rgb(255, 254, 254);
-    /* Cambia el color del texto a blanco */
-}
-
-
-
-
-
-/* Estilos para el encabezado personalizado */
-.my-custom-header {
-    font-size: 26px;
-    /* Tamaño de fuente */
-    color: rgb(23, 23, 68);
-    /* Color del texto */
-    font-family: 'Times New Roman', Times, serif;
-    /* Estilo de fuente */
-    letter-spacing: 16px;
-    /* Espacio entre letras */
-    /* Otros estilos personalizados que desees */
-}
-
-/* Clase para cambiar el fondo del CCard */
-.custom-card {
-    background-color: #b9b8b8;
-    /* Cambia este color por el que desees */
-    /* Otros estilos si los necesitas */
-}
-
-.col-md-8 {
-    flex: 0 0 auto;
-    width: 85%;
-}
-
 .fc-direction-ltr {
     direction: ltr;
     text-align: left;
     height: 420px;
+
+
 }
 
 
 
-/* styles.css */
-
-
-
-
-  
