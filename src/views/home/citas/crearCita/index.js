@@ -47,7 +47,6 @@ const AgendarCita = () => {
   const [selectedBarberoId, setSelectedBarberoId] = useState(null);
   const [agendaData, setAgendaData] = useState([]);
   const [selectedHour, setSelectedHour] = useState(null);
-  const [citasAgendadas, setCitasAgendadas] = useState([]);
   const [selectedBarberoName, setSelectedBarberoName] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
   const [modalHoraVisible, setModalHoraVisible] = useState(false);
@@ -116,9 +115,6 @@ const AgendarCita = () => {
         const response = await CitasDataService.create(nuevaCita);
         const idCita = response.data.id_cita;
 
-        // Actualiza el estado de las citas agendadas si es necesario
-        setCitasAgendadas((prevCitas) => [...prevCitas, nuevaCita]);
-
         // Crea la lista de citas_servicios para cada servicio seleccionado
         for (const service of selectedServices) {
           const citaServicio = {
@@ -129,7 +125,7 @@ const AgendarCita = () => {
           // Utiliza la función create de CitasServiciosDataService para crear la cita_servicio
           await CitasServiciosDataService.create(citaServicio);
         }
-        
+
         Swal.fire({
           icon: "success",
           title: "Se creo la cita correctamente",
@@ -188,25 +184,24 @@ const AgendarCita = () => {
     handlePageChange(currentPage + 1);
   };
 
-  const generateHoursRange = (start, end) => {
-    const startHour = parseInt(start);
-    const endHour = parseInt(end);
-    const hoursRange = [];
+  const generateHourOptions = (startHour, endHour) => {
+  const options = [];
+  const start = parseInt(startHour.split(":")[0]); // Extrae la hora de inicio
+  const end = parseInt(endHour.split(":")[0]); // Extrae la hora de fin
+  
+  for (let i = start; i <= end; i++) {
+    let hour = i % 12 === 0 ? 12 : i % 12; // Convierte la hora en formato de 12 horas
+    let suffix = i < 12 ? "AM" : "PM"; // Determina si es AM o PM
+    options.push(
+      <option key={i} value={`${hour}:00 ${suffix}`}>{`${hour}:00 ${suffix}`}</option>
+    );
+    options.push(
+      <option key={i + 0.5} value={`${hour}:30 ${suffix}`}>{`${hour}:30 ${suffix}`}</option>
+    );
+  }
+  return options;
+};
 
-    for (let hour = startHour; hour <= endHour; hour++) {
-      const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
-      const amPm = hour < 12 ? "AM" : "PM";
-      hoursRange.push(`${formattedHour}:00 ${amPm}`);
-    }
-
-    return hoursRange;
-  };
-
-  const handleHourSelection = (selectedHour) => {
-    setSelectedHour(selectedHour);
-
-    setModalHoraVisible(false);
-  };
 
   return (
     <CContainer>
@@ -419,7 +414,17 @@ const AgendarCita = () => {
                         plugins={[dayGridPlugin, interactionPlugin]}
                         initialView="dayGridMonth"
                         selectable={true}
-                        select={handleDateSelect}
+                        select={(info) => handleDateSelect(info)} // Maneja la selección de fecha
+                        events={agendaData.map((agendaItem, index) => ({
+                          title: "Disponible",
+                          start: agendaItem.fechaInicio,
+                          end: agendaItem.fechaFin,
+                          color: "#28a745", // Color verde para representar disponibilidad
+                          textColor: "#fff", // Texto en color blanco para mayor contraste
+                          allDay: false, // Evento solo durante un intervalo específico
+                          editable: false, // No permite la edición de eventos
+                          selectable: true, // Permite la selección de eventos
+                        }))}
                       />
 
                       <CModal
@@ -435,47 +440,16 @@ const AgendarCita = () => {
                           </CModalTitle>
                         </CModalHeader>
                         <CModalBody>
-                          {agendaData && Object.keys(agendaData).length > 0 && (
-                            <div>
-                              <h4>Horas para el día {selectedDate}</h4>
-                              <table>
-                                <thead>
-                                  <tr>
-                                    <th>Horas</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {Object.keys(agendaData).map((key, index) => (
-                                    <tr key={index}>
-                                      <td>
-                                        {generateHoursRange(
-                                          agendaData[key].horaInicio,
-                                          agendaData[key].horaFin,
-                                        ).map((hour, hourIndex) => (
-                                          <div key={hourIndex}>
-                                            <input
-                                              type="radio"
-                                              name="selectedHour"
-                                              value={hour}
-                                              onChange={(e) =>
-                                                handleHourSelection(
-                                                  e.target.value,
-                                                )
-                                              }
-                                            />
-                                            {hour}
-                                          </div>
-                                        ))}
-                                      </td>
-                                      <td>
-                                        {/* Add any other actions/buttons you may need */}
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          )}
+                          <CModalBody>
+                            {agendaData && agendaData.length > 0 && (
+                              <div>
+                                <h4>Horas para el día {selectedDate}</h4>
+                                <select onChange={(e) => setSelectedHour(e.target.value)}>
+                                  {generateHourOptions(agendaData[0].horaInicio, agendaData[0].horaFin)}
+                                </select>
+                              </div>
+                            )}
+                          </CModalBody>
                         </CModalBody>
                         <CModalFooter></CModalFooter>
                       </CModal>

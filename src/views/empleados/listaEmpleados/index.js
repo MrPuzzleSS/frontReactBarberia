@@ -370,7 +370,7 @@ function ListaEmpleados() {
                   <CTableHeaderCell scope="col">Documento</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Telefono</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
+                  <CTableHeaderCell scope="col"></CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>

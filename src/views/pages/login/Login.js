@@ -4,11 +4,8 @@ import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setSession, isAuthenticated } from '../../../components/auht';
-import { LogIn, Lock } from 'react-feather';
 import {
   CButton,
-  CCard,
-  CCardBody,
   CCol,
   CContainer,
   CForm,
