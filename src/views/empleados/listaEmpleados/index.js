@@ -127,12 +127,20 @@ function ListaEmpleados() {
       Swal.fire('¡Éxito!', 'La modificación ha sido exitosa.', 'success');
   
       setEmpleados((prevEmpleados) =>
-        prevEmpleados.map((empleado) =>
-          empleado.id_empleado === selectedEmpleadoId.id_empleado
-            ? selectedEmpleadoId
-            : empleado
-        )
-      );
+      prevEmpleados.map((empleado) =>
+        empleado.id_empleado === selectedEmpleadoId.id_empleado
+          ? selectedEmpleadoId
+          : empleado
+      )
+    );
+
+    setFilteredEmpleados((prevFilteredEmpleados) =>
+      prevFilteredEmpleados.map((empleado) =>
+        empleado.id_empleado === selectedEmpleadoId.id_empleado
+          ? selectedEmpleadoId
+          : empleado
+      )
+    );
   
       setValidationErrors({
         nombre: '',
