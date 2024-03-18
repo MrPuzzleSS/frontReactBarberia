@@ -21,6 +21,38 @@ import {
   CModalBody,
   CModalFooter,
 } from "@coreui/react";
+import PropTypes from 'prop-types'; // Importa PropTypes
+import { getUserInfo } from '../../../../components/auht';
+
+async function getNombreBarbero (id_empleado) {
+  try {
+    const response = await CitasDataService.getEmpleado(id_empleado);
+    return response.data.nombre;
+  } catch (error) {
+    console.error(`Error obteniendo el nombre del empleado con ID ${id_empleado}:`, error);
+    return "Nombre no disponible";
+  }
+}
+
+function BarberoNombre({ id_empleado }) {
+  const [nombre, setNombre] = useState(null);
+
+  useEffect(() => {
+    const fetchDataNombre = async () => {
+      const nombre = await getNombreBarbero(id_empleado);
+      setNombre(nombre);
+    };
+
+    fetchDataNombre();
+
+  }, [id_empleado]);
+
+  return <>{nombre}</>;
+}
+
+BarberoNombre.propTypes = {
+  id_empleado: PropTypes.number.isRequired
+}
 
 function ListaCitas() {
   const [visible, setVisible] = useState(false);
@@ -31,7 +63,9 @@ function ListaCitas() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await CitasDataService.getAllCitasServicios();
+        const userInfo = await getUserInfo();
+
+        const response = await CitasDataService.getAllCitasServicios(userInfo.userId);
 
         const citasConDetalle = await Promise.all(
           response.data.map(async (item) => {
@@ -109,7 +143,7 @@ function ListaCitas() {
               <CTable>
                 <CTableHead>
                   <CTableRow>
-                    <CTableHeaderCell scope="col">empleado</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Barbero</CTableHeaderCell>
                     <CTableHeaderCell scope="col">
                       Fecha de Atencion
                     </CTableHeaderCell>
@@ -123,7 +157,7 @@ function ListaCitas() {
                 <CTableBody>
                   {citas.map((cita, i) => (
                     <CTableRow key={i}>
-                      <CTableDataCell>{cita.cita.id_empleado}</CTableDataCell>
+                      <CTableDataCell><BarberoNombre id_empleado={cita.cita.id_empleado}/></CTableDataCell>
                       <CTableDataCell>
                         {cita.cita.Fecha_Atencion}
                       </CTableDataCell>

@@ -82,15 +82,8 @@ function CrearInsumo() {
         };
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.post('https://restapibarberia.onrender.com/api/insumo', newInsumo, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-
-            console.log('Insumo creado:', response.data);
+            const response = await InsumoService.createInsumo(newInsumo);
+            console.log('Insumo creado:', response);
 
             setNombre('');
             setCantidad('');

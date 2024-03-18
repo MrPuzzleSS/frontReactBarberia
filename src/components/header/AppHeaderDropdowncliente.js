@@ -17,6 +17,7 @@ const AppHeaderDropdownCliente = () => {
     const fetchUserName = async () => {
       try {
         const userInfo = await getUserInfo();
+        console.log('userInfo', userInfo);
         setUserName(userInfo.nombre_usuario || '');
       } catch (error) {
         console.error('Error al obtener el nombre del usuario', error);

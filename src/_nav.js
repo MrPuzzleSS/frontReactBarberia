@@ -1,96 +1,142 @@
-import React from 'react'
-import CIcon from '@coreui/icons-react'
+import React from 'react';
+import CIcon from '@coreui/icons-react';
 import {
-  cilPuzzle,
+  cilShieldAlt,
+  cilCut,
+  cilContact,
+  cilCalendar,
   cilSpeedometer,
   cilUser,
-  cilSettings,
   cilIndustry,
   cilCart,
   cilPeople,
   cilMoney,
   cilBasket,
-} from '@coreui/icons'
-import { CNavGroup, CNavItem } from '@coreui/react'
+} from '@coreui/icons';
+import { CNavItem, CNavTitle } from '@coreui/react';
+import { getUserInfo } from './components/auht';
 
 const _nav = [
   {
     component: CNavItem,
     name: 'Inicio',
+    style: { color: 'black' },
     to: '/dashboard',
-    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-    permissions: ['dashboard.view'], // Permiso requerido para ver esta ruta
+    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" style={{ color: 'black' }} />,
+  },
+  {
+    component: CNavTitle,
+    name: 'Procesos de Compra',
+    style: { color: 'black' },
   },
   {
     component: CNavItem,
     name: 'Proveedores',
+    style: { color: 'black' },
     to: '/proveedores',
-    icon: <CIcon icon={cilIndustry} customClassName="nav-icon" style={{color:'black'}}/>,
-    permissions: ['proveedores.view'], // Permiso requerido para ver esta ruta
+    icon: <CIcon icon={cilIndustry} customClassName="nav-icon" style={{ color: 'black' }} />,
   },
   {
     component: CNavItem,
     name: 'Compras',
+    style: { color: 'black' },
     to: '/compras',
-    icon: <CIcon icon={cilCart} customClassName="nav-icon" style={{color:'black'}}/>,
-    permissions: ['compras.view'], // Permiso requerido para ver esta ruta
-  },
-  {
-    component: CNavItem,
-    name: 'Empleados',
-    to: '/empleados',
-    icon: <CIcon icon={cilPeople} customClassName="nav-icon" style={{color:'black'}}/>,
-    permissions: ['empleados.view'], // Permiso requerido para ver esta ruta
-  },
-  {
-    component: CNavItem,
-    name: 'Agendas',
-    to: '/agendas/crearconfiguracion',
-    icon: <CIcon icon={cilCart} customClassName="nav-icon" style={{color:'black'}}/>,
-    permissions: ['agendas.view'], // Permiso requerido para ver esta ruta
-  },
-  {
-    component: CNavItem,
-    name: 'Ventas',
-    to: '/ventas',
-    icon: <CIcon icon={cilMoney} customClassName="nav-icon" style={{color:'black'}}/>,
-    permissions: ['ventas.view'], // Permiso requerido para ver esta ruta
-  },
-  {
-    component: CNavItem,
-    name: 'Clientes',
-    to: '/clientes/listaClientes',
-    icon: <CIcon icon={cilCart} customClassName="nav-icon" style={{color:'black'}}/>,
-    permissions: ['clientes.view'], // Permiso requerido para ver esta ruta
-  },
-  {
-    component: CNavItem,
-    name: 'Servicios',
-    to: '/servicios',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" style={{color:'black'}}/>,
-    permissions: ['servicios.view'], // Permiso requerido para ver esta ruta
+    icon: <CIcon icon={cilCart} customClassName="nav-icon" style={{ color: 'black' }} />,
   },
   {
     component: CNavItem,
     name: 'ProdInsumos',
-    to: '/Productos',
-    icon: <CIcon icon={cilBasket} customClassName="nav-icon" style={{color:'black'}}/>,
-    permissions: ['productos.view'], // Permiso requerido para ver esta ruta
+    style: { color: 'black' },
+    to: '/productos',
+    icon: <CIcon icon={cilBasket} customClassName="nav-icon" style={{ color: 'black' }} />,
+  },
+  {
+    component: CNavTitle,
+    name: 'Procesos de Servicio',
+    style: { color: 'black' },
+  },
+  {
+    component: CNavItem,
+    name: 'Empleados',
+    style: { color: 'black' },
+    to: '/empleados',
+    icon: <CIcon icon={cilPeople} customClassName="nav-icon" style={{ color: 'black' }} />,
+  },
+  {
+    component: CNavItem,
+    name: 'Servicios',
+    style: { color: 'black' },
+    to: '/servicios',
+    icon: <CIcon icon={cilCut} customClassName="nav-icon" style={{ color: 'black' }} />,
+  },
+  {
+    component: CNavTitle,
+    name: 'Proceso de Agenda',
+    style: { color: 'black' },
+  },
+  {
+    component: CNavItem,
+    name: 'Agendas',
+    style: { color: 'black' },
+    to: '/agendas/crearconfiguracion',
+    icon: <CIcon icon={cilCalendar} customClassName="nav-icon" style={{ color: 'black' }} />,
+  },
+  {
+    component: CNavTitle,
+    name: 'Procesos de Venta',
+    style: { color: 'black' },
+  },
+  {
+    component: CNavItem,
+    name: 'Ventas',
+    style: { color: 'black' },
+    to: '/ventas',
+    icon: <CIcon icon={cilMoney} customClassName="nav-icon" style={{ color: 'black' }} />,
+  },
+  {
+    component: CNavItem,
+    name: 'Clientes',
+    style: { color: 'black' },
+    to: '/clientes/listaClientes',
+    icon: <CIcon icon={cilUser} customClassName="nav-icon" style={{ color: 'black' }} />,
+  },
+  {
+    component: CNavTitle,
+    name: 'Procesos de Configuración',
+    style: { color: 'black' },
   },
   {
     component: CNavItem,
     name: 'Usuarios',
-    to: '/listaUsuarios',
-    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
-    permissions: ['usuarios.view'], // Permiso requerido para ver esta ruta
+    style: { color: 'black' },
+    to: '/listausuarios',
+    icon: <CIcon icon={cilContact} customClassName="nav-icon" style={{ color: 'black' }} />,
   },
   {
     component: CNavItem,
     name: 'Roles',
-    to: '/ListaRol',
-    icon: <CIcon icon={cilUser} customClassName="nav-icon" style={{color:'black'}}/>,
-    permissions: ['roles.view'], // Permiso requerido para ver esta ruta
+    style: { color: 'black' },
+    to: '/listarol',
+    icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" style={{ color: 'black' }} />,
   },
 ];
 
-export default _nav;
+const CheckPermission = ({ route }) => {
+  const userInfo = getUserInfo();
+  const permisos = userInfo.rol.permisos;
+  const permisosRutas = permisos.map((permiso) => permiso.ruta);
+
+  if (permisosRutas.includes(route)) {
+    return true;
+  }
+  return false;
+};
+
+const FilteredNav = _nav.filter((item) => {
+  if (item.to && item.component === CNavItem) {
+    return CheckPermission({ route: item.to });
+  }
+  return true;
+});
+
+export default FilteredNav;

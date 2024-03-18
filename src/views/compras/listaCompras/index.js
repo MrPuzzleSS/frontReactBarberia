@@ -86,7 +86,6 @@ function ListaCompras() {
     const fetchData = async () => {
       try {
         const response = await CompraDataService.getCompraDetalle();
-        console.log('Datos:', response.data);
 
         const comprasConDetalle = await Promise.all(response.data.map(async item => {
           const compra = {
@@ -246,7 +245,12 @@ function ListaCompras() {
                               {compraSeleccionada.nombresProductos[detalle.id_producto] || 'Cargando...'}
                             </CTableDataCell>
                             <CTableDataCell>{detalle.cantidad}</CTableDataCell>
-                            <CTableDataCell>{detalle.precioUnitario}</CTableDataCell>
+                            <CTableDataCell>{detalle.precioUnitario.toLocaleDateString("es-CO", {
+                              style: "currency",
+                              currency: "COP",
+                              minimunFractionDigits: 2,
+                              maximunFractionDigits: 2
+                            })}</CTableDataCell>
                             <CTableDataCell>{detalle.precioVenta}</CTableDataCell>
                             <CTableDataCell>{detalle.total}</CTableDataCell>
                           </CTableRow>
