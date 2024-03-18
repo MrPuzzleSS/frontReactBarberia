@@ -15,6 +15,7 @@ const EditProfilePage = () => {
     const [updateSuccess, setUpdateSuccess] = useState(false);
     const [updateError, setUpdateError] = useState(null);
     const [editingField, setEditingField] = useState(null);
+    const [showConfirmationAlert, setShowConfirmationAlert] = useState(false);
     const [isProfileUpdated, setIsProfileUpdated] = useState(false);
     const navigate = useNavigate();
 
@@ -33,7 +34,6 @@ const EditProfilePage = () => {
     }, []);
 
     useEffect(() => {
-        // Habilitar o deshabilitar el botón de "Actualizar Perfil" según si se han realizado cambios
         setIsProfileUpdated(name || email || newPassword || confirmPassword);
     }, [name, email, newPassword, confirmPassword]);
 
@@ -55,19 +55,16 @@ const EditProfilePage = () => {
 
     const handleUpdateProfile = async () => {
         try {
-            // Verificar si se han realizado cambios
             if (!isProfileUpdated) {
                 setUpdateError('Debes actualizar al menos un campo');
                 return;
             }
 
-            // Verificar si se ingresaron contraseñas y si coinciden
             if (newPassword && newPassword !== confirmPassword) {
                 setUpdateError('Las contraseñas no coinciden');
                 return;
             }
 
-            // Validar campos de nombre, correo y contraseña
             if (name && !validateName(name)) {
                 setUpdateError('El nombre solo puede contener letras y espacios');
                 return;
@@ -83,19 +80,7 @@ const EditProfilePage = () => {
                 return;
             }
 
-            // Mostrar alerta de confirmación
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: '¿Estás seguro de que deseas actualizar tus datos?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Sí',
-                cancelButtonText: 'Cancelar',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    confirmUpdate();
-                }
-            });
+            setShowConfirmationAlert(true);
         } catch (error) {
             console.error('Error al realizar la actualización', error);
             setUpdateSuccess(false);
@@ -105,7 +90,7 @@ const EditProfilePage = () => {
 
     const confirmUpdate = async () => {
         try {
-            const response = await fetch('https://restapibarberia.onrender.com/api/actualizarPerfil', {
+            const response = await fetch('http://localhost:8095/api/actualizarPerfil', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -114,26 +99,46 @@ const EditProfilePage = () => {
                 body: JSON.stringify({
                     nombre: name,
                     correo: email,
-                    nuevaContrasena: newPassword || null, // Si newPassword es null, no se incluirá en la solicitud
+                    nuevaContrasena: newPassword || null,
                 }),
             });
-
+    
             if (response.ok) {
                 setUpdateSuccess(true);
+                setShowConfirmationAlert(false);
                 setTimeout(() => {
                     navigate('/login');
-                }, 3000); // Retraso de 3 segundos antes de redirigir al usuario
+                }, 3000);
             } else {
-                setUpdateSuccess(false);
-                setUpdateError('Error al actualizar el perfil. Por favor, inténtalo de nuevo.');
+                const data = await response.json();
+                if (data.mensaje === 'El nombre de usuario ya está en uso') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al actualizar el perfil',
+                        text: data.mensaje,
+                    });
+                } else if (data.mensaje === 'El correo electrónico ya está en uso') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al actualizar el perfil',
+                        text: data.mensaje,
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al actualizar el perfil',
+                        text: 'Por favor, inténtalo de nuevo.',
+                    });
+                }
             }
         } catch (error) {
             console.error('Error al realizar la actualización', error);
-            setUpdateSuccess(false);
             setUpdateError('Error al conectar con el servidor. Por favor, inténtalo de nuevo más tarde.');
         }
-    }
-
+    };
+    
+    
+    
 
     return (
         <div className="min-vh-100 d-flex flex-row align-items-center">
@@ -201,6 +206,7 @@ const EditProfilePage = () => {
                                         placeholder="Nueva Contraseña"
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
+                                        disabled={editingField !== 'password'}
                                     />
                                     <CButton
                                         color="info"
@@ -241,16 +247,24 @@ const EditProfilePage = () => {
                                         <button className="btn btn-secondary">REGRESAR</button>
                                     </Link>
                                 </div>
-                                {updateSuccess && (
-                                    <div className="alert alert-success mt-3" role="alert">
-                                        Datos actualizados correctamente. Por favor, inicia sesión nuevamente con tus nuevos datos.
-                                    </div>
-                                )}
-                                {!updateSuccess && updateError && (
-                                    <div className="alert alert-danger mt-3" role="alert">
-                                        {updateError}
-                                    </div>
-                                )}
+                                <div className="d-inline-block mx-3">
+                                    {showConfirmationAlert && (
+                                        <div className="alert alert-warning mt-3" role="alert">
+                                            ¿Estás seguro de que deseas actualizar tus datos?
+                                            <button className="btn btn-warning ml-2" onClick={confirmUpdate}>Sí</button>
+                                        </div>
+                                    )}
+                                    {updateSuccess && (
+                                        <div className="alert alert-success mt-3" role="alert">
+                                            Datos actualizados correctamente. Por favor, inicia sesión nuevamente con tus nuevos datos.
+                                        </div>
+                                    )}
+                                    {!updateSuccess && updateError && (
+                                        <div className="alert alert-danger mt-3" role="alert">
+                                            {updateError}
+                                        </div>
+                                    )}
+                                </div>
                             </CCardFooter>
                         </CCard>
                     </CCol>
@@ -258,7 +272,6 @@ const EditProfilePage = () => {
             </CContainer>
         </div>
     );
-
 };
 
 export default EditProfilePage;

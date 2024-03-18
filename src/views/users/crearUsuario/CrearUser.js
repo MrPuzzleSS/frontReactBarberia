@@ -19,7 +19,7 @@ const Register = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    axios.get('https://restapibarberia.onrender.com/api/rol')
+    axios.get('http://localhost:8095/api/rol')
       .then(response => {
         console.log('Roles obtenidos:', response.data.listaRoles);
         setRoles(response.data.listaRoles);
@@ -27,6 +27,7 @@ const Register = () => {
       .catch(error => console.error('Error al obtener roles:', error));
   }, []);
 
+  
   const handleAddUser = async () => {
     const validationErrors = {};
 
@@ -75,29 +76,38 @@ const Register = () => {
     if (Object.keys(validationErrors).length > 0) {
       return;
     }
-
     try {
-      const response = await axios.post('https://restapibarberia.onrender.com/api/usuario', newUser);
+      const response = await axios.post('http://localhost:8095/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
-
+    
       Swal.fire({
         icon: 'success',
         title: 'Usuario agregado con éxito',
         showConfirmButton: false,
         timer: 1500,
       });
-
+    
       setSubmitted(true);
     } catch (error) {
       console.error('Error al agregar usuario:', error);
-
-      Swal.fire({
-        icon: 'error',
-        title: 'Error al agregar usuario',
-        text: 'Ha ocurrido un error al intentar agregar el usuario.',
-      });
+    
+      if (error.response.status === 400 && error.response.data && error.response.data.error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al agregar usuario',
+          text: error.response.data.error,
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al agregar usuario',
+          text: 'Ha ocurrido un error al intentar agregar el usuario.',
+        });
+      }
     }
-  };
+  }
+
+  
 
   const handleInputChange = (fieldName, value) => {
     setNewUser({ ...newUser, [fieldName]: value });
