@@ -85,12 +85,20 @@ const AgendarCita = () => {
   const handleDateSelect = (info) => {
     // info.start contiene la fecha seleccionada
     const date = info.start;
-    // Conserva solo la parte de la fecha (sin la hora)
-    const formattedDate = format(date, "yyyy-MM-dd");
-    setSelectedDate(formattedDate);
-
-    setModalHoraVisible(true);
+    const today = new Date(); // Obtener la fecha de hoy
+    // Verificar si la fecha seleccionada es igual o posterior a la fecha de hoy
+    if (date >= today) {
+      // Conserva solo la parte de la fecha (sin la hora)
+      const formattedDate = format(date, "yyyy-MM-dd");
+      setSelectedDate(formattedDate);
+      setModalHoraVisible(true);
+    } else {
+      // Si la fecha seleccionada es anterior a la fecha de hoy, mostrar un mensaje de error o tomar otra acción según tu caso
+      console.log("La fecha seleccionada debe ser igual o posterior a la fecha de hoy");
+      // Puedes mostrar un mensaje de error, deshabilitar la selección, etc.
+    }
   };
+
 
   const handleAgendarClick = async () => {
     const userInfo = await getUserInfo();
@@ -185,22 +193,22 @@ const AgendarCita = () => {
   };
 
   const generateHourOptions = (startHour, endHour) => {
-  const options = [];
-  const start = parseInt(startHour.split(":")[0]); // Extrae la hora de inicio
-  const end = parseInt(endHour.split(":")[0]); // Extrae la hora de fin
-  
-  for (let i = start; i <= end; i++) {
-    let hour = i % 12 === 0 ? 12 : i % 12; // Convierte la hora en formato de 12 horas
-    let suffix = i < 12 ? "AM" : "PM"; // Determina si es AM o PM
-    options.push(
-      <option key={i} value={`${hour}:00 ${suffix}`}>{`${hour}:00 ${suffix}`}</option>
-    );
-    options.push(
-      <option key={i + 0.5} value={`${hour}:30 ${suffix}`}>{`${hour}:30 ${suffix}`}</option>
-    );
-  }
-  return options;
-};
+    const options = [];
+    const start = parseInt(startHour.split(":")[0]); // Extrae la hora de inicio
+    const end = parseInt(endHour.split(":")[0]); // Extrae la hora de fin
+
+    for (let i = start; i <= end; i++) {
+      let hour = i % 12 === 0 ? 12 : i % 12; // Convierte la hora en formato de 12 horas
+      let suffix = i < 12 ? "AM" : "PM"; // Determina si es AM o PM
+      options.push(
+        <option key={i} value={`${hour}:00 ${suffix}`}>{`${hour}:00 ${suffix}`}</option>
+      );
+      options.push(
+        <option key={i + 0.5} value={`${hour}:30 ${suffix}`}>{`${hour}:30 ${suffix}`}</option>
+      );
+    }
+    return options;
+  };
 
 
   return (
@@ -413,19 +421,20 @@ const AgendarCita = () => {
                       <FullCalendar
                         plugins={[dayGridPlugin, interactionPlugin]}
                         initialView="dayGridMonth"
+                        initialDate={new Date()} // Establece la fecha inicial en la fecha de hoy
                         selectable={true}
-                        select={(info) => handleDateSelect(info)} // Maneja la selección de fecha
+                        select={(info) => handleDateSelect(info)}
                         events={agendaData.map((agendaItem, index) => ({
                           title: "Disponible",
                           start: agendaItem.fechaInicio,
                           end: agendaItem.fechaFin,
-                          color: "#28a745", // Color verde para representar disponibilidad
-                          textColor: "#fff", // Texto en color blanco para mayor contraste
-                          allDay: false, // Evento solo durante un intervalo específico
-                          editable: false, // No permite la edición de eventos
-                          selectable: true, // Permite la selección de eventos
-                        }))}
-                      />
+                          color: "#28a745",
+                          textColor: "#fff",
+                          allDay: false,
+                          editable: false,
+                          selectable: true,
+                        }))} />
+
 
                       <CModal
                         visible={modalHoraVisible}
@@ -511,13 +520,13 @@ const AgendarCita = () => {
             </CButton>
           ) : (
             <Link to="/cliente/listacitas">
-            <CButton
-              color="success"
-              onClick={handleAgendarClick}
-              disabled={!selectedHour}
-            >
-              Agendar
-            </CButton>
+              <CButton
+                color="success"
+                onClick={handleAgendarClick}
+                disabled={!selectedHour}
+              >
+                Agendar
+              </CButton>
             </Link>
           )}
         </CCol>
