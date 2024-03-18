@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import {
   CContainer,
   CCard,
@@ -510,6 +510,7 @@ const AgendarCita = () => {
               Siguiente
             </CButton>
           ) : (
+            <Link to="/cliente/listacitas">
             <CButton
               color="success"
               onClick={handleAgendarClick}
@@ -517,6 +518,7 @@ const AgendarCita = () => {
             >
               Agendar
             </CButton>
+            </Link>
           )}
         </CCol>
       </CRow>
