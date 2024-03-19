@@ -22,6 +22,7 @@ import {
   CModalFooter,
   CFormLabel,
   CFormInput,
+  CFormSelect,
   CFormSwitch,
   CInputGroup,
   CBadge,
@@ -35,11 +36,12 @@ function ListaProveedores() {
   const [visible, setVisible] = useState(false);
   const [editingProveedor, setEditingProveedor] = useState({
     id: "",
+    tipo_documento: "",
+    num_documento: "",
     nombre: "",
     direccion: "",
     telefono: "",
     email: "",
-    tipo_de_producto_servicio: "",
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -278,6 +280,25 @@ function ListaProveedores() {
         <CModalBody>
           <form>
             <div className="mb-3">
+              <CFormLabel>Tipo de Documento</CFormLabel>
+              <CFormSelect
+                type="text"
+                name="tipo_documento"
+                value={editingProveedor.tipo_documento}
+                onChange={handleInputChange}
+              />
+            </div>
+          <div className="mb-3">
+              <CFormLabel>Documento</CFormLabel>
+              <CFormInput
+                type="text"
+                name="nombre"
+                value={editingProveedor.num_documento}
+                onChange={handleInputChange}
+                disabled
+              />
+            </div>
+            <div className="mb-3">
               <CFormLabel>Nombre</CFormLabel>
               <CFormInput
                 type="text"
@@ -313,15 +334,6 @@ function ListaProveedores() {
                 value={editingProveedor.email}
                 onChange={handleInputChange}
                 disabled
-              />
-            </div>
-            <div className="mb-3">
-              <CFormLabel>Tipo de Producto o Servicio</CFormLabel>
-              <CFormInput
-                type="text"
-                name="tipo_de_producto_servicio"
-                value={editingProveedor.tipo_de_producto_servicio}
-                onChange={handleInputChange}
               />
             </div>
           </form>
