@@ -6,7 +6,7 @@ const getAll = () => {
 
 const getAllCitasAgendadas = () => {
     return http.get("/citas/agendadas");
-
+    
 }
 
 const getAllCitasServicios = (id) => {
