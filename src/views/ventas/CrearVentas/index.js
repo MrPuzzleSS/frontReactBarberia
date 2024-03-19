@@ -402,7 +402,7 @@ function FormularioVentas() {
                             style={{ width: "50%" }} // Establece el ancho del select
                             >
                                 <option value="Pendiente">Pendiente</option>
-                                <option value="Cancelado">Cancelado</option>
+                                <option value="Pagado">Pagado</option>
                             </CFormSelect>
                         </div>
                             
