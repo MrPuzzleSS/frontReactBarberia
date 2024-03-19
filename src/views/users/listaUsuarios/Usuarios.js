@@ -41,8 +41,8 @@ const ListaUsuarios = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const rolesResponse = await axios.get('http://localhost:8095/api/rol');
-        const usuariosResponse = await axios.get('http://localhost:8095/api/usuario');
+        const rolesResponse = await axios.get('https://restapibarberia.onrender.com/api//rol');
+        const usuariosResponse = await axios.get('https://restapibarberia.onrender.com/api//usuario');
         setUsers(usuariosResponse.data.usuarios || []);
         setRoles(rolesResponse.data.listaRoles);
       } catch (error) {
@@ -82,7 +82,7 @@ const ListaUsuarios = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:8095/api/usuario/${item.id_usuario}`);
+          await axios.delete(`https://restapibarberia.onrender.com/api/usuario/${item.id_usuario}`);
           setUsers((prevUsers) => prevUsers.filter((user) => user.id_usuario !== item.id_usuario));
 
           Swal.fire({
@@ -138,7 +138,7 @@ const ListaUsuarios = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.put(`http://localhost:8095/api/usuario/${item.id_usuario}`, {
+          await axios.put(`https://restapibarberia.onrender.com/api/usuario/${item.id_usuario}`, {
             ...item,
             estado: newStatus,
           });
@@ -219,7 +219,7 @@ const ListaUsuarios = () => {
         correo: correoElectronico,
       };
   
-      const response = await axios.put(`http://localhost:8095/api/usuario/${editedUser.id_usuario}`, editedUser);
+      const response = await axios.put(`https://restapibarberia.onrender.com/api/usuario/${editedUser.id_usuario}`, editedUser);
   
       if (response.status === 200) {
         setUsers((prevUsers) =>

@@ -1,5 +1,8 @@
 import React from 'react';
 import CIcon from '@coreui/icons-react';
+import { Navigate } from 'react-router-dom';
+import { Route, Routes} from 'react-router-dom';
+
 import {
   cilShieldAlt,
   cilCut,
@@ -37,7 +40,7 @@ const _nav = [
     icon: <CIcon icon={cilIndustry} customClassName="nav-icon" style={{ color: 'black' }} />,
   },
   {
-    component: CNavItem,
+    component: CNavItem ,
     name: 'Compras',
     style: { color: 'black' },
     to: '/compras',
@@ -111,7 +114,9 @@ const _nav = [
     style: { color: 'black' },
     to: '/listausuarios',
     icon: <CIcon icon={cilContact} customClassName="nav-icon" style={{ color: 'black' }} />,
+    
   },
+
   {
     component: CNavItem,
     name: 'Roles',
@@ -121,22 +126,41 @@ const _nav = [
   },
 ];
 
+
 const CheckPermission = ({ route }) => {
   const userInfo = getUserInfo();
   const permisos = userInfo.rol.permisos;
   const permisosRutas = permisos.map((permiso) => permiso.ruta);
 
-  if (permisosRutas.includes(route)) {
-    return true;
-  }
-  return false;
+  return permisosRutas.includes(route);
 };
 
-const FilteredNav = _nav.filter((item) => {
-  if (item.to && item.component === CNavItem) {
-    return CheckPermission({ route: item.to });
-  }
-  return true;
-});
 
+
+const FilteredNav = _nav.map((item) => {
+  if (item.to && item.component === CNavItem) {
+    if (CheckPermission({ route: item.to })) {
+      return item; // Permitir acceso a la ruta si tiene permiso
+    } else {
+      return {
+        ...item,
+        component: () => null, // Ocultar el componente si no tiene permiso
+      };
+    }
+  }
+  return item;
+});
+/*
+const FilteredNav = _nav.map((item) => {
+  if (item.to && item.component === CNavItem) {
+    if (!CheckPermission({ route: item.to })) {
+      return {
+        ...item,
+        component: () => <Navigate to="/dashboard" replace /> // Redirigir al dashboard si no tiene permiso
+      };
+    }
+  }
+  return item;
+});
+*/
 export default FilteredNav;
