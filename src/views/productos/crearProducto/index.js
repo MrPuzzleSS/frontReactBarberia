@@ -100,7 +100,7 @@
       e.preventDefault();
 
       const productoExistente = productos.find((producto) => producto.nombre === nombre);
-      if (productoExistente) {
+      if (productoExistente  && esNuevoProducto.id_producto) {
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -110,6 +110,14 @@
       }
 
       if (!esNuevoProducto) {
+        if (productoExistente && productoExistente.id_producto !== selectedProducto.id_producto) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Producto existente. No puedes actualizar el nombre a uno que ya existe.',
+          });
+          return;
+        }
         guardarProducto();
         return;
       }
@@ -145,20 +153,32 @@
     };
 
     const guardarProducto = async () => {
-      const nombreCapitalizado = capitalizeFirstLetter(nombre);
+      const nombreCapitalizado = capitalizeFirstLetter(nombre.trim());
       const descripcionCapitalizado = capitalizeFirstLetter(descripcion);
+    
+      // Verificar si el nombre del producto ya existe
+      const productoExistente = productos.find(producto => producto.nombre === nombreCapitalizado);
+      if (productoExistente) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Ya existe un producto con este nombre. Por favor, elige otro nombre.',
+        });
+        return;
+      }
+    
+      // Si el nombre no está duplicado, procedemos a crear el nuevo producto
       const nuevoProducto = {
-        nombre: nombreCapitalizado,
         descripcion: descripcionCapitalizado,
         precioCosto,
         precioVenta,
         stock,
         tipoCompra: tipo, 
       };
-
+    
       try {
         const response = await ProductoService.createProducto(nuevoProducto);
-
+    
         if (response) {
           console.log('Producto guardado:', response.producto);
           Swal.fire({
@@ -189,6 +209,7 @@
         });
       }
     };
+    
 
     const tipoOptions = [
       { value: 'Producto', label: 'Producto' },

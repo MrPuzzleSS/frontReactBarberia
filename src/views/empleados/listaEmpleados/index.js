@@ -49,6 +49,9 @@ function ListaEmpleados() {
   const [pageSize] = useState(5);
   const [allowSave, setAllowSave] = useState(false);
   const [estadoOriginal, setEstadoOriginal] = useState(false);
+  const [empleadoToDeleteId, setEmpleadoToDeleteId] = useState(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+
   const [validationErrors, setValidationErrors] = useState({
     nombre: '',
     apellido: '',
@@ -71,7 +74,7 @@ function ListaEmpleados() {
   const handleGuardarCambios = async () => {
     const fieldValidation = {};
     let isValid = true;
-  
+
     if (!selectedEmpleadoId.nombre.trim()) {
       fieldValidation.nombre = 'El nombre es requerido.';
       isValid = false;
@@ -80,21 +83,21 @@ function ListaEmpleados() {
         ? ''
         : 'Nombre no válido. Solo se permiten letras, números y espacios.';
     }
-  
+
     if (!selectedEmpleadoId.apellido.trim()) {
       fieldValidation.apellido = 'El apellido es requerido.';
       isValid = false;
     } else {
       fieldValidation.apellido = /^[a-zA-Z\s]*$/.test(selectedEmpleadoId.apellido)
-      ? ''
-      : 'El apellido solo debe contener letras y espacios.';
+        ? ''
+        : 'El apellido solo debe contener letras y espacios.';
     }
-  
+
     if (!selectedEmpleadoId.correo.trim()) {
       fieldValidation.correo = 'El correo es requerido.';
       isValid = false;
     }
-  
+
     if (!selectedEmpleadoId.documento.trim()) {
       fieldValidation.documento = 'El documento es requerido.';
       isValid = false;
@@ -102,7 +105,7 @@ function ListaEmpleados() {
       fieldValidation.documento = 'El documento debe tener entre 6 y 10 dígitos.';
       isValid = false;
     }
-  
+
     if (!selectedEmpleadoId.telefono.trim()) {
       fieldValidation.telefono = 'El teléfono es requerido.';
       isValid = false;
@@ -110,22 +113,22 @@ function ListaEmpleados() {
       fieldValidation.telefono = 'El teléfono debe tener 10 dígitos.';
       isValid = false;
     }
-  
+
     setValidationErrors(fieldValidation);
     setAllowSave(isValid);
 
     if (!isValid) {
       return;
     }
-  
+
     try {
       await EmpleadoService.updateEmpleado(
         selectedEmpleadoId.id_empleado,
         selectedEmpleadoId
       );
-  
+
       Swal.fire('¡Éxito!', 'La modificación ha sido exitosa.', 'success');
-  
+
       setEmpleados((prevEmpleados) =>
         prevEmpleados.map((empleado) =>
           empleado.id_empleado === selectedEmpleadoId.id_empleado
@@ -133,7 +136,7 @@ function ListaEmpleados() {
             : empleado
         )
       );
-  
+
       setValidationErrors({
         nombre: '',
         apellido: '',
@@ -150,11 +153,48 @@ function ListaEmpleados() {
   };
 
 
+  const handleShoweleteConfimation = (id_empleado) => {
+    setEmpleadoToDeleteId(id_empleado);
+    setShowDeleteConfirmation(true);
+  };
+  const handleEliminarEmpleado = async (id_empleado) => {
+    try {
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡No podrás revertir esto!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar'
+      });
+
+      if (result.isConfirmed) {
+        await EmpleadoService.eliminarEmpleado(id_empleado);
+        await fetchEmpleados();
+        Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: 'El empleado ha sido eliminado correctamente.',
+        });
+      }
+    } catch (error) {
+      console.error('Error al eliminar empleado:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Hubo un problema al eliminar el empleado. Por favor, inténtalo de nuevo más tarde.',
+      });
+    }
+  };
+
+
+
 
   const fetchEmpleados = async () => {
     try {
       const data = await EmpleadoService.getAllEmpleados();
-      const empleadosArray = data.empleados || []; 
+      const empleadosArray = data.empleados || [];
       const filteredEmpleados = empleadosArray.filter((empleado) => {
         const searchRegex = new RegExp(searchTerm, 'i');
         return (
@@ -179,13 +219,13 @@ function ListaEmpleados() {
   const handleInputChange = (e, fieldName) => {
     const rawValue = e.target.value;
     let filteredValue;
-  
+
     if (fieldName === 'correo') {
-      filteredValue = rawValue; 
+      filteredValue = rawValue;
     } else {
       filteredValue = filterValidCharacters(rawValue);
     }
-  
+
     let isValid = true;
     const fieldValidation = { ...validationErrors };
 
@@ -200,15 +240,15 @@ function ListaEmpleados() {
             : 'Nombre no válido. Solo se permiten letras, números y espacios.';
         }
         break;
-  
+
       case 'apellido':
         if (!filteredValue) {
           fieldValidation.apellido = 'El apellido es requerido.';
           isValid = false;
         } else {
           fieldValidation.apellido = /^[a-zA-Z\s]*$/.test(filteredValue)
-          ? ''
-          : 'El apellido solo debe contener letras y espacios.';
+            ? ''
+            : 'El apellido solo debe contener letras y espacios.';
         }
         break;
 
@@ -218,8 +258,8 @@ function ListaEmpleados() {
           isValid = false;
         } else {
           fieldValidation.correo = /^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/.test(filteredValue)
-          ? ''
-          : 'Ingrese un correo válido.';
+            ? ''
+            : 'Ingrese un correo válido.';
         }
         break;
 
@@ -240,8 +280,8 @@ function ListaEmpleados() {
         break;
       default:
         break;
-    }  
-    
+    }
+
     setSelectedEmpleadoId({ ...selectedEmpleadoId, [fieldName]: filteredValue });
 
     isValid = Object.values(fieldValidation).every((error) => !error);
@@ -274,7 +314,7 @@ function ListaEmpleados() {
         text: "¡No podrás revertir esto!",
         icon: "warning",
         showCancelButton: true,
-        allowOutsideClick: false, 
+        allowOutsideClick: false,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
         confirmButtonText: "Sí, cambiar estado"
@@ -312,7 +352,7 @@ function ListaEmpleados() {
     setCurrentPage(pageNumber);
   };
 
-  
+
 
   //paginado
   const indexOfLastEmpleado = currentPage * pageSize;
@@ -343,21 +383,21 @@ function ListaEmpleados() {
                 <CButton color="primary">Agregar Empleados</CButton>
               </Link>
             </div>
-          <div className="mt-3">
-          <CInputGroup className="mt-3" style={{ maxWidth: "200px" }}>
-          <CFormInput
-            type="text"
-            placeholder="Buscar empleados..."
-            className="form-control-sm"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              // Llama a la función de búsqueda cuando cambia el término.
-              fetchEmpleados();
-            }}
-          />
-          </CInputGroup>
-          </div>
+            <div className="mt-3">
+              <CInputGroup className="mt-3" style={{ maxWidth: "200px" }}>
+                <CFormInput
+                  type="text"
+                  placeholder="Buscar empleados..."
+                  className="form-control-sm"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    // Llama a la función de búsqueda cuando cambia el término.
+                    fetchEmpleados();
+                  }}
+                />
+              </CInputGroup>
+            </div>
           </CCardHeader>
           <CCardBody>
             <CTable align='middle' className='mb-0 border' hover responsive>
@@ -374,9 +414,9 @@ function ListaEmpleados() {
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-              {currentEmpleados.map((empleado, index) => (
-              <CTableRow key={empleado.id_empleado}>
-                <CTableHeaderCell scope="row">{indexOfFirstEmpleado + index + 1}</CTableHeaderCell>
+                {currentEmpleados.map((empleado, index) => (
+                  <CTableRow key={empleado.id_empleado}>
+                    <CTableHeaderCell scope="row">{indexOfFirstEmpleado + index + 1}</CTableHeaderCell>
                     <CTableDataCell>{empleado.nombre}</CTableDataCell>
                     <CTableDataCell>{empleado.apellido}</CTableDataCell>
                     <CTableDataCell>{empleado.correo}</CTableDataCell>
@@ -385,7 +425,7 @@ function ListaEmpleados() {
                     <CTableDataCell><CBadge color={getColorForEstado(empleado.estado)}>{empleado.estado}</CBadge></CTableDataCell>
                     <CTableDataCell>
                       <CButtonGroup aria-label="Basic mixed styles example">
-                      <CFormSwitch
+                        <CFormSwitch
                           size='xl'
                           label=""
                           id={`formSwitchCheckChecked_${empleado.id_empleado}`}
@@ -393,15 +433,23 @@ function ListaEmpleados() {
                           onChange={() => handleCambiarEstadoSwitch(empleado.id_empleado)}
                         />
                         <CButton
-                        color="secondary"
-                        size="sm"
-                        onClick={() => handleEditar(empleado)}
-                        style={{ marginRight: '5px' }} // Ajustar el espacio entre los botones
-                      >
-                        <FaEdit /> {/* Icono de editar */}
-                      </CButton>
+                          color="secondary"
+                          size="sm"
+                          onClick={() => handleEditar(empleado)}
+                          style={{ marginRight: '5px' }}
+                        >
+                          <FaEdit />
+                        </CButton>
+                        <CButton
+                          color="danger"
+                          size="sm"
+                          onClick={() => handleEliminarEmpleado(empleado.id_empleado)}
+                        >
+                          <FaTrash />
+                        </CButton>
                       </CButtonGroup>
                     </CTableDataCell>
+
                   </CTableRow>
                 ))}
               </CTableBody>
@@ -411,14 +459,14 @@ function ListaEmpleados() {
                 Anterior
               </CPaginationItem>
               {Array.from({ length: Math.ceil(filteredEmpleados.length / pageSize) }, (_, i) => (
-              <CPaginationItem
-              key={i}
-              onClick={() => handlePageChange(i + 1)}
-              active={i + 1 === currentPage}
-              >
-                {i + 1}
+                <CPaginationItem
+                  key={i}
+                  onClick={() => handlePageChange(i + 1)}
+                  active={i + 1 === currentPage}
+                >
+                  {i + 1}
                 </CPaginationItem>
-                ))}
+              ))}
               <CPaginationItem
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === Math.ceil(filteredEmpleados.length / pageSize)}
@@ -429,81 +477,83 @@ function ListaEmpleados() {
           </CCardBody>
         </CCard>
       </CCol>
+      <CModal visible={showDeleteConfirmation} onClose={() => setShowDeleteConfirmation(false)} backdrop="static">
+      </CModal>
       <CModal visible={visible} onClose={() => setVisible(false)} backdrop="static">
         <CModalHeader>
           <CModalTitle>Editar Empleados</CModalTitle>
-          </CModalHeader>
-          <CModalBody>
-            <form onSubmit={e => {
-              e.preventDefault()
-              console.log(selectedEmpleadoId)
-              }}>
-                <div className="mb-3">
-                  <CFormLabel>Nombre</CFormLabel>
-                  <CFormInput
-                  type="text"
-                  value={selectedEmpleadoId?.nombre || ''}
-                  onChange={(e) => handleInputChange(e, 'nombre')}
-                  />
-                  {validationErrors.nombre && <small className="text-danger">{validationErrors.nombre}</small>}
-                  </div>
-                  
-                  <div className="mb-3">
-                    <CFormLabel>Apellido</CFormLabel>
-                    <CFormInput
-                    type="text"
-                    value={selectedEmpleadoId?.apellido || ''}
-                    onChange={(e) => handleInputChange(e, 'apellido')}
-                    />
-                    {validationErrors.apellido && <small className="text-danger">{validationErrors.apellido}</small>}
-                    </div>
-                    
-                    <div className="mb-3">
-                      <CFormLabel>Correo</CFormLabel>
-                      <CFormInput
-                      type="correo"
-                      value={selectedEmpleadoId?.correo || ''}
-                      onChange={(e) => handleInputChange(e, 'correo')}
-                      />
-                      {validationErrors.correo && <small className="text-danger">{validationErrors.correo}</small>}
-                      </div>
-                      
-                      <div className="mb-3">
-                        <CFormLabel>Documento</CFormLabel>
-                        <CFormInput
-                        type="number"
-                        minLength={6}
-                        maxLength={10}
-                        value={selectedEmpleadoId?.documento || ''}
-                        onChange={(e) =>  handleInputChange(e, 'documento')}
-                        />
-                        {validationErrors.documento && <small className="text-danger">{validationErrors.documento}</small>}
-                        </div>
-                        
-                        <div className="mb-3">
-                          <CFormLabel>Telefono</CFormLabel>
-                          <CFormInput
-                          type="number"
-                          maxLength={10}
-                          value={selectedEmpleadoId?.telefono || ''}
-                          onChange={(e) => handleInputChange(e, 'telefono')}
-                          />
-                          {validationErrors.telefono && <small className="text-danger">{validationErrors.telefono}</small>}
-                          </div>
-  
-                          </form>
-                          </CModalBody>
-                          <CModalFooter>
-                            <CButton color="secondary" onClick={() => setVisible(false)}>
-                              Cerrar
-                              </CButton>
-                              <CButton color="primary" onClick={handleGuardarCambios}>
-                                Guardar Cambios
-                                </CButton>
-                                </CModalFooter>
-                                </CModal>
-                                </CRow>
-                                )
-                              }
+        </CModalHeader>
+        <CModalBody>
+          <form onSubmit={e => {
+            e.preventDefault()
+            console.log(selectedEmpleadoId)
+          }}>
+            <div className="mb-3">
+              <CFormLabel>Nombre</CFormLabel>
+              <CFormInput
+                type="text"
+                value={selectedEmpleadoId?.nombre || ''}
+                onChange={(e) => handleInputChange(e, 'nombre')}
+              />
+              {validationErrors.nombre && <small className="text-danger">{validationErrors.nombre}</small>}
+            </div>
+
+            <div className="mb-3">
+              <CFormLabel>Apellido</CFormLabel>
+              <CFormInput
+                type="text"
+                value={selectedEmpleadoId?.apellido || ''}
+                onChange={(e) => handleInputChange(e, 'apellido')}
+              />
+              {validationErrors.apellido && <small className="text-danger">{validationErrors.apellido}</small>}
+            </div>
+
+            <div className="mb-3">
+              <CFormLabel>Correo</CFormLabel>
+              <CFormInput
+                type="correo"
+                value={selectedEmpleadoId?.correo || ''}
+                onChange={(e) => handleInputChange(e, 'correo')}
+              />
+              {validationErrors.correo && <small className="text-danger">{validationErrors.correo}</small>}
+            </div>
+
+            <div className="mb-3">
+              <CFormLabel>Documento</CFormLabel>
+              <CFormInput
+                type="number"
+                minLength={6}
+                maxLength={10}
+                value={selectedEmpleadoId?.documento || ''}
+                onChange={(e) => handleInputChange(e, 'documento')}
+              />
+              {validationErrors.documento && <small className="text-danger">{validationErrors.documento}</small>}
+            </div>
+
+            <div className="mb-3">
+              <CFormLabel>Telefono</CFormLabel>
+              <CFormInput
+                type="number"
+                maxLength={10}
+                value={selectedEmpleadoId?.telefono || ''}
+                onChange={(e) => handleInputChange(e, 'telefono')}
+              />
+              {validationErrors.telefono && <small className="text-danger">{validationErrors.telefono}</small>}
+            </div>
+
+          </form>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setVisible(false)}>
+            Cerrar
+          </CButton>
+          <CButton color="primary" onClick={handleGuardarCambios}>
+            Guardar Cambios
+          </CButton>
+        </CModalFooter>
+      </CModal>
+    </CRow>
+  )
+}
 
 export default ListaEmpleados

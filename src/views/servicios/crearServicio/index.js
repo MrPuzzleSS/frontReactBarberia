@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom'; // Importa useNavigate
+import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import {
     CButton,
@@ -11,24 +11,30 @@ import {
     CFormLabel,
     CFormInput,
     CRow,
+    CDropdown, // Importar CDropdown
+    CDropdownToggle, // Importar CDropdownToggle
+    CDropdownMenu, // Importar CDropdownMenu
+    CDropdownItem, // Importar CDropdownItem
 } from '@coreui/react';
 import ServicioService from 'src/views/services/servicioService';
 
 function CrearServicio() {
     const [nombre, setNombre] = useState('');
     const [valor, setValor] = useState('');
+    const [tiempoEstimado, setTiempoEstimado] = useState('');
+    const [servicios, setServicios] = useState([]);
 
     const [nombreError, setNombreError] = useState('');
     const [valorError, setValorError] = useState('');
 
-    const navigate = useNavigate(); // Utiliza useNavigate en lugar de useHistory
+    const navigate = useNavigate();
 
     const fetchServicios = async () => {
         try {
-            const data = await ServicioService.getAllServicios();
-            console.log('Servicios obtenidos:', data.Servicios);
+            const response = await ServicioService.getAllServicios();
+            setServicios(response.data.Servicios);
         } catch (error) {
-            console.log('Error al obtener servicios:', error);
+            console.error('Error al obtener servicios:', error);
         }
     };
 
@@ -46,7 +52,6 @@ function CrearServicio() {
     };
 
     const validateValor = (value) => {
-        
         if (!/^\d{3,}$/.test(value)) {
             setValorError('El valor debe contener solo números y tener al menos 3 caracteres.');
             return false;
@@ -65,6 +70,7 @@ function CrearServicio() {
         const newServicio = {
             nombre,
             valor,
+            tiempoEstimado,
         };
 
         try {
@@ -80,9 +86,10 @@ function CrearServicio() {
 
             setNombre('');
             setValor('');
+            setTiempoEstimado('');
 
             Swal.fire('Éxito', 'Servicio creado correctamente.', 'success').then(() => {
-                navigate('/servicios/listaServicios'); // Utiliza navigate en lugar de history.push
+                navigate('/servicios/listaServicios');
             });
         } catch (error) {
             console.error('Error al crear el servicio:', error);
@@ -122,6 +129,26 @@ function CrearServicio() {
                                     }}
                                 />
                                 {valorError && <div className="text-danger">{valorError}</div>}
+                            </div>
+                            <div className="mb-3">
+                                <CDropdown className="d-inline-block">
+                                    <CDropdownToggle color="secondary">
+                                        {tiempoEstimado ? `${tiempoEstimado} minutos` : 'Seleccione el tiempo'}
+                                    </CDropdownToggle>
+                                    <CDropdownMenu>
+                                        {servicios.map(servicio => (
+                                            <CDropdownItem
+                                                key={servicio.id}
+                                                onClick={() => setTiempoEstimado(servicio.tiempoEstimado)}
+                                            >
+                                                {servicio.nombre} - {servicio.tiempoEstimado} minutos
+                                            </CDropdownItem>
+                                        ))}
+                                    </CDropdownMenu>
+                                </CDropdown>
+                                {tiempoEstimado && (
+                                    <div className="mt-2">Tiempo seleccionado: {tiempoEstimado} minutos</div>
+                                )}
                             </div>
 
                             <CButton type="submit" color="primary">
