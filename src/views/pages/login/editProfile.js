@@ -87,10 +87,10 @@ const EditProfilePage = () => {
             setUpdateError('Error al conectar con el servidor. Por favor, inténtalo de nuevo más tarde.');
         }
     }
-
+    
     const confirmUpdate = async () => {
         try {
-            const response = await fetch('http://localhost:8095/api/actualizarPerfil', {
+            const response = await fetch('https://restapibarberia.onrender.com/api/rol/actualizarPerfil', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

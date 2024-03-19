@@ -84,7 +84,7 @@ const ListaRol = () => {
   const handleSwitchChange = async (item) => {
     const newStatus = item.estado === 'Activo' ? 'Inactivo' : 'Activo';
     const originalStatus = item.estado;
-
+  
     try {
       const confirmed = await Swal.fire({
         title: `¿Estás seguro de cambiar el estado del rol a ${newStatus}?`,
@@ -95,19 +95,19 @@ const ListaRol = () => {
         cancelButtonColor: '#d33',
         confirmButtonText: 'Sí, cambiar estado'
       });
-
+  
       if (confirmed.isConfirmed) {
         const response = await axios.put(`https://restapibarberia.onrender.com/api/rol/${item.id_rol}`, {
           estado: newStatus,
         });
-
+  
         if (response.status === 200) {
           const updatedRoles = roles.map((role) =>
             role.id_rol === item.id_rol ? { ...role, estado: newStatus } : role
           );
-
+    
           setRoles(updatedRoles);
-
+    
           Swal.fire({
             icon: 'success',
             title: `El estado del rol se ha cambiado a ${newStatus}`,
@@ -123,20 +123,20 @@ const ListaRol = () => {
       }
     } catch (error) {
       console.error('Error al cambiar el estado del rol:', error);
-
+  
       Swal.fire({
         icon: 'error',
         title: 'Error al cambiar el estado del rol',
         text: 'Ha ocurrido un error al intentar cambiar el estado del rol.',
       });
-
+  
       // Si ocurre un error, revertir el estado del checkbox
       document.getElementById(`formSwitchCheckChecked_${item.id_rol}`).checked = item.estado === 'Activo';
     }
   };
 
 
-
+  
   const handleEditRole = async (roleId) => {
     const roleToEdit = roles.find((role) => role.id_rol === roleId);
     setEditRoleId(roleId);
@@ -174,7 +174,7 @@ const ListaRol = () => {
         permisos: editRolePermisos,
       };
 
-      await axios.put(`http://localhost:8095/api/rol/${editRoleId}`, editedRole);
+      await axios.put(`https://restapibarberia.onrender.com/api/rol/${editRoleId}`, editedRole);
 
       setVisible(false);
       Swal.fire({
@@ -197,8 +197,6 @@ const ListaRol = () => {
     }
   };
 
-
-  
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -374,10 +372,8 @@ const ListaRol = () => {
             type="text"
             value={editRoleName}
             onChange={(e) => setEditRoleName(e.target.value)}
-            disabled={editRoleName === 'Administrador' || editRoleName === 'Cliente' || editRoleName === 'Empleado'}
           />
           {errors.nombre && <div className="text-danger">{errors.nombre}</div>}
-
           <CFormLabel style={{ marginTop: '10px' }}><strong>Permisos</strong></CFormLabel>
           {allPermisos.map((permiso) => (
             <div key={permiso.id_permiso} style={{ marginBottom: '5px' }}>
