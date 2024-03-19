@@ -127,12 +127,20 @@ function ListaEmpleados() {
       Swal.fire('¡Éxito!', 'La modificación ha sido exitosa.', 'success');
   
       setEmpleados((prevEmpleados) =>
-        prevEmpleados.map((empleado) =>
-          empleado.id_empleado === selectedEmpleadoId.id_empleado
-            ? selectedEmpleadoId
-            : empleado
-        )
-      );
+      prevEmpleados.map((empleado) =>
+        empleado.id_empleado === selectedEmpleadoId.id_empleado
+          ? selectedEmpleadoId
+          : empleado
+      )
+    );
+
+    setFilteredEmpleados((prevFilteredEmpleados) =>
+      prevFilteredEmpleados.map((empleado) =>
+        empleado.id_empleado === selectedEmpleadoId.id_empleado
+          ? selectedEmpleadoId
+          : empleado
+      )
+    );
   
       setValidationErrors({
         nombre: '',
@@ -364,10 +372,10 @@ function ListaEmpleados() {
               <CTableHead>
                 <CTableRow>
                   <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Documento</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Apellido</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Correo</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Documento</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Telefono</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
                   <CTableHeaderCell scope="col"></CTableHeaderCell>
@@ -377,10 +385,10 @@ function ListaEmpleados() {
               {currentEmpleados.map((empleado, index) => (
               <CTableRow key={empleado.id_empleado}>
                 <CTableHeaderCell scope="row">{indexOfFirstEmpleado + index + 1}</CTableHeaderCell>
+                    <CTableDataCell>{empleado.documento}</CTableDataCell>
                     <CTableDataCell>{empleado.nombre}</CTableDataCell>
                     <CTableDataCell>{empleado.apellido}</CTableDataCell>
                     <CTableDataCell>{empleado.correo}</CTableDataCell>
-                    <CTableDataCell>{empleado.documento}</CTableDataCell>
                     <CTableDataCell>{empleado.telefono}</CTableDataCell>
                     <CTableDataCell><CBadge color={getColorForEstado(empleado.estado)}>{empleado.estado}</CBadge></CTableDataCell>
                     <CTableDataCell>

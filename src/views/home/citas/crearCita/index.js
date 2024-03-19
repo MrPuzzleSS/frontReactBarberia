@@ -26,7 +26,7 @@ import {
 } from "@coreui/react";
 import Servicios_S from "src/views/services/servicios_s";
 import ServicioBarbero from "src/views/services/empleado_agenda";
-import { format, parse } from "date-fns";
+import { format, parse, isAfter, isSameDay } from "date-fns";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
 import interactionPlugin from "@fullcalendar/interaction"; // for selectable
@@ -86,22 +86,33 @@ const AgendarCita = () => {
     // info.start contiene la fecha seleccionada
     const date = info.start;
     const today = new Date(); // Obtener la fecha de hoy
+
+    // Formatear las fechas
+    const formattedDate = format(date, "yyyy-MM-dd");
+    const formattedToday = format(today, "yyyy-MM-dd");
+
+    // Convertir las fechas formateadas en objetos de fecha
+    const selectedDateObj = new Date(formattedDate);
+    const todayObj = new Date(formattedToday);
+
     // Verificar si la fecha seleccionada es igual o posterior a la fecha de hoy
-    if (date >= today) {
-      // Conserva solo la parte de la fecha (sin la hora)
-      const formattedDate = format(date, "yyyy-MM-dd");
+    if (isAfter(selectedDateObj, todayObj) || isSameDay(selectedDateObj, todayObj)) {
+      // Si la fecha seleccionada es igual o posterior a la fecha de hoy
       setSelectedDate(formattedDate);
       setModalHoraVisible(true);
     } else {
-      // Si la fecha seleccionada es anterior a la fecha de hoy, mostrar un mensaje de error o tomar otra acción según tu caso
+      Swal.fire({
+        icon: "error",
+        title: "Error al Seleccionar la Fecha",
+        text: "La fecha seleccionada debe ser igual o posterior a la fecha de hoy!",
+      });
       console.log("La fecha seleccionada debe ser igual o posterior a la fecha de hoy");
-      // Puedes mostrar un mensaje de error, deshabilitar la selección, etc.
     }
   };
 
-
   const handleAgendarClick = async () => {
     const userInfo = await getUserInfo();
+
     if (selectedBarberoId && selectedDate && selectedHour) {
       // Parsea la cadena de hora a un objeto de fecha
       const parsedHour = parse(selectedHour, "hh:mm a", new Date());
@@ -192,23 +203,29 @@ const AgendarCita = () => {
     handlePageChange(currentPage + 1);
   };
 
-  const generateHourOptions = (startHour, endHour) => {
+  const generateHourOptions = (startHour, endHour, citasAgendadas) => {
     const options = [];
     const start = parseInt(startHour.split(":")[0]); // Extrae la hora de inicio
     const end = parseInt(endHour.split(":")[0]); // Extrae la hora de fin
-
+  
     for (let i = start; i <= end; i++) {
       let hour = i % 12 === 0 ? 12 : i % 12; // Convierte la hora en formato de 12 horas
       let suffix = i < 12 ? "AM" : "PM"; // Determina si es AM o PM
-      options.push(
-        <option key={i} value={`${hour}:00 ${suffix}`}>{`${hour}:00 ${suffix}`}</option>
-      );
-      options.push(
-        <option key={i + 0.5} value={`${hour}:30 ${suffix}`}>{`${hour}:30 ${suffix}`}</option>
-      );
+      const hora = `${hour}:00 ${suffix}`;
+  
+      // Verifica si la hora está ocupada por una cita agendada
+      const horaOcupada = citasAgendadas.some(cita => cita.Hora_Atencion === hora);
+  
+      // Si la hora no está ocupada, la añade a las opciones
+      if (!horaOcupada) {
+        options.push(
+          <option key={i} value={hora}>{hora}</option>
+        );
+      }
     }
     return options;
   };
+  
 
 
   return (
