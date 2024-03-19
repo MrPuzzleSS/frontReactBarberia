@@ -110,7 +110,6 @@ const AgendarCita = () => {
         Hora_Atencion: formattedHour,
       };
 
-      console.log("Nueva cita:", nuevaCita);
 
       try {
         // Utiliza la función create de CitasDataService para crear la cita
@@ -171,9 +170,9 @@ const AgendarCita = () => {
     setSelectedBarberoId(id_empleado);
 
     try {
-      const response = await ServicioBarbero.getEmpleadoAgenda(id_empleado);
-      setAgendaData(response);
-      console.log("Agenda del empleado:", response.data);
+      const response = await CitasDataService.getEmpleadoAgendas(id_empleado);
+      setSelectedBarbero(response.data.empleado);
+      setAgendaData(response.data.agendas);
 
       // Obtener y almacenar el nombre del empleado
       const empleadoSeleccionado = empleados.find(

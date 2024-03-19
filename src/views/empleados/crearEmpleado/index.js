@@ -168,7 +168,7 @@ function CrearEmpleado() {
 
     return (
         <CRow>
-            <CCol xs={12}>
+            <CCol>
                 <CCard>
                     <CCardHeader>
                         <strong>Registrar</strong>
@@ -176,8 +176,9 @@ function CrearEmpleado() {
                     <CCardBody>
                         <form onSubmit={handleGuardarEmpleado}>
 
-
-                        <div className="mb-3">
+                        <CRow>
+                        <CCol xs={12} sm={6}>
+                            <div className="mb-3">
                             <CFormLabel>Documento</CFormLabel>
                             <CFormInput
                             type="text" // Cambiado a tipo texto para evitar el control de HTML5
@@ -206,12 +207,14 @@ function CrearEmpleado() {
                             />
                             <CFormFeedback invalid>{documentoError}</CFormFeedback>
                             </div>
+                            </CCol>
 
                             {errorDocumento &&
                                 <p style={{ color: 'red' }}>Ya existe un empleado con éste número de cédula</p>
                             }
-
-                            <div className="mb-3">
+                            
+                            <CCol xs={12} sm={6}>
+                                <div className="mb-3">
                             <CFormLabel>Nombre</CFormLabel>
                             <CFormInput
                             type="text"
@@ -239,8 +242,12 @@ function CrearEmpleado() {
                               />
                             <CFormFeedback invalid>{nombreError}</CFormFeedback>
                             </div>
+                            </CCol>
+                            </CRow>
 
-
+                            
+                            <CRow>
+                            <CCol xs={12} sm={6}>
                             <div className="mb-3">
                                 <CFormLabel>Apellido</CFormLabel>
                                 <CFormInput
@@ -263,8 +270,10 @@ function CrearEmpleado() {
                                 
                                 <CFormFeedback invalid>{apellidoError}</CFormFeedback>
                             </div>
+                            </CCol>
 
 
+                            <CCol xs={12} sm={6}>
                             <div className="mb-3">
                                 <CFormLabel>Correo</CFormLabel>
                                 <CFormInput
@@ -293,8 +302,11 @@ function CrearEmpleado() {
                             />
                             <CFormFeedback invalid>{correoError}</CFormFeedback>
                             </div>
+                            </CCol>
+                            </CRow>
 
 
+                            <CCol xs={12} sm={6}>
                             <div className="mb-3">
                                 <CFormLabel>Teléfono</CFormLabel>
                                 <CFormInput
@@ -326,6 +338,7 @@ function CrearEmpleado() {
                                 />
                                 <CFormFeedback invalid>{telefonoError}</CFormFeedback>
                             </div>
+                            </CCol>
 
                             <CButton type="submit" color="primary" className="mr-2">
                                 Guardar Empleado

@@ -64,6 +64,9 @@ function CargarVentas() {
   const [citaId, setCitaId] = useState("");
   const [totalVenta, setTotalVenta] = useState(0);
 
+  //citas con usuario
+  const [selectedUsuario, setSelectedUsuario] = useState(null);
+
 
 
   useEffect(() => {
@@ -103,7 +106,8 @@ function CargarVentas() {
       setNumeroFactura(nextNumeroFactura);
       const response = await VentaService.crearVenta({
         citaId: citaData.id_cita,
-        clienteId: selectedCliente.id_cliente,
+        usuarioId: selectedUsuario.id_usuario,
+        //clienteId: selectedCliente.id_cliente,
         empleadoId: selectedEmpleado.id_empleado,
         servicios: serviciosEnVenta,
         productos: productosEnVenta,
@@ -120,11 +124,10 @@ function CargarVentas() {
   };
 
 
-  const fetchCitasData = async (cedulaCliente) => {
-    setErrorCedula(false);
+  const fetchCitasData = async (id_usuario) => {
     try {
       const response = await axios.post(`${API_URL}/citashoy`, {
-        cedula_cliente: cedulaCliente,
+        id_usuario: id_usuario,
       }, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -134,7 +137,6 @@ function CargarVentas() {
       return response.data;
     } catch (error) {
       console.error("Error al obtener los datos de la cita:", error);
-      setErrorCedula(true);
     }
   };
 
@@ -257,23 +259,22 @@ function CargarVentas() {
   
         return citaDateWithoutTime.getTime() === todayWithoutTime.getTime();
       });
-      
-      const responseClientes = await axios.get(`${API_URL}/cliente`, {
+      const responseUsuarios = await axios.get(`${API_URL}/usuario`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
-      var arrayClientes = responseClientes.data.listClientes
+      var arrayUsuarios = responseUsuarios.data.usuarios
 
-      const citasConNombreCliente = filteredCitas.map(cita => {
-        const cliente = arrayClientes.find(cliente => cliente.id_cliente === cita.id_cliente);
+      const citasConNombreUsuario = filteredCitas.map(cita => {
+        const usuario = arrayUsuarios.find(usuario => usuario.id_usuario === cita.id_usuario);
         return {
           ...cita,
-          nombre_cliente: cliente ? cliente.nombre : 'Cliente no encontrado'
+          nombre_usuario: usuario ? usuario.nombre_usuario : 'Cliente no encontrado'
         };
       });
   
-      setCitas(citasConNombreCliente);
+      setCitas(citasConNombreUsuario);
     } catch (error) {
       console.error('Error al obtener citas:', error);
     }
@@ -313,6 +314,14 @@ function CargarVentas() {
     }
   };
 
+
+  //usuarios
+  const handleUsuarioChage = (usuarioId) => {
+    const selected = usuarios.find(
+      (usuario) => usuario.id_usuario == usuarioId,
+    );
+    setSelectedUsuario(selected);
+  };
 
 
   const handleEmpleadoChange = (empleadoId) => {
@@ -422,35 +431,37 @@ function CargarVentas() {
 
 
   const handleCitaChange = (event) => {
-    const nuevoNumeroCedula = event.target.value;
-    console.log("Número de cédula del cliente:", nuevoNumeroCedula);
-    setNumeroCita(nuevoNumeroCedula);
+    const selectedUsuario = event.target.value;
+    console.log("Número de cédula del cliente:", selectedUsuario);
+    setSelectedUsuario(selectedUsuario);
   };
 
 
 
-  const handleNumeroCitaTerminado = async () => {
+  const handleNumeroCitaTerminado = async (id_usuario) => {
     try {
-      setSelectedCliente(null);
+      //setSelectedCliente(null);
+      setSelectedUsuario(null);
       setSelectedEmpleado(null);
       setCitaData(null);
       setServiciosEnVenta([]);
       setTotalVenta(0);
-
-      const citaDataResponse = await fetchCitasData(nuevoNumeroCedula);
-      console.log(citaDataResponse);
-
-      await handleClienteChange(citaDataResponse?.id_cliente);
+      const citaDataResponse = await fetchCitasData(id_usuario);
+      console.log(citaDataResponse)
+      await handleUsuarioChage(citaDataResponse?.id_usuario);
+      //await handleClienteChange(citaDataResponse?.id_cliente);
       await handleEmpleadoChange(citaDataResponse?.id_empleado);
 
       let infoServicio;
 
       try {
-        const response = await fetch(
-          `${API_URL}/citas_servicios/${citaDataResponse.id_cita}`,
-        );
-        const data = await response.json();
-        infoServicio = data;
+        const response = await axios.get(`${API_URL}/citas_servicios/${citaDataResponse.id_cita}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        const data = response.data;
+        infoServicio = data;        
       } catch (error) {
         console.error("Error al obtener los datos de la cita:", error);
       }
@@ -469,6 +480,7 @@ function CargarVentas() {
         setServiciosEnVenta([nuevaFilaServicio]);
         setSelectedServicio(null);
         setTotalVenta(nuevaFilaServicio.precioTotal);
+        setVisible(false);
       }
     } catch (error) {
       console.error("Error al obtener los datos de la cita:", error);
@@ -491,7 +503,7 @@ function CargarVentas() {
   };
 
 
-
+/*
   const obtenerCedulaCliente = async (id_cliente) => {
     try {
       const response = await fetch(`${API_URL}/cliente/${id_cliente}`, {
@@ -563,7 +575,7 @@ function CargarVentas() {
     }
   }; 
 
-
+*/
   
     const abrirModal = () => {
       setVisible(true);
@@ -613,7 +625,7 @@ function CargarVentas() {
                           {citas && citas.map((citas, index) => (
                             <CTableRow key={citas.id_cita}>
                               <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                              <CTableDataCell>{citas.nombre_cliente}</CTableDataCell>
+                              <CTableDataCell>{citas.nombre_usuario}</CTableDataCell>
                               <CTableDataCell>{citas.Fecha_Atencion.slice(0, 10)}</CTableDataCell>
                               <CTableDataCell>{citas.Hora_Atencion}</CTableDataCell>
                               <CTableDataCell>
@@ -621,7 +633,7 @@ function CargarVentas() {
                                   <CButton
                                     size="sm"
                                     onClick={() => {
-                                      obtenerCedulaCliente(citas.id_cliente)
+                                      handleNumeroCitaTerminado(citas.id_usuario)
                                     }}
                                   >
                                     Atender
@@ -635,30 +647,7 @@ function CargarVentas() {
                     </CCardBody>
                   </CModalBody>
                 </CModal>
-                <div style={{ flex: 1, marginRight: "10px" }}>
-                  <CFormLabel>Cédula del Cliente</CFormLabel>
-                  <CFormInput
-                    type="text"
-                    name="numeroCita"
-                    placeholder="Ingresa el número de cédula del cliente"
-                    value={nuevoNumeroCedula}
-                    onChange={handleCitaChange}
-                    onBlur={handleNumeroCitaTerminado}
-                  />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <CFormLabel>Fecha y Hora</CFormLabel>
-                  <CFormInput
-                    value={
-                      citaData?.Fecha_Atencion != undefined
-                        ? citaData?.Fecha_Atencion.slice(0, 10) +
-                        " - " +
-                        citaData?.Hora_Atencion
-                        : " "
-                    }
-                    readOnly
-                  />
-                </div>
+
               </div>
               {errorCedula && (
                 <p style={{ color: "red" }}>Cliente no encontrado</p>
@@ -671,8 +660,21 @@ function CargarVentas() {
                   <CFormLabel>Cliente</CFormLabel>
                   <CFormInput
                     value={
-                      selectedCliente != undefined
-                        ? selectedCliente?.nombre + " " + apellido
+                      selectedUsuario != undefined
+                        ? selectedUsuario?.nombre_usuario + " " + apellido
+                        : " "
+                    }
+                    readOnly
+                  />
+                </div>
+                <div style={{ flex: 1, marginRight: "10px" }}>
+                  <CFormLabel>Fecha y Hora</CFormLabel>
+                  <CFormInput
+                    value={
+                      citaData?.Fecha_Atencion != undefined
+                        ? citaData?.Fecha_Atencion.slice(0, 10) +
+                        " - " +
+                        citaData?.Hora_Atencion
                         : " "
                     }
                     readOnly

@@ -240,29 +240,29 @@ function ListaVentas() {
                         </CButton>
 
                         <div style={{ width: '10px' }} />
-                        {venta.estado.toLowerCase() !== 'cancelado' && (
-                          <CButton
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              padding: '8px 12px',
-                              border: '1px solid #28a745',
-                              borderRadius: '4px',
-                              backgroundColor: 'rgba(0, 255, 0, 0.2)',
-                              color: '#17a2b8',
-                              fontSize: '14px',
-                              textTransform: 'uppercase',
-                              cursor: 'pointer',
-                            }}
-                            size="sm"
-                            onClick={() => {
-                              setModalVisible(!modalVisible);
-                              handleAbono(venta)
-                            }}
-                          >
-                            <FontAwesomeIcon icon={faHandHoldingDollar} style={{ color: '#000000' }}/>
-                          </CButton>
+                        {venta.estado.toLowerCase() !== 'pagado' && (
+                        <CButton
+                          style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '8px 12px',
+                          border: '1px solid #28a745',
+                          borderRadius: '4px',
+                          backgroundColor: 'rgba(0, 255, 0, 0.2)',
+                          color: '#17a2b8',
+                          fontSize: '14px',
+                          textTransform: 'uppercase',
+                          cursor: 'pointer',
+                        }}
+                        size="sm"
+                        onClick={() => {
+                          setModalVisible(!modalVisible);
+                          handleAbono(venta);
+                        }}
+                        >
+                          <FontAwesomeIcon icon={faHandHoldingDollar} style={{ color: '#000000' }}/>
+                        </CButton>
                         )}
 
 
@@ -278,7 +278,7 @@ function ListaVentas() {
                             justifyContent: 'center',
                             padding: '8px 12px',
                             borderRadius: '4px',
-                            backgroundColor: '#FF0000',
+                            backgroundColor: 'rgba(255, 0, 0, 0.1)',
                             fontSize: '14px',
                             textTransform: 'uppercase',
                             cursor: 'pointer',

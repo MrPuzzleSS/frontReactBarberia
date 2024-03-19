@@ -1,7 +1,7 @@
 import http from "src/http-common";
 
 const getAll = () => {
-    return http.get("/empleado");
+    return http.get("/empleado/activos");
 };
 
 const getEmpleadoAgenda = id => {
