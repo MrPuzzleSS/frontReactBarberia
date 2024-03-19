@@ -34,7 +34,7 @@ const EventReport = ({ events }) => {
 
   return (
     <div style={{ textAlign: 'right' }}>
-      <button onClick={handleDownloadExcel} style={{ backgroundColor: '#3c4b64', color: 'white', border: 'none', borderRadius: '8px', padding: '10px 30px' }}>
+      <button onClick={handleDownloadExcel} style={{ backgroundColor: '#9eA3BA', color: 'white', border: 'none', borderRadius: '8px', padding: '10px 30px' }}>
         <FontAwesomeIcon icon={faFileExcel} style={{ marginRight: '5px' }} />
         Excel
       </button>

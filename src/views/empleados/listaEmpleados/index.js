@@ -130,15 +130,6 @@ function ListaEmpleados() {
       Swal.fire('¡Éxito!', 'La modificación ha sido exitosa.', 'success');
 
       setEmpleados((prevEmpleados) =>
-<<<<<<< HEAD
-        prevEmpleados.map((empleado) =>
-          empleado.id_empleado === selectedEmpleadoId.id_empleado
-            ? selectedEmpleadoId
-            : empleado
-        )
-      );
-
-=======
       prevEmpleados.map((empleado) =>
         empleado.id_empleado === selectedEmpleadoId.id_empleado
           ? selectedEmpleadoId
@@ -154,7 +145,6 @@ function ListaEmpleados() {
       )
     );
   
->>>>>>> develop
       setValidationErrors({
         nombre: '',
         apellido: '',
@@ -432,16 +422,10 @@ function ListaEmpleados() {
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-<<<<<<< HEAD
-                {currentEmpleados.map((empleado, index) => (
-                  <CTableRow key={empleado.id_empleado}>
-                    <CTableHeaderCell scope="row">{indexOfFirstEmpleado + index + 1}</CTableHeaderCell>
-=======
               {currentEmpleados.map((empleado, index) => (
               <CTableRow key={empleado.id_empleado}>
                 <CTableHeaderCell scope="row">{indexOfFirstEmpleado + index + 1}</CTableHeaderCell>
                     <CTableDataCell>{empleado.documento}</CTableDataCell>
->>>>>>> develop
                     <CTableDataCell>{empleado.nombre}</CTableDataCell>
                     <CTableDataCell>{empleado.apellido}</CTableDataCell>
                     <CTableDataCell>{empleado.correo}</CTableDataCell>

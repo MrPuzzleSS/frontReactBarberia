@@ -842,7 +842,7 @@ const CrearConfiguracion = () => {
                                     const isDisabled = !arg.event.extendedProps.estado;
 
                                     // Establecer el color del evento
-                                    const backgroundColor = isDisabled ? '#666666' : arg.event.backgroundColor;
+                                    const backgroundColor = isDisabled ? '#9eA3BA' : arg.event.backgroundColor;
 
 
                                     return (

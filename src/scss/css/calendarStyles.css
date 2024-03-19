@@ -42,14 +42,21 @@ body {
 
 
 
+/* Para cambiar el color de fondo */
+.fc-header-toolbar {
+    background-color: #9eA3BA;
+}
+
+
+
 
 
 
 /* Estilos para el encabezado del calendario */
 .fc-header-toolbar {
-    background-color: #3c4b64;
+    background-color: #9eA3BA;
     /* Cambia el color de fondo del encabezado */
-    color: #ffffff;
+    color: #070707;
     /* Cambia el color del texto en el encabezado */
     font-family: 'Times New Roman', Times, serif;
     /* Cambia la fuente del calendario */
@@ -71,7 +78,7 @@ body {
 
 /* Efecto de hover para los eventos */
 .fc-event:hover {
-    background-color: #C0C0C0;
+    background-color: #9eA3BA;
     /* Cambia el color de fondo al pasar el mouse */
 }
 
