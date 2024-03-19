@@ -1,24 +1,20 @@
 import React from 'react';
 import CIcon from '@coreui/icons-react';
 import {
-  cilPuzzle,
   cilShieldAlt,
-  cilScissors,
   cilCut,
   cilContact,
   cilCalendar,
   cilSpeedometer,
   cilUser,
-  cilSettings,
-  cilFace,
   cilIndustry,
   cilCart,
-  cilHeart,
   cilPeople,
   cilMoney,
   cilBasket,
 } from '@coreui/icons';
-import { CNavGroup, CNavItem } from '@coreui/react';
+import { CNavItem, CNavTitle } from '@coreui/react';
+import { getUserInfo } from './components/auht';
 
 const _nav = [
   {
@@ -27,6 +23,11 @@ const _nav = [
     style: { color: 'black' },
     to: '/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" style={{ color: 'black' }} />,
+  },
+  {
+    component: CNavTitle,
+    name: 'Procesos de Compra',
+    style: { color: 'black' },
   },
   {
     component: CNavItem,
@@ -44,6 +45,18 @@ const _nav = [
   },
   {
     component: CNavItem,
+    name: 'ProdInsumos',
+    style: { color: 'black' },
+    to: '/productos',
+    icon: <CIcon icon={cilBasket} customClassName="nav-icon" style={{ color: 'black' }} />,
+  },
+  {
+    component: CNavTitle,
+    name: 'Procesos de Servicio',
+    style: { color: 'black' },
+  },
+  {
+    component: CNavItem,
     name: 'Empleados',
     style: { color: 'black' },
     to: '/empleados',
@@ -51,10 +64,27 @@ const _nav = [
   },
   {
     component: CNavItem,
+    name: 'Servicios',
+    style: { color: 'black' },
+    to: '/servicios',
+    icon: <CIcon icon={cilCut} customClassName="nav-icon" style={{ color: 'black' }} />,
+  },
+  {
+    component: CNavTitle,
+    name: 'Proceso de Agenda',
+    style: { color: 'black' },
+  },
+  {
+    component: CNavItem,
     name: 'Agendas',
     style: { color: 'black' },
     to: '/agendas/crearconfiguracion',
     icon: <CIcon icon={cilCalendar} customClassName="nav-icon" style={{ color: 'black' }} />,
+  },
+  {
+    component: CNavTitle,
+    name: 'Procesos de Venta',
+    style: { color: 'black' },
   },
   {
     component: CNavItem,
@@ -71,33 +101,42 @@ const _nav = [
     icon: <CIcon icon={cilUser} customClassName="nav-icon" style={{ color: 'black' }} />,
   },
   {
-    component: CNavItem,
-    name: 'Servicios',
+    component: CNavTitle,
+    name: 'Procesos de Configuración',
     style: { color: 'black' },
-    to: '/servicios',
-    icon: <CIcon icon={cilCut} customClassName="nav-icon" style={{ color: 'black' }} />,
-  },
-  {
-    component: CNavItem,
-    name: 'ProdInsumos',
-    style: { color: 'black' },
-    to: '/Productos',
-    icon: <CIcon icon={cilBasket} customClassName="nav-icon" style={{ color: 'black' }} />,
   },
   {
     component: CNavItem,
     name: 'Usuarios',
     style: { color: 'black' },
-    to: '/listaUsuarios',
+    to: '/listausuarios',
     icon: <CIcon icon={cilContact} customClassName="nav-icon" style={{ color: 'black' }} />,
   },
   {
     component: CNavItem,
     name: 'Roles',
     style: { color: 'black' },
-    to: '/ListaRol',
+    to: '/listarol',
     icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" style={{ color: 'black' }} />,
   },
 ];
 
-export default _nav;
+const CheckPermission = ({ route }) => {
+  const userInfo = getUserInfo();
+  const permisos = userInfo.rol.permisos;
+  const permisosRutas = permisos.map((permiso) => permiso.ruta);
+
+  if (permisosRutas.includes(route)) {
+    return true;
+  }
+  return false;
+};
+
+const FilteredNav = _nav.filter((item) => {
+  if (item.to && item.component === CNavItem) {
+    return CheckPermission({ route: item.to });
+  }
+  return true;
+});
+
+export default FilteredNav;

@@ -4,6 +4,11 @@ const getAll = () => {
     return http.get("/citas");
 }
 
+const getAllCitasAgendadas = () => {
+    return http.get("/citas/agendadas");
+    
+}
+
 const getAllCitasServicios = (id) => {
     return http.get(`/citas/servicios/${id}`);
 
@@ -51,6 +56,7 @@ const cambiarEstadoCita = async (id) => {
 
 const CitasDataService = {
     getAll,
+    getAllCitasAgendadas,
     getAllCitasServicios,
     getEmpleadoAgendas,
     get,

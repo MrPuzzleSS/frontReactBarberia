@@ -98,7 +98,7 @@ const CrearConfiguracion = React.lazy(() => import('./views/agendas/crearConfigu
 const routes = [
   //TODAS LAS RUTAS DEL PROYECTO
 
-  { path: '/', exact: true, name: 'Home' },
+  { path: '/', exact: true, name: 'Home', element:Dashboard},
 
   { path: '/dashboard', name: 'Dashboard', element:Dashboard },
   //{ path: '/dashboard', name: 'Dashboard', element: <PrivateRoute path="/dashboard" element={<Dashboard />} /> },

@@ -191,7 +191,7 @@ function ListaVentas() {
                   <CTableHeaderCell scope="col">Valor Total</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Anular</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
+                  <CTableHeaderCell scope="col"></CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
