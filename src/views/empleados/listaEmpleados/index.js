@@ -411,7 +411,6 @@ function ListaEmpleados() {
             <CTable align='middle' className='mb-0 border' hover responsive>
               <CTableHead>
                 <CTableRow>
-                  <CTableHeaderCell scope="col">#</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Documento</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Apellido</CTableHeaderCell>
@@ -424,7 +423,6 @@ function ListaEmpleados() {
               <CTableBody>
               {currentEmpleados.map((empleado, index) => (
               <CTableRow key={empleado.id_empleado}>
-                <CTableHeaderCell scope="row">{indexOfFirstEmpleado + index + 1}</CTableHeaderCell>
                     <CTableDataCell>{empleado.documento}</CTableDataCell>
                     <CTableDataCell>{empleado.nombre}</CTableDataCell>
                     <CTableDataCell>{empleado.apellido}</CTableDataCell>
