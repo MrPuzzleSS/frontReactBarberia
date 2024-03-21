@@ -50,6 +50,7 @@ const AgendarCita = () => {
   const [selectedBarberoName, setSelectedBarberoName] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
   const [modalHoraVisible, setModalHoraVisible] = useState(false);
+  const [citasAgendadas, setCitasAgendadasData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -185,9 +186,13 @@ const AgendarCita = () => {
     setSelectedBarberoId(id_empleado);
 
     try {
+      const citasAgendadas = await CitasDataService.getAllCitasAgendadas();
+
       const response = await CitasDataService.getEmpleadoAgendas(id_empleado);
       setSelectedBarbero(response.data.empleado);
       setAgendaData(response.data.agendas);
+      setCitasAgendadasData(citasAgendadas.data.listCitas);
+
 
       // Obtener y almacenar el nombre del empleado
       const empleadoSeleccionado = empleados.find(
@@ -204,29 +209,32 @@ const AgendarCita = () => {
   };
 
   const generateHourOptions = (startHour, endHour, citasAgendadas) => {
+    console.log("citasAgendadas", citasAgendadas);
     const options = [];
-    const start = parseInt(startHour.split(":")[0]); // Extrae la hora de inicio
-    const end = parseInt(endHour.split(":")[0]); // Extrae la hora de fin
+    const start = parseInt(startHour.split(":")[0]); // Extract start hour
+    const end = parseInt(endHour.split(":")[0]); // Extract end hour
   
     for (let i = start; i <= end; i++) {
-      let hour = i % 12 === 0 ? 12 : i % 12; // Convierte la hora en formato de 12 horas
-      let suffix = i < 12 ? "AM" : "PM"; // Determina si es AM o PM
+      let hour = i % 12 === 0 ? 12 : i % 12; // Convert hour to 12-hour format
+      let suffix = i < 12 ? "AM" : "PM"; // Determine if it's AM or PM
       const hora = `${hour}:00 ${suffix}`;
   
-      // Verifica si la hora está ocupada por una cita agendada
-      const horaOcupada = citasAgendadas.some(cita => cita.Hora_Atencion === hora);
+      // Reformate the hour to match the format of scheduled appointments
+      const formattedHora = `${hour < 10 ? '0' + hour : hour}:00:00`;
   
-      // Si la hora no está ocupada, la añade a las opciones
+      // Check if the hour is occupied by a scheduled appointment
+      const horaOcupada = citasAgendadas.some(cita => cita.Hora_Atencion === formattedHora);
+  
+      // If the hour is not occupied, add it to the options
       if (!horaOcupada) {
         options.push(
-          <option key={i} value={hora}>{hora}</option>
+          <option key={formattedHora} value={formattedHora}>{hora}</option>
         );
       }
     }
     return options;
   };
   
-
 
   return (
     <CContainer>
@@ -471,7 +479,7 @@ const AgendarCita = () => {
                               <div>
                                 <h4>Horas para el día {selectedDate}</h4>
                                 <select onChange={(e) => setSelectedHour(e.target.value)}>
-                                  {generateHourOptions(agendaData[0].horaInicio, agendaData[0].horaFin)}
+                                  {generateHourOptions(agendaData[0].horaInicio, agendaData[0].horaFin, citasAgendadas)}
                                 </select>
                               </div>
                             )}
