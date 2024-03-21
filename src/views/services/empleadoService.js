@@ -73,7 +73,6 @@ const EmpleadoService = {
             });
     },
 
-
     eliminarEmpleado: (id) => {
         const token = localStorage.getItem('token');
         return fetch(`${apiUrl}/${id}`, {
