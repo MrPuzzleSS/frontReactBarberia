@@ -51,7 +51,6 @@ function ListaEmpleados() {
   const [estadoOriginal, setEstadoOriginal] = useState(false);
   const [empleadoToDeleteId, setEmpleadoToDeleteId] = useState(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-
   const [validationErrors, setValidationErrors] = useState({
     nombre: '',
     apellido: '',
@@ -159,44 +158,6 @@ function ListaEmpleados() {
       Swal.fire('Error', 'Hubo un problema al actualizar el empleado.', 'error');
     }
   };
-
-
-  const handleShoweleteConfimation = (id_empleado) => {
-    setEmpleadoToDeleteId(id_empleado);
-    setShowDeleteConfirmation(true);
-  };
-  const handleEliminarEmpleado = async (id_empleado) => {
-    try {
-      const result = await Swal.fire({
-        title: '¿Estás seguro?',
-        text: "¡No podrás revertir esto!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar'
-      });
-
-      if (result.isConfirmed) {
-        await EmpleadoService.eliminarEmpleado(id_empleado);
-        await fetchEmpleados();
-        Swal.fire({
-          icon: 'success',
-          title: '¡Éxito!',
-          text: 'El empleado ha sido eliminado correctamente.',
-        });
-      }
-    } catch (error) {
-      console.error('Error al eliminar empleado:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Hubo un problema al eliminar el empleado. Por favor, inténtalo de nuevo más tarde.',
-      });
-    }
-  };
-
-
 
 
   const fetchEmpleados = async () => {
@@ -353,6 +314,43 @@ function ListaEmpleados() {
       Swal.fire('Error', 'Hubo un problema al cambiar el estado del empleado.', 'error');
     }
   };
+
+
+  const handleShoweleteConfimation = (id_empleado) => {
+    setEmpleadoToDeleteId(id_empleado);
+    setShowDeleteConfirmation(true);
+  };
+  const handleEliminarEmpleado = async (id_empleado) => {
+    try {
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡No podrás revertir esto!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar'
+      });
+
+      if (result.isConfirmed) {
+        await EmpleadoService.eliminarEmpleado(id_empleado);
+        await fetchEmpleados();
+        Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: 'El empleado ha sido eliminado correctamente.',
+        });
+      }
+    } catch (error) {
+      console.error('Error al eliminar empleado:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Hubo un problema al eliminar el empleado. Por favor, inténtalo de nuevo más tarde.',
+      });
+    }
+  };
+
 
 
 

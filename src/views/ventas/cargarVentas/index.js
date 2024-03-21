@@ -107,7 +107,6 @@ function CargarVentas() {
       const response = await VentaService.crearVenta({
         citaId: citaData.id_cita,
         usuarioId: selectedUsuario.id_usuario,
-        //clienteId: selectedCliente.id_cliente,
         empleadoId: selectedEmpleado.id_empleado,
         servicios: serviciosEnVenta,
         productos: productosEnVenta,
