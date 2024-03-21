@@ -87,10 +87,10 @@ const EditProfilePage = () => {
             setUpdateError('Error al conectar con el servidor. Por favor, inténtalo de nuevo más tarde.');
         }
     }
-    
+
     const confirmUpdate = async () => {
         try {
-            const response = await fetch('https://restapibarberia.onrender.com/api/rol/actualizarPerfil', {
+            const response = await fetch('http://localhost:8095/api/actualizarPerfil', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -111,23 +111,25 @@ const EditProfilePage = () => {
                 }, 3000);
             } else {
                 const data = await response.json();
-                if (data.mensaje === 'El nombre de usuario ya está en uso') {
+                if (data.error && data.error.sqlMessage) {
+                    let errorMessage = '';
+                    if (data.error.sqlMessage.includes('nombre_usuario')) {
+                        errorMessage = 'El nombre de usuario ya está en uso';
+                    } else if (data.error.sqlMessage.includes('correo')) {
+                        errorMessage = 'El correo electrónico ya está en uso';
+                    } else {
+                        errorMessage = 'Error al actualizar el perfil. Por favor, inténtalo de nuevo.';
+                    }
                     Swal.fire({
                         icon: 'error',
                         title: 'Error al actualizar el perfil',
-                        text: data.mensaje,
-                    });
-                } else if (data.mensaje === 'El correo electrónico ya está en uso') {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error al actualizar el perfil',
-                        text: data.mensaje,
+                        text: errorMessage,
                     });
                 } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error al actualizar el perfil',
-                        text: 'Por favor, inténtalo de nuevo.',
+                        text: 'Error al actualizar el perfil. Por favor, inténtalo de nuevo.',
                     });
                 }
             }
@@ -135,8 +137,7 @@ const EditProfilePage = () => {
             console.error('Error al realizar la actualización', error);
             setUpdateError('Error al conectar con el servidor. Por favor, inténtalo de nuevo más tarde.');
         }
-    };
-    
+    }
     
     
 

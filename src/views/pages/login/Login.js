@@ -34,7 +34,7 @@ const Login = () => {
       throw new Error('El nombre de usuario solo puede contener letras y números');
     }
 
-    if (username.length < 4 || username.length > 20) {
+    if (username.length < 3 || username.length > 20) {
       throw new Error('El nombre de usuario debe tener entre 4 y 20 caracteres');
     }
   };
@@ -60,7 +60,7 @@ const Login = () => {
       validateUsername(nombreUsuario);
       validatePassword(contrasena);
   
-      const response = await axios.post('https://restapibarberia.onrender.com/api/login', {
+      const response = await axios.post('http://localhost:8095/api/login', {
         nombre_usuario: nombreUsuario,
         contrasena,
       });

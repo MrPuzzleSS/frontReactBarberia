@@ -9,7 +9,7 @@ import logoBarberia from '../../../assets/images/logoBarberia2.png';
 import prueba2 from '../../../assets/images/fonds.jpg';
 
 const RegisterCliente = () => {
-  const roleIdCliente = 3;
+  const roleIdCliente = 11;
 
   const [newUser, setNewUser] = useState({
     id_rol: roleIdCliente,
@@ -32,7 +32,7 @@ const RegisterCliente = () => {
     try {
       setErrors({}); // Limpiar errores al intentar registrar
   
-      const response = await axios.post('https://restapibarberia.onrender.com/api/usuario', newUser);
+      const response = await axios.post('http://localhost:8095/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
   
       Swal.fire({

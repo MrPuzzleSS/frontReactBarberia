@@ -136,20 +136,17 @@ const CheckPermission = ({ route }) => {
 };
 
 
-
 const FilteredNav = _nav.map((item) => {
   if (item.to && item.component === CNavItem) {
     if (CheckPermission({ route: item.to })) {
       return item; // Permitir acceso a la ruta si tiene permiso
-    } else {
-      return {
-        ...item,
-        component: () => null, // Ocultar el componente si no tiene permiso
-      };
     }
   }
-  return item;
-});
+  return null; // Ocultar la ruta si no tiene permiso
+}).filter(Boolean); 
+
+
+
 /*
 const FilteredNav = _nav.map((item) => {
   if (item.to && item.component === CNavItem) {
