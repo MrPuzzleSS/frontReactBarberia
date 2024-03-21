@@ -1,7 +1,6 @@
 import React from 'react';
 import CIcon from '@coreui/icons-react';
-import { Navigate } from 'react-router-dom';
-import { Route, Routes} from 'react-router-dom';
+import 'src/scss/css/global.css'; // Importa el archivo CSS global
 
 import {
   cilShieldAlt,

@@ -30,7 +30,7 @@ import {
 } from "@coreui/react";
 import citasServiciosDataService from "src/views/services/citasServiciosService";
 
-const API_URL = "https://restapibarberia.onrender.com/api";
+const API_URL = "http://localhost:8095/api";
 
 function CargarVentas() {
 
@@ -107,7 +107,6 @@ function CargarVentas() {
       const response = await VentaService.crearVenta({
         citaId: citaData.id_cita,
         usuarioId: selectedUsuario.id_usuario,
-        //clienteId: selectedCliente.id_cliente,
         empleadoId: selectedEmpleado.id_empleado,
         servicios: serviciosEnVenta,
         productos: productosEnVenta,

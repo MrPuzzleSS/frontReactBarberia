@@ -1,4 +1,4 @@
-const apiUrl = 'https://restapibarberia.onrender.com/api/insumo';
+const apiUrl = 'http://localhost:8095/api/insumo';
 
 
 

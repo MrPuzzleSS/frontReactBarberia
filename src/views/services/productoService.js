@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiUrl = 'https://restapibarberia.onrender.com/api/producto';
+const apiUrl = 'http://localhost:8095/api/producto';
 
 const getToken = () => {
   // Obtener el token del localStorage

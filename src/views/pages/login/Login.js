@@ -56,10 +56,7 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       setError(null);
-  
-      validateUsername(nombreUsuario);
-      validatePassword(contrasena);
-  
+      
       const response = await axios.post('http://localhost:8095/api/login', {
         nombre_usuario: nombreUsuario,
         contrasena,

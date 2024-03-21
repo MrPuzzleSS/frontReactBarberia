@@ -213,15 +213,26 @@ const ListaUsuarios = () => {
     }
   
     try {
-      const editedUser = {
-        ...selectedItem,
-        nombre_usuario: nombreUsuario,
-        correo: correoElectronico,
-      };
-  
-      const response = await axios.put(`http://localhost:8095/api/usuario/${editedUser.id_usuario}`, editedUser);
-  
-      if (response.status === 200) {
+      const confirmSave = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Deseas guardar los cambios realizados?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, guardar cambios',
+        cancelButtonText: 'Cancelar',
+      });
+
+      if (confirmSave.isConfirmed) {
+        const editedUser = {
+          ...selectedItem,
+          nombre_usuario: document.getElementById('nombreUsuario').value,
+          correo: document.getElementById('correoElectronico').value,
+        };
+
+        await axios.put(`http://localhost:8095/api/usuario/${editedUser.id_usuario}`, editedUser);
+
         setUsers((prevUsers) =>
           prevUsers.map((user) => (user.id_usuario === selectedItem.id_usuario ? editedUser : user))
         );
