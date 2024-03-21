@@ -1,4 +1,4 @@
-const apiUrl = 'https://restapibarberia.onrender.com/api/empleado';
+const apiUrl = 'http://localhost:8095/api/empleado';
 
 const EmpleadoService = {
     getAllEmpleados: () => {
@@ -72,6 +72,21 @@ const EmpleadoService = {
                 console.error('Error al cambiar el estado del empleado:', error);
             });
     },
+
+    eliminarEmpleado: (id) => {
+        const token = localStorage.getItem('token');
+        return fetch(`${apiUrl}/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Error al eliminar el empleado:', error);
+            });
+    },
+
 };
 
 export default EmpleadoService;

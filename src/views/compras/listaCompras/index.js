@@ -174,9 +174,9 @@ function ListaCompras() {
             <CTable align="middle" className="mb-0 border" hover responsive>
               <CTableHead color="light">
                 <CTableRow>
-                  <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                  {/* <CTableHeaderCell scope="col">#</CTableHeaderCell> */}
                   <CTableDataCell scope="col">Proveedor</CTableDataCell>
-                  <CTableHeaderCell scope="col">No Factura</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">N° Factura</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Total</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Tipo de Compra</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
@@ -188,7 +188,7 @@ function ListaCompras() {
                 {Array.isArray(compras) && compras.length > 0 ? (
                   compras.map((compra, i) => (
                     <CTableRow key={i}>
-                      <CTableHeaderCell scope="row">{i + 1}</CTableHeaderCell>
+                      {/* <CTableHeaderCell scope="row">{i + 1}</CTableHeaderCell> */}
                       <CTableDataCell>
                         <ProveedorNombre idProveedor={compra.compra.id_proveedor} />
                       </CTableDataCell>
