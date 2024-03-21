@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Link, Navigate } from 'react-router-dom';
 import {
   CContainer,
   CCard,
@@ -115,9 +114,11 @@ const AgendarCita = () => {
     const userInfo = await getUserInfo();
 
     if (selectedBarberoId && selectedDate && selectedHour) {
+      console.log("Hora antes del formato:", selectedHour);
+    
       // Parsea la cadena de hora a un objeto de fecha
-      const parsedHour = parse(selectedHour, "hh:mm a", new Date());
-
+      const parsedHour = parse(selectedHour, "HH:mm:ss", new Date());
+    
       // Formatea la hora en formato HH:mm
       const formattedHour = format(parsedHour, "HH:mm");
 
@@ -144,16 +145,17 @@ const AgendarCita = () => {
 
           // Utiliza la función create de CitasServiciosDataService para crear la cita_servicio
           await CitasServiciosDataService.create(citaServicio);
+
+          if(response) {
+            Swal.fire({
+              icon: "success",
+              title: "Se creo la cita correctamente",
+              showConfirmButton: false,
+            }).then(() => {
+              window.location.href = "/cliente/listacitas";
+            }, 1500);
+          }
         }
-
-        Swal.fire({
-          icon: "success",
-          title: "Se creo la cita correctamente",
-          showConfirmButton: false,
-          timer: 1500
-        });
-
-        <Navigate to="/cliente/listacitas" />
 
       } catch (error) {
         console.error("Error al intentar agendar la cita:", error);
@@ -163,6 +165,7 @@ const AgendarCita = () => {
       console.warn(
         "Completa la selección de empleado, fecha y hora antes de agendar",
       );
+
       // Puedes mostrar un mensaje o realizar alguna acción adicional aquí
     }
   };
@@ -191,6 +194,7 @@ const AgendarCita = () => {
       const response = await CitasDataService.getEmpleadoAgendas(id_empleado);
       setSelectedBarbero(response.data.empleado);
       setAgendaData(response.data.agendas);
+      console.log(response.data.agendas);
       setCitasAgendadasData(citasAgendadas.data.listCitas);
 
 
@@ -208,23 +212,31 @@ const AgendarCita = () => {
     handlePageChange(currentPage + 1);
   };
 
-  const generateHourOptions = (startHour, endHour, citasAgendadas) => {
-    console.log("citasAgendadas", citasAgendadas);
+  const generateHourOptions = (startHour, endHour, fechaInicio, citasAgendadas) => {
     const options = [];
     const start = parseInt(startHour.split(":")[0]); // Extract start hour
     const end = parseInt(endHour.split(":")[0]); // Extract end hour
-  
+
+    // Formatear la fecha de inicio
+
     for (let i = start; i <= end; i++) {
       let hour = i % 12 === 0 ? 12 : i % 12; // Convert hour to 12-hour format
       let suffix = i < 12 ? "AM" : "PM"; // Determine if it's AM or PM
       const hora = `${hour}:00 ${suffix}`;
-  
+
       // Reformate the hour to match the format of scheduled appointments
       const formattedHora = `${hour < 10 ? '0' + hour : hour}:00:00`;
-  
+
       // Check if the hour is occupied by a scheduled appointment
-      const horaOcupada = citasAgendadas.some(cita => cita.Hora_Atencion === formattedHora);
-  
+      const horaOcupada = citasAgendadas.some(cita => {
+        // Ajuste de la zona horaria
+        const citaDate = new Date(cita.Fecha_Atencion);
+        citaDate.setTime(citaDate.getTime() + citaDate.getTimezoneOffset() * 60 * 1000); // Ajuste de la zona horaria
+        const formattedCitaDate = format(citaDate, 'yyyy-MM-dd');
+        console.log(formattedCitaDate);
+        return formattedCitaDate === selectedDate && cita.Hora_Atencion === formattedHora;
+      });
+
       // If the hour is not occupied, add it to the options
       if (!horaOcupada) {
         options.push(
@@ -234,7 +246,8 @@ const AgendarCita = () => {
     }
     return options;
   };
-  
+
+
 
   return (
     <CContainer>
@@ -479,7 +492,12 @@ const AgendarCita = () => {
                               <div>
                                 <h4>Horas para el día {selectedDate}</h4>
                                 <select onChange={(e) => setSelectedHour(e.target.value)}>
-                                  {generateHourOptions(agendaData[0].horaInicio, agendaData[0].horaFin, citasAgendadas)}
+                                  {generateHourOptions(
+                                    agendaData[0].horaInicio,
+                                    agendaData[0].horaFin,
+                                    selectedDate, // Pasar la fecha de inicio como argumento
+                                    citasAgendadas
+                                  )}
                                 </select>
                               </div>
                             )}
@@ -544,7 +562,6 @@ const AgendarCita = () => {
               Siguiente
             </CButton>
           ) : (
-            <Link to="/cliente/listacitas">
               <CButton
                 color="success"
                 onClick={handleAgendarClick}
@@ -552,7 +569,6 @@ const AgendarCita = () => {
               >
                 Agendar
               </CButton>
-            </Link>
           )}
         </CCol>
       </CRow>
