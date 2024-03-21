@@ -106,7 +106,6 @@ const AgendarCita = () => {
         title: "Error al Seleccionar la Fecha",
         text: "La fecha seleccionada debe ser igual o posterior a la fecha de hoy!",
       });
-      console.log("La fecha seleccionada debe ser igual o posterior a la fecha de hoy");
     }
   };
 
@@ -114,7 +113,6 @@ const AgendarCita = () => {
     const userInfo = await getUserInfo();
 
     if (selectedBarberoId && selectedDate && selectedHour) {
-      console.log("Hora antes del formato:", selectedHour);
     
       // Parsea la cadena de hora a un objeto de fecha
       const parsedHour = parse(selectedHour, "HH:mm:ss", new Date());
