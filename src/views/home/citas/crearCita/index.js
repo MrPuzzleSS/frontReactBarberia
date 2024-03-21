@@ -34,6 +34,7 @@ import CitasDataService from "src/views/services/citasService";
 import CitasServiciosDataService from "src/views/services/citasServiciosService";
 import Swal from 'sweetalert2'
 import { getUserInfo } from '../../../../components/auht';
+import 'src/scss/css/stylosFullCalendar.css';
 
 const AgendarCita = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,6 +51,8 @@ const AgendarCita = () => {
   const [selectedBarberoName, setSelectedBarberoName] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
   const [modalHoraVisible, setModalHoraVisible] = useState(false);
+  const [selectedServicesDuration, setSelectedServicesDuration] = useState(0);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,15 +84,22 @@ const AgendarCita = () => {
     setCurrentPage(newPage);
     setShowAgendarButton(newPage !== 3);
   };
-
   const handleDateSelect = (info) => {
-    // info.start contiene la fecha seleccionada
     const date = info.start;
     const today = new Date(); // Obtener la fecha de hoy
 
     // Formatear las fechas
     const formattedDate = format(date, "yyyy-MM-dd");
     const formattedToday = format(today, "yyyy-MM-dd");
+
+    // Dentro de la función handleDateSelect, después de establecer la fecha y antes de mostrar el modal de hora
+    setSelectedDate(formattedDate);
+
+    // Asegúrate de que esta línea esté presente
+    setModalHoraVisible(true);
+
+    // Llama a calculateAppointmentTime para actualizar el tiempo total de la cita
+    calculateAppointmentTime(); // Agrega esta línea
 
     // Convertir las fechas formateadas en objetos de fecha
     const selectedDateObj = new Date(formattedDate);
@@ -128,32 +138,43 @@ const AgendarCita = () => {
         Hora_Atencion: formattedHour,
       };
 
-
       try {
-        // Utiliza la función create de CitasDataService para crear la cita
-        const response = await CitasDataService.create(nuevaCita);
-        const idCita = response.data.id_cita;
+        // Verifica si hay suficiente tiempo disponible en la agenda del empleado
+        const enoughTimeAvailable = checkTimeAvailability();
 
-        // Crea la lista de citas_servicios para cada servicio seleccionado
-        for (const service of selectedServices) {
-          const citaServicio = {
-            id_cita: idCita,
-            id_servicio: service.id,
-          };
+        if (enoughTimeAvailable) {
+          // Utiliza la función create de CitasDataService para crear la cita
+          const response = await CitasDataService.create(nuevaCita);
+          const idCita = response.data.id_cita;
 
-          // Utiliza la función create de CitasServiciosDataService para crear la cita_servicio
-          await CitasServiciosDataService.create(citaServicio);
+          // Crea la lista de citas_servicios para cada servicio seleccionado
+          for (const service of selectedServices) {
+            const citaServicio = {
+              id_cita: idCita,
+              id_servicio: service.id,
+
+            };
+
+            // Utiliza la función create de CitasServiciosDataService para crear la cita_servicio
+            await CitasServiciosDataService.create(citaServicio);
+          }
+
+          Swal.fire({
+            icon: "success",
+            title: "Se creo la cita correctamente",
+            showConfirmButton: false,
+            timer: 1500
+          });
+
+          <Navigate to="/cliente/listacitas" />
+
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error al Agendar la Cita",
+            text: "No hay suficiente tiempo disponible en la agenda del empleado para los servicios seleccionados.",
+          });
         }
-
-        Swal.fire({
-          icon: "success",
-          title: "Se creo la cita correctamente",
-          showConfirmButton: false,
-          timer: 1500
-        });
-
-        <Navigate to="/cliente/listacitas" />
-
       } catch (error) {
         console.error("Error al intentar agendar la cita:", error);
         // Puedes manejar el error según tus necesidades, mostrar un mensaje, etc.
@@ -166,20 +187,114 @@ const AgendarCita = () => {
     }
   };
 
+  const checkTimeAvailability = () => {
+  // Obtén el tiempo total de la cita
+  const totalAppointmentTime = calculateAppointmentTime();
+
+  // Filtra las citas en agendaData que coinciden con la fecha seleccionada
+  const citasParaFecha = agendaData.filter(cita => cita.Fecha_Atencion === selectedDate);
+
+  // Si no hay citas para esta fecha, asumimos que toda la agenda está disponible
+  if (citasParaFecha.length === 0) {
+    console.log("No hay citas programadas para esta fecha, toda la agenda está disponible.");
+    return true;
+  }
+
+  // Mapea las horas de inicio de las citas filtradas
+  const horasInicio = citasParaFecha.map(cita => cita.Hora_Atencion);
+
+  // Ordena las horas de inicio de las citas
+  horasInicio.sort();
+
+  // Calcula la duración entre citas consecutivas para encontrar el intervalo más largo
+  let maxInterval = 0;
+  for (let i = 1; i < horasInicio.length; i++) {
+    const intervalo = getIntervalDuration(horasInicio[i - 1], horasInicio[i]);
+    maxInterval = Math.max(maxInterval, intervalo);
+  }
+
+  // Calcula el tiempo restante disponible en la agenda del empleado
+  const totalAvailableTime = maxInterval;
+
+  console.log("Total Appointment Time:", totalAppointmentTime);
+  console.log("Max Available Interval:", maxInterval);
+
+  // Retorna true si hay suficiente tiempo disponible, de lo contrario retorna false
+  return totalAvailableTime >= totalAppointmentTime;
+};
+
+// Función para calcular la duración entre dos horas en formato HH:mm
+const getIntervalDuration = (start, end) => {
+  const [startHour, startMinute] = start.split(':').map(Number);
+  const [endHour, endMinute] = end.split(':').map(Number);
+
+  const startTotalMinutes = startHour * 60 + startMinute;
+  const endTotalMinutes = endHour * 60 + endMinute;
+
+  return endTotalMinutes - startTotalMinutes;
+};
+
+
+
+
+
+
   const handleAcceptButtonClick = () => {
     setTempSelectedServices(selectedServices);
     setVisibleLg(false);
   };
 
+
+
   const handleServiceSelection = (service) => {
     const isSelected = selectedServices.some((s) => s.id === service.id);
+
+    // Guarda tanto el nombre como la duración del servicio seleccionado
+    const selectedService = {
+      id: service.id,
+      nombre: service.nombre,
+      valor: service.valor,
+      tiempo: service.tiempo
+    };
 
     setSelectedServices((prevSelectedServices) =>
       isSelected
         ? prevSelectedServices.filter((s) => s.id !== service.id)
-        : [...prevSelectedServices, service],
+        : [...prevSelectedServices, selectedService],
     );
+
+    // Actualiza la duración total de los servicios seleccionados
+    setSelectedServicesDuration((prevDuration) =>
+      isSelected
+        ? prevDuration - parseInt(service.tiempo) // Resta la duración del servicio
+        : prevDuration + parseInt(service.tiempo), // Suma la duración del servicio
+    );
+
+    calculateAppointmentTime();
+    console.log("Servicio seleccionado:", selectedService);
+
   };
+
+
+
+
+  // Función para calcular el tiempo total de la cita
+  const calculateAppointmentTime = () => {
+    // Inicializa el tiempo total de la cita como 0
+    let totalAppointmentTime = 0;
+
+    // Recorre todos los servicios seleccionados
+    selectedServices.forEach((service) => {
+      // Suma la duración de cada servicio al tiempo total de la cita
+      totalAppointmentTime += parseInt(service.tiempo);
+    });
+
+    console.log("Total Appointment Time:", totalAppointmentTime);
+
+    // Retorna el tiempo total de la cita
+    return totalAppointmentTime;
+  };
+
 
   const handleBarberoSelection = async (id_empleado) => {
     setSelectedBarberoId(id_empleado);
@@ -203,29 +318,59 @@ const AgendarCita = () => {
     handlePageChange(currentPage + 1);
   };
 
-  const generateHourOptions = (startHour, endHour, citasAgendadas) => {
+  //-----------------------------------------------------------------
+
+
+
+
+
+  // Función para generar opciones de hora disponibles
+  // Función para generar opciones de hora disponibles
+  const generateHourOptions = (startHour, endHour) => {
     const options = [];
     const start = parseInt(startHour.split(":")[0]); // Extrae la hora de inicio
     const end = parseInt(endHour.split(":")[0]); // Extrae la hora de fin
-  
+
+    const reservedHours = getReservedHoursForDate();
+
     for (let i = start; i <= end; i++) {
       let hour = i % 12 === 0 ? 12 : i % 12; // Convierte la hora en formato de 12 horas
       let suffix = i < 12 ? "AM" : "PM"; // Determina si es AM o PM
       const hora = `${hour}:00 ${suffix}`;
-  
-      // Verifica si la hora está ocupada por una cita agendada
-      const horaOcupada = citasAgendadas.some(cita => cita.Hora_Atencion === hora);
-  
-      // Si la hora no está ocupada, la añade a las opciones
-      if (!horaOcupada) {
+
+      // Verifica si la hora actual está reservada
+      const isReserved = reservedHours.includes(hora);
+
+      // Si la hora no está reservada, la añade a las opciones
+      if (!isReserved) {
         options.push(
           <option key={i} value={hora}>{hora}</option>
+        );
+      } else {
+        // Si la hora está reservada, la añade a las opciones deshabilitada
+        options.push(
+          <option key={i} value={hora} disabled>{hora} (Reservada)</option>
         );
       }
     }
     return options;
   };
-  
+
+  // Función para obtener las horas reservadas para la fecha seleccionada
+  const getReservedHoursForDate = () => {
+    // Filtra las citas en agendaData que coinciden con la fecha seleccionada
+    const citasParaFecha = agendaData.filter(cita => cita.Fecha_Atencion === selectedDate);
+
+    // Mapea las horas de las citas filtradas
+    const horasReservadas = citasParaFecha.map(cita => cita.Hora_Atencion);
+
+    return horasReservadas;
+  };
+
+
+
+
+
 
 
   return (
@@ -471,10 +616,14 @@ const AgendarCita = () => {
                               <div>
                                 <h4>Horas para el día {selectedDate}</h4>
                                 <select onChange={(e) => setSelectedHour(e.target.value)}>
-                                  {generateHourOptions(agendaData[0].horaInicio, agendaData[0].horaFin)}
+                                  {generateHourOptions(
+                                    agendaData[0] ? agendaData[0].horaInicio : '',
+                                    agendaData[0] ? agendaData[0].horaFin : ''
+                                  )}
                                 </select>
                               </div>
                             )}
+
                           </CModalBody>
                         </CModalBody>
                         <CModalFooter></CModalFooter>
@@ -504,16 +653,20 @@ const AgendarCita = () => {
                     <ul>
                       {tempSelectedServices.map((service, index) => (
                         <li key={index}>
-                          {service.nombre} - ${service.valor}
+                          {service.nombre} <br />
+                          <strong style={{ display: "inline-block", width: "45px" }}>Valor:</strong> ${service.valor.toLocaleString()}
                         </li>
                       ))}
                     </ul>
+                    <p><strong>Tiempo aprox  de la cita:</strong> {selectedServicesDuration} minutos</p>
                     {/* Puedes agregar más detalles según sea necesario */}
                   </div>
                 ) : (
                   <p>Completa la selección de empleado, fecha y hora.</p>
                 )}
               </CCardText>
+
+
             </CCardBody>
           </CCard>
         </CCol>
