@@ -383,6 +383,19 @@ const CrearConfiguracion = () => {
     const handleGuardarCambios = () => {
         console.log('Evento a actualizar:', eventoSeleccionado);
         if (eventoSeleccionado) {
+            // Validación de la hora de fin no sea inferior a la hora de inicio
+            const horaInicio = eventoSeleccionado.horaInicio;
+            const horaFin = eventoSeleccionado.horaFin;
+
+            if (horaInicio > horaFin) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'La hora de fin no puede ser inferior a la hora de inicio',
+                });
+                return; // Detener la ejecución de la función si hay un error
+            }
+
             const eventId = eventoSeleccionado.id_agenda;
             agendaService.updateAgenda(eventId, eventoSeleccionado)
                 .then((response) => {
@@ -419,6 +432,7 @@ const CrearConfiguracion = () => {
             // Manejo si no hay ningún evento seleccionado para actualizar
         }
     };
+
 
 
 
@@ -473,10 +487,10 @@ const CrearConfiguracion = () => {
         });
     };
 
-  
+
     const handleCrearAgenda = async () => {
         let errorMessage; // Declaración de la variable errorMessage
-    
+
         try {
             // Obtener datos del formulario
             const { horaInicio, horaFin, empleadosSeleccionados, fechaInicio, fechaFin } = formData;
@@ -484,12 +498,12 @@ const CrearConfiguracion = () => {
             const fechaHoy = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()); // Fecha actual sin hora
             const fechaInicioEvento = new Date(`${fechaInicio}T${horaInicio}`);
             const fechaFinEvento = new Date(`${fechaFin}T${horaFin}`);
-    
+
             // Validación de fechas anteriores al día actual
             if (fechaInicioEvento < fechaHoy || fechaFinEvento < fechaHoy) {
                 throw new Error('No puedes crear eventos en fechas anteriores al día actual');
             }
-    
+
             // Validación de campos obligatorios
             if (!fechaInicioEvento) {
                 throw new Error('La fecha de inicio es obligatoria');
@@ -506,25 +520,25 @@ const CrearConfiguracion = () => {
             if (!empleadosSeleccionados || empleadosSeleccionados.length === 0) {
                 throw new Error('Debes seleccionar al menos un empleado');
             }
-    
+
             // Validación de horas de inicio y fin
             if (horaInicio > horaFin) {
                 throw new Error('La hora de inicio no puede ser posterior a la hora de fin');
             }
-    
+
             // Validación de fechas de inicio y fin
             if (fechaInicioEvento > fechaFinEvento) {
                 throw new Error('La fecha de inicio no puede ser posterior a la fecha de fin');
             }
-    
+
             // Resto del código para la creación de eventos...
             const newEvents = [];
             let currentDateEvent = new Date(fechaInicioEvento);
-    
+
             while (currentDateEvent <= fechaFinEvento) {
                 const newEndDate = new Date(currentDateEvent);
                 newEndDate.setHours(fechaFinEvento.getHours(), fechaFinEvento.getMinutes());
-    
+
                 if (empleadosSeleccionados) {
                     for (const empleado of empleadosSeleccionados) {
                         const nombre = empleado.nombre ? empleado.nombre : 'Nombre desconocido';
@@ -548,15 +562,15 @@ const CrearConfiguracion = () => {
                 }
                 currentDateEvent.setDate(currentDateEvent.getDate() + 1);
             }
-    
+
             // Envía un evento de socket para notificar sobre la creación de la agenda
             socket.emit('agendaCreada', newEvents);
-    
+
             // Actualización de eventos y estado
             setEvents((prevEvents) => [...prevEvents, ...newEvents]);
             await fetchAgendas();
             setShowCreateModal(false);
-    
+
             // Limpiar el formulario
             setFormData({
                 fechaInicio: '',
@@ -566,7 +580,7 @@ const CrearConfiguracion = () => {
                 empleadosSeleccionados: [],
                 busquedaEmpleado: '',
             });
-    
+
             // Mostrar mensaje de éxito y actualizar calendario
             swal({
                 title: 'Éxito',
@@ -578,11 +592,11 @@ const CrearConfiguracion = () => {
         } catch (error) {
             // Manejo de errores
             console.error('Error al crear la agenda:', error);
-    
+
             if (errorMessage === undefined) { // Verificar si ya se estableció un mensaje de error
                 errorMessage = error.message; // Establecer el mensaje de error solo si no se ha establecido previamente
             }
-    
+
             swal({
                 title: 'Error',
                 text: errorMessage, // Mostrar el mensaje de error específico
@@ -591,10 +605,10 @@ const CrearConfiguracion = () => {
             });
         }
     };
-    
-    
-    
-    
+
+
+
+
 
 
     const [searchText, setSearchText] = useState('');
@@ -614,57 +628,57 @@ const CrearConfiguracion = () => {
         // Guardar las coordenadas originales del evento
         const originalStart = eventDropInfo.oldEvent.start;
         const originalEnd = eventDropInfo.oldEvent.end;
-    
+
         try {
             const { id, start, end } = eventDropInfo.event;
             const empleadoId = eventDropInfo.event.extendedProps.id_empleado;
-    
+
             // Validar si la fecha está fuera del día actual
             const currentDate = new Date();
             const fechaHoy = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-    
+
             // Convertir las fechas de inicio y fin a la parte de la fecha solamente
             const startOnlyDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
             const endOnlyDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
-    
+
             if (startOnlyDate < fechaHoy || endOnlyDate < fechaHoy) {
                 // Si la fecha es anterior al día actual, restaurar las coordenadas originales del evento
                 eventDropInfo.event.setDates(originalStart, originalEnd);
                 throw new Error('No puedes arrastrar eventos a fechas anteriores al día actual');
             }
-    
+
             // Verificar si la agenda está deshabilitada antes de permitir la edición
             if (!eventDropInfo.event.extendedProps.estado) {
                 // Si la agenda está deshabilitada, restaurar las coordenadas originales del evento
                 eventDropInfo.event.setDates(originalStart, originalEnd);
                 throw new Error('No puedes editar una agenda deshabilitada');
             }
-    
+
             // Verificar si el evento se está moviendo a una nueva posición ocupada
             if (eventDropInfo.oldEvent && eventDropInfo.oldEvent.id) {
                 // Filtrar eventos del mismo empleado, excluyendo el evento actual
                 const eventosEmpleado = events.filter((evento) => {
                     return evento.extendedProps.id_empleado === empleadoId && evento.id !== id;
                 });
-    
+
                 const nuevoEvento = {
                     start,
                     end,
                 };
-    
+
                 const hayCoincidencia = eventosEmpleado.some((evento) => {
                     const horarioEvento = {
                         start: evento.start,
                         end: evento.end,
                     };
-    
+
                     // Verificar si hay superposición de horarios
                     return (
                         nuevoEvento.start < horarioEvento.end &&
                         nuevoEvento.end > horarioEvento.start
                     );
                 });
-    
+
                 // Verificar si hay coincidencia de horarios
                 if (hayCoincidencia) {
                     // Si hay una coincidencia, restaurar las coordenadas originales del evento
@@ -672,20 +686,20 @@ const CrearConfiguracion = () => {
                     throw new Error('No puedes arrastrar eventos donde el empleado tiene el mismo horario');
                 }
             }
-    
+
             // Actualizar la agenda en la base de datos
             const response = await agendaService.updateAgenda(eventDropInfo.event.extendedProps.id_agenda, {
                 fechaInicio: start,
                 fechaFin: end
             });
-    
+
             // Verificar si hubo un error al actualizar la agenda
             if (response && response.error) {
                 // Si hay un error, restaurar las coordenadas originales del evento
                 eventDropInfo.event.setDates(originalStart, originalEnd);
                 throw new Error(response.error);
             }
-    
+
             // Actualizar el estado local solo si la actualización en la base de datos es exitosa
             const updatedEvents = events.map((event) => {
                 if (event.id === id) {
@@ -697,9 +711,9 @@ const CrearConfiguracion = () => {
                 }
                 return event;
             });
-    
+
             setEvents(updatedEvents);
-    
+
             // Mostrar mensaje de éxito con SweetAlert
             Swal.fire({
                 icon: 'success',
@@ -716,8 +730,8 @@ const CrearConfiguracion = () => {
             });
         }
     };
-    
-    
+
+
 
 
 
@@ -768,17 +782,11 @@ const CrearConfiguracion = () => {
     return (
         <div className="container mt-6">
             <div className="row justify-content-center">
-                <div className="col-md-8">
+                <div className="col-md-12">
                     <CCard className="w-100">
-                        <CCard className="w-100">
-                            <CCard className="w-100 custom-card">
-                                <CCardHeader className="text-center">
-                                    <h2 className="my-custom-header">PROGRAMAR AGENDA</h2>
-                                </CCardHeader>
-                            </CCard>
-                        </CCard>
-                        <CCardBody>
-                            <div className="row mb-2">
+                       
+                    <CCardBody style={{ maxHeight: '140vh', overflowY: 'auto' }}>
+                            <div className="row mb-1">
                                 <div className="col-md-6">
                                     <div className="form-group mb-0">
                                         <div className="input-group custom-input-group">
@@ -790,11 +798,7 @@ const CrearConfiguracion = () => {
                                                 onChange={(e) => setSearchText(e.target.value)}
                                             />
 
-                                            <div className="input-group-append">
-                                                <button type="button" className="btn btn-buscar">
-                                                    <i className="bi bi-search"></i> Buscar
-                                                </button>
-                                            </div>
+                                         
                                         </div>
                                     </div>
                                 </div>
@@ -838,7 +842,7 @@ const CrearConfiguracion = () => {
                                     const isDisabled = !arg.event.extendedProps.estado;
 
                                     // Establecer el color del evento
-                                    const backgroundColor = isDisabled ? '#666666' : arg.event.backgroundColor;
+                                    const backgroundColor = isDisabled ? '#9eA3BA' : arg.event.backgroundColor;
 
 
                                     return (

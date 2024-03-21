@@ -1,5 +1,4 @@
 import axios from 'axios';
-import Swal from 'sweetalert2';
 
 const apiUrl = 'http://localhost:8095/api/agenda';
 

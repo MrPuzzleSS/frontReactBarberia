@@ -174,9 +174,9 @@ function ListaCompras() {
             <CTable align="middle" className="mb-0 border" hover responsive>
               <CTableHead color="light">
                 <CTableRow>
-                  <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                  {/* <CTableHeaderCell scope="col">#</CTableHeaderCell> */}
                   <CTableDataCell scope="col">Proveedor</CTableDataCell>
-                  <CTableHeaderCell scope="col">No Factura</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">N° Factura</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Total</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Tipo de Compra</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
@@ -188,12 +188,12 @@ function ListaCompras() {
                 {Array.isArray(compras) && compras.length > 0 ? (
                   compras.map((compra, i) => (
                     <CTableRow key={i}>
-                      <CTableHeaderCell scope="row">{i + 1}</CTableHeaderCell>
+                      {/* <CTableHeaderCell scope="row">{i + 1}</CTableHeaderCell> */}
                       <CTableDataCell>
                         <ProveedorNombre idProveedor={compra.compra.id_proveedor} />
                       </CTableDataCell>
                       <CTableDataCell>{compra.compra.no_factura}</CTableDataCell>
-                      <CTableDataCell>{compra.compra.total}</CTableDataCell>
+                      <CTableDataCell>{compra.compra.total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</CTableDataCell>
                       <CTableDataCell>{compra.compra.tipoCompra}</CTableDataCell>
                       <CTableDataCell>{compra.compra.estado}</CTableDataCell>
                       <CTableDataCell>{formatFechaCompra(compra.compra.created_at)}</CTableDataCell>
@@ -245,14 +245,9 @@ function ListaCompras() {
                               {compraSeleccionada.nombresProductos[detalle.id_producto] || 'Cargando...'}
                             </CTableDataCell>
                             <CTableDataCell>{detalle.cantidad}</CTableDataCell>
-                            <CTableDataCell>{detalle.precioUnitario.toLocaleDateString("es-CO", {
-                              style: "currency",
-                              currency: "COP",
-                              minimunFractionDigits: 2,
-                              maximunFractionDigits: 2
-                            })}</CTableDataCell>
-                            <CTableDataCell>{detalle.precioVenta}</CTableDataCell>
-                            <CTableDataCell>{detalle.total}</CTableDataCell>
+                            <CTableDataCell>{detalle.precioUnitario.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</CTableDataCell>
+                            <CTableDataCell>{detalle.precioVenta.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</CTableDataCell>
+                            <CTableDataCell>{detalle.total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</CTableDataCell>
                           </CTableRow>
                         ))}
                       </CTableBody>
