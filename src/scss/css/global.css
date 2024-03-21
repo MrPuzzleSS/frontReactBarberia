@@ -1,0 +1,10 @@
+body {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 18px; /* Modifica el tamaño de la letra aquí */
+    font-weight: var(--cui-body-font-weight);
+    line-height: var(--cui-body-line-height);
+    color: var(--cui-body-color);
+    text-align: var(--cui-body-text-align);
+    -webkit-text-size-adjust: 100%;
+}
+

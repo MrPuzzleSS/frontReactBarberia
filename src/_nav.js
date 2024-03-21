@@ -1,5 +1,7 @@
 import React from 'react';
 import CIcon from '@coreui/icons-react';
+import 'src/scss/css/global.css'; // Importa el archivo CSS global
+
 import {
   cilShieldAlt,
   cilCut,

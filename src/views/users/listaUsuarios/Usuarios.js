@@ -210,7 +210,7 @@ const ListaUsuarios = () => {
           correo: document.getElementById('correoElectronico').value,
         };
 
-        await axios.put(`https://restapibarberia.onrender.com/api/usuario/${editedUser.id_usuario}`, editedUser);
+        await axios.put(`http://localhost:8095/api/usuario/${editedUser.id_usuario}`, editedUser);
 
         setUsers((prevUsers) =>
           prevUsers.map((user) => (user.id_usuario === selectedItem.id_usuario ? editedUser : user))

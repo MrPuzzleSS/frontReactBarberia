@@ -232,7 +232,7 @@ function ListaProveedores() {
             <CTable align="middle" className="mb-0 border" hover responsive>
               <CTableHead>
                 <CTableRow>
-                  <CTableHeaderCell scope="col">Tipo de Documento</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Tipo</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Documento</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Dirección</CTableHeaderCell>
