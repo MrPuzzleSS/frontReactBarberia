@@ -31,6 +31,13 @@ const _nav = [
     name: 'Procesos de Compra',
     style: { fontWeight: 'bold',color: 'black' },
   },
+  {
+    component: CNavItem,
+    name: 'Proveedores',
+    style: { color: 'black' },
+    to: '/proveedores',
+    icon: <CIcon icon={cilIndustry} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+  },
   
  
   {
