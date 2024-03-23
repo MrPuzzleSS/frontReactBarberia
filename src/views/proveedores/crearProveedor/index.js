@@ -86,7 +86,7 @@ const CrearProveedor = () => {
           {validationError && <p style={{ color: 'red' }}>{validationError}</p>}
             <CForm className="row g-3" onSubmit={handleSubmit(onSubmit)}>
               <CCol sm={6}>
-                <CFormLabel>Tipo de Documento</CFormLabel>
+                <CFormLabel style={{ fontWeight: 'bold' }}>Tipo de Documento</CFormLabel>
                 <Controller
                   name="tipo_documento"
                   control={control}
@@ -107,7 +107,7 @@ const CrearProveedor = () => {
                 )}
               </CCol>
               <CCol sm={6}>
-                <CFormLabel>Número de Documento</CFormLabel>
+                <CFormLabel style={{ fontWeight: 'bold' }}>Número de Documento</CFormLabel>
                 <Controller
                   name="num_documento"
                   control={control}
@@ -133,7 +133,7 @@ const CrearProveedor = () => {
                 )}
               </CCol>
               <CCol sm={6}>
-                <CFormLabel>Nombre del Proveedor</CFormLabel>
+                <CFormLabel style={{ fontWeight: 'bold' }}>Nombre del Proveedor</CFormLabel>
                 <Controller
                   name="nombre"
                   control={control}
@@ -159,7 +159,7 @@ const CrearProveedor = () => {
                 )}
               </CCol>
               <CCol sm={6}>
-                <CFormLabel>Dirección</CFormLabel>
+                <CFormLabel style={{ fontWeight: 'bold' }}>Dirección</CFormLabel>
                 <Controller
                   name="direccion"
                   control={control}
@@ -181,7 +181,7 @@ const CrearProveedor = () => {
                 )}
               </CCol>
               <CCol sm={6}>
-                <CFormLabel>Teléfono</CFormLabel>
+                <CFormLabel style={{ fontWeight: 'bold' }}>Teléfono</CFormLabel>
                 <Controller
                   name="telefono"
                   control={control}
@@ -207,7 +207,7 @@ const CrearProveedor = () => {
                 )}
               </CCol>
               <CCol sm={6}>
-                <CFormLabel>Correo Electrónico</CFormLabel>
+                <CFormLabel style={{ fontWeight: 'bold' }}>Correo Electrónico</CFormLabel>
                 <Controller
                   name="email"
                   control={control}

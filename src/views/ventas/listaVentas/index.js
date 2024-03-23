@@ -184,7 +184,7 @@ function ListaVentas() {
             <CTable align='middle' className='mb-0 border' hover responsive>
               <CTableHead>
                 <CTableRow>
-                  <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                  {/* <CTableHeaderCell scope="col">#</CTableHeaderCell> */}
                   <CTableHeaderCell scope="col">Cliente</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Empleado</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Nro° Factura</CTableHeaderCell>
@@ -197,7 +197,7 @@ function ListaVentas() {
               <CTableBody>
                 {currentVentas.map((venta, index) => (
                   <CTableRow key={venta.id_ventas}>
-                    <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+                    {/* <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell> */}
                     <CTableDataCell>{venta.nombre}</CTableDataCell>
                     <CTableDataCell>{venta.nombre_empleado}</CTableDataCell>
                     <CTableDataCell>{venta.numeroFactura}</CTableDataCell>

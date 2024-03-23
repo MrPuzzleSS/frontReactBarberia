@@ -215,15 +215,15 @@ const CrearCompraInsu = () => {
                 <CCol xs={12} md={6}>
                   <CCard>
                     <CCardHeader>
-                      <strong>Productos</strong>
+                      <strong >Productos</strong>
                     </CCardHeader>
                     <CCardBody className='mt-4'>
                       <CButton onClick={() => setVisibleLg(!visibleLg)}>
-                        <CIcon icon={cilPlaylistAdd} /> Agregar Producto
+                        <CIcon icon={cilPlaylistAdd} /> Agregar Insumo
                       </CButton>
                       <CRow className="justify-content-between align">
                         <CCol sm="4" className='mt-5'>
-                          <CFormLabel>Cantidad</CFormLabel>
+                          <CFormLabel style={{ fontWeight: 'bold' }}>Cantidad</CFormLabel>
                           <Controller
                             name="cantidad"
                             control={control}
@@ -232,7 +232,7 @@ const CrearCompraInsu = () => {
                           />
                         </CCol>
                         <CCol sm="6" className='mt-5'>
-                          <CFormLabel>Precio Unitario</CFormLabel>
+                          <CFormLabel style={{ fontWeight: 'bold' }}>Precio Unitario</CFormLabel>
                           <Controller
                             name="precioUnitario"
                             control={control}
@@ -258,7 +258,7 @@ const CrearCompraInsu = () => {
                     <CCardBody>
                       <CRow className="justify-content-between align-items-center">
                         <CCol className='mt-3' sm="5">
-                          <CFormLabel>No. Factura</CFormLabel>
+                          <CFormLabel style={{ fontWeight: 'bold' }}>No. Factura</CFormLabel>
                           <Controller
                             name="noFactura"
                             control={control}
@@ -268,7 +268,7 @@ const CrearCompraInsu = () => {
                           {errors.descripcion?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
                         </CCol>
                         <CCol className='mt-4' sm="7">
-                          <CFormLabel>Proveedor</CFormLabel>
+                          <CFormLabel style={{ fontWeight: 'bold' }}>Proveedor</CFormLabel>
                           <Controller
                             name="proveedor"
                             control={control}
@@ -288,7 +288,7 @@ const CrearCompraInsu = () => {
                         </CCol>
                       </CRow>
                       <CCol className='mt-3' sm="5">
-                        <CFormLabel>Total</CFormLabel>
+                        <CFormLabel style={{ fontWeight: 'bold' }}>Total</CFormLabel>
                         <CFormInput type="text" value={tempProductos.reduce((acc, producto) => acc + producto.total, 0)} disabled />
                       </CCol>
                     </CCardBody>
@@ -310,7 +310,7 @@ const CrearCompraInsu = () => {
                   <CTable hover>
                     <CTableHead>
                       <CTableRow>
-                        <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                        {/* <CTableHeaderCell scope="col">#</CTableHeaderCell> */}
                         <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Cantidad</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
@@ -320,7 +320,7 @@ const CrearCompraInsu = () => {
                     <CTableBody>
                       {tempProductos.map((producto, index) => (
                         <CTableRow key={index}>
-                          <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+                          {/* <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell> */}
                           <CTableDataCell>{producto.producto.nombre}</CTableDataCell>
                           <CTableDataCell>{producto.cantidad}</CTableDataCell>
                           <CTableDataCell>{producto.precioUnitario}</CTableDataCell>
@@ -350,7 +350,7 @@ const CrearCompraInsu = () => {
           <CTable hover>
             <CTableHead>
               <CTableRow>
-                <CTableHeaderCell scope="col">ID</CTableHeaderCell>
+                {/* <CTableHeaderCell scope="col">ID</CTableHeaderCell> */}
                 <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Stock Actual</CTableHeaderCell>
               </CTableRow>
@@ -362,7 +362,7 @@ const CrearCompraInsu = () => {
                   onClick={() => handleProductoSeleccionado(producto)}
                   active={productoSeleccionado === producto}
                 >
-                  <CTableHeaderCell scope="row">{producto.id_insumo}</CTableHeaderCell>
+                  {/* <CTableHeaderCell scope="row">{producto.id_insumo}</CTableHeaderCell> */}
                   <CTableDataCell>{producto.nombre}</CTableDataCell>
                   <CTableDataCell>{producto.stock}</CTableDataCell>
                 </CTableRow>

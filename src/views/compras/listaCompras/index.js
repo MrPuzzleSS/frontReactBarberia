@@ -229,7 +229,7 @@ function ListaCompras() {
                     <CTable>
                       <CTableHead>
                         <CTableRow>
-                          <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                          {/* <CTableHeaderCell scope="col">#</CTableHeaderCell> */}
                           <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Cantidad</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
@@ -240,7 +240,7 @@ function ListaCompras() {
                       <CTableBody>
                         {compraSeleccionada.detallesCompra.map((detalle, index) => (
                           <CTableRow key={index}>
-                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+                            {/* <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell> */}
                             <CTableDataCell>
                               {compraSeleccionada.nombresProductos[detalle.id_producto] || 'Cargando...'}
                             </CTableDataCell>

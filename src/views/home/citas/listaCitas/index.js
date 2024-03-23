@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import CitasDataService from "src/views/services/citasService";
 import Servicios_S from "src/views/services/servicios_s";
 import Swal from 'sweetalert2';
+import 'src/scss/css/global.css'; 
 import {
   CCard,
   CCardBody,
@@ -168,13 +169,13 @@ function ListaCitas() {
                           color="info"
                           onClick={() => mostrarDetalleCompra(cita)}
                         >
-                          DETALLE
+                          Detalle
                         </CButton>
                         <CButton
                           color="danger"
                           onClick={() => cancelarCita(cita.cita.id_cita)}
                         >
-                          CANCELAR
+                          Cancelar
                         </CButton>
                       </CTableDataCell>
                     </CTableRow>

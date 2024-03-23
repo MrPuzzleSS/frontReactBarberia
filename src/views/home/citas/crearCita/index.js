@@ -34,6 +34,7 @@ import CitasDataService from "src/views/services/citasService";
 import CitasServiciosDataService from "src/views/services/citasServiciosService";
 import Swal from 'sweetalert2'
 import { getUserInfo } from '../../../../components/auht';
+import 'src/scss/css/global.css'; 
 
 const AgendarCita = () => {
   const [currentPage, setCurrentPage] = useState(1);

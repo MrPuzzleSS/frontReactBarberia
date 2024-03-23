@@ -9,7 +9,7 @@ import Select from 'react-select';
 import PropTypes from 'prop-types';
 import { Modal, Button } from 'react-bootstrap';
 import agendaService from '../../services/agendaService';
-import EventReport from '../../generacionPdf/EventReport';
+import EventReport from '../../generacionExcel/EventReport';
 import interactionPlugin from '@fullcalendar/interaction';
 import { CCard, CCardHeader, CCardBody } from '@coreui/react';
 import esLocale from '@fullcalendar/core/locales/es';

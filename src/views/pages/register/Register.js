@@ -7,6 +7,7 @@ import CIcon from '@coreui/icons-react';
 import { Link, Navigate } from 'react-router-dom';
 import logoBarberia from '../../../assets/images/logoBarberia2.png';
 import prueba2 from '../../../assets/images/fonds.jpg';
+import 'src/scss/css/global.css'; 
 
 const RegisterCliente = () => {
   const roleIdCliente = 3;
@@ -137,12 +138,12 @@ const RegisterCliente = () => {
                 />
               </CInputGroup>
               <CButton color="primary" disabled={!isFormValid()} onClick={handleAddUser}>
-                REGISTRAR
+                Registrar
               </CButton>
               {redirect && <Navigate to="/login" />}
               <Link to="/login">
                 <CButton color="secondary" className="ms-2">
-                  REGRESAR
+                  Regresar
                 </CButton>
               </Link>
             </CForm>

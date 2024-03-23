@@ -252,9 +252,9 @@ const ListaRol = () => {
     <>
       <CCard className="mb-4">
         <CCardHeader className="d-flex justify-content-between align-items-center">
-          <strong>LISTA DE ROLES</strong>
+          <strong>Lista de Roles</strong>
           <Link to="/CrearRol">
-            <CButton color="primary">AGREGAR ROL</CButton>
+            <CButton color="primary">Agregar Rol</CButton>
           </Link>
         </CCardHeader>
         <CCardBody>
@@ -274,9 +274,9 @@ const ListaRol = () => {
               <CTable align="middle" className="mb-0 border table-sm" hover responsive>
                 <CTableHead color="light">
                   <tr>
-                    <th>NOMBRE</th>
-                    <th>ESTADO</th>
-                    <th>PERMISOS</th>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                    <th>Permisos</th>
                     <th></th>
                   </tr>
                 </CTableHead>

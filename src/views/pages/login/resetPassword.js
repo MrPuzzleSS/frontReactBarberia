@@ -18,6 +18,7 @@ import { cilEnvelopeOpen, cilArrowLeft, cilArrowCircleLeft } from '@coreui/icons
 import prueba2 from '../../../assets/images/fondo/shop.jpg';
 import logoBarberia from '../../../assets/images/logoBarberia2.png';
 import './UserInforPage.css';
+import 'src/scss/css/global.css'; 
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');

@@ -19,14 +19,14 @@ function CrearCliente() {
     const [apellido, setApellido] = useState('');
     const [correo, setCorreo] = useState('');
     const [telefono, setTelefono] = useState('');
-    
+
 
     const [errorDocumento, setErrorDocumento] = useState('');
     const [errorNombre, setErrorNombre] = useState('');
     const [errorApellido, setErrorApellido] = useState('');
     const [errorCorreo, setErrorCorreo] = useState('');
     const [errorTelefono, setErrorTelefono] = useState('');
-    
+
 
     const navigate = useNavigate();
 
@@ -79,22 +79,29 @@ function CrearCliente() {
         setErrorCorreo('');
         return true;
     };
-
     const validateTelefono = (value) => {
-        if (!/^\d{7,}$/.test(value)) {
-            setErrorTelefono('El teléfono no es válido.');
+        if (!/^\d{0,9}$/.test(value)) {
+            setErrorTelefono('El teléfono debe tener máximo 10 dígitos.');
+            return false;
+        }
+        if (value.length < 10) {
+            setErrorTelefono('Faltan dígitos para completar el teléfono.');
             return false;
         }
         setErrorTelefono('');
         return true;
     };
 
-    
+
+
+
+
+
     const handleGuardarCliente = async (e) => {
         e.preventDefault();
 
-        if ( !validateDocumento(documento) || !validateNombre(nombre) || !validateApellido(apellido) || !validateCorreo(correo) ||
-            !validateTelefono(telefono) ) {
+        if (!validateDocumento(documento) || !validateNombre(nombre) || !validateApellido(apellido) || !validateCorreo(correo) ||
+            !validateTelefono(telefono)) {
             return;
         }
 
@@ -104,7 +111,7 @@ function CrearCliente() {
             apellido,
             correo,
             telefono,
-            
+
         };
 
         try {
@@ -116,7 +123,7 @@ function CrearCliente() {
             setApellido('');
             setCorreo('');
             setTelefono('');
-            
+
 
             Swal.fire('Éxito', 'Cliente creado correctamente.', 'success').then(() => {
                 navigate('/clientes/listaClientes');
@@ -137,60 +144,76 @@ function CrearCliente() {
                     </CCardHeader>
                     <CCardBody>
                         <form onSubmit={handleGuardarCliente}>
-                            <div className="mb-3">
-                                <CFormLabel>Documento</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    value={documento}
-                                    onChange={(e) => setDocumento(e.target.value)}
-                                />
-                                <div className="text-danger">{errorDocumento}</div>
+                            <div className="mb-3 d-flex align-items-center">
+                                <CCol xs="5" className="me-3">
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Documento</CFormLabel>
+                                    <CFormInput
+                                        type="text"
+                                        value={documento}
+                                        onChange={(e) => setDocumento(e.target.value)}
+                                    />
+                                    <div className="text-danger">{errorDocumento}</div>
+                                </CCol>
+
+                                <CCol xs="5">
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Nombre</CFormLabel>
+                                    <CFormInput
+                                        type="text"
+                                        value={nombre}
+                                        onChange={(e) => setNombre(e.target.value)}
+                                    />
+                                    <div className="text-danger">{errorNombre}</div>
+                                </CCol>
                             </div>
-                            <div className="mb-3">
-                                <CFormLabel>Nombre</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    value={nombre}
-                                    onChange={(e) => setNombre(e.target.value)}
-                                />
-                                <div className="text-danger">{errorNombre}</div>
+
+                            <div className="mb-3 d-flex align-items-center">
+                                <CCol xs="5" className="me-3">
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Apellido</CFormLabel>
+                                    <CFormInput
+                                        type="text"
+                                        value={apellido}
+                                        onChange={(e) => setApellido(e.target.value)}
+                                    />
+                                    <div className="text-danger">{errorApellido}</div>
+                                </CCol>
+
+                                <CCol xs="5">
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Correo</CFormLabel>
+                                    <CFormInput
+                                        type="email"
+                                        value={correo}
+                                        onChange={(e) => setCorreo(e.target.value)}
+                                    />
+                                    <div className="text-danger">{errorCorreo}</div>
+                                </CCol>
                             </div>
-                            <div className="mb-3">
-                                <CFormLabel>Apellido</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    value={apellido}
-                                    onChange={(e) => setApellido(e.target.value)}
-                                />
-                                <div className="text-danger">{errorApellido}</div>
+                            <div className="mb-3 d-flex align-items-center">
+
+                                <CCol xs="5" className="me-3">
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Teléfono</CFormLabel>
+
+
+                                    <CFormInput
+                                        type="text"
+                                        value={telefono}
+                                        onChange={(e) => setTelefono(e.target.value)}
+                                    />
+                                    <div className="text-danger">{errorTelefono}</div>
+                                </CCol>
+
                             </div>
+
                             <div className="mb-3">
-                                <CFormLabel>Correo</CFormLabel>
-                                <CFormInput
-                                    type="email"
-                                    value={correo}
-                                    onChange={(e) => setCorreo(e.target.value)}
-                                />
-                                <div className="text-danger">{errorCorreo}</div>
-                            </div>
-                            <div className="mb-3">
-                                <CFormLabel>Teléfono</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    value={telefono}
-                                    onChange={(e) => setTelefono(e.target.value)}
-                                />
-                                <div className="text-danger">{errorTelefono}</div>
-                            </div>
-                            
-                            <CButton type="submit" color="primary">
-                                Guardar Cliente
-                            </CButton>
-                            <Link to="/clientes/listaClientes">
-                                <CButton type="button" color="secondary">
-                                    Cancelar
+                                <CButton type="submit" color="primary" className="me-2">
+                                    Guardar Cliente
                                 </CButton>
-                            </Link>
+
+                                <Link to="/clientes/listaClientes">
+                                    <CButton type="button" color="secondary">
+                                        Cancelar
+                                    </CButton>
+                                </Link>
+                            </div>
                         </form>
                     </CCardBody>
                 </CCard>

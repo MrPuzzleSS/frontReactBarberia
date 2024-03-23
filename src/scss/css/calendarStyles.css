@@ -32,7 +32,7 @@
 
 body {
     font-family: 'Times New Roman', Times, serif;
-    font-size: var(--cui-body-font-size);
+    font-size: 18px;
     font-weight: var(--cui-body-font-weight);
     line-height: var(--cui-body-line-height);
     color: var(--cui-body-color);

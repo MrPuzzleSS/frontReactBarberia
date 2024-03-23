@@ -258,7 +258,7 @@ const ListaUsuarios = () => {
           <strong>Lista de usuarios</strong>
           <Link to="/CrearUsuarios">
             <CButton color="primary" className="me-1">
-              AGREGAR USUARIO
+              Agregar Usuario
             </CButton>
           </Link>
         </CCardHeader>
@@ -276,11 +276,10 @@ const ListaUsuarios = () => {
           <CTable align="middle" className="mb-0 border table-sm" hover responsive>
             <CTableHead color="light">
               <CTableRow>
-                <CTableHeaderCell>NOMBRE</CTableHeaderCell>
-                <CTableHeaderCell>CORREO</CTableHeaderCell>
-                <CTableHeaderCell>ROL</CTableHeaderCell>
-                <CTableHeaderCell>ESTADO</CTableHeaderCell>
-                <CTableHeaderCell>ACCIONES</CTableHeaderCell>
+                <CTableHeaderCell>Nombre</CTableHeaderCell>
+                <CTableHeaderCell>Correo</CTableHeaderCell>
+                <CTableHeaderCell>Rol</CTableHeaderCell>
+                <CTableHeaderCell>Estado</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>

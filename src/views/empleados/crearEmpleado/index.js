@@ -179,7 +179,7 @@ function CrearEmpleado() {
                         <CRow>
                         <CCol xs={12} sm={6}>
                             <div className="mb-3">
-                            <CFormLabel>Documento</CFormLabel>
+                            <CFormLabel style={{ fontWeight: 'bold' }}>Documento</CFormLabel>
                             <CFormInput
                             type="text" // Cambiado a tipo texto para evitar el control de HTML5
                             minLength={6}
@@ -215,7 +215,7 @@ function CrearEmpleado() {
                             
                             <CCol xs={12} sm={6}>
                                 <div className="mb-3">
-                            <CFormLabel>Nombre</CFormLabel>
+                            <CFormLabel style={{ fontWeight: 'bold' }}>Nombre</CFormLabel>
                             <CFormInput
                             type="text"
                             value={nombre}
@@ -249,7 +249,7 @@ function CrearEmpleado() {
                             <CRow>
                             <CCol xs={12} sm={6}>
                             <div className="mb-3">
-                                <CFormLabel>Apellido</CFormLabel>
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Apellido</CFormLabel>
                                 <CFormInput
                                 type="text"
                                 value={apellido}
@@ -275,7 +275,7 @@ function CrearEmpleado() {
 
                             <CCol xs={12} sm={6}>
                             <div className="mb-3">
-                                <CFormLabel>Correo</CFormLabel>
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Correo</CFormLabel>
                                 <CFormInput
                                 type="email"
                                 value={correo}
@@ -308,7 +308,7 @@ function CrearEmpleado() {
 
                             <CCol xs={12} sm={6}>
                             <div className="mb-3">
-                                <CFormLabel>Teléfono</CFormLabel>
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Teléfono</CFormLabel>
                                 <CFormInput
                                 type='text'
                                 value={telefono}

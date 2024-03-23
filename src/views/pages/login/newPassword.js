@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { CButton, CCard, CCardBody, CForm, CFormInput, CAlert } from '@coreui/react';
 import Swal from 'sweetalert2';
 import fondo from '../../../assets/images/ftos/mk.png';
+import 'src/scss/css/global.css'; 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');

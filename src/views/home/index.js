@@ -11,6 +11,7 @@ import img2 from 'src/assets/images/barberia2.jpg';
 import img3 from 'src/assets/images/barberia3.jpeg';
 
 import 'src/assets/css/stylecarrousel.css'
+import 'src/scss/css/global.css'; 
 
 function HomeCliente() {
   return (

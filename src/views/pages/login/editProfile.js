@@ -6,6 +6,7 @@ import { getUserInfo } from '../../../components/auht'; // Corregí el nombre de
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import 'src/scss/css/global.css'; 
 
 const EditProfilePage = () => {
     const [name, setName] = useState('');
@@ -141,10 +142,10 @@ const EditProfilePage = () => {
                 <CRow className="justify-content-center">
                     <CCol md={7}>
                         <CCard style={{ marginTop: '-290px' }}>
-                            <CCardHeader className="bg-dark text-white">
+                        <CCardHeader style={{ backgroundColor: '#9ea3ba' }}>
                                 <CRow className="justify-content-between align-items-center">
                                     <CCol>
-                                        <h1 className="display-8 mb-0 font-weight-bold">Editar perfil</h1>
+                                        <h2 className="display-14 mb-0 font-weight-bold">Editar perfil</h2>
                                     </CCol>
                                     <CCol xs="auto">
                                         <FontAwesomeIcon icon={faUserEdit} style={{ fontSize: '2rem' }} />
@@ -238,7 +239,7 @@ const EditProfilePage = () => {
                                 </CButton>
                                 <div className="d-inline-block mx-3">
                                     <Link to="/dashboard">
-                                        <button className="btn btn-secondary">REGRESAR</button>
+                                        <button className="btn btn-secondary">Regresar</button>
                                     </Link>
                                 </div>
                                 {updateSuccess && (
