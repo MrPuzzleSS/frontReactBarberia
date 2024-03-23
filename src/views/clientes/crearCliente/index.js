@@ -79,22 +79,16 @@ function CrearCliente() {
         setErrorCorreo('');
         return true;
     };
+
     const validateTelefono = (value) => {
-        if (!/^\d{0,9}$/.test(value)) {
-            setErrorTelefono('El teléfono debe tener máximo 10 dígitos.');
-            return false;
-        }
-        if (value.length < 10) {
-            setErrorTelefono('Faltan dígitos para completar el teléfono.');
+        if (!/^\d{1,10}$/.test(value)) {
+            setErrorTelefono('El teléfono no es válido.');
             return false;
         }
         setErrorTelefono('');
         return true;
     };
-
-
-
-
+    
 
 
     const handleGuardarCliente = async (e) => {
@@ -146,7 +140,7 @@ function CrearCliente() {
                         <form onSubmit={handleGuardarCliente}>
                             <div className="mb-3 d-flex align-items-center">
                                 <CCol xs="5" className="me-3">
-                                    <CFormLabel style={{ fontWeight: 'bold' }}>Documento</CFormLabel>
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Documento</CFormLabel>
                                     <CFormInput
                                         type="text"
                                         value={documento}
@@ -156,7 +150,7 @@ function CrearCliente() {
                                 </CCol>
 
                                 <CCol xs="5">
-                                    <CFormLabel style={{ fontWeight: 'bold' }}>Nombre</CFormLabel>
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Nombre</CFormLabel>
                                     <CFormInput
                                         type="text"
                                         value={nombre}
@@ -168,7 +162,7 @@ function CrearCliente() {
 
                             <div className="mb-3 d-flex align-items-center">
                                 <CCol xs="5" className="me-3">
-                                    <CFormLabel style={{ fontWeight: 'bold' }}>Apellido</CFormLabel>
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Apellido</CFormLabel>
                                     <CFormInput
                                         type="text"
                                         value={apellido}
@@ -178,7 +172,7 @@ function CrearCliente() {
                                 </CCol>
 
                                 <CCol xs="5">
-                                    <CFormLabel style={{ fontWeight: 'bold' }}>Correo</CFormLabel>
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Correo</CFormLabel>
                                     <CFormInput
                                         type="email"
                                         value={correo}
@@ -190,7 +184,7 @@ function CrearCliente() {
                             <div className="mb-3 d-flex align-items-center">
 
                                 <CCol xs="5" className="me-3">
-                                    <CFormLabel style={{ fontWeight: 'bold' }}>Teléfono</CFormLabel>
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Teléfono</CFormLabel>
 
 
                                     <CFormInput
