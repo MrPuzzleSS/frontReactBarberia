@@ -34,7 +34,7 @@ const _nav = [
   {
     component: CNavItem,
     name: 'Proveedores',
-    style: { color: 'black' },
+    style: { fontWeight: 'bold',color: 'black' },
     to: '/proveedores',
     icon: <CIcon icon={cilIndustry} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
   },
