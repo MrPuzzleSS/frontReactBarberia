@@ -77,7 +77,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:8095/api/usuario', newUser);
+      const response = await axios.post('https://restapibarberia.onrender.com/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
 
       Swal.fire({

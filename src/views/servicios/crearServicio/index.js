@@ -80,7 +80,7 @@ function CrearServicio() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post('http://localhost:8095/api/servicio', newServicio, {
+            const response = await axios.post('https://restapibarberia.onrender.com/api/servicio', newServicio, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
