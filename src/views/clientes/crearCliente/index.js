@@ -13,6 +13,10 @@ import {
 } from '@coreui/react';
 import ClienteService from 'src/views/services/clienteService';
 
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 function CrearCliente() {
     const [documento, setDocumento] = useState('');
     const [nombre, setNombre] = useState('');
@@ -62,6 +66,9 @@ function CrearCliente() {
         return true;
     };
 
+    const nombreCapitalizado = capitalizeFirstLetter(nombre);
+
+
     const validateApellido = (value) => {
         if (!/^[a-zA-Z ñÑ]{2,}$/.test(value)) {
             setErrorApellido('Apellido debe contener solo letras y tener al menos 2 caracteres.');
@@ -70,6 +77,9 @@ function CrearCliente() {
         setErrorApellido('');
         return true;
     };
+
+    const apellidoCapitalizado =    (apellido);
+
 
     const validateCorreo = (value) => {
         if (!/^\S+@\S+\.\S+$/.test(value)) {
@@ -101,8 +111,8 @@ function CrearCliente() {
 
         const newCliente = {
             documento,
-            nombre,
-            apellido,
+            nombre : nombreCapitalizado,
+            apellido: apellidoCapitalizado ,
             correo,
             telefono,
 
@@ -165,7 +175,7 @@ function CrearCliente() {
                                 <CFormLabel style={{ fontWeight: 'bold' }}>Apellido</CFormLabel>
                                     <CFormInput
                                         type="text"
-                                        value={apellido}
+                                        value={capitalizeFirstLetter(apellido)}
                                         onChange={(e) => setApellido(e.target.value)}
                                     />
                                     <div className="text-danger">{errorApellido}</div>
