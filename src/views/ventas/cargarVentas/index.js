@@ -222,22 +222,21 @@ function CargarVentas() {
 
   const fetchProductos = async () => {
     try {
-      const response = await fetch(`${API_URL}/producto`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        const response = await fetch(`${API_URL}/producto`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        const data = await response.json();
+        if (data && data.productos) {
+            setProductos(data.productos);
+        } else {
+            console.error("Error al obtener la lista de productos:", data);
         }
-      });
-      const data = await response.json();
-      console.log(data)
-      if (data && data.productos) {
-        setProductos(data.productos);
-      } else {
-        console.error("Error al obtener la lista de productos:", data);
-      }
     } catch (error) {
-      console.error("Error al obtener la lista de productos:", error);
+        console.error("Error al obtener la lista de productos:", error);
     }
-  };
+};
 
 
 
@@ -504,79 +503,7 @@ function CargarVentas() {
   };
 
 
-  /*
-    const obtenerCedulaCliente = async (id_cliente) => {
-      try {
-        const response = await fetch(`${API_URL}/cliente/${id_cliente}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-    
-        if (!response.ok) {
-          throw new Error('Error al obtener los detalles del cliente');
-        }
-        
-        const clienteData = await response.json();
-        const cedulaCliente = clienteData.documento;
-        setNumeroCita(cedulaCliente);
-        try {
-          setSelectedCliente(null);
-          setSelectedEmpleado(null);
-          setCitaData(null);
-          setServiciosEnVenta([]);
-          setTotalVenta(0);
-    
-          const citaDataResponse = await fetchCitasData(cedulaCliente);
-          console.log("La cita actual", citaDataResponse);
-       
-          
-          await handleClienteChange(citaDataResponse?.id_cliente);
-          await handleEmpleadoChange(citaDataResponse?.id_empleado);
-    
-          let infoServicio;
-    
-          try {
-            const response = await fetch(
-              `${API_URL}/citas_servicios/${citaDataResponse.id_cita}`, {
-                headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-              }
-              });
-            
-            const data = await response.json();
-            infoServicio = data;
-          } catch (error) {
-            console.error("Error al obtener los datos de la cita:", error);
-          }
-    
-          const selected = servicios.find(
-            (servicio) => servicio?.id == infoServicio?.id_servicio,
-          );
-          if (selected) {
-            const nuevaFilaServicio = {
-              id: selected?.id,
-              nombre: selected?.nombre,
-              cantidad: 1,
-              precioUnitario: selected?.valor,
-              precioTotal: selected?.valor,
-            };
-            setServiciosEnVenta([nuevaFilaServicio]);
-            setSelectedServicio(null);
-            setTotalVenta(nuevaFilaServicio.precioTotal);
-          }
-        } catch (error) {
-          console.error("Error al obtener los datos de la cita:", error);
-          throw error;
-        }
-        setVisible(false);
-      } catch (error) {
-        console.error('Error al obtener la cédula del cliente:', error);
-        return null;
-      }
-    }; 
-  
-  */
+ 
 
   const abrirModal = () => {
     setVisible(true);
@@ -588,6 +515,9 @@ function CargarVentas() {
     setVisible(false);
   };
 
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
 
 
   return (
@@ -626,7 +556,7 @@ function CargarVentas() {
                           {citas && citas.map((citas, index) => (
                             <CTableRow key={citas.id_cita}>
                               {/* <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell> */}
-                              <CTableDataCell>{citas.nombre_usuario}</CTableDataCell>
+                              <CTableDataCell>{capitalizeFirstLetter(citas.nombre_usuario)}</CTableDataCell>
                               <CTableDataCell>{citas.Fecha_Atencion.slice(0, 10)}</CTableDataCell>
                               <CTableDataCell>{citas.Hora_Atencion}</CTableDataCell>
                               <CTableDataCell>
@@ -744,7 +674,7 @@ function CargarVentas() {
                               key={servicio.id}
                               value={servicio.id}
                             >
-                              {servicio.nombre}
+                              {servicio.nombre.cantidad}
                             </option>
                           ))}
                         </CFormSelect>
@@ -792,7 +722,9 @@ function CargarVentas() {
                               key={producto.id_productos}
                               value={producto.id_productos}
                             >
+                              
                               {producto.nombre}
+                            
                             </option>
                           ))}
                         </CFormSelect>
@@ -841,7 +773,7 @@ function CargarVentas() {
                       {/* <CTableHeaderCell scope="row">
                         {index + 1}
                       </CTableHeaderCell> */}
-                      <CTableDataCell>{servicio.nombre}</CTableDataCell>
+                      <CTableDataCell>{capitalizeFirstLetter(servicio.nombre)}</CTableDataCell>
                       <CTableDataCell>{servicio.cantidad}</CTableDataCell>
                       <CTableDataCell>
                         {servicio.precioUnitario.toLocaleString("es-CO", {
@@ -874,10 +806,10 @@ function CargarVentas() {
                   ))}
                   {productosEnVenta.map((producto, index) => (
                     <CTableRow key={index}>
-                      <CTableHeaderCell scope="row">
+                      {/* <CTableHeaderCell scope="row">
                         {index + 1}
-                      </CTableHeaderCell>
-                      <CTableDataCell>{producto.nombre}</CTableDataCell>
+                      </CTableHeaderCell> */}
+                      <CTableDataCell>{capitalizeFirstLetter(producto.nombre)}</CTableDataCell>
                       <CTableDataCell>{producto.cantidad}</CTableDataCell>
                       <CTableDataCell>
                         {producto.precioUnitario.toLocaleString("es-CO", {

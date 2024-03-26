@@ -14,6 +14,10 @@ import {
 } from '@coreui/react';
 import ServicioService from 'src/views/services/servicioService';
 
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 function CrearServicio() {
     const [nombre, setNombre] = useState('');
     const [valor, setValor] = useState('');
@@ -47,6 +51,9 @@ function CrearServicio() {
         return true;
     };
 
+    const nombreCapitalizado = capitalizeFirstLetter(nombre);
+
+
     const validateValor = (value) => {
         if (!/^\d{3,}$/.test(value)) {
             setValorError('El valor debe contener solo números y tener al menos 3 caracteres.');
@@ -73,7 +80,7 @@ function CrearServicio() {
         }
 
         const newServicio = {
-            nombre,
+            nombre: nombreCapitalizado,
             valor,
             tiempo,
         };

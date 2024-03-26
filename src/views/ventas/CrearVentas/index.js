@@ -343,7 +343,10 @@ function FormularioVentas() {
         setMostrarProducto(true);
         setMostrarServicio(false);
     };
-
+  
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
 
 
     return (
@@ -548,7 +551,8 @@ function FormularioVentas() {
                                     {serviciosEnVenta.map((servicio, index) => (
                                         <CTableRow key={index}>
                                             {/* <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell> */}
-                                            <CTableDataCell>{servicio.nombre}</CTableDataCell>
+
+                                            <CTableDataCell>{capitalizeFirstLetter(servicio.nombre)}</CTableDataCell>
                                             <CTableDataCell>{servicio.cantidad}</CTableDataCell>
                                             <CTableDataCell>
                                                 {servicio.precioUnitario && servicio.precioUnitario.toLocaleString("es-CO", {
@@ -581,8 +585,8 @@ function FormularioVentas() {
                                     ))}
                                     {productosEnVenta.map((producto, index) => (
                                         <CTableRow key={index}>
-                                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                                            <CTableDataCell>{producto.nombre}</CTableDataCell>
+                                            {/* <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell> */}
+                                            <CTableDataCell>{capitalizeFirstLetter(producto.nombre)}</CTableDataCell>
                                             <CTableDataCell>{producto.cantidad}</CTableDataCell>
                                             <CTableDataCell>
                                                 {producto.precioUnitario.toLocaleString("es-CO", {

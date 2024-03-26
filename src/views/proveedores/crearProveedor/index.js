@@ -34,13 +34,18 @@ const CrearProveedor = () => {
 
   const [submitted, setSubmitted] = useState(false);
   const [validationError, setValidationError] = useState('');
-  
+
   const onSubmit = async (data) => {
     console.log(data);
     try {
+      // Capitalizar nombre, documento y dirección
+      data.nombre = capitalizeFirstLetter(data.nombre);
+      data.num_documento = capitalizeFirstLetter(data.num_documento);
+      data.direccion = capitalizeFirstLetter(data.direccion);
+
       const { nombre, email, num_documento } = data;
       const { nombreExists, emailExists, documentoExist } = await ProveedoresDataService.checkExistence(nombre, email, num_documento);
-      
+
       if (documentoExist) {
         setValidationError('El número de documento ya existe');
         return;
@@ -75,6 +80,11 @@ const CrearProveedor = () => {
     }
   };
 
+  // Función para capitalizar la primera letra de una cadena
+  const capitalizeFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   return (
     <CRow>
       <CCol xs>
@@ -83,7 +93,7 @@ const CrearProveedor = () => {
             <strong>Crear Proveedor</strong>
           </CCardHeader>
           <CCardBody>
-          {validationError && <p style={{ color: 'red' }}>{validationError}</p>}
+            {validationError && <p style={{ color: 'red' }}>{validationError}</p>}
             <CForm className="row g-3" onSubmit={handleSubmit(onSubmit)}>
               <CCol sm={6}>
                 <CFormLabel style={{ fontWeight: 'bold' }}>Tipo de Documento</CFormLabel>

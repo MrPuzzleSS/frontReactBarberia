@@ -218,6 +218,10 @@ const CrearCompra = () => {
   };
 
   const filteredProductos = productos.filter(producto => producto.tipoCompra === watch('tipoCompra'));
+  
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
 
 
   return (
@@ -385,7 +389,7 @@ const CrearCompra = () => {
                       {tempProductos.map((producto, index) => (
                         <CTableRow key={index}>
                           {/* <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell> */}
-                          <CTableDataCell>{producto.producto.nombre}</CTableDataCell>
+                          <CTableDataCell>{capitalizeFirstLetter(producto.producto.nombre)}</CTableDataCell>
                           <CTableDataCell>{producto.cantidad}</CTableDataCell>
                           <CTableDataCell>{producto.precioUnitario}</CTableDataCell>
                           <CTableDataCell>{producto.precioVenta}</CTableDataCell>

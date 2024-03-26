@@ -33,6 +33,8 @@ import CompraDataService from 'src/views/services/compraService';
 import detalleCompraDataService from 'src/views/services/detalleCompraInsuService';
 import ProveedoresService from 'src/views/services/ProveedoresService';
 
+
+
 const CrearCompraInsu = () => {
   const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm({
     defaultValues: {
@@ -202,6 +204,10 @@ const CrearCompraInsu = () => {
     setVisibleLg(false); // Cerrar el modal al seleccionar un producto
   };
 
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   return (
     <CContainer className="px-4">
       <CRow xs={{ gutterX: 5 }}>
@@ -310,7 +316,6 @@ const CrearCompraInsu = () => {
                   <CTable hover>
                     <CTableHead>
                       <CTableRow>
-                        {/* <CTableHeaderCell scope="col">#</CTableHeaderCell> */}
                         <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Cantidad</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
@@ -320,8 +325,7 @@ const CrearCompraInsu = () => {
                     <CTableBody>
                       {tempProductos.map((producto, index) => (
                         <CTableRow key={index}>
-                          {/* <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell> */}
-                          <CTableDataCell>{producto.producto.nombre}</CTableDataCell>
+                          <CTableDataCell>{capitalizeFirstLetter(producto.producto.nombre)}</CTableDataCell>
                           <CTableDataCell>{producto.cantidad}</CTableDataCell>
                           <CTableDataCell>{producto.precioUnitario}</CTableDataCell>
                           <CTableDataCell>{producto.total}</CTableDataCell>
