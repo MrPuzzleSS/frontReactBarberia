@@ -1,4 +1,4 @@
-const api_url = 'http://localhost:8095/api';
+const api_url = 'https://restapibarberia.onrender.com/api';
 
 const AbonoService = {
 
