@@ -285,7 +285,7 @@ const CrearCompra = () => {
                             name="cantidad"
                             control={control}
                             rules={{ required: false, min: 1 }}
-                            render={({ field }) => <CFormInput type='number' placeholder='1' {...field} disabled={!tipoCompraSelected} />}
+                            render={({ field }) => <CFormInput type='number' placeholder='1' min={1} {...field} disabled={!tipoCompraSelected} />}
                           />
                         </CCol>
                         <CCol sm="4" className='mt-3'>
@@ -294,7 +294,7 @@ const CrearCompra = () => {
                             name="precioUnitario"
                             control={control}
                             rules={{ required: false }}
-                            render={({ field }) => <CFormInput type='number' placeholder='$ 5.000' {...field} />}
+                            render={({ field }) => <CFormInput type='number' placeholder='$ 5.000' min={0} {...field} disabled={!tipoCompraSelected}/>}
                           />
                           {errors.precioUnitario?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
                         </CCol>
@@ -304,7 +304,7 @@ const CrearCompra = () => {
                             name="precioVenta"
                             control={control}
                             rules={{ required: false }}
-                            render={({ field }) => <CFormInput type='number' placeholder='$ 10.000' {...field} disabled={!tipoCompraSelected} />}
+                            render={({ field }) => <CFormInput type='number' placeholder='$ 10.000' min={0} {...field} disabled={!tipoCompraSelected} />}
                           />
                           {errors.precioVenta?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}
                         </CCol>
@@ -329,7 +329,7 @@ const CrearCompra = () => {
                           <Controller
                             name="noFactura"
                             control={control}
-                            rules={{ required: false }}
+                            rules={{ required: true }}
                             render={({ field }) => <CFormInput {...field} disabled={!tipoCompraSelected} />}
                           />
                           {errors.descripcion?.type === 'required' && <h4 style={{ color: 'red' }}>*</h4>}

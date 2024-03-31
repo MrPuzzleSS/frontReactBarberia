@@ -33,13 +33,15 @@ import { FaEdit } from 'react-icons/fa';
 function ListaProveedores() {
   const [proveedores, setProveedores] = useState([]);
   const [visible, setVisible] = useState(false);
+  const [errors, setErrors] = useState({});
   const [editingProveedor, setEditingProveedor] = useState({
     id: "",
+    tipo_documento: "",
+    num_documento: "",
     nombre: "",
     direccion: "",
     telefono: "",
     email: "",
-    tipo_de_producto_servicio: "",
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -59,6 +61,26 @@ function ListaProveedores() {
     fetchData();
   }, [forceRerender]);
 
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = {};
+  
+    // Validar la dirección
+    if (!editingProveedor.direccion.trim()) {
+      newErrors.direccion = "La dirección es requerida";
+      isValid = false;
+    }
+  
+    // Validar el número de teléfono
+    if (!/^\d{10}$/.test(editingProveedor.telefono)) {
+      newErrors.telefono = "El número de teléfono debe tener 10 dígitos";
+      isValid = false;
+    }
+  
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleEditClick = (proveedor) => {
     setEditingProveedor(proveedor);
     setVisible(true);
@@ -73,23 +95,27 @@ function ListaProveedores() {
   };
 
   const handleGuardarCambios = async () => {
+    if (!validateForm()) {
+      return;
+    }
+  
     try {
       const response = await ProveedoresDataService.update(
         editingProveedor.id_proveedor,
         editingProveedor,
       );
-
+  
       // Actualizar la lista después de la edición exitosa
       const updatedProveedores = proveedores.map((proveedor) =>
         proveedor.id_proveedor === editingProveedor.id_proveedor
           ? response.data.proveedor // Usar el proveedor editado del response
           : proveedor,
       );
-
+  
       setProveedores(updatedProveedores); // Actualizar la lista de proveedores
       setVisible(false);
       setForceRerender(!forceRerender); // Forzar el re-renderizado de la tabla
-
+  
       Swal.fire({
         position: "top-end",
         icon: "success",
@@ -102,6 +128,7 @@ function ListaProveedores() {
       // Puedes manejar el error de alguna manera (mostrar un mensaje, etc.)
     }
   };
+  
 
   // Filtrar proveedores basado en el término de búsqueda
   const filteredProveedores = proveedores.filter((proveedor) => {
@@ -278,6 +305,26 @@ function ListaProveedores() {
         <CModalBody>
           <form>
             <div className="mb-3">
+              <CFormLabel>Tipo de Documento</CFormLabel>
+              <CFormInput
+                type="text"
+                name="tipo_documento"
+                value={editingProveedor.tipo_documento}
+                onChange={handleInputChange}
+                disabled
+              />
+            </div>
+          <div className="mb-3">
+              <CFormLabel>Documento</CFormLabel>
+              <CFormInput
+                type="text"
+                name="nombre"
+                value={editingProveedor.num_documento}
+                onChange={handleInputChange}
+                disabled
+              />
+            </div>
+            <div className="mb-3">
               <CFormLabel>Nombre</CFormLabel>
               <CFormInput
                 type="text"
@@ -292,18 +339,22 @@ function ListaProveedores() {
               <CFormInput
                 type="text"
                 name="direccion"
+                maxLength={50}
                 value={editingProveedor.direccion}
                 onChange={handleInputChange}
               />
+              {errors.direccion && <div className="text-danger">{errors.direccion}</div>}
             </div>
             <div className="mb-3">
               <CFormLabel>Teléfono</CFormLabel>
               <CFormInput
                 type="tel"
                 name="telefono"
+                maxLength={10}
                 value={editingProveedor.telefono}
                 onChange={handleInputChange}
               />
+              {errors.telefono && <div className="text-danger">{errors.telefono}</div>}
             </div>
             <div className="mb-3">
               <CFormLabel>Correo Electrónico</CFormLabel>
@@ -313,15 +364,6 @@ function ListaProveedores() {
                 value={editingProveedor.email}
                 onChange={handleInputChange}
                 disabled
-              />
-            </div>
-            <div className="mb-3">
-              <CFormLabel>Tipo de Producto o Servicio</CFormLabel>
-              <CFormInput
-                type="text"
-                name="tipo_de_producto_servicio"
-                value={editingProveedor.tipo_de_producto_servicio}
-                onChange={handleInputChange}
               />
             </div>
           </form>
