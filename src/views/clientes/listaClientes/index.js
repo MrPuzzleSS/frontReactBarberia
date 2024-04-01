@@ -63,14 +63,14 @@ const ListaClientes = () => {
     };
 
     const handleEditar = (cliente) => {
-            setSelectedClienteId(cliente);
-            setVisible(true);
+        setSelectedClienteId(cliente);
+        setVisible(true);
     };
 
     const handleEliminar = async (id_cliente) => {
         try {
             const cliente = clientes.find((item) => item.id_cliente === id_cliente);
-    
+
             if (cliente && cliente.estado) {
                 Swal.fire({
                     icon: 'warning',
@@ -92,7 +92,7 @@ const ListaClientes = () => {
             console.error('Error al eliminar el cliente:', error);
         }
     };
-    
+
     const handleGuardarCambios = async () => {
         try {
             if (selectedClienteId && selectedClienteId.id_cliente) {
@@ -131,20 +131,20 @@ const ListaClientes = () => {
                     const clienteIndex = clientes.findIndex(
                         (item) => item.id_cliente === id_cliente
                     );
-    
+
                     if (clienteIndex !== -1) {
                         const updatedClientes = [...clientes];
                         updatedClientes[clienteIndex] = {
                             ...updatedClientes[clienteIndex],
                             estado: !updatedClientes[clienteIndex].estado,
                         };
-    
+
                         await ClienteService.updateCliente(
                             id_cliente,
                             { ...updatedClientes[clienteIndex] }
                         );
                         setClientes(updatedClientes);
-    
+
                         Swal.fire({
                             position: "center",
                             icon: "success",
@@ -171,8 +171,8 @@ const ListaClientes = () => {
             }
         });
     };
-    
-    
+
+
 
     const filteredClientes = clientes
         ? clientes.filter((cliente) =>
@@ -214,7 +214,7 @@ const ListaClientes = () => {
                         <CTable align="middle" className="mb-0 border" hover responsive>
                             <CTableHead>
                                 <CTableRow>
-                                    <CTableHeaderCell scope="col">Id</CTableHeaderCell>
+                                    {/* <CTableHeaderCell scope="col">Id</CTableHeaderCell> */}
                                     <CTableHeaderCell scope="col">Documento</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Apellido</CTableHeaderCell>
@@ -229,7 +229,7 @@ const ListaClientes = () => {
                                     paginatedClientes.length > 0 &&
                                     paginatedClientes.map((cliente, index) => (
                                         <CTableRow key={cliente.id_cliente}>
-                                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+                                            {/* <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell> */}
                                             <CTableDataCell>{cliente.documento}</CTableDataCell>
                                             <CTableDataCell>{cliente.nombre}</CTableDataCell>
                                             <CTableDataCell>{cliente.apellido}</CTableDataCell>
@@ -241,21 +241,21 @@ const ListaClientes = () => {
                                                     <CTableDataCell>
                                                         <CButton
                                                             style={{
-                                                                marginRight: '20px',
-                                                                marginTop: '1px',  // Ajusta el margen superior según tus necesidades
+                                                                marginRight: '30px',
+                                                                marginTop: '2px',  // Ajusta el margen superior según tus necesidades
                                                                 backgroundColor: cliente.estado ? '#12B41A  ' : 'red  ',
                                                                 color: 'white',
                                                                 fontWeight: 'bold',
-                                                                fontSize: '12px',  // Ajusta el tamaño del texto según tus necesidades
-                                                                padding: '3px 15px',  // Ajusta el espaciado interno según tus necesidades
-                                                                border: '0px solid #333',
+                                                                fontSize: '14px',  // Ajusta el tamaño del texto según tus necesidades
+                                                                padding: '5px 12px',  // Ajusta el espaciado interno según tus necesidades
+                                                                border: '1px solid #333',
                                                             }}
                                                         >
                                                             {cliente.estado ? 'Activo' : 'Inactivo'}
                                                         </CButton>
                                                     </CTableDataCell>
-                                                    <div style={{ transform: 'scaleY(1.1)', marginRight: '10px', marginTop: '5px' }}>
-                                                        
+                                                    <div style={{ transform: 'scaleY(1.3)', marginRight: '7px', marginTop: '8px' }}>
+
                                                         <Switch
                                                             onChange={() =>
                                                                 handleCambiarEstado(cliente.id_cliente)
@@ -263,7 +263,7 @@ const ListaClientes = () => {
                                                             checked={cliente.estado}
                                                             onColor="#001DAE"
                                                             onHandleColor="#FFFFFF"
-                                                            handleDiameter={15}
+                                                            handleDiameter={18}
                                                             uncheckedIcon={false}
                                                             checkedIcon={false}
                                                             boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
@@ -273,30 +273,27 @@ const ListaClientes = () => {
                                                         />
                                                     </div>
                                                     <CButton
-                                                        color="seconsary"
-                                                        size="sm"
+                                                        color="secondary"
+                                                        size="sm" // Tamaño pequeño
                                                         onClick={() => handleEditar(cliente)}
                                                         style={{
-                                                            marginRight: '20px',
+                                                            marginRight: '5px', // Ajusta el margen derecho según tus necesidades
                                                             backgroundColor: 'grey',
-                                                            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-                                                            padding: '3px 10px',
+                                                            boxShadow: '1px 2px 4px rgba(0, 0, 0, 0.1)',
+                                                            padding: '2px 6px', // Ajusta el padding según tus necesidades
                                                             borderRadius: '5px',
                                                         }}
                                                     >
                                                         <FaEdit style={{ color: 'black' }} />
                                                     </CButton>
 
-                                                    
                                                     <CButton
                                                         color="danger"
-                                                        size="sm"
+                                                        size="sm" // Tamaño pequeño
                                                         onClick={() => {
                                                             Swal.fire({
-                                                                title:
-                                                                    '¿Estás seguro que desea  eliminar este cliente?',
-                                                                text:
-                                                                    'Esta acción no se puede deshacer.',
+                                                                title: '¿Estás seguro que desea eliminar este cliente?',
+                                                                text: 'Esta acción no se puede deshacer.',
                                                                 icon: 'warning',
                                                                 showCancelButton: true,
                                                                 confirmButtonColor: '#d33',
@@ -310,11 +307,12 @@ const ListaClientes = () => {
                                                             });
                                                         }}
                                                         style={{
-                                                            borderRadius: '5px',  // Ajusta el radio de los bordes según tus necesidades
+                                                            borderRadius: '5px', // Ajusta el radio de los bordes según tus necesidades
                                                         }}
                                                     >
                                                         <FaTrash /> {/* Icono de eliminar */}
                                                     </CButton>
+
                                                 </CButtonGroup>
                                             </CTableDataCell>
                                         </CTableRow>

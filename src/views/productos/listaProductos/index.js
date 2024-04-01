@@ -233,6 +233,10 @@ function ListaProductos() {
   const indexOfLastProducto = currentPage * pageSize;
   const indexOfFirstProducto = indexOfLastProducto - pageSize;
   const currentProductos = filteredProductos.slice(indexOfFirstProducto, indexOfLastProducto);
+  const capitalizeFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+  
 
   return (
     <CRow>
@@ -274,7 +278,7 @@ function ListaProductos() {
               <CTableBody>
                 {currentProductos.map((producto) => (
                   <CTableRow key={producto.id_producto}>
-                    <CTableDataCell>{producto.nombre}</CTableDataCell>
+                    <CTableDataCell>{capitalizeFirstLetter(producto.nombre)}</CTableDataCell>
                     <CTableDataCell>{producto.descripcion}</CTableDataCell>
                     <CTableDataCell>{producto.precioCosto}</CTableDataCell>
                     <CTableDataCell>{producto.precioVenta}</CTableDataCell>

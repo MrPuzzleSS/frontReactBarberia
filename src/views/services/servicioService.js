@@ -1,97 +1,96 @@
-const apiUrl = 'https://restapibarberia.onrender.com/api/servicio'; // Cambiar la URL de insumo a servicio
-
 // servicioService.js
+import axios from 'axios';
 
+const apiUrl = 'https://restapibarberia.onrender.com/api/servicio';
 
-const addAuthorizationHeader = (headers) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
+const getToken = () => {
+    return localStorage.getItem('token');
 };
 
 const ServicioService = {
-    fetchWithAuthorization: async (url, options = {}) => {
-        const headers = options.headers || {};
-        addAuthorizationHeader(headers);
-
-        const response = await fetch(url, { ...options, headers });
-
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status} ${response.statusText}`);
-        }
-
-        return response.json();
-    },
-
     getAllServicios: async () => {
         try {
-            return await ServicioService.fetchWithAuthorization(apiUrl);
+            const response = await axios.get(apiUrl, {
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`
+                }
+            });
+            return response.data;
         } catch (error) {
             console.error('Error al obtener los servicios:', error);
-            throw error;
+            throw new Error(`Error al obtener los servicios: ${error.message}`);
         }
     },
 
     getServicioById: async (id) => {
         try {
-            return await ServicioService.fetchWithAuthorization(`${apiUrl}/${id}`);
+            const response = await axios.get(`${apiUrl}/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`
+                }
+            });
+            return response.data;
         } catch (error) {
             console.error('Error al obtener el servicio por ID:', error);
-            throw error;
+            throw new Error(`Error al obtener el servicio por ID: ${error.message}`);
         }
     },
 
     createServicio: async (newServicio) => {
         try {
-            return await ServicioService.fetchWithAuthorization(apiUrl, {
-                method: 'POST',
+            const response = await axios.post(apiUrl, newServicio, {
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newServicio),
+                    'Authorization': `Bearer ${getToken()}`
+                }
             });
+            return response.data;
         } catch (error) {
             console.error('Error al crear el servicio:', error);
-            throw error;
+            throw new Error(`Error al crear el servicio: ${error.message}`);
         }
     },
 
     updateServicio: async (id, updatedServicio) => {
         try {
-            return await ServicioService.fetchWithAuthorization(`${apiUrl}/${id}`, {
-                method: 'PUT',
+            const response = await axios.put(`${apiUrl}/${id}`, updatedServicio, {
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedServicio),
+                    'Authorization': `Bearer ${getToken()}`
+                }
             });
+            return response.data;
         } catch (error) {
             console.error('Error al actualizar el servicio:', error);
-            throw error;
+            throw new Error(`Error al actualizar el servicio: ${error.message}`);
         }
     },
 
     cambiarEstadoServicio: async (id) => {
         try {
-            return await ServicioService.fetchWithAuthorization(`${apiUrl}/cambiarEstado/${id}`, {
-                method: 'PUT',
+            const response = await axios.put(`${apiUrl}/cambiarEstado/${id}`, null, {
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`
+                }
             });
+            return response.data;
         } catch (error) {
             console.error('Error al cambiar el estado del servicio:', error);
-            throw error;
+            throw new Error(`Error al cambiar el estado del servicio: ${error.message}`);
         }
     },
 
     eliminarServicio: async (id_servicio) => {
         try {
-            return await ServicioService.fetchWithAuthorization(`${apiUrl}/${id_servicio}`, {
-                method: 'DELETE',
-                // Options such as headers, authentication, etc.
+            const response = await axios.delete(`${apiUrl}/${id_servicio}`, {
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`
+                }
             });
+            return response.data;
         } catch (error) {
             console.error(`Error al eliminar el servicio: ${error.message}`);
-            throw error;
+            throw new Error(`Error al eliminar el servicio: ${error.message}`);
         }
     },
 };

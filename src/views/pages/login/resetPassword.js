@@ -18,6 +18,7 @@ import { cilEnvelopeOpen, cilArrowLeft, cilArrowCircleLeft } from '@coreui/icons
 import prueba2 from '../../../assets/images/fondo/shop.jpg';
 import logoBarberia from '../../../assets/images/logoBarberia2.png';
 import './UserInforPage.css';
+import 'src/scss/css/global.css'; 
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -37,7 +38,7 @@ const ForgotPassword = () => {
       }
 
       // Lógica para enviar la solicitud al backend
-      const response = await fetch('http://localhost:8095/api/solicitar-restablecimiento', {
+      const response = await fetch('https://restapibarberia.onrender.com/api/solicitar-restablecimiento', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

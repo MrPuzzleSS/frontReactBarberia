@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { CButton, CCard, CCardBody, CForm, CFormInput, CAlert } from '@coreui/react';
 import Swal from 'sweetalert2';
 import fondo from '../../../assets/images/ftos/mk.png';
+import 'src/scss/css/global.css'; 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -29,7 +30,7 @@ const ResetPassword = () => {
 
       console.log('Enviando solicitud con token:', token);
 
-      const response = await fetch('http://localhost:8095/api/cambiar-contrasena', {
+      const response = await fetch('https://restapibarberia.onrender.com/api/cambiar-contrasena', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

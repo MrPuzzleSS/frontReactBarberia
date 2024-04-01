@@ -77,7 +77,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:8095/api/usuario', newUser);
+      const response = await axios.post('https://restapibarberia.onrender.com/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
 
       Swal.fire({
@@ -172,7 +172,7 @@ const Register = () => {
 
               <CCardBody className="p-12">
               <CForm onSubmit={(e) => e.preventDefault()}>
-  <h2 className="mb-6 text-center">REGISTRAR USUARIO</h2>
+  <h2 className="mb-6 text-center">Registrar Usuario</h2>
   <div className="mb-3">
     <CFormLabel><strong>Rol del Usuario</strong></CFormLabel>
     <CFormSelect
@@ -220,7 +220,7 @@ const Register = () => {
   </div>
   <div className="mb-3 d-flex justify-content-center">
     <CButton type="submit" onClick={handleAddUser}>
-      REGISTRAR USUARIO
+      Registrar Usuario
     </CButton>
     <Link to="/listaUsuarios">
       <CButton type="button" color="secondary" className="ms-3">

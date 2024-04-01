@@ -210,7 +210,7 @@ const ListaUsuarios = () => {
           correo: document.getElementById('correoElectronico').value,
         };
 
-        await axios.put(`http://localhost:8095/api/usuario/${editedUser.id_usuario}`, editedUser);
+        await axios.put(`https://restapibarberia.onrender.com/api/usuario/${editedUser.id_usuario}`, editedUser);
 
         setUsers((prevUsers) =>
           prevUsers.map((user) => (user.id_usuario === selectedItem.id_usuario ? editedUser : user))
@@ -258,7 +258,7 @@ const ListaUsuarios = () => {
           <strong>Lista de usuarios</strong>
           <Link to="/CrearUsuarios">
             <CButton color="primary" className="me-1">
-              AGREGAR USUARIO
+              Agregar Usuario
             </CButton>
           </Link>
         </CCardHeader>
@@ -276,11 +276,10 @@ const ListaUsuarios = () => {
           <CTable align="middle" className="mb-0 border table-sm" hover responsive>
             <CTableHead color="light">
               <CTableRow>
-                <CTableHeaderCell>NOMBRE</CTableHeaderCell>
-                <CTableHeaderCell>CORREO</CTableHeaderCell>
-                <CTableHeaderCell>ROL</CTableHeaderCell>
-                <CTableHeaderCell>ESTADO</CTableHeaderCell>
-                <CTableHeaderCell>ACCIONES</CTableHeaderCell>
+                <CTableHeaderCell>Nombre</CTableHeaderCell>
+                <CTableHeaderCell>Correo</CTableHeaderCell>
+                <CTableHeaderCell>Rol</CTableHeaderCell>
+                <CTableHeaderCell>Estado</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>

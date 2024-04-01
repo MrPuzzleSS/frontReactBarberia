@@ -25,7 +25,7 @@ const Register = () => {
             <CCard className="mx-12">
               <CCardBody className="p-12">
                 <CForm>
-                  <h1 className="mb-8">EDITAR USUARIO</h1>
+                  <h1 className="mb-8">Editar Usuario</h1>
                   <CInputGroup className="mb-3">
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
@@ -67,7 +67,7 @@ const Register = () => {
                   </CInputGroup>
                   <div className="d-grid">
                     <Link to="/ListaUsuarios">
-                      <CButton color="success">EDITAR USUARIO</CButton>
+                      <CButton color="success">Editar Usuario</CButton>
                     </Link>
                   </div>
                 </CForm>

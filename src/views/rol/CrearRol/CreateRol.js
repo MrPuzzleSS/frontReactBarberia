@@ -36,7 +36,7 @@ const CreateRol = () => {
   useEffect(() => {
     const fetchPermisos = async () => {
       try {
-        const response = await axios.get('http://localhost:8095/api/permisos');
+        const response = await axios.get('https://restapibarberia.onrender.com/api/permisos');
         console.log('Respuesta de la API de permisos:', response.data);
         const capitalizedPermisos = capitalizePermissions(response.data.listaPermisos || []);
         setPermisos(capitalizedPermisos);
@@ -147,7 +147,7 @@ const CreateRol = () => {
           <CCard className="mx-4" style={{ marginTop: '30px', marginBottom: '20px' }}>
               <CCardBody className="p-4">
                 <CForm>
-                  <h1 className="mb-4 text-center">CREAR ROL</h1>
+                  <h1 className="mb-4 text-center">Crear Rol</h1>
                   <CInputGroup className="mb-3">
                     <CInputGroupText className="input-group-text-icon">
                       <CIcon icon={cilUser} />
@@ -193,7 +193,7 @@ const CreateRol = () => {
                   </div>
                   <div className="mt-4 d-flex justify-content-center">
                     <CButton type="button" onClick={handleAddRole} color="primary" className="mx-2">
-                      REGISTRAR ROL
+                      Registrar Rol
                     </CButton>
                     <Link to="/listaRol">
                       <CButton type="button" color="secondary" className="mx-2">

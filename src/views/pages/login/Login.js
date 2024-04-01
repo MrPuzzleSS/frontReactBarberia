@@ -19,6 +19,7 @@ import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
 import logoBarberia from '../../../assets/images/logoBarberia2.png';
 import fonds from '../../../assets/images/ftos/bb.jpg';
+import 'src/scss/css/global.css'; 
 
 const Login = () => {
   const [nombreUsuario, setNombreUsuario] = useState('');
@@ -50,7 +51,7 @@ const Login = () => {
     } catch (error) {
       if (error.response && error.response.status) {
         if (error.response.status === 401) {
-          setError('La contraseña ingresada es incorrecta');
+          setError('Usuario o contraseña  incorrecta');
         } else if (error.response.status === 403) {
           const { mensaje } = error.response.data;
           setError(mensaje);
@@ -109,7 +110,7 @@ const Login = () => {
                         style={{ fontSize: '1.2rem', borderRadius: '5px' }}
                         onClick={handleLogin}
                       >
-                        INGRESAR
+                        Ingresar
                       </CButton>
                     </CCol>
                   </CRow>
@@ -128,7 +129,7 @@ const Login = () => {
                   <CRow className="mt-3">
                     <CCol xs={12} className="text-center">
                       <Link to="/register">
-                        <CButton color="success">NUEVA CUENTA</CButton>
+                        <CButton color="success">Nueva Cuenta</CButton>
                       </Link>
                     </CCol>
                   </CRow>

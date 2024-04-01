@@ -3,6 +3,7 @@ import CitasDataService from "src/views/services/citasService";
 import Servicios_S from "src/views/services/servicios_s";
 import Swal from 'sweetalert2';
 import { format } from 'date-fns';
+import 'src/scss/css/global.css'; 
 import {
   CCard,
   CCardBody,
@@ -190,14 +191,14 @@ function ListaCitas() {
                           color="info"
                           onClick={() => mostrarDetalleCompra(cita)}
                         >
-                          DETALLE
+                          Detalle
                         </CButton>
                         <CButton
                           color="danger"
                           disabled={cita.cita.estado === 'Cancelada'} // Deshabilitar si el estado es "Cancelada"
                           onClick={() => cancelarCita(cita.cita.id_cita, cita.cita.estado)}
                         >
-                          CANCELAR
+                          Cancelar
                         </CButton>
                       </CTableDataCell>
                     </CTableRow>
