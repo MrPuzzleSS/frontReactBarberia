@@ -40,7 +40,7 @@ function CargarVentas() {
   const [errorCedula, setErrorCedula] = useState(false);
   const [mostrarServicio, setMostrarServicio] = useState(false);
   const [mostrarProducto, setMostrarProducto] = useState(false);
-  const [clientes, setClientes] = useState([]);
+  //const [clientes, setClientes] = useState([]);
   const [servicios, setServicios] = useState([]);
   const [productos, setProductos] = useState([]);
   const [citas, setCitas] = useState([]);
@@ -55,14 +55,15 @@ function CargarVentas() {
   const [selectedEmpleado, setSelectedEmpleado] = useState(null);
   const [citaSeleccionada, setCitaSeleccionada] = useState(null);
   const [citaData, setCitaData] = useState(null);
-  const [cantidadProductos, setCantidadProductos] = useState(null);
-  const [cantidadServicios, setCantidadServicios] = useState(null);
+  const [cantidadProductos, setCantidadProductos] = useState(0);
+  const [cantidadServicios, setCantidadServicios] = useState(0);
   const [apellido, setApellido] = useState("");
   const [documento, setDocumento] = useState("");
   const [numeroFactura, setNumeroFactura] = useState("");
   const [nuevoNumeroCedula, setNumeroCita] = useState("");
   const [citaId, setCitaId] = useState("");
   const [totalVenta, setTotalVenta] = useState(0);
+  const [estadoVenta, setEstadoVenta] = useState('Pendiente');
 
   //citas con usuario
   const [selectedUsuario, setSelectedUsuario] = useState(null);
@@ -72,14 +73,13 @@ function CargarVentas() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const clientesPromise = fetchClientes();
         const usuariosPromise = fetchUsuario();
         const serviciosPromise = fetchServicios();
         const productosPromise = fetchProductos();
         const ventasPromise = fetchVentas();
         const empleadosPromise = fetchEmpleados();
 
-        await Promise.all([clientesPromise, serviciosPromise, productosPromise, ventasPromise, empleadosPromise, usuariosPromise]);
+        await Promise.all([serviciosPromise, productosPromise, ventasPromise, empleadosPromise, usuariosPromise]);
   
         fetchCitas();
       } catch (error) {
@@ -104,7 +104,7 @@ function CargarVentas() {
     try {
       const nextNumeroFactura = getNextNumeroFactura();
       setNumeroFactura(nextNumeroFactura);
-      const response = await VentaService.crearVenta({
+      const response = await VentaService.cargarVenta({
         citaId: citaData.id_cita,
         usuarioId: selectedUsuario.id_usuario,
         empleadoId: selectedEmpleado.id_empleado,
@@ -112,6 +112,7 @@ function CargarVentas() {
         productos: productosEnVenta,
         totalVenta: totalVenta,
         numeroFactura: nextNumeroFactura,
+        estado: estadoVenta,
       });
       console.log("Sale created:", response);
       setTimeout(() => {
@@ -177,21 +178,6 @@ function CargarVentas() {
       }
     } catch (error) {
       console.error("Error la lista de empleados:", error);
-    }
-  };
-
-
-
-  const fetchClientes = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/cliente`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      setClientes(response.data.listClientes);
-    } catch (error) {
-      console.error("Error al obtener la lista de clientes:", error);
     }
   };
 
@@ -294,22 +280,6 @@ function CargarVentas() {
       }
     } catch (error) {
       console.error("Error al obtener las ventas:", error);
-    }
-  };
-
-
-
-  const handleClienteChange = (clienteId) => {
-    const selected = clientes.find(
-      (cliente) => cliente.id_cliente == clienteId,
-    );
-    if (selected) {
-      setSelectedCliente(selected);
-      setApellido(selected.apellido);
-      setDocumento(selected.documento);
-    } else {
-      console.error("Cliente no encontrado con el ID:", clienteId);
-      console.log(typeof clienteId);
     }
   };
 
@@ -500,81 +470,6 @@ function CargarVentas() {
     setMostrarProducto(true);
     setMostrarServicio(false);
   };
-
-
-/*
-  const obtenerCedulaCliente = async (id_cliente) => {
-    try {
-      const response = await fetch(`${API_URL}/cliente/${id_cliente}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-  
-      if (!response.ok) {
-        throw new Error('Error al obtener los detalles del cliente');
-      }
-      
-      const clienteData = await response.json();
-      const cedulaCliente = clienteData.documento;
-      setNumeroCita(cedulaCliente);
-      try {
-        setSelectedCliente(null);
-        setSelectedEmpleado(null);
-        setCitaData(null);
-        setServiciosEnVenta([]);
-        setTotalVenta(0);
-  
-        const citaDataResponse = await fetchCitasData(cedulaCliente);
-        console.log("La cita actual", citaDataResponse);
-     
-        
-        await handleClienteChange(citaDataResponse?.id_cliente);
-        await handleEmpleadoChange(citaDataResponse?.id_empleado);
-  
-        let infoServicio;
-  
-        try {
-          const response = await fetch(
-            `${API_URL}/citas_servicios/${citaDataResponse.id_cita}`, {
-              headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-            });
-          
-          const data = await response.json();
-          infoServicio = data;
-        } catch (error) {
-          console.error("Error al obtener los datos de la cita:", error);
-        }
-  
-        const selected = servicios.find(
-          (servicio) => servicio?.id == infoServicio?.id_servicio,
-        );
-        if (selected) {
-          const nuevaFilaServicio = {
-            id: selected?.id,
-            nombre: selected?.nombre,
-            cantidad: 1,
-            precioUnitario: selected?.valor,
-            precioTotal: selected?.valor,
-          };
-          setServiciosEnVenta([nuevaFilaServicio]);
-          setSelectedServicio(null);
-          setTotalVenta(nuevaFilaServicio.precioTotal);
-        }
-      } catch (error) {
-        console.error("Error al obtener los datos de la cita:", error);
-        throw error;
-      }
-      setVisible(false);
-    } catch (error) {
-      console.error('Error al obtener la cédula del cliente:', error);
-      return null;
-    }
-  }; 
-
-*/
   
     const abrirModal = () => {
       setVisible(true);
@@ -659,9 +554,7 @@ function CargarVentas() {
                   <CFormLabel>Cliente</CFormLabel>
                   <CFormInput
                     value={
-                      selectedUsuario != undefined
-                        ? selectedUsuario?.nombre_usuario + " " + apellido
-                        : " "
+                      selectedUsuario?.nombre_usuario ? selectedUsuario.nombre_usuario + " " + apellido : ""
                     }
                     readOnly
                   />
@@ -692,6 +585,18 @@ function CargarVentas() {
                     readOnly
                   />
                 </div>
+              </div>
+
+              <div style={{ flex: 1, marginRight: "10px", marginBottom: "10px", display: "flex", flexDirection: "column" }}>
+                <CFormLabel>Estado de la Venta</CFormLabel>
+                <CFormSelect
+                onChange={(e) => setEstadoVenta(e.target.value)}
+                value={estadoVenta}
+                style={{ width: "33%" }} // Establece el ancho del select
+                >
+                  <option value="Pendiente">Pendiente</option>
+                  <option value="Pagado">Pagado</option>
+                  </CFormSelect>
               </div>
 
               <div className="mb-3" style={{ display: "none" }}>
@@ -738,20 +643,23 @@ function CargarVentas() {
                       >
                         <option value="">Seleccionar Servicio</option>
                         {servicios.map((servicio) => (
-                          <option 
-                          key={servicio.id} 
-                          value={servicio.id}
-                          >
+                          <option key={servicio.id} value={servicio.id}>
                             {servicio.nombre}
                           </option>
                         ))}
                       </CFormSelect>
                       <CFormInput
-                        type="number"
+                        type="text"
                         name="cantidadServicios"
                         placeholder="Ingrese su cantidad"
                         value={cantidadServicios}
-                        onChange={(e) => setCantidadServicios(e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+
+                          if (/^\d*$/.test(value)) {
+                            setCantidadServicios(value);
+                          }
+                        }}
                         style={{ marginLeft: "5px" }}
                       />
                       <CButton
@@ -786,20 +694,23 @@ function CargarVentas() {
                         >
                           <option value="">Seleccionar Producto</option>
                           {productos.map((producto) => (
-                            <option
-                              key={producto.id_productos}
-                              value={producto.id_productos}
-                            >
+                            <option key={producto.id_productos} value={producto.id_productos}>
                               {producto.nombre}
                             </option>
                           ))}
                         </CFormSelect>
                         <CFormInput
-                          type="number"
+                          type="text"
                           name="cantidadProductos"
                           placeholder="Ingrese la cantidad"
                           value={cantidadProductos}
-                          onChange={(e) => setCantidadProductos(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+
+                            if (/^\d*$/.test(value)) {
+                              setCantidadProductos(value);
+                            }
+                          }}
                           style={{ marginLeft: "5px" }}
                         />
                         <CButton

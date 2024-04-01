@@ -462,11 +462,17 @@ function FormularioVentas() {
                                         ))}
                                     </CFormSelect>
                                     <CFormInput
-                                    type="number"
+                                    type="text"
                                     name="cantidadServicios"
                                     placeholder="Ingrese la cantidad"
                                     value={cantidadServicios}
-                                    onChange={(e) => setCantidadServicios(e.target.value)}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+              
+                                        if (/^\d*$/.test(value)) {
+                                          setCantidadServicios(value);
+                                        }
+                                      }}
                                     style={{ marginLeft: "5px" }}
                                     />
                                     <CButton
@@ -511,11 +517,17 @@ function FormularioVentas() {
                                         ))}
                                     </CFormSelect>
                                     <CFormInput
-                                    type="number"
+                                    type="text"
                                     name="cantidadProductos"
                                     placeholder="Ingrese la cantidad"
                                     value={cantidadProductos}
-                                    onChange={(e) => setCantidadProductos(e.target.value)}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+            
+                                        if (/^\d*$/.test(value)) {
+                                          setCantidadProductos(value);
+                                        }
+                                    }}
                                     style={{ marginLeft: "5px" }}
                                     />
                                     <CButton 
