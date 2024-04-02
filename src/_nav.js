@@ -138,11 +138,19 @@ const CheckPermission = ({ route }) => {
   return false;
 };
 
-const FilteredNav = _nav.filter((item) => {
-  if (item.to && item.component === CNavItem) {
-    return CheckPermission({ route: item.to });
-  }
-  return true;
-});
+const FilteredNav = (navItems) => {
+  return navItems.filter((item) => {
+    if (item.to && item.component === CNavItem) {
+      return CheckPermission({ route: item.to });
+    } else if (item.items && item.component === CNavGroup) {
+      item.items = FilteredNav(item.items);
+      return item.items.length > 0;
+    }
+    return true;
+  });
+};
 
-export default FilteredNav;
+const filteredNavItems = FilteredNav(_nav);
+
+export default filteredNavItems;
+
