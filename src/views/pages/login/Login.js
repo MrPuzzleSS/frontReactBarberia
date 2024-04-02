@@ -80,7 +80,7 @@ const Login = () => {
         setError('Error en el campo de contraseña: ' + error.message);
       } else if (error.response && error.response.status) {
         if (error.response.status === 401) {
-          setError('La contraseña ingresada es incorrecta');
+          setError('Usuario o Contraseña Incorrectos');
         } else if (error.response.status === 403) {
           const { mensaje } = error.response.data;
           setError(mensaje);

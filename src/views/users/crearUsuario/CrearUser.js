@@ -129,7 +129,7 @@ const Register = () => {
           validationErrors.nombre_usuario = 'El nombre de usuario no debe contener caracteres especiales ni números.';
         } else if (value.length < 3) {
           validationErrors.nombre_usuario = 'El nombre de usuario debe tener al menos 3 caracteres.';
-        } else if (value.length > 20) {
+        } else if (value.length > 30) {
           validationErrors.nombre_usuario = 'El nombre de usuario no debe tener más de 20 caracteres.';
         } else if (/\s/.test(value)) {
           validationErrors.nombre_usuario = 'El nombre de usuario no debe contener espacios en blanco.';

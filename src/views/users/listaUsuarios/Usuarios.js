@@ -119,8 +119,7 @@ const ListaUsuarios = () => {
       return 'default';
     }
   };
-
-  const handleSwitchChange = async (item) => {
+  const handleSwitchChange = (item) => {
     const newStatus = item.estado === 'Activo' ? 'Inactivo' : 'Activo';
     const originalStatus = item.estado;
   
@@ -171,12 +170,11 @@ const ListaUsuarios = () => {
         }
       } else {
         // Si la operación es cancelada, revertir el estado al original
-        setUsers((prevUsers) =>
-          prevUsers.map((user) => (user.id_usuario === originalUser.id_usuario ? originalUser : user))
-        );
+        document.getElementById(`formSwitchCheckChecked_${item.id_usuario}`).checked = item.estado === 'Activo';
       }
     });
   };
+  
 
   
 

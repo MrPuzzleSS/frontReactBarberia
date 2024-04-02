@@ -15,7 +15,6 @@ const EditProfilePage = () => {
     const [updateSuccess, setUpdateSuccess] = useState(false);
     const [updateError, setUpdateError] = useState(null);
     const [editingField, setEditingField] = useState(null);
-    const [showConfirmationAlert, setShowConfirmationAlert] = useState(false);
     const [isProfileUpdated, setIsProfileUpdated] = useState(false);
     const navigate = useNavigate();
 
@@ -80,7 +79,17 @@ const EditProfilePage = () => {
                 return;
             }
 
-            setShowConfirmationAlert(true);
+            Swal.fire({
+                icon: 'question',
+                title: '¿Estás seguro de que deseas actualizar tus datos?',
+                showCancelButton: true,
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'Cancelar',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    confirmUpdate();
+                }
+            });
         } catch (error) {
             console.error('Error al realizar la actualización', error);
             setUpdateSuccess(false);
@@ -105,7 +114,6 @@ const EditProfilePage = () => {
     
             if (response.ok) {
                 setUpdateSuccess(true);
-                setShowConfirmationAlert(false);
                 setTimeout(() => {
                     navigate('/login');
                 }, 3000);
@@ -248,24 +256,16 @@ const EditProfilePage = () => {
                                         <button className="btn btn-secondary">REGRESAR</button>
                                     </Link>
                                 </div>
-                                <div className="d-inline-block mx-3">
-                                    {showConfirmationAlert && (
-                                        <div className="alert alert-warning mt-3" role="alert">
-                                            ¿Estás seguro de que deseas actualizar tus datos?
-                                            <button className="btn btn-warning ml-2" onClick={confirmUpdate}>Sí</button>
-                                        </div>
-                                    )}
-                                    {updateSuccess && (
-                                        <div className="alert alert-success mt-3" role="alert">
-                                            Datos actualizados correctamente. Por favor, inicia sesión nuevamente con tus nuevos datos.
-                                        </div>
-                                    )}
-                                    {!updateSuccess && updateError && (
-                                        <div className="alert alert-danger mt-3" role="alert">
-                                            {updateError}
-                                        </div>
-                                    )}
-                                </div>
+                                {updateSuccess && (
+                                    <div className="alert alert-success mt-3" role="alert">
+                                        Datos actualizados correctamente. Por favor, inicia sesión nuevamente con tus nuevos datos.
+                                    </div>
+                                )}
+                                {!updateSuccess && updateError && (
+                                    <div className="alert alert-danger mt-3" role="alert">
+                                        {updateError}
+                                    </div>
+                                )}
                             </CCardFooter>
                         </CCard>
                     </CCol>
