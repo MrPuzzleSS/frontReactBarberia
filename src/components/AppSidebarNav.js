@@ -3,6 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
 import { CBadge } from '@coreui/react'
+import 'simplebar-react/dist/simplebar.min.css'
 import '../assets/css/Sidebar.scss'
 
 export const AppSidebarNav = ({ items }) => {

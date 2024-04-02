@@ -15,114 +15,116 @@ import {
   cilMoney,
   cilBasket,
 } from '@coreui/icons';
-import { CNavItem, CNavTitle } from '@coreui/react';
+import { CNavGroup, CNavItem } from '@coreui/react';
 import { getUserInfo } from './components/auht';
 
 const _nav = [
   {
     component: CNavItem,
     name: 'Inicio',
-    style: { fontWeight: 'bold',color: 'black' },
     to: '/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
   },
   {
-    component: CNavTitle,
+    component: CNavGroup,
     name: 'Procesos de Compra',
-    style: { fontWeight: 'bold',color: 'black' },
-  },
-  {
-    component: CNavItem,
-    name: 'Proveedores',
-    style: { fontWeight: 'bold',color: 'black' },
-    to: '/proveedores',
-    icon: <CIcon icon={cilIndustry} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
-  },
-  
- 
-  {
-    component: CNavItem,
-    name: 'Compras',
-    style: { fontWeight: 'bold',color: 'black' },
     to: '/compras',
-    icon: <CIcon icon={cilCart} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
-  },
-  {
-    component: CNavItem,
-    name: 'ProdInsumos',
-    style: { fontWeight: 'bold',color: 'black' },
-    to: '/productos',
     icon: <CIcon icon={cilBasket} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Proveedores',
+        to: '/proveedores',
+        icon: <CIcon icon={cilIndustry} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+      },
+      {
+        component: CNavItem,
+        name: 'Compras',
+        to: '/compras',
+        icon: <CIcon icon={cilCart} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+      },
+      {
+        component: CNavItem,
+        name: 'ProdInsumos',
+        to: '/productos',
+        icon: <CIcon icon={cilBasket} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+      },
+    ]
   },
   {
-    component: CNavTitle,
+    component: CNavGroup,
     name: 'Procesos de Servicio',
-    style: { fontWeight: 'bold',color: 'black' },
-  },
-  {
-    component: CNavItem,
-    name: 'Empleados',
-    style: { fontWeight: 'bold',color: 'black' },
-    to: '/empleados',
-    icon: <CIcon icon={cilPeople} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
-  },
-  {
-    component: CNavItem,
-    name: 'Servicios',
-    style:{ fontWeight: 'bold',color: 'black' },
     to: '/servicios',
     icon: <CIcon icon={cilCut} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Empleados',
+        to: '/empleados',
+        icon: <CIcon icon={cilPeople} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+      },
+      {
+        component: CNavItem,
+        name: 'Servicios',
+        to: '/servicios',
+        icon: <CIcon icon={cilCut} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+      },
+    ]
   },
   {
-    component: CNavTitle,
-    name: 'Proceso de Agenda',
-    style: { fontWeight: 'bold',color: 'black' },
-  },
-  {
-    component: CNavItem,
-    name: 'Agendas',
-    style: { fontWeight: 'bold',color: 'black' },
-    to: '/agendas/crearconfiguracion',
+    component: CNavGroup,
+    name: 'Agenda',
+    to: '/agenda',
     icon: <CIcon icon={cilCalendar} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Agendas',
+        to: '/agendas/crearconfiguracion',
+        icon: <CIcon icon={cilCalendar} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+      },
+    ]
   },
   {
-    component: CNavTitle,
+    component: CNavGroup,
     name: 'Procesos de Venta',
-    style: { fontWeight: 'bold',color: 'black' },
-  },
-  {
-    component: CNavItem,
-    name: 'Ventas',
-    style: { fontWeight: 'bold',color: 'black' },
     to: '/ventas',
     icon: <CIcon icon={cilMoney} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Ventas',
+        to: '/ventas',
+        icon: <CIcon icon={cilMoney} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+      },
+      {
+        component: CNavItem,
+        name: 'Clientes',
+        to: '/clientes/listaClientes',
+        icon: <CIcon icon={cilUser} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+      },
+    ]
   },
   {
-    component: CNavItem,
-    name: 'Clientes',
-    style: { fontWeight: 'bold',color: 'black' },
-    to: '/clientes/listaClientes',
-    icon: <CIcon icon={cilUser} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
-  },
-  {
-    component: CNavTitle,
+    component: CNavGroup,
     name: 'Configuración',
-    style: { fontWeight: 'bold',color: 'black' },
-  },
-  {
-    component: CNavItem,
-    name: 'Usuarios',
-    style: { fontWeight: 'bold',color: 'black' },
-    to: '/listausuarios',
-    icon: <CIcon icon={cilContact} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
-  },
-  {
-    component: CNavItem,
-    name: 'Roles',
-    style: { fontWeight: 'bold',color: 'black' },
-    to: '/listarol',
+    to: '/configuracion',
     icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
-  },
+    items: [
+      {
+        component: CNavItem,
+        name: 'Usuarios',
+        to: '/listausuarios',
+        icon: <CIcon icon={cilContact} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+      },
+      {
+        component: CNavItem,
+        name: 'Roles',
+        to: '/listarol',
+        icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" style={{ fontWeight: 'bold',color: 'black' }} />,
+      },
+    ]
+  }
 ];
 
 const CheckPermission = ({ route }) => {
