@@ -97,7 +97,7 @@ const ListaRol = () => {
       });
 
       if (confirmed.isConfirmed) {
-        const response = await axios.put(`https://restapibarberia.onrender.com/rol/${item.id_rol}`, {
+        const response = await axios.put(`https://restapibarberia.onrender.com/api/rol/${item.id_rol}`, {
           estado: newStatus,
         });
 
@@ -174,7 +174,7 @@ const ListaRol = () => {
         permisos: editRolePermisos,
       };
 
-      await axios.put(`https://restapibarberia.onrender.com/rol/${editRoleId}`, editedRole);
+      await axios.put(`https://restapibarberia.onrender.com/api/rol/${editRoleId}`, editedRole);
 
       setVisible(false);
       Swal.fire({
@@ -214,7 +214,7 @@ const ListaRol = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`https://restapibarberia.onrender.com/rol/${item.id_rol}`);
+          await axios.delete(`https://restapibarberia.onrender.com/api/rol/${item.id_rol}`);
 
           const updatedRoles = roles.filter(role => role.id_rol !== item.id_rol);
           setRoles(updatedRoles);
