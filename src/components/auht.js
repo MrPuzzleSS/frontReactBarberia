@@ -31,18 +31,24 @@ export const isAuthenticated = () => {
 };
 
 export const setSession = (token, expirationDate, userInfo) => {
+  const userInfoWithId = {
+    ...userInfo,
+    id_usuario: userInfo.userId, // Asegúrate de que el nombre de la clave coincida con la que usas para obtener el ID en otros lugares
+  };
+
   localStorage.setItem('token', token);
   localStorage.setItem('tokenExpiration', expirationDate);
-  localStorage.setItem('userInfo', JSON.stringify(userInfo));
+  localStorage.setItem('userInfo', JSON.stringify(userInfoWithId));
 
   console.log('Token del usuario:', token);
 
-  if (userInfo.rol.nombre === 'cliente') {
+  if (userInfo.rol.nombre === 'Cliente') {
     window.location.href = '/cliente'; // Redirigir al usuario con rol de cliente
   } else {
     window.location.href = '/dashboard'; // Redirigir a la ruta de dashboard para otros roles
   }
 };
+
 
 
 export const removeSession = () => {

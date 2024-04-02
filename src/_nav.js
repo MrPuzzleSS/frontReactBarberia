@@ -127,15 +127,13 @@ const _nav = [
   }
 ];
 
+
 const CheckPermission = ({ route }) => {
   const userInfo = getUserInfo();
   const permisos = userInfo.rol.permisos;
   const permisosRutas = permisos.map((permiso) => permiso.ruta);
 
-  if (permisosRutas.includes(route)) {
-    return true;
-  }
-  return false;
+  return permisosRutas.includes(route);
 };
 
 const FilteredNav = (navItems) => {

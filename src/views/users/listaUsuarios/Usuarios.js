@@ -3,8 +3,6 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { CBadge } from '@coreui/react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import { confirmAlert } from 'react-confirm-alert';
-import 'react-confirm-alert/src/react-confirm-alert.css';
 import { getUserInfo } from '../../../components/auht';
 import {
   CCard,
@@ -35,16 +33,16 @@ const ListaUsuarios = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
-  const [searchId, setSearchId] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(5);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const rolesResponse = await axios.get('https://restapibarberia.onrender.com/api/rol');
-        const usuariosResponse = await axios.get('https://restapibarberia.onrender.com/api/usuario');
+        const rolesResponse = await axios.get('http://localhost:8095/api/rol');
+        const usuariosResponse = await axios.get('http://localhost:8095/api/usuario');
         setUsers(usuariosResponse.data.usuarios || []);
         setRoles(rolesResponse.data.listaRoles);
       } catch (error) {
@@ -66,8 +64,8 @@ const ListaUsuarios = () => {
     if (loggedUser && item.id_usuario === loggedUser.id_usuario) {
       Swal.fire({
         icon: 'error',
-        title: 'No puedes eliminar al usuario logueado',
-        text: 'Por favor, cierra sesión e intenta nuevamente.'
+        title: 'No puedes eliminar tu propia cuenta',
+        text: 'Por favor, contacta al administrador si necesitas ayuda.'
       });
       return;
     }
@@ -84,7 +82,7 @@ const ListaUsuarios = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`https://restapibarberia.onrender.com/api/usuario/${item.id_usuario}`);
+          await axios.delete(`http://localhost:8095/api/usuario/${item.id_usuario}`);
           setUsers((prevUsers) => prevUsers.filter((user) => user.id_usuario !== item.id_usuario));
 
           Swal.fire({
@@ -121,13 +119,9 @@ const ListaUsuarios = () => {
       return 'default';
     }
   };
-
- 
-
-  const handleSwitchChange = async (item) => {
+  const handleSwitchChange = (item) => {
     const newStatus = item.estado === 'Activo' ? 'Inactivo' : 'Activo';
     const originalStatus = item.estado;
-    const checkbox = document.getElementById(`formSwitchCheckChecked_${item.id_usuario}`);
   
     // Mantener una copia del estado original del usuario
     const originalUser = { ...item };
@@ -143,7 +137,7 @@ const ListaUsuarios = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.put(`https://restapibarberia.onrender.com/api/usuario/${item.id_usuario}`, {
+          await axios.put(`http://localhost:8095/api/usuario/${item.id_usuario}`, {
             ...item,
             estado: newStatus,
           });
@@ -173,14 +167,10 @@ const ListaUsuarios = () => {
           setUsers((prevUsers) =>
             prevUsers.map((user) => (user.id_usuario === originalUser.id_usuario ? originalUser : user))
           );
-          checkbox.checked = originalStatus === 'Activo';
         }
       } else {
         // Si la operación es cancelada, revertir el estado al original
-        setUsers((prevUsers) =>
-          prevUsers.map((user) => (user.id_usuario === originalUser.id_usuario ? originalUser : user))
-        );
-        checkbox.checked = originalStatus === 'Activo';
+        document.getElementById(`formSwitchCheckChecked_${item.id_usuario}`).checked = item.estado === 'Activo';
       }
     });
   };
@@ -188,9 +178,38 @@ const ListaUsuarios = () => {
 
   
 
-  
-
   const handleSaveChanges = async () => {
+    const nombreUsuario = document.getElementById('nombreUsuario').value.trim();
+    const correoElectronico = document.getElementById('correoElectronico').value.trim();
+    const validationErrors = {};
+  
+    // Validar nombre de usuario
+    if (!nombreUsuario) {
+      validationErrors.nombre_usuario = 'Por favor, ingresa un nombre de usuario.';
+    } else if (nombreUsuario.length < 3) {
+      validationErrors.nombre_usuario = 'El nombre de usuario debe tener al menos 3 caracteres.';
+      
+    }else if (nombreUsuario.length > 30) {
+      validationErrors.nombre_usuario = 'El nombre de usuario no puede contener mas de 30 caracteres.';
+      
+    }
+     else if (/\s/.test(nombreUsuario)) {
+      validationErrors.nombre_usuario = 'El nombre de usuario no puede contener espacios en blanco.';
+    }
+  
+    // Validar correo electrónico
+    if (!correoElectronico) {
+      validationErrors.correo = 'Por favor, ingresa un correo electrónico.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoElectronico)) {
+      validationErrors.correo = 'El correo electrónico ingresado no es válido.';
+    }
+  
+    setErrors(validationErrors);
+  
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+  
     try {
       const confirmSave = await Swal.fire({
         title: '¿Estás seguro?',
@@ -215,7 +234,7 @@ const ListaUsuarios = () => {
         setUsers((prevUsers) =>
           prevUsers.map((user) => (user.id_usuario === selectedItem.id_usuario ? editedUser : user))
         );
-
+  
         Swal.fire({
           icon: 'success',
           title: 'Usuario editado con éxito',
@@ -225,16 +244,26 @@ const ListaUsuarios = () => {
       }
     } catch (error) {
       console.error('Error al editar usuario:', error);
-
+  
+      let errorMessage = 'Ha ocurrido un error al intentar editar el usuario.';
+  
+      if (error.response && error.response.status === 400 && error.response.data.error) {
+        errorMessage = error.response.data.error;
+      }
+  
       Swal.fire({
         icon: 'error',
         title: 'Error al editar usuario',
-        text: 'Ha ocurrido un error al intentar editar el usuario.',
+        text: errorMessage,
       });
     } finally {
       setVisible(false);
     }
   };
+  
+
+  
+
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -372,6 +401,7 @@ const ListaUsuarios = () => {
                 defaultValue={selectedItem?.nombre_usuario}
                 id="nombreUsuario"
               />
+              {errors.nombre_usuario && <div className="text-danger">{errors.nombre_usuario}</div>}
             </div>
             <div className="mb-3">
               <CFormLabel>Correo Electrónico</CFormLabel>
@@ -380,6 +410,7 @@ const ListaUsuarios = () => {
                 defaultValue={selectedItem?.correo}
                 id="correoElectronico"
               />
+              {errors.correo && <div className="text-danger">{errors.correo}</div>}
             </div>
           </form>
         </CModalBody>

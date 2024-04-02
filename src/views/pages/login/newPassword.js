@@ -10,6 +10,8 @@ const ResetPassword = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
+  
+
   const navigate = useNavigate();
   const token = new URLSearchParams(window.location.search).get('token');
 
@@ -17,20 +19,29 @@ const ResetPassword = () => {
     // Log para verificar que el token se obtiene correctamente
     console.log('Token obtenido:', token);
   }, [token]);
-
   const handleResetPassword = async () => {
     try {
       setError(null);
       setSuccess(null);
-
+  
       if (!password.trim() || !confirmPassword.trim()) {
         setError('Por favor, complete todos los campos.');
         return;
       }
-
+  
+      if (password !== confirmPassword) {
+        setError('Las contraseñas no coinciden. Por favor, inténtelo de nuevo.');
+        return;
+      }
+  
+      if (password.length < 8 || password.length > 20) {
+        setError('La contraseña debe tener entre 8 y 20 caracteres.');
+        return;
+      }
+  
       console.log('Enviando solicitud con token:', token);
-
-      const response = await fetch('https://restapibarberia.onrender.com/api/cambiar-contrasena', {
+  
+      const response = await fetch('http://localhost:8095/api/cambiar-contrasena', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,12 +50,12 @@ const ResetPassword = () => {
         credentials: 'include',
         body: JSON.stringify({ token, nuevaContrasena: password }),
       });
-
+  
       const responseBody = await response.json();
-
+  
       if (response.ok) {
         setSuccess(responseBody.mensaje);
-
+  
         Swal.fire({
           icon: 'success',
           title: 'Éxito',
@@ -57,7 +68,7 @@ const ResetPassword = () => {
       }
     } catch (error) {
       console.error('Error al procesar el restablecimiento de contraseña:', error);
-
+  
       if (error instanceof TypeError) {
         if (error.message.includes('Failed to fetch')) {
           setError('Hubo un problema de conexión. Por favor, revise su conexión a Internet e inténtelo nuevamente.');
@@ -69,6 +80,7 @@ const ResetPassword = () => {
       }
     }
   };
+  
   
 
   
