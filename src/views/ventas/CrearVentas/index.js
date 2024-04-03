@@ -3,6 +3,7 @@ import VentaService from 'src/views/services/ventasService';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { FaCheck   } from 'react-icons/fa'; 
 import {
     CFormLabel,
     CFormSelect,
@@ -29,7 +30,7 @@ import {
     CInputGroupText,
 } from '@coreui/react';
 
-const API_URL = 'http://localhost:8095/api';
+const API_URL = 'https://restapibarberia.onrender.com/api';
 
 function FormularioVentas() {
     const navigate = useNavigate();
@@ -73,8 +74,8 @@ function FormularioVentas() {
                 Swal.fire('Error', 'Completa todos los campos obligatorios antes de crear la venta', 'error');
                 return;
             }
-             // Verificar stock de productos en la venta
-             for (const producto of productosEnVenta) {
+            // Verificar stock de productos en la venta
+            for (const producto of productosEnVenta) {
                 const response = await fetch(`${API_URL}/producto/${producto.id}`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -92,7 +93,7 @@ function FormularioVentas() {
                     return;
                 }
             }
-            
+
             Swal.fire('Venta Éxitosa', 'La Venta se ha creado correctamente', 'success');
 
             const nextNumeroFactura = getNextNumeroFactura();
@@ -109,7 +110,7 @@ function FormularioVentas() {
             });
             console.log('Sale created:', response);
 
-             navigate('/ventas/listaVentas');
+            navigate('/ventas/listaVentas');
         } catch (error) {
             console.error('Error creating sale:', error);
         }
@@ -127,88 +128,88 @@ function FormularioVentas() {
     //llamo a la lista de los empleados
     const fetchEmpleados = async () => {
         try {
-          const token = localStorage.getItem('token');
-          const response = await fetch(`${API_URL}/empleado/activos`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_URL}/empleado/activos`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+            if (data && data.empleados) {
+                setEmpleados(data.empleados);
+            } else {
+                console.error('Error la lista de empleados:', data);
             }
-          });
-          const data = await response.json();
-          if (data && data.empleados) {
-            setEmpleados(data.empleados);
-          } else {
-            console.error('Error la lista de empleados:', data);
-          }
         } catch (error) {
-          console.error('Error la lista de empleados:', error);
+            console.error('Error la lista de empleados:', error);
         }
-      };
+    };
 
 
-      //llamo a la lista de clientes
+    //llamo a la lista de clientes
     const fetchClientes = async () => {
         try {
-          const token = localStorage.getItem('token');
-          const response = await fetch(`${API_URL}/cliente`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_URL}/cliente`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+            if (data && data.listClientes) {
+                setClientes(data.listClientes);
+            } else {
+                console.error('Error al obtener la lista de clientes:', data);
             }
-          });
-          const data = await response.json();
-          if (data && data.listClientes) {
-            setClientes(data.listClientes);
-          } else {
-            console.error('Error al obtener la lista de clientes:', data);
-          }
         } catch (error) {
-          console.error('Error al obtener la lista de clientes:', error);
+            console.error('Error al obtener la lista de clientes:', error);
         }
-      };
+    };
 
 
-      //llamo a la lista de servicios
+    //llamo a la lista de servicios
     const fetchServicios = async () => {
         try {
-          const token = localStorage.getItem('token');
-          const response = await fetch(`${API_URL}/servicio`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_URL}/servicio`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+            if (data && data.listServicios) {
+                setServicios(data.listServicios);
+            } else {
+                console.error('Error al obtener la lista de servicios:', data);
             }
-          });
-          const data = await response.json();
-          if (data && data.listServicios) {
-            setServicios(data.listServicios);
-          } else {
-            console.error('Error al obtener la lista de servicios:', data);
-          }
         } catch (error) {
-          console.error('Error al obtener la lista de servicios:', error);
+            console.error('Error al obtener la lista de servicios:', error);
         }
-      };
+    };
 
 
-      //llamo a la lista de productos
+    //llamo a la lista de productos
     const fetchProductos = async () => {
         try {
-          const token = localStorage.getItem('token');
-          const response = await fetch(`${API_URL}/producto/activos`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_URL}/producto/activos`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+            if (data && data.productos) {
+                setProductos(data.productos);
+            } else {
+                console.error('Error al obtener la lista de productos:', data);
             }
-          });
-          const data = await response.json();
-          if (data && data.productos) {
-            setProductos(data.productos);
-          } else {
-            console.error('Error al obtener la lista de productos:', data);
-          }
         } catch (error) {
-          console.error('Error al obtener la lista de productos:', error);
+            console.error('Error al obtener la lista de productos:', error);
         }
-      };
+    };
 
 
-      //llamo a las ventas
+    //llamo a las ventas
     const fetchVentas = async () => {
         try {
             const data = await VentaService.getVentas();
@@ -290,11 +291,11 @@ function FormularioVentas() {
     const handleAgregarProducto = () => {
         if (selectedProducto) {
             let precioTotal = selectedProducto.precioVenta * cantidadProductos;
-            console.log("Precio total del producto:", precioTotal); 
+            console.log("Precio total del producto:", precioTotal);
             const nuevaFilaProducto = {
                 id: selectedProducto.id_producto,
                 nombre: selectedProducto.nombre,
-                cantidad: cantidadProductos, 
+                cantidad: cantidadProductos,
                 precioUnitario: selectedProducto.precioVenta,
                 precioTotal: precioTotal,
             };
@@ -314,7 +315,7 @@ function FormularioVentas() {
         const servicioEliminado = nuevasFilas[index];
         nuevasFilas.splice(index, 1);
         setServiciosEnVenta(nuevasFilas);
-        
+
         setTotalVenta(totalVenta - servicioEliminado.precioTotal);
     };
 
@@ -334,15 +335,18 @@ function FormularioVentas() {
     const handleMostrarServicio = () => {
         setMostrarServicio(true);
         setMostrarProducto(false);
-      };
+    };
 
 
-      //mostrar la lista en el select con la cantidad
+    //mostrar la lista en el select con la cantidad
     const handleMostrarProducto = () => {
         setMostrarProducto(true);
         setMostrarServicio(false);
-      };
-
+    };
+  
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
 
 
     return (
@@ -355,60 +359,60 @@ function FormularioVentas() {
                         </div>
                     </CCardHeader>
                     <CCardBody>
-                         <form>
-                         <CRow>
-                            <CCol xs={12} sm={6}> {/* Primera columna */}
-                            <div style={{ marginBottom: "10px" }}>
-                                <CFormLabel>Cliente</CFormLabel>
-                                <CFormSelect onChange={(e) => handleClienteChange(e.target.value)}>
-                                    <option value="">Seleccionar Cliente</option>
-                                    {clientes.map((cliente) => (
-                                        <option key={cliente.id_cliente} value={cliente.id_cliente}>
-                                            {cliente.nombre}
-                                        </option>
-                                    ))}
+                        <form>
+                            <CRow>
+                                <CCol xs={12} sm={6}> {/* Primera columna */}
+                                    <div style={{ marginBottom: "10px" }}>
+                                        <CFormLabel style={{ fontWeight: 'bold' }}>Cliente</CFormLabel>
+                                        <CFormSelect onChange={(e) => handleClienteChange(e.target.value)}>
+                                            <option value="">Seleccionar Cliente</option>
+                                            {clientes.map((cliente) => (
+                                                <option key={cliente.id_cliente} value={cliente.id_cliente}>
+                                                    {cliente.nombre}
+                                                </option>
+                                            ))}
+                                        </CFormSelect>
+                                    </div>
+                                    <div style={{ marginBottom: "10px" }}>
+                                        <CFormLabel style={{ fontWeight: 'bold' }}>Apellido</CFormLabel>
+                                        <CFormInput value={apellido || ''} readOnly />
+                                    </div>
+                                </CCol>
+                                <CCol xs={12} sm={6}> {/* Segunda columna */}
+                                    <div style={{ marginBottom: "10px" }}>
+                                        <CFormLabel style={{ fontWeight: 'bold' }}>Documento</CFormLabel>
+                                        <CFormInput value={documento || ''} readOnly />
+                                    </div >
+
+                                    <div style={{ marginBottom: "10px" }}>
+                                        <CFormLabel style={{ fontWeight: 'bold' }}>Empleado</CFormLabel>
+                                        <CFormSelect onChange={(e) => handleEmpleadoChange(e.target.value)}>
+                                            <option value="">Seleccionar Empleado</option>
+                                            {empleados.map((empleado) => (
+                                                <option key={empleado.id_empleado} value={empleado.id_empleado}>
+                                                    {empleado.nombre}
+                                                </option>
+                                            ))}
+                                        </CFormSelect>
+                                    </div>
+                                </CCol>
+                            </CRow>
+
+                            <div style={{ flex: 1, marginRight: "10px", marginBottom: "10px", display: "flex", flexDirection: "column" }}>
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Estado de la Venta</CFormLabel>
+                                <CFormSelect
+                                    onChange={(e) => setEstadoVenta(e.target.value)}
+                                    value={estadoVenta}
+                                    style={{ width: "50%" }} // Establece el ancho del select
+                                >
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="Pagado">Pagado</option>
                                 </CFormSelect>
                             </div>
-                            <div style={{ marginBottom: "10px" }}>
-                                <CFormLabel>Apellido</CFormLabel>
-                                <CFormInput value={apellido || ''} readOnly />
-                            </div>
-                            </CCol>
-                            <CCol xs={12} sm={6}> {/* Segunda columna */}
-                            <div style={{ marginBottom: "10px" }}>
-                                <CFormLabel>Documento</CFormLabel>
-                                <CFormInput value={documento || ''} readOnly />
-                            </div >
 
-                            <div style={{ marginBottom: "10px" }}>
-                                <CFormLabel>Empleado</CFormLabel>
-                                <CFormSelect onChange={(e) => handleEmpleadoChange(e.target.value)}>
-                                    <option value="">Seleccionar Empleado</option>
-                                    {empleados.map((empleado) => (
-                                        <option key={empleado.id_empleado} value={empleado.id_empleado}>
-                                            {empleado.nombre}
-                                        </option>
-                                    ))}
-                                </CFormSelect>
-                            </div>
-                            </CCol>
-                        </CRow>
-
-                        <div style={{ flex: 1, marginRight: "10px", marginBottom: "10px", display: "flex", flexDirection: "column" }}>
-                            <CFormLabel>Estado de la Venta</CFormLabel>
-                            <CFormSelect
-                            onChange={(e) => setEstadoVenta(e.target.value)}
-                            value={estadoVenta}
-                            style={{ width: "50%" }} // Establece el ancho del select
-                            >
-                                <option value="Pendiente">Pendiente</option>
-                                <option value="Pagado">Pagado</option>
-                            </CFormSelect>
-                        </div>
-                            
 
                             <div className="mb-3" style={{ display: 'none' }}>
-                                <CFormLabel>Número de Factura</CFormLabel>
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Número de Factura</CFormLabel>
                                 <CFormInput
                                     type="text"
                                     name="numeroFactura"
@@ -416,18 +420,18 @@ function FormularioVentas() {
                                     readOnly
                                 />
                             </div>
-                            
+
                             <br></br>
-                            
+
                             <hr />
-                            
+
                             <br></br>
 
                             <div className="mb-3">
                                 <CButton onClick={handleMostrarServicio} style={{ marginRight: "5px" }}>
                                     Agregar Servicio
                                 </CButton>
-                                    
+
                                 <CButton onClick={handleMostrarProducto}>
                                     Agregar Producto
                                 </CButton>
@@ -435,54 +439,48 @@ function FormularioVentas() {
 
                             {mostrarServicio && (
                                 <div>
-                                    <CFormLabel>Agregar Servicios</CFormLabel>
-                                    <div 
-                                    className="mb-3"
-                                    style={{ display: "flex", alignItems: "center" }}
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Agregar Servicios</CFormLabel>
+                                    <div
+                                        className="mb-3"
+                                        style={{ display: "flex", alignItems: "center" }}
                                     >
                                         <div
-                                        style={{
-                                            flex: 1,
-                                            marginRight: "5px",
-                                            display: "flex",
-                                            alignItems: "center",
-                                        }}
+                                            style={{
+                                                flex: 1,
+                                                marginRight: "5px",
+                                                display: "flex",
+                                                alignItems: "center",
+                                            }}
                                         >
-                                    <CFormSelect 
-                                        onChange={(e) => handleServicioChange(e.target.value)}
-                                    >
-                                        <option value="">Seleccionar Servicio</option>
-                                        {servicios.map((servicio) => (
-                                            <option 
-                                            key={servicio.id} 
-                                            value={servicio.id}
+                                            <CFormSelect
+                                                onChange={(e) => handleServicioChange(e.target.value)}
                                             >
-                                                {servicio.nombre}
-                                            </option>
-                                        ))}
-                                    </CFormSelect>
-                                    <CFormInput
-                                    type="text"
-                                    name="cantidadServicios"
-                                    placeholder="Ingrese la cantidad"
-                                    value={cantidadServicios}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-              
-                                        if (/^\d*$/.test(value)) {
-                                          setCantidadServicios(value);
-                                        }
-                                      }}
-                                    style={{ marginLeft: "5px" }}
-                                    />
-                                    <CButton
-                                        color="success"
-                                        onClick={handleAgregarServicio}
-                                        style={{ marginLeft: "5px" }}
-                                    >
-                                        +
-                                    </CButton>
-                                    </div>
+                                                <option value="">Seleccionar Servicio</option>
+                                                {servicios.map((servicio) => (
+                                                    <option
+                                                        key={servicio.id}
+                                                        value={servicio.id}
+                                                    >
+                                                        {servicio.nombre}
+                                                    </option>
+                                                ))}
+                                            </CFormSelect>
+                                            <CFormInput
+                                                type="number"
+                                                name="cantidadServicios"
+                                                placeholder="Ingrese la cantidad"
+                                                value={cantidadServicios}
+                                                onChange={(e) => setCantidadServicios(e.target.value)}
+                                                style={{ marginLeft: "5px" }}
+                                            />
+                                            <CButton
+                                                color="primary"
+                                                onClick={handleAgregarServicio}
+                                                style={{ marginLeft: "5px" }}
+                                            >
+                                              <FaCheck   />  
+                                            </CButton>
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -490,63 +488,57 @@ function FormularioVentas() {
 
                             {mostrarProducto && (
                                 <div>
-                                    <CFormLabel>Agregar Producto</CFormLabel>
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Agregar Producto</CFormLabel>
                                     <div
-                                    className="mb-3"
-                                    style={{ display: "flex", justifyContent: "center" }}
+                                        className="mb-3"
+                                        style={{ display: "flex", justifyContent: "center" }}
                                     >
                                         <div
-                                        style={{
-                                            flex: 1,
-                                            marginRight: "5px",
-                                            display: "flex",
-                                            alignItems: "center",
-                                          }}
+                                            style={{
+                                                flex: 1,
+                                                marginRight: "5px",
+                                                display: "flex",
+                                                alignItems: "center",
+                                            }}
                                         >
-                                    <CFormSelect 
-                                        onChange={(e) => handleProductoChange(e.target.value)}
-                                    >
-                                        <option value="">Seleccionar Producto</option>
-                                        {productos.map((producto) => (
-                                            <option 
-                                            key={producto.id_productos} 
-                                            value={producto.id_productos}
+                                            <CFormSelect
+                                                onChange={(e) => handleProductoChange(e.target.value)}
                                             >
-                                                {producto.nombre}
-                                            </option>
-                                        ))}
-                                    </CFormSelect>
-                                    <CFormInput
-                                    type="text"
-                                    name="cantidadProductos"
-                                    placeholder="Ingrese la cantidad"
-                                    value={cantidadProductos}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-            
-                                        if (/^\d*$/.test(value)) {
-                                          setCantidadProductos(value);
-                                        }
-                                    }}
-                                    style={{ marginLeft: "5px" }}
-                                    />
-                                    <CButton 
-                                        color="success" 
-                                        onClick={handleAgregarProducto}
-                                        style={{ marginLeft: "5px", marginRight: "-6px" }}
-                                    >
-                                        +
-                                    </CButton>
+                                                <option value="">Seleccionar Producto</option>
+                                                {productos.map((producto) => (
+                                                    <option
+                                                        key={producto.id_productos}
+                                                        value={producto.id_productos}
+                                                    >
+                                                        {producto.nombre}
+                                                    </option>
+                                                ))}
+                                            </CFormSelect>
+                                            <CFormInput
+                                                type="number"
+                                                name="cantidadProductos"
+                                                placeholder="Ingrese la cantidad"
+                                                value={cantidadProductos}
+                                                onChange={(e) => setCantidadProductos(e.target.value)}
+                                                style={{ marginLeft: "5px" }}
+                                            />
+                                            <CButton
+                                                color="primary"
+                                                onClick={handleAgregarProducto}
+                                                style={{ marginLeft: "5px", marginRight: "-6px" }}
+                                            >
+                                                <FaCheck   />  
+                                            </CButton>
+                                        </div>
                                     </div>
-                                </div> 
-                            </div>       
-                        )}
+                                </div>
+                            )}
 
 
                             <CTable>
                                 <CTableHead>
                                     <CTableRow>
-                                        <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                                        {/* <CTableHeaderCell scope="col">#</CTableHeaderCell> */}
                                         <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                                         <CTableHeaderCell scope="col">Cantidad</CTableHeaderCell>
                                         <CTableHeaderCell scope="col">Precio Unitario</CTableHeaderCell>
@@ -558,8 +550,9 @@ function FormularioVentas() {
                                 <CTableBody>
                                     {serviciosEnVenta.map((servicio, index) => (
                                         <CTableRow key={index}>
-                                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                                            <CTableDataCell>{servicio.nombre}</CTableDataCell>
+                                            {/* <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell> */}
+
+                                            <CTableDataCell>{capitalizeFirstLetter(servicio.nombre)}</CTableDataCell>
                                             <CTableDataCell>{servicio.cantidad}</CTableDataCell>
                                             <CTableDataCell>
                                                 {servicio.precioUnitario && servicio.precioUnitario.toLocaleString("es-CO", {
@@ -567,22 +560,22 @@ function FormularioVentas() {
                                                     currency: "COP",
                                                     minimumFractionDigits: 2,
                                                     maximumFractionDigits: 2,
-                                                    })}
+                                                })}
                                             </CTableDataCell>
-                                            
+
                                             <CTableDataCell>
                                                 {servicio.precioTotal.toLocaleString("es-CO", {
                                                     style: "currency",
                                                     currency: "COP",
                                                     minimumFractionDigits: 2,
                                                     maximumFractionDigits: 2,
-                                                    })}
+                                                })}
                                             </CTableDataCell>
-                                            
+
                                             <CTableDataCell>
                                                 {/* Agrega botón de eliminar o cualquier otra acción que necesites */}
-                                                <CButton 
-                                                    color="danger" 
+                                                <CButton
+                                                    color="danger"
                                                     onClick={() => handleEliminarServicio(index)}
                                                 >
                                                     Eliminar
@@ -592,8 +585,8 @@ function FormularioVentas() {
                                     ))}
                                     {productosEnVenta.map((producto, index) => (
                                         <CTableRow key={index}>
-                                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                                            <CTableDataCell>{producto.nombre}</CTableDataCell>
+                                            {/* <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell> */}
+                                            <CTableDataCell>{capitalizeFirstLetter(producto.nombre)}</CTableDataCell>
                                             <CTableDataCell>{producto.cantidad}</CTableDataCell>
                                             <CTableDataCell>
                                                 {producto.precioUnitario.toLocaleString("es-CO", {
@@ -601,23 +594,23 @@ function FormularioVentas() {
                                                     currency: "COP",
                                                     minimumFractionDigits: 2,
                                                     maximumFractionDigits: 2,
-                                                    })}
+                                                })}
                                             </CTableDataCell>
-                
+
                                             <CTableDataCell>
                                                 {producto.precioTotal.toLocaleString("es-CO", {
                                                     style: "currency",
                                                     currency: "COP",
                                                     minimumFractionDigits: 2,
                                                     maximumFractionDigits: 2,
-                                                    })}
+                                                })}
                                             </CTableDataCell>
 
                                             <CTableDataCell>
                                                 {/* Agrega botón de eliminar o cualquier otra acción que necesites */}
-                                                <CButton 
-                                                color="danger" 
-                                                onClick={() => handleEliminarProducto(index)}
+                                                <CButton
+                                                    color="danger"
+                                                    onClick={() => handleEliminarProducto(index)}
                                                 >
                                                     Eliminar
                                                 </CButton>
@@ -627,19 +620,20 @@ function FormularioVentas() {
                                 </CTableBody>
                             </CTable>
 
-
-                            <div className="mb-3">
-                                <CFormLabel>Total de la Venta</CFormLabel>
-                                <CFormInput
-                                value={totalVenta.toLocaleString("es-CO", {
-                                    style: "currency",
-                                    currency: "COP",
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                })}
-                                readOnly
-                                />
-                            </div>
+                            <CCol md="4"> {/* Define el ancho de la columna para dispositivos medianos */}
+                                <div className="mb-4">
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Total de la Venta</CFormLabel>
+                                    <CFormInput
+                                        value={totalVenta.toLocaleString("es-CO", {
+                                            style: "currency",
+                                            currency: "COP",
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2,
+                                        })}
+                                        readOnly
+                                    />
+                                </div>
+                            </CCol>
 
                             <CButton onClick={createSale} style={{ marginRight: "5px" }}>
                                 Crear Venta
@@ -648,7 +642,7 @@ function FormularioVentas() {
                             <Link to="/ventas/listaVentas">
                                 <CButton color="secondary">Cancelar</CButton>
                             </Link>
-                         </form> 
+                        </form>
                     </CCardBody>
                 </CCard>
             </CCol>

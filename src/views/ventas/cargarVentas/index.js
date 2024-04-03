@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import VentaService from "src/views/services/ventasService";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { FaCheck   } from 'react-icons/fa'; 
 import {
   CFormLabel,
   CFormSelect,
@@ -30,7 +31,7 @@ import {
 } from "@coreui/react";
 import citasServiciosDataService from "src/views/services/citasServiciosService";
 
-const API_URL = "http://localhost:8095/api";
+const API_URL = "https://restapibarberia.onrender.com/api";
 
 function CargarVentas() {
 
@@ -206,22 +207,21 @@ function CargarVentas() {
 
   const fetchProductos = async () => {
     try {
-      const response = await fetch(`${API_URL}/producto`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        const response = await fetch(`${API_URL}/producto`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        const data = await response.json();
+        if (data && data.productos) {
+            setProductos(data.productos);
+        } else {
+            console.error("Error al obtener la lista de productos:", data);
         }
-      });
-      const data = await response.json();
-      console.log(data)
-      if (data && data.productos) {
-        setProductos(data.productos);
-      } else {
-        console.error("Error al obtener la lista de productos:", data);
-      }
     } catch (error) {
-      console.error("Error al obtener la lista de productos:", error);
+        console.error("Error al obtener la lista de productos:", error);
     }
-  };
+};
 
 
 
@@ -241,7 +241,7 @@ function CargarVentas() {
         const today = new Date();
         const citaDateWithoutTime = new Date(citaDate.getFullYear(), citaDate.getMonth(), citaDate.getDate());
         const todayWithoutTime = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  
+
         return citaDateWithoutTime.getTime() === todayWithoutTime.getTime();
       });
       const responseUsuarios = await axios.get(`${API_URL}/usuario`, {
@@ -258,14 +258,14 @@ function CargarVentas() {
           nombre_usuario: usuario ? usuario.nombre_usuario : 'Cliente no encontrado'
         };
       });
-  
+
       setCitas(citasConNombreUsuario);
     } catch (error) {
       console.error('Error al obtener citas:', error);
     }
   };
 
-  
+
 
   const fetchVentas = async () => {
     try {
@@ -430,7 +430,7 @@ function CargarVentas() {
           }
         });
         const data = response.data;
-        infoServicio = data;        
+        infoServicio = data;
       } catch (error) {
         console.error("Error al obtener los datos de la cita:", error);
       }
@@ -478,9 +478,12 @@ function CargarVentas() {
 
 
   const cerrarModal = () => {
-      setVisible(false);
+    setVisible(false);
   };
 
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
 
 
   return (
@@ -508,7 +511,7 @@ function CargarVentas() {
                       <CTable align='middle' className='mb-0 border' hover responsive>
                         <CTableHead>
                           <CTableRow>
-                            <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                            {/* <CTableHeaderCell scope="col">#</CTableHeaderCell> */}
                             <CTableHeaderCell scope="col">Cliente</CTableHeaderCell>
                             <CTableHeaderCell scope="col">Fecha</CTableHeaderCell>
                             <CTableHeaderCell scope="col">Hora Atención</CTableHeaderCell>
@@ -518,8 +521,8 @@ function CargarVentas() {
                         <CTableBody>
                           {citas && citas.map((citas, index) => (
                             <CTableRow key={citas.id_cita}>
-                              <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                              <CTableDataCell>{citas.nombre_usuario}</CTableDataCell>
+                              {/* <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell> */}
+                              <CTableDataCell>{capitalizeFirstLetter(citas.nombre_usuario)}</CTableDataCell>
                               <CTableDataCell>{citas.Fecha_Atencion.slice(0, 10)}</CTableDataCell>
                               <CTableDataCell>{citas.Hora_Atencion}</CTableDataCell>
                               <CTableDataCell>
@@ -551,7 +554,7 @@ function CargarVentas() {
                 style={{ display: "flex", justifyContent: "space-between" }}
               >
                 <div style={{ flex: 1, marginRight: "10px" }}>
-                  <CFormLabel>Cliente</CFormLabel>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Cliente</CFormLabel>
                   <CFormInput
                     value={
                       selectedUsuario?.nombre_usuario ? selectedUsuario.nombre_usuario + " " + apellido : ""
@@ -560,7 +563,7 @@ function CargarVentas() {
                   />
                 </div>
                 <div style={{ flex: 1, marginRight: "10px" }}>
-                  <CFormLabel>Fecha y Hora</CFormLabel>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Fecha y Hora</CFormLabel>
                   <CFormInput
                     value={
                       citaData?.Fecha_Atencion != undefined
@@ -573,7 +576,7 @@ function CargarVentas() {
                   />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <CFormLabel>Empleado</CFormLabel>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Empleado</CFormLabel>
                   <CFormInput
                     value={
                       selectedEmpleado?.nombre == undefined
@@ -600,7 +603,7 @@ function CargarVentas() {
               </div>
 
               <div className="mb-3" style={{ display: "none" }}>
-                <CFormLabel>Número de Factura</CFormLabel>
+                <CFormLabel style={{ fontWeight: 'bold' }}>N° de Factura</CFormLabel>
                 <CFormInput
                   type="text"
                   name="numeroFactura"
@@ -625,10 +628,10 @@ function CargarVentas() {
 
                 {mostrarServicio && (
                   <div>
-                    <CFormLabel>Agregar Servicios</CFormLabel>
+                    <CFormLabel style={{ fontWeight: 'bold' }}>Agregar Servicios</CFormLabel>
                     <div
-                    className="mb-3"
-                    style={{ display: "flex", alignItems: "center" }}
+                      className="mb-3"
+                      style={{ display: "flex", alignItems: "center" }}
                     >
                       <div
                         style={{
@@ -676,7 +679,7 @@ function CargarVentas() {
 
                 {mostrarProducto && (
                   <div>
-                    <CFormLabel>Agregar Producto</CFormLabel>
+                    <CFormLabel style={{ fontWeight: 'bold' }}>Agregar Producto</CFormLabel>
                     <div
                       className="mb-3"
                       style={{ display: "flex", justifyContent: "center" }}
@@ -696,6 +699,7 @@ function CargarVentas() {
                           {productos.map((producto) => (
                             <option key={producto.id_productos} value={producto.id_productos}>
                               {producto.nombre}
+                            
                             </option>
                           ))}
                         </CFormSelect>
@@ -714,11 +718,11 @@ function CargarVentas() {
                           style={{ marginLeft: "5px" }}
                         />
                         <CButton
-                          color="success"
+                          color="primary"
                           onClick={handleAgregarProducto}
                           style={{ marginLeft: "5px", marginRight: "-6px" }}
                         >
-                          +
+                        <FaCheck   /> 
                         </CButton>
                       </div>
                     </div>
@@ -732,7 +736,7 @@ function CargarVentas() {
               <CTable>
                 <CTableHead>
                   <CTableRow>
-                    <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                    {/* <CTableHeaderCell scope="col">#</CTableHeaderCell> */}
                     <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Cantidad</CTableHeaderCell>
                     <CTableHeaderCell scope="col">
@@ -747,10 +751,10 @@ function CargarVentas() {
                 <CTableBody>
                   {serviciosEnVenta.map((servicio, index) => (
                     <CTableRow key={index}>
-                      <CTableHeaderCell scope="row">
+                      {/* <CTableHeaderCell scope="row">
                         {index + 1}
-                      </CTableHeaderCell>
-                      <CTableDataCell>{servicio.nombre}</CTableDataCell>
+                      </CTableHeaderCell> */}
+                      <CTableDataCell>{capitalizeFirstLetter(servicio.nombre)}</CTableDataCell>
                       <CTableDataCell>{servicio.cantidad}</CTableDataCell>
                       <CTableDataCell>
                         {servicio.precioUnitario.toLocaleString("es-CO", {
@@ -783,10 +787,10 @@ function CargarVentas() {
                   ))}
                   {productosEnVenta.map((producto, index) => (
                     <CTableRow key={index}>
-                      <CTableHeaderCell scope="row">
+                      {/* <CTableHeaderCell scope="row">
                         {index + 1}
-                      </CTableHeaderCell>
-                      <CTableDataCell>{producto.nombre}</CTableDataCell>
+                      </CTableHeaderCell> */}
+                      <CTableDataCell>{capitalizeFirstLetter(producto.nombre)}</CTableDataCell>
                       <CTableDataCell>{producto.cantidad}</CTableDataCell>
                       <CTableDataCell>
                         {producto.precioUnitario.toLocaleString("es-CO", {
@@ -819,7 +823,7 @@ function CargarVentas() {
                 </CTableBody>
               </CTable>
               <div className="mb-3">
-                <CFormLabel>Total de la Venta</CFormLabel>
+                <CFormLabel style={{ fontWeight: 'bold' }}>Total de la Venta</CFormLabel>
                 <CFormInput
                   value={totalVenta.toLocaleString("es-CO", {
                     style: "currency",

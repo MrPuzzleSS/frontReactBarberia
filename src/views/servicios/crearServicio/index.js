@@ -14,14 +14,24 @@ import {
 } from '@coreui/react';
 import ServicioService from 'src/views/services/servicioService';
 
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 function CrearServicio() {
     const [nombre, setNombre] = useState('');
     const [valor, setValor] = useState('');
+    const [tiempo, setTiempo] = useState('');
 
     const [nombreError, setNombreError] = useState('');
     const [valorError, setValorError] = useState('');
+    const [tiempoError, setTiempoError] = useState('');
 
     const navigate = useNavigate(); // Utiliza useNavigate en lugar de useHistory
+
+    useEffect(() => {
+        fetchServicios();
+    }, []);
 
     const fetchServicios = async () => {
         try {
@@ -32,10 +42,6 @@ function CrearServicio() {
         }
     };
 
-    useEffect(() => {
-        fetchServicios();
-    }, []);
-
     const validateNombre = (value) => {
         if (!/^[a-zA-Z ñÑ]{2,}$/.test(value)) {
             setNombreError('Nombre debe contener solo letras y tener al menos 2 caracteres.');
@@ -45,8 +51,10 @@ function CrearServicio() {
         return true;
     };
 
+    const nombreCapitalizado = capitalizeFirstLetter(nombre);
+
+
     const validateValor = (value) => {
-        
         if (!/^\d{3,}$/.test(value)) {
             setValorError('El valor debe contener solo números y tener al menos 3 caracteres.');
             return false;
@@ -55,21 +63,31 @@ function CrearServicio() {
         return true;
     };
 
+    const validateTiempo = (value) => {
+        if (!/^\d+$/.test(value)) {
+            setTiempoError('El tiempo debe ser un número entero positivo.');
+            return false;
+        }
+        setTiempoError('');
+        return true;
+    };
+
     const handleGuardarServicio = async (e) => {
         e.preventDefault();
 
-        if (!validateNombre(nombre) || !validateValor(valor)) {
+        if (!validateNombre(nombre) || !validateValor(valor) || !validateTiempo(tiempo)) {
             return;
         }
 
         const newServicio = {
-            nombre,
+            nombre: nombreCapitalizado,
             valor,
+            tiempo,
         };
 
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post('http://localhost:8095/api/servicio', newServicio, {
+            const response = await axios.post('https://restapibarberia.onrender.com/api/servicio', newServicio, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
@@ -80,6 +98,7 @@ function CrearServicio() {
 
             setNombre('');
             setValor('');
+            setTiempo('');
 
             Swal.fire('Éxito', 'Servicio creado correctamente.', 'success').then(() => {
                 navigate('/servicios/listaServicios'); // Utiliza navigate en lugar de history.push
@@ -99,30 +118,48 @@ function CrearServicio() {
                     </CCardHeader>
                     <CCardBody>
                         <form onSubmit={handleGuardarServicio}>
-                            <div className="mb-3">
-                                <CFormLabel>Nombre</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    value={nombre}
-                                    onChange={(e) => {
-                                        setNombre(e.target.value);
-                                        validateNombre(e.target.value);
-                                    }}
-                                />
-                                {nombreError && <div className="text-danger">{nombreError}</div>}
+                            <div className="mb-3 row">
+                                <div className="col-md-4">
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Nombre</CFormLabel>
+                                    <CFormInput
+                                        type="text"
+                                        value={nombre}
+                                        onChange={(e) => {
+                                            setNombre(e.target.value);
+                                            validateNombre(e.target.value);
+                                        }}
+                                    />
+                                    {nombreError && <div className="text-danger">{nombreError}</div>}
+                                </div>
+                                <div className="col-md-4">
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Valor</CFormLabel>
+                                    <CFormInput
+                                        type="text"
+                                        value={valor}
+                                        onChange={(e) => {
+                                            setValor(e.target.value);
+                                            validateValor(e.target.value);
+                                        }}
+                                    />
+                                    {valorError && <div className="text-danger">{valorError}</div>}
+                                </div>
                             </div>
-                            <div className="mb-3">
-                                <CFormLabel>Valor</CFormLabel>
+                            <div className="mb-3 col-md-3">
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Tiempo (minutos)</CFormLabel>
                                 <CFormInput
-                                    type="text"
-                                    value={valor}
+                                    type="number"
+                                    value={tiempo}
                                     onChange={(e) => {
-                                        setValor(e.target.value);
-                                        validateValor(e.target.value);
+                                        setTiempo(e.target.value);
+                                        validateTiempo(e.target.value);
                                     }}
+                                    pattern="[0-9]*"
+                                    inputMode="numeric"
                                 />
-                                {valorError && <div className="text-danger">{valorError}</div>}
+                                {tiempoError && <div className="text-danger">{tiempoError}</div>}
                             </div>
+
+                            <br />
 
                             <CButton type="submit" color="primary">
                                 Guardar Servicio
@@ -137,6 +174,7 @@ function CrearServicio() {
                 </CCard>
             </CCol>
         </CRow>
+
     );
 }
 

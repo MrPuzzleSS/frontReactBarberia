@@ -10,12 +10,13 @@ import {
 } from '@coreui/react'
 import logoBarberia from '../assets/images/logoBarberia2.png'
 import AppHeaderDropdownCliente from './header/AppHeaderDropdowncliente';
+import 'src/scss/css/global.css'; 
 
 const NavBarCliente = () => {
   const [visible, setVisible] = useState(false)
   return (
     <>
-      <CNavbar expand="lg" colorScheme="light" style={{ backgroundColor: '#a28c82' }}>
+      <CNavbar expand="lg" colorScheme="light" style={{ backgroundColor: '#b39f96' }}>
         <CContainer fluid>
           <img src={logoBarberia} alt="SION BARBERSHOP" width="12%" />
           <CNavbarToggler
@@ -26,18 +27,18 @@ const NavBarCliente = () => {
           <CCollapse className="navbar-collapse" visible={visible}>
             <CNavbarNav>
               <CNavItem>
-                <CNavLink href="/cliente/inicio" active>
+                <CNavLink href="/cliente/inicio" active >
                   INICIO
                 </CNavLink>
               </CNavItem>
               <CNavItem>
-                <CNavLink href="/cliente/reservar">RESERVA TU CITA</CNavLink>
+                <CNavLink href="/cliente/reservar" style={{ fontWeight: 'bold' }}>RESERVA TU CITA</CNavLink>
               </CNavItem>
               <CNavItem>
-                <CNavLink href="/cliente/listacitas">CITAS AGENDADAS</CNavLink>
+                <CNavLink href="/cliente/listacitas" style={{ fontWeight: 'bold' }}>CITAS AGENDADAS</CNavLink>
               </CNavItem>
               <CNavItem>
-                <CNavLink href="#">QUIENES SOMOS</CNavLink>
+                <CNavLink href="#" style={{ fontWeight: 'bold' }}>QUIENES SOMOS</CNavLink>
               </CNavItem>
             </CNavbarNav>
             <CNavbarNav className="ms-auto">

@@ -28,11 +28,26 @@
     display: inline-block;
     /* Otros estilos que desees aplicar al emoji */
 }
+@media screen and (max-width: 768px) {
+    .fc-direction-ltr .fc-scroller {
+        display: flex;
+        flex-wrap: nowrap; /* Evita que los elementos se envuelvan a la siguiente línea */
+        overflow-x: auto; /* Agrega una barra de desplazamiento horizontal si es necesario */
+        -webkit-overflow-scrolling: touch; /* Mejora el desplazamiento en dispositivos móviles */
+    }
+
+    .fc-direction-ltr .fc-day {
+        width: auto; /* Ancho automático para que los días se ajusten al contenido */
+        height: auto; /* Altura automática */
+        margin: 0; /* Elimina los márgenes */
+    }
+}
+
 
 
 body {
     font-family: 'Times New Roman', Times, serif;
-    font-size: var(--cui-body-font-size);
+   font-size: 18px;
     font-weight: var(--cui-body-font-weight);
     line-height: var(--cui-body-line-height);
     color: var(--cui-body-color);

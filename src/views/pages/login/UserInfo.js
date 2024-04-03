@@ -15,6 +15,7 @@ import {
 } from '@coreui/react';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import 'src/scss/css/global.css';
 import {
   faUser,
   faEnvelope,
@@ -38,38 +39,40 @@ const UserInformationPage = () => {
   }, []);
 
   return (
-    <div>
-      <CContainer className="text-center">
-        <CRow className="justify-content-center">
-          <CCol md={6}>
-            <CCard className="mb-3 user-info-card">
+   
+   <div style={{ marginTop: '80px' }}>
+    <CContainer className="text-center">
+      <CRow className="justify-content-center">
+        <CCol md={6}>
+          <CCard className="mb-3 user-info-card">
               <CCardHeader className="bg-dark text-white">
                 <h3 className="h4">Información del Usuario</h3>
               </CCardHeader>
+
 
               <CCardBody>
                 {userData ? (
                   <div>
                     <CInputGroup className="mb-3">
-                      <CInputGroupText style={{ marginRight: '10px' }}>
+                      <CInputGroupText style={{ marginRight: '10px', fontWeight: 'bold' }}>
                         <FontAwesomeIcon icon={faUser} style={{ marginRight: '10px' }} />
-                        NOMBRE
+                        Nombre
                       </CInputGroupText>
                       <CFormInput type="text" value={userData.nombre_usuario} readOnly />
                     </CInputGroup>
 
                     <CInputGroup className="mb-3">
-                      <CInputGroupText style={{ marginRight: '10px' }}>
-                        <FontAwesomeIcon icon={faEnvelope} style={{ marginRight: '10px' }}  />
-                        CORREO
+                      <CInputGroupText style={{ marginRight: '10px', fontWeight: 'bold' }}>
+                        <FontAwesomeIcon icon={faEnvelope} style={{ marginRight: '10px' }} />
+                        Correo
                       </CInputGroupText>
                       <CFormInput type="text" value={userData.correo} readOnly />
                     </CInputGroup>
 
                     <CInputGroup className="mb-3">
-                      <CInputGroupText style={{ marginRight: '10px' } } >
+                      <CInputGroupText style={{ marginRight: '10px', fontWeight: 'bold' }} >
                         <FontAwesomeIcon icon={faUser} style={{ marginRight: '10px' }} />
-                        ROL
+                        Rol
                       </CInputGroupText>
                       <CFormInput
                         type="text"
@@ -79,15 +82,15 @@ const UserInformationPage = () => {
                     </CInputGroup>
 
                     <CInputGroup className="mb-3">
-                      <CInputGroupText style={{ marginRight: '10px' }}>
+                      <CInputGroupText style={{ marginRight: '10px', fontWeight: 'bold' }}>
                         <FontAwesomeIcon icon={faCheck} style={{ marginRight: '10px' }} />
-                        ESTADO
+                        Estado
                       </CInputGroupText>
                       <CFormInput type="text" value={userData.estado} readOnly />
                     </CInputGroup>
 
                     <div className="permissions-container mb-3">
-                      <h4 className="text-center mb-2">PERMISOS</h4>
+                      <h4 className="text-center mb-2" style={{ fontWeight: 'bold' }}>Permisos</h4>
                       <div className="permissions-list">
                         {userData.rol && userData.rol.permisos ? (
                           userData.rol.permisos.map((permiso) => (
@@ -103,7 +106,7 @@ const UserInformationPage = () => {
                     </div>
 
                     <Link to="/dashboard">
-                      <button className="btn btn-secondary">REGRESAR</button>
+                      <button className="btn btn-secondary">Regresar</button>
                     </Link>
                   </div>
                 ) : (

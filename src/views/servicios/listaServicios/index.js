@@ -6,34 +6,40 @@ import { Link } from 'react-router-dom';
 import Switch from 'react-switch';
 import Swal from 'sweetalert2';
 import {
-    CCard,
-    CCardBody,
-    CCardHeader,
-    CCol,
     CRow,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
+    CCol,
+    CCard,
+    CCardHeader,
+    CCardBody,
     CButton,
-    CButtonGroup,
+    CInputGroup, // Asegúrate de importar CInputGroup aquí
+
+    CTable,
+    CTableHead,
+    CTableBody,
+    CTableRow,
+    CTableHeaderCell,
+    CTableDataCell,
+    CPagination,
+    CPaginationItem,
     CModal,
     CModalHeader,
     CModalTitle,
     CModalBody,
     CModalFooter,
+    CButtonGroup,
+    CFormSwitch,
     CFormLabel,
     CFormInput,
-    CPagination,
-    CPaginationItem,
+    CBadge, // Asegúrate de importar CBadge aquí
 } from '@coreui/react';
 import ServicioService from 'src/views/services/servicioService';
 
 const ListaServicios = () => {
     const [visible, setVisible] = useState(false);
     const [servicios, setServicios] = useState(null);
+
+
     const [selectedServicioId, setSelectedServicioId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -120,7 +126,7 @@ const ListaServicios = () => {
     const handleCambiarEstado = async (id) => {
         try {
             const servicioIndex = servicios.findIndex((item) => item.id === id);
-    
+
             if (servicioIndex !== -1) {
                 const confirmacion = await Swal.fire({
                     title: `¿Estás seguro de cambiar el estado del servicio a ${!servicios[servicioIndex].estado ? 'Activo' : 'Inactivo'}?`,
@@ -131,15 +137,15 @@ const ListaServicios = () => {
                     cancelButtonColor: "#d33",
                     confirmButtonText: "Sí, cambiar estado"
                 });
-    
+
                 if (confirmacion.isConfirmed) {
                     const updatedServicios = [...servicios];
                     updatedServicios[servicioIndex] = { ...updatedServicios[servicioIndex], estado: !updatedServicios[servicioIndex].estado };
-    
+
                     await ServicioService.updateServicio(id, { ...updatedServicios[servicioIndex] });
-    
+
                     setServicios(updatedServicios);
-    
+
                     Swal.fire({
                         icon: 'success',
                         title: `Estado del servicio actualizado: ${updatedServicios[servicioIndex].estado ? 'Activo' : 'Inactivo'}`,
@@ -158,7 +164,7 @@ const ListaServicios = () => {
             });
         }
     };
-    
+
 
     const filteredServicios = servicios
         ? servicios.filter((servicio) =>
@@ -185,25 +191,26 @@ const ListaServicios = () => {
                                 <CButton color="primary">Agregar Servicio</CButton>
                             </Link>
                         </div>
-                        <CCol xs={3}>
-                            <div className="mt-2">
+                        <div className="mt-3">
+                            <CInputGroup className="mt-3" style={{ maxWidth: "200px" }}>
                                 <CFormInput
                                     type="text"
                                     placeholder="Buscar servicio..."
+                                    className="form-control-sm"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
-                            </div>
-                        </CCol>
+                            </CInputGroup>
+                        </div>
                     </CCardHeader>
                     <CCardBody>
-                        <CTable>
+                        <CTable align='middle' className='mb-0 border' hover responsive>
                             <CTableHead>
                                 <CTableRow>
-                                    <CTableHeaderCell scope="col">Id</CTableHeaderCell>
+                                    {/* <CTableHeaderCell scope="col">Id</CTableHeaderCell> */}
                                     <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Valor</CTableHeaderCell>
-                                    
+                                    <CTableHeaderCell scope="col">Tiempo</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
                                     <CTableHeaderCell scope="col"></CTableHeaderCell>
                                 </CTableRow>
@@ -213,65 +220,42 @@ const ListaServicios = () => {
                                     paginatedServicios.length > 0 &&
                                     paginatedServicios.map((servicio, index) => (
                                         <CTableRow key={servicio.id}>
-                                            <CTableHeaderCell scope="row">{index + 1 + startIndex}</CTableHeaderCell>
+                                            {/* <CTableHeaderCell scope="row">{index + 1 + startIndex}</CTableHeaderCell> */}
                                             <CTableDataCell>{servicio.nombre}</CTableDataCell>
                                             <CTableDataCell>{servicio.valor}</CTableDataCell>
-                                            
-
-                                            <CTableDataCell>
-                                                <CButtonGroup aria-label="Acciones del Servicio">
-                                                <CTableDataCell>
-                                            <CButton
-                                                style={{
-                                                    marginRight: '20px',
-                                                    marginTop: '1px',  // Ajusta el margen superior según tus necesidades
-                                                    backgroundColor: servicio.estado ? '#12B41A  ' : 'red  ',
-                                                    color: 'white',
-                                                    fontWeight: 'bold',
-                                                    fontSize: '12px',  // Ajusta el tamaño del texto según tus necesidades
-                                                    padding: '3px 15px',  // Ajusta el espaciado interno según tus necesidades
-                                                    border: '0px solid #333',
-                                                }}
-                                            >
-                                                {servicio.estado ? 'Activo' : 'Inactivo'}
-                                            </CButton>
+                                            <CTableDataCell>{servicio.tiempo}</CTableDataCell>
+                                            <CTableDataCell style={{ marginRight: '2px' }}>
+                                                <CBadge color={servicio.estado ? 'success' : 'danger'}>
+                                                    {servicio.estado ? 'Activo' : 'Inactivo'}
+                                                </CBadge>
                                             </CTableDataCell>
-                                                    <div style={{ marginTop: '5px', marginRight: '20px'}}>
-                                                                
-                                                        <Switch
-                                                            onChange={() => handleCambiarEstado(servicio.id)}
-                                                            checked={servicio.estado}
-                                                            onColor="#001DAE"
-                                                            onHandleColor="#FFFFFF"
-                                                            handleDiameter={15}
-                                                            uncheckedIcon={false}
-                                                            checkedIcon={false}
-                                                            boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
-                                                            activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
-                                                            height={20}
-                                                            width={33}
-                                                        />
-                                                    </div>
+
+
+
+                                            <CTableDataCell style={{ display: 'flex', alignItems: 'center' }}>
+                                                <CFormSwitch
+                                                    size='xl'
+                                                    label=""
+                                                    id={`formSwitchCheckChecked_${servicio.id}`}
+                                                    defaultChecked={servicio.estado}
+                                                    onChange={() => handleCambiarEstado(servicio.id)}
+                                                    style={{ marginRight: '5px' }} // Ajustar margen derecho para separar el switch del botón de editar
+                                                />
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
                                                     <CButton
-                                                        color="seconsary"
+                                                        color="secondary"
                                                         size="sm"
                                                         onClick={() => handleEditar(servicio)}
-                                                        style={{
-                                                            marginRight: '20px',
-                                                            backgroundColor: 'grey',
-                                                            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-                                                            padding: '3px 10px',
-                                                            borderRadius: '10px',
-                                                        }}
+                                                        style={{ marginRight: '5px' }} // Ajustar margen derecho para separar el botón de editar del botón de eliminar
                                                     >
-                                                        <FaEdit style={{ color: 'black' }} />
+                                                        <FaEdit />
                                                     </CButton>
                                                     <CButton
                                                         color="danger"
                                                         size="sm"
                                                         onClick={() => {
                                                             Swal.fire({
-                                                                title: '¿Estás seguro que desea  eliminar este servicio?',
+                                                                title: '¿Estás seguro que desea eliminar este servicio?',
                                                                 text: 'Esta acción no se puede deshacer.',
                                                                 icon: 'warning',
                                                                 showCancelButton: true,
@@ -285,48 +269,33 @@ const ListaServicios = () => {
                                                                 }
                                                             });
                                                         }}
-                                                        style={{
-                                                            borderRadius: '10px',  // Ajusta el radio de los bordes según tus necesidades
-                                                        }}
-                                                        
                                                     >
-                                                        
-                                                        <FaTrash /> {/* Icono de eliminar */}
+                                                        <FaTrash />
                                                     </CButton>
-                                                </CButtonGroup>
+                                                </div>
                                             </CTableDataCell>
+
+
                                         </CTableRow>
                                     ))}
                             </CTableBody>
                         </CTable>
-                        <CPagination
-                            align="center"
-                            aria-label="Page navigation example"
-                            className="mt-3"
-                        >
-                            <CPaginationItem
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={currentPage === 1}
-                            >
+                        <CPagination align="center" aria-label="Page navigation example" className="mt-3">
+                            <CPaginationItem onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
                                 Anterior
                             </CPaginationItem>
-                            {Array.from(
-                                { length: Math.ceil(filteredServicios.length / pageSize) },
-                                (_, i) => (
-                                    <CPaginationItem
-                                        key={i}
-                                        onClick={() => handlePageChange(i + 1)}
-                                        active={i + 1 === currentPage}
-                                    >
-                                        {i + 1}
-                                    </CPaginationItem>
-                                )
-                            )}
+                            {Array.from({ length: Math.ceil(filteredServicios.length / pageSize) }, (_, i) => (
+                                <CPaginationItem
+                                    key={i}
+                                    onClick={() => handlePageChange(i + 1)}
+                                    active={i + 1 === currentPage}
+                                >
+                                    {i + 1}
+                                </CPaginationItem>
+                            ))}
                             <CPaginationItem
                                 onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={
-                                    currentPage === Math.ceil(filteredServicios.length / pageSize)
-                                }
+                                disabled={currentPage === Math.ceil(filteredServicios.length / pageSize)}
                             >
                                 Siguiente
                             </CPaginationItem>
@@ -334,8 +303,7 @@ const ListaServicios = () => {
                     </CCardBody>
                 </CCard>
             </CCol>
-
-            <CModal visible={visible} onClose={() => setVisible(false)}>
+            <CModal visible={visible} onClose={() => setVisible(false)} backdrop="static">
                 <CModalHeader>
                     <CModalTitle>Editar Servicio</CModalTitle>
                 </CModalHeader>
@@ -370,6 +338,20 @@ const ListaServicios = () => {
                                 placeholder="Ingrese el valor del servicio"
                             />
                         </div>
+                        <div className="mb-3">
+                            <CFormLabel>Tiempo (minutos)</CFormLabel>
+                            <CFormInput
+                                type="number"
+                                value={selectedServicioId ? selectedServicioId.tiempo : ''}
+                                onChange={(e) =>
+                                    setSelectedServicioId({
+                                        ...selectedServicioId,
+                                        tiempo: e.target.value,
+                                    })
+                                }
+                                placeholder="Ingrese el tiempo del servicio en minutos"
+                            />
+                        </div>
                     </form>
                 </CModalBody>
                 <CModalFooter>
@@ -382,6 +364,9 @@ const ListaServicios = () => {
                 </CModalFooter>
             </CModal>
         </CRow>
+
+
+
     );
 }
 
