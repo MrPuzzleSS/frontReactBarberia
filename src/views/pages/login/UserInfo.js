@@ -39,13 +39,14 @@ const UserInformationPage = () => {
   }, []);
 
   return (
-    <div>
-      <CContainer className="text-center">
-        <CRow className="justify-content-center">
-          <CCol md={6}>
-            <CCard className="mb-3 user-info-card">
-              <CCardHeader style={{ backgroundColor: '#9ea3ba' }}>
-                <h3 className="h4" style={{ fontWeight: 'bold' }}>Información del Usuario</h3>
+   
+   <div style={{ marginTop: '80px' }}>
+    <CContainer className="text-center">
+      <CRow className="justify-content-center">
+        <CCol md={6}>
+          <CCard className="mb-3 user-info-card">
+              <CCardHeader className="bg-dark text-white">
+                <h3 className="h4">Información del Usuario</h3>
               </CCardHeader>
 
 

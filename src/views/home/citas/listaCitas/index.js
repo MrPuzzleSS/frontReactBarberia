@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import CitasDataService from "src/views/services/citasService";
 import Servicios_S from "src/views/services/servicios_s";
 import Swal from 'sweetalert2';
+import { format } from 'date-fns';
 import 'src/scss/css/global.css'; 
 import {
   CCard,
@@ -25,7 +26,7 @@ import {
 import PropTypes from 'prop-types'; // Importa PropTypes
 import { getUserInfo } from '../../../../components/auht';
 
-async function getNombreBarbero (id_empleado) {
+async function getNombreBarbero(id_empleado) {
   try {
     const response = await CitasDataService.getEmpleado(id_empleado);
     return response.data.nombre;
@@ -118,15 +119,36 @@ function ListaCitas() {
   }, [tablaActualizada]);
 
   const cancelarCita = async (idCita) => {
-    try {
-      await CitasDataService.cambiarEstadoCita(idCita);
+    // Mostrar un cuadro de diálogo de confirmación
+    const confirmacion = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Realmente quieres cancelar esta cita?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, cancelar cita',
+      cancelButtonText: 'No, mantener cita'
+    });
 
-      setTablaActualizada(true);
-      Swal.fire('Éxito', 'La cita se ha cancelado exitosamente', 'success');
-    } catch (error) {
-      Swal.fire('Error', 'No se pudo realizar el pago', 'error');
+    // Si el usuario confirma la cancelación
+    if (confirmacion.isConfirmed) {
+      try {
+        // Llamar a la función para cambiar el estado de la cita
+        await CitasDataService.cambiarEstadoCita(idCita);
+
+        // Actualizar la tabla
+        setTablaActualizada(true);
+
+        // Mostrar mensaje de éxito
+        Swal.fire('Éxito', 'La cita se ha cancelado exitosamente', 'success');
+      } catch (error) {
+        // Si ocurre un error, mostrar un mensaje de error
+        Swal.fire('Error', 'No se pudo cancelar la cita', 'error');
+      }
     }
   }
+
 
   const mostrarDetalleCompra = (cita) => {
     setVisible(true);
@@ -158,9 +180,9 @@ function ListaCitas() {
                 <CTableBody>
                   {citas.map((cita, i) => (
                     <CTableRow key={i}>
-                      <CTableDataCell><BarberoNombre id_empleado={cita.cita.id_empleado}/></CTableDataCell>
+                      <CTableDataCell><BarberoNombre id_empleado={cita.cita.id_empleado} /></CTableDataCell>
                       <CTableDataCell>
-                        {cita.cita.Fecha_Atencion}
+                        {format(new Date(cita.cita.Fecha_Atencion), 'dd-MM-yyyy')}
                       </CTableDataCell>
                       <CTableDataCell>{cita.cita.Hora_Atencion}</CTableDataCell>
                       <CTableDataCell>{cita.cita.estado}</CTableDataCell>
@@ -173,7 +195,8 @@ function ListaCitas() {
                         </CButton>
                         <CButton
                           color="danger"
-                          onClick={() => cancelarCita(cita.cita.id_cita)}
+                          disabled={cita.cita.estado === 'Cancelada'} // Deshabilitar si el estado es "Cancelada"
+                          onClick={() => cancelarCita(cita.cita.id_cita, cita.cita.estado)}
                         >
                           Cancelar
                         </CButton>

@@ -34,7 +34,6 @@ const EditProfilePage = () => {
     }, []);
 
     useEffect(() => {
-        // Habilitar o deshabilitar el botón de "Actualizar Perfil" según si se han realizado cambios
         setIsProfileUpdated(name || email || newPassword || confirmPassword);
     }, [name, email, newPassword, confirmPassword]);
 
@@ -56,19 +55,16 @@ const EditProfilePage = () => {
 
     const handleUpdateProfile = async () => {
         try {
-            // Verificar si se han realizado cambios
             if (!isProfileUpdated) {
                 setUpdateError('Debes actualizar al menos un campo');
                 return;
             }
 
-            // Verificar si se ingresaron contraseñas y si coinciden
             if (newPassword && newPassword !== confirmPassword) {
                 setUpdateError('Las contraseñas no coinciden');
                 return;
             }
 
-            // Validar campos de nombre, correo y contraseña
             if (name && !validateName(name)) {
                 setUpdateError('El nombre solo puede contener letras y espacios');
                 return;
@@ -84,11 +80,9 @@ const EditProfilePage = () => {
                 return;
             }
 
-            // Mostrar alerta de confirmación
             Swal.fire({
-                title: '¿Estás seguro?',
-                text: '¿Estás seguro de que deseas actualizar tus datos?',
-                icon: 'warning',
+                icon: 'question',
+                title: '¿Estás seguro de que deseas actualizar tus datos?',
                 showCancelButton: true,
                 confirmButtonText: 'Sí',
                 cancelButtonText: 'Cancelar',
@@ -115,26 +109,46 @@ const EditProfilePage = () => {
                 body: JSON.stringify({
                     nombre: name,
                     correo: email,
-                    nuevaContrasena: newPassword || null, // Si newPassword es null, no se incluirá en la solicitud
+                    nuevaContrasena: newPassword || null,
                 }),
             });
-
+    
             if (response.ok) {
                 setUpdateSuccess(true);
                 setTimeout(() => {
                     navigate('/login');
-                }, 3000); // Retraso de 3 segundos antes de redirigir al usuario
+                }, 3000);
             } else {
-                setUpdateSuccess(false);
-                setUpdateError('Error al actualizar el perfil. Por favor, inténtalo de nuevo.');
+                const data = await response.json();
+                if (data.error && data.error.sqlMessage) {
+                    let errorMessage = '';
+                    if (data.error.sqlMessage.includes('nombre_usuario')) {
+                        errorMessage = 'El nombre de usuario ya está en uso';
+                    } else if (data.error.sqlMessage.includes('correo')) {
+                        errorMessage = 'El correo electrónico ya está en uso';
+                    } else {
+                        errorMessage = 'Error al actualizar el perfil. Por favor, inténtalo de nuevo.';
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al actualizar el perfil',
+                        text: errorMessage,
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al actualizar el perfil',
+                        text: 'Error al actualizar el perfil. Por favor, inténtalo de nuevo.',
+                    });
+                }
             }
         } catch (error) {
             console.error('Error al realizar la actualización', error);
-            setUpdateSuccess(false);
             setUpdateError('Error al conectar con el servidor. Por favor, inténtalo de nuevo más tarde.');
         }
     }
-
+    
+    
 
     return (
         <div className="min-vh-100 d-flex flex-row align-items-center">
@@ -202,6 +216,7 @@ const EditProfilePage = () => {
                                         placeholder="Nueva Contraseña"
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
+                                        disabled={editingField !== 'password'}
                                     />
                                     <CButton
                                         color="info"
@@ -259,7 +274,6 @@ const EditProfilePage = () => {
             </CContainer>
         </div>
     );
-
 };
 
 export default EditProfilePage;

@@ -1,8 +1,3 @@
-
-
-
-
-
 import React, { useState, useEffect } from "react";
 
 
@@ -43,6 +38,7 @@ import 'src/scss/css/global.css';
 import CitasServiciosDataService from "src/views/services/citasServiciosService";
 import Swal from 'sweetalert2'
 import { getUserInfo } from '../../../../components/auht';
+import 'src/scss/css/calendarStyles.css';
 
 
 const AgendarCita = () => {
@@ -462,12 +458,6 @@ const AgendarCita = () => {
     return options;
   };
 
-
-
-
-
-
-
   return (
     <CContainer>
       <h3 className="text-center">RESERVAR CITA</h3>
@@ -724,6 +714,7 @@ const AgendarCita = () => {
                                 </select>
                               </div>
                             )}
+
                           </CModalBody>
                         </CModalBody>
                         <CModalFooter></CModalFooter>

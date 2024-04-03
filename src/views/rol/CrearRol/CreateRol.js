@@ -68,7 +68,7 @@ const CreateRol = () => {
 
   const handleAddRole = async () => {
     const validationErrors = {};
-
+  
     if (!newRole.nombre) {
       validationErrors.nombre = 'Por favor, ingresa un nombre para el rol.';
     } else if (newRole.nombre.length < 3) {
@@ -76,21 +76,21 @@ const CreateRol = () => {
     } else if (newRole.nombre.length > 50) {
       validationErrors.nombre = 'El nombre del rol no puede exceder los 50 caracteres.';
     }
-
+  
     if (newRole.permisos.length === 0) {
       validationErrors.permisos = 'Por favor, selecciona al menos un permiso.';
     }
-
+  
     setErrors(validationErrors);
-
+  
     if (Object.keys(validationErrors).length > 0) {
       return;
     }
-
+  
     try {
-      const response = await axios.post('http://localhost:8095/api/rol', newRole);
+      const response = await axios.post('https://restapibarberia.onrender.com/api/rol', newRole);
       console.log('Respuesta al agregar rol:', response.data);
-
+  
       if (response.status === 200) {
         Swal.fire({
           icon: 'success',
@@ -98,7 +98,7 @@ const CreateRol = () => {
           showConfirmButton: false,
           timer: 1500,
         });
-
+  
         setTimeout(() => {
           navigate('/listaRol');
         }, 1500);
@@ -107,9 +107,19 @@ const CreateRol = () => {
       }
     } catch (error) {
       console.error('Error al agregar rol:', error);
-      toast.error('Error interno del servidor');
+  
+      if (error.response && error.response.status === 400 && error.response.data.error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al agregar rol',
+          text: error.response.data.error,
+        });
+      } else {
+        toast.error('Error interno del servidor');
+      }
     }
   };
+  
 
 
   const handleInputChange = (fieldName, value) => {
