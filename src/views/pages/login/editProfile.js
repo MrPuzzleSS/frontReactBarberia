@@ -6,7 +6,6 @@ import { getUserInfo } from '../../../components/auht'; // Corregí el nombre de
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import 'src/scss/css/global.css'; 
 
 const EditProfilePage = () => {
     const [name, setName] = useState('');
@@ -100,7 +99,7 @@ const EditProfilePage = () => {
 
     const confirmUpdate = async () => {
         try {
-            const response = await fetch('https://restapibarberia.onrender.com/api/actualizarPerfil', {
+            const response = await fetch('http://localhost:8095/api/actualizarPerfil', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -156,10 +155,10 @@ const EditProfilePage = () => {
                 <CRow className="justify-content-center">
                     <CCol md={7}>
                         <CCard style={{ marginTop: '-290px' }}>
-                        <CCardHeader style={{ backgroundColor: '#9ea3ba' }}>
+                            <CCardHeader className="bg-dark text-white">
                                 <CRow className="justify-content-between align-items-center">
                                     <CCol>
-                                        <h2 className="display-14 mb-0 font-weight-bold">Editar perfil</h2>
+                                        <h1 className="display-8 mb-0 font-weight-bold">Editar perfil</h1>
                                     </CCol>
                                     <CCol xs="auto">
                                         <FontAwesomeIcon icon={faUserEdit} style={{ fontSize: '2rem' }} />
@@ -254,7 +253,7 @@ const EditProfilePage = () => {
                                 </CButton>
                                 <div className="d-inline-block mx-3">
                                     <Link to="/dashboard">
-                                        <button className="btn btn-secondary">Regresar</button>
+                                        <button className="btn btn-secondary">REGRESAR</button>
                                     </Link>
                                 </div>
                                 {updateSuccess && (

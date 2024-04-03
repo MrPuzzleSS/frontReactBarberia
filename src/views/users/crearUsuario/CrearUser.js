@@ -19,7 +19,7 @@ const Register = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    axios.get('https://restapibarberia.onrender.com/api/rol')
+    axios.get('http://localhost:8095/api/rol')
       .then(response => {
         console.log('Roles obtenidos:', response.data.listaRoles);
         setRoles(response.data.listaRoles);

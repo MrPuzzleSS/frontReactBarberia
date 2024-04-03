@@ -44,7 +44,7 @@ const ListaRol = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const rolesResponse = await axios.get('https://restapibarberia.onrender.com/api/rol');
+        const rolesResponse = await axios.get('http://localhost:8095/api/rol');
         setRoles(rolesResponse.data?.listaRoles || []);
         setLoading(false);
       } catch (error) {
