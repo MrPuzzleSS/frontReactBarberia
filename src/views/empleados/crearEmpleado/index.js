@@ -81,6 +81,10 @@ function CrearEmpleado() {
     const [documentoError, setDocumentoError] = useState('');
     const [telefonoError, setTelefonoError] = useState('');
 
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
     const handleGuardarEmpleado = async (e) => {
         e.preventDefault();
 
@@ -109,10 +113,16 @@ function CrearEmpleado() {
             return;
         }
 
+        const nombreCapitalizado = capitalizeFirstLetter(nombre);
+
+
         if (!/^[A-Za-z ]+$/.test(apellido)) {
             setApellidoError('El apellido debe de contener solo letras');
             return;
         }
+
+        const apellidoCapitalizado = capitalizeFirstLetter(apellido);
+
 
         if (!/^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/.test(correo)) {
             setCorreoError('Ingrese por favor un correo valido');
@@ -132,8 +142,8 @@ function CrearEmpleado() {
         }
 
         const newEmpleado = {
-            nombre,
-            apellido,
+            nombre: nombreCapitalizado,
+            apellido: apellidoCapitalizado,
             correo,
             documento,
             telefono,
@@ -179,7 +189,7 @@ function CrearEmpleado() {
                         <CRow>
                         <CCol xs={12} sm={6}>
                             <div className="mb-3">
-                            <CFormLabel>Documento</CFormLabel>
+                            <CFormLabel style={{ fontWeight: 'bold' }}>Documento</CFormLabel>
                             <CFormInput
                             type="text" // Cambiado a tipo texto para evitar el control de HTML5
                             minLength={6}
@@ -215,7 +225,7 @@ function CrearEmpleado() {
                             
                             <CCol xs={12} sm={6}>
                                 <div className="mb-3">
-                            <CFormLabel>Nombre</CFormLabel>
+                            <CFormLabel style={{ fontWeight: 'bold' }}>Nombre</CFormLabel>
                             <CFormInput
                             type="text"
                             value={nombre}
@@ -249,7 +259,7 @@ function CrearEmpleado() {
                             <CRow>
                             <CCol xs={12} sm={6}>
                             <div className="mb-3">
-                                <CFormLabel>Apellido</CFormLabel>
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Apellido</CFormLabel>
                                 <CFormInput
                                 type="text"
                                 value={apellido}
@@ -275,7 +285,7 @@ function CrearEmpleado() {
 
                             <CCol xs={12} sm={6}>
                             <div className="mb-3">
-                                <CFormLabel>Correo</CFormLabel>
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Correo</CFormLabel>
                                 <CFormInput
                                 type="email"
                                 value={correo}
@@ -308,7 +318,7 @@ function CrearEmpleado() {
 
                             <CCol xs={12} sm={6}>
                             <div className="mb-3">
-                                <CFormLabel>Teléfono</CFormLabel>
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Teléfono</CFormLabel>
                                 <CFormInput
                                 type='text'
                                 value={telefono}

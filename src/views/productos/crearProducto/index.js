@@ -70,7 +70,7 @@ function CrearProducto() {
   const capitalizeFirstLetter = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
-  const apiUrl = 'http://localhost:8095/api/producto'; // URL de la API para obtener productos
+  const apiUrl = 'https://restapibarberia.onrender.com/api/producto'; // URL de la API para obtener productos
   const getToken = () => {
     // Obtener el token del localStorage
     return localStorage.getItem('token');
@@ -144,6 +144,8 @@ function CrearProducto() {
   const guardarProducto = async () => {
     const nombreCapitalizado = capitalizeFirstLetter(nombre);
     const descripcionCapitalizado = capitalizeFirstLetter(descripcion);
+    setNombre(nombreCapitalizado); // Capitalizar el nombre antes de mostrarlo en la interfaz
+
     const nuevoProducto = {
       nombre: nombreCapitalizado,
       descripcion: descripcionCapitalizado,
@@ -187,6 +189,7 @@ function CrearProducto() {
     }
   };
 
+
   const tipoOptions = [
     { value: 'Producto', label: 'Producto' },
     { value: 'Insumo', label: 'Insumo' },
@@ -210,10 +213,12 @@ function CrearProducto() {
                   </CFormLabel>
                   <CFormInput
                     type="text"
-                    value={nombre}
-                    onChange={(e) => handleIngresoManual('nombre', e.target.value)}
+                    value={nombre} // Mantenemos el valor original del estado
+                    onChange={(e) => handleIngresoManual('nombre', capitalizeFirstLetter(e.target.value))}
                     required
                   />
+
+
                   {!nombreValido && (
                     <span className="text-danger">El campo Nombre solo puede contener letras y espacios.</span>
                   )}

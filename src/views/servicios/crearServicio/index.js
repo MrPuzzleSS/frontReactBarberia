@@ -14,6 +14,10 @@ import {
 } from '@coreui/react';
 import ServicioService from 'src/views/services/servicioService';
 
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 function CrearServicio() {
     const [nombre, setNombre] = useState('');
     const [valor, setValor] = useState('');
@@ -47,6 +51,9 @@ function CrearServicio() {
         return true;
     };
 
+    const nombreCapitalizado = capitalizeFirstLetter(nombre);
+
+
     const validateValor = (value) => {
         if (!/^\d{3,}$/.test(value)) {
             setValorError('El valor debe contener solo números y tener al menos 3 caracteres.');
@@ -73,14 +80,14 @@ function CrearServicio() {
         }
 
         const newServicio = {
-            nombre,
+            nombre: nombreCapitalizado,
             valor,
             tiempo,
         };
 
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post('http://localhost:8095/api/servicio', newServicio, {
+            const response = await axios.post('https://restapibarberia.onrender.com/api/servicio', newServicio, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
@@ -113,7 +120,7 @@ function CrearServicio() {
                         <form onSubmit={handleGuardarServicio}>
                             <div className="mb-3 row">
                                 <div className="col-md-4">
-                                    <CFormLabel>Nombre</CFormLabel>
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Nombre</CFormLabel>
                                     <CFormInput
                                         type="text"
                                         value={nombre}
@@ -125,7 +132,7 @@ function CrearServicio() {
                                     {nombreError && <div className="text-danger">{nombreError}</div>}
                                 </div>
                                 <div className="col-md-4">
-                                    <CFormLabel>Valor</CFormLabel>
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Valor</CFormLabel>
                                     <CFormInput
                                         type="text"
                                         value={valor}
@@ -138,7 +145,7 @@ function CrearServicio() {
                                 </div>
                             </div>
                             <div className="mb-3 col-md-3">
-                                <CFormLabel>Tiempo (minutos)</CFormLabel>
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Tiempo (minutos)</CFormLabel>
                                 <CFormInput
                                     type="number"
                                     value={tiempo}

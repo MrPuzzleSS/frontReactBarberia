@@ -34,13 +34,18 @@ const CrearProveedor = () => {
 
   const [submitted, setSubmitted] = useState(false);
   const [validationError, setValidationError] = useState('');
-  
+
   const onSubmit = async (data) => {
     console.log(data);
     try {
+      // Capitalizar nombre, documento y dirección
+      data.nombre = capitalizeFirstLetter(data.nombre);
+      data.num_documento = capitalizeFirstLetter(data.num_documento);
+      data.direccion = capitalizeFirstLetter(data.direccion);
+
       const { nombre, email, num_documento } = data;
       const { nombreExists, emailExists, documentoExist } = await ProveedoresDataService.checkExistence(nombre, email, num_documento);
-      
+
       if (documentoExist) {
         setValidationError('El número de documento ya existe');
         return;
@@ -75,6 +80,11 @@ const CrearProveedor = () => {
     }
   };
 
+  // Función para capitalizar la primera letra de una cadena
+  const capitalizeFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   return (
     <CRow>
       <CCol xs>
@@ -83,10 +93,10 @@ const CrearProveedor = () => {
             <strong>Crear Proveedor</strong>
           </CCardHeader>
           <CCardBody>
-          {validationError && <p style={{ color: 'red' }}>{validationError}</p>}
+            {validationError && <p style={{ color: 'red' }}>{validationError}</p>}
             <CForm className="row g-3" onSubmit={handleSubmit(onSubmit)}>
               <CCol sm={6}>
-                <CFormLabel>Tipo de Documento</CFormLabel>
+                <CFormLabel style={{ fontWeight: 'bold' }}>Tipo de Documento</CFormLabel>
                 <Controller
                   name="tipo_documento"
                   control={control}
@@ -107,7 +117,7 @@ const CrearProveedor = () => {
                 )}
               </CCol>
               <CCol sm={6}>
-                <CFormLabel>Número de Documento</CFormLabel>
+                <CFormLabel style={{ fontWeight: 'bold' }}>Número de Documento</CFormLabel>
                 <Controller
                   name="num_documento"
                   control={control}
@@ -133,7 +143,7 @@ const CrearProveedor = () => {
                 )}
               </CCol>
               <CCol sm={6}>
-                <CFormLabel>Nombre del Proveedor</CFormLabel>
+                <CFormLabel style={{ fontWeight: 'bold' }}>Nombre del Proveedor</CFormLabel>
                 <Controller
                   name="nombre"
                   control={control}
@@ -159,7 +169,7 @@ const CrearProveedor = () => {
                 )}
               </CCol>
               <CCol sm={6}>
-                <CFormLabel>Dirección</CFormLabel>
+                <CFormLabel style={{ fontWeight: 'bold' }}>Dirección</CFormLabel>
                 <Controller
                   name="direccion"
                   control={control}
@@ -181,7 +191,7 @@ const CrearProveedor = () => {
                 )}
               </CCol>
               <CCol sm={6}>
-                <CFormLabel>Teléfono</CFormLabel>
+                <CFormLabel style={{ fontWeight: 'bold' }}>Teléfono</CFormLabel>
                 <Controller
                   name="telefono"
                   control={control}
@@ -207,7 +217,7 @@ const CrearProveedor = () => {
                 )}
               </CCol>
               <CCol sm={6}>
-                <CFormLabel>Correo Electrónico</CFormLabel>
+                <CFormLabel style={{ fontWeight: 'bold' }}>Correo Electrónico</CFormLabel>
                 <Controller
                   name="email"
                   control={control}

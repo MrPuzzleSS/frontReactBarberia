@@ -13,20 +13,24 @@ import {
 } from '@coreui/react';
 import ClienteService from 'src/views/services/clienteService';
 
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 function CrearCliente() {
     const [documento, setDocumento] = useState('');
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
     const [correo, setCorreo] = useState('');
     const [telefono, setTelefono] = useState('');
-    
+
 
     const [errorDocumento, setErrorDocumento] = useState('');
     const [errorNombre, setErrorNombre] = useState('');
     const [errorApellido, setErrorApellido] = useState('');
     const [errorCorreo, setErrorCorreo] = useState('');
     const [errorTelefono, setErrorTelefono] = useState('');
-    
+
 
     const navigate = useNavigate();
 
@@ -62,6 +66,9 @@ function CrearCliente() {
         return true;
     };
 
+    const nombreCapitalizado = capitalizeFirstLetter(nombre);
+
+
     const validateApellido = (value) => {
         if (!/^[a-zA-Z ñÑ]{2,}$/.test(value)) {
             setErrorApellido('Apellido debe contener solo letras y tener al menos 2 caracteres.');
@@ -70,6 +77,9 @@ function CrearCliente() {
         setErrorApellido('');
         return true;
     };
+
+    const apellidoCapitalizado =    (apellido);
+
 
     const validateCorreo = (value) => {
         if (!/^\S+@\S+\.\S+$/.test(value)) {
@@ -81,30 +91,31 @@ function CrearCliente() {
     };
 
     const validateTelefono = (value) => {
-        if (!/^\d{7,}$/.test(value)) {
+        if (!/^\d{1,10}$/.test(value)) {
             setErrorTelefono('El teléfono no es válido.');
             return false;
         }
         setErrorTelefono('');
         return true;
     };
-
     
+
+
     const handleGuardarCliente = async (e) => {
         e.preventDefault();
 
-        if ( !validateDocumento(documento) || !validateNombre(nombre) || !validateApellido(apellido) || !validateCorreo(correo) ||
-            !validateTelefono(telefono) ) {
+        if (!validateDocumento(documento) || !validateNombre(nombre) || !validateApellido(apellido) || !validateCorreo(correo) ||
+            !validateTelefono(telefono)) {
             return;
         }
 
         const newCliente = {
             documento,
-            nombre,
-            apellido,
+            nombre : nombreCapitalizado,
+            apellido: apellidoCapitalizado ,
             correo,
             telefono,
-            
+
         };
 
         try {
@@ -116,7 +127,7 @@ function CrearCliente() {
             setApellido('');
             setCorreo('');
             setTelefono('');
-            
+
 
             Swal.fire('Éxito', 'Cliente creado correctamente.', 'success').then(() => {
                 navigate('/clientes/listaClientes');
@@ -137,60 +148,76 @@ function CrearCliente() {
                     </CCardHeader>
                     <CCardBody>
                         <form onSubmit={handleGuardarCliente}>
-                            <div className="mb-3">
-                                <CFormLabel>Documento</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    value={documento}
-                                    onChange={(e) => setDocumento(e.target.value)}
-                                />
-                                <div className="text-danger">{errorDocumento}</div>
+                            <div className="mb-3 d-flex align-items-center">
+                                <CCol xs="5" className="me-3">
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Documento</CFormLabel>
+                                    <CFormInput
+                                        type="text"
+                                        value={documento}
+                                        onChange={(e) => setDocumento(e.target.value)}
+                                    />
+                                    <div className="text-danger">{errorDocumento}</div>
+                                </CCol>
+
+                                <CCol xs="5">
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Nombre</CFormLabel>
+                                    <CFormInput
+                                        type="text"
+                                        value={nombre}
+                                        onChange={(e) => setNombre(e.target.value)}
+                                    />
+                                    <div className="text-danger">{errorNombre}</div>
+                                </CCol>
                             </div>
-                            <div className="mb-3">
-                                <CFormLabel>Nombre</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    value={nombre}
-                                    onChange={(e) => setNombre(e.target.value)}
-                                />
-                                <div className="text-danger">{errorNombre}</div>
+
+                            <div className="mb-3 d-flex align-items-center">
+                                <CCol xs="5" className="me-3">
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Apellido</CFormLabel>
+                                    <CFormInput
+                                        type="text"
+                                        value={capitalizeFirstLetter(apellido)}
+                                        onChange={(e) => setApellido(e.target.value)}
+                                    />
+                                    <div className="text-danger">{errorApellido}</div>
+                                </CCol>
+
+                                <CCol xs="5">
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Correo</CFormLabel>
+                                    <CFormInput
+                                        type="email"
+                                        value={correo}
+                                        onChange={(e) => setCorreo(e.target.value)}
+                                    />
+                                    <div className="text-danger">{errorCorreo}</div>
+                                </CCol>
                             </div>
-                            <div className="mb-3">
-                                <CFormLabel>Apellido</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    value={apellido}
-                                    onChange={(e) => setApellido(e.target.value)}
-                                />
-                                <div className="text-danger">{errorApellido}</div>
+                            <div className="mb-3 d-flex align-items-center">
+
+                                <CCol xs="5" className="me-3">
+                                <CFormLabel style={{ fontWeight: 'bold' }}>Teléfono</CFormLabel>
+
+
+                                    <CFormInput
+                                        type="text"
+                                        value={telefono}
+                                        onChange={(e) => setTelefono(e.target.value)}
+                                    />
+                                    <div className="text-danger">{errorTelefono}</div>
+                                </CCol>
+
                             </div>
+
                             <div className="mb-3">
-                                <CFormLabel>Correo</CFormLabel>
-                                <CFormInput
-                                    type="email"
-                                    value={correo}
-                                    onChange={(e) => setCorreo(e.target.value)}
-                                />
-                                <div className="text-danger">{errorCorreo}</div>
-                            </div>
-                            <div className="mb-3">
-                                <CFormLabel>Teléfono</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    value={telefono}
-                                    onChange={(e) => setTelefono(e.target.value)}
-                                />
-                                <div className="text-danger">{errorTelefono}</div>
-                            </div>
-                            
-                            <CButton type="submit" color="primary">
-                                Guardar Cliente
-                            </CButton>
-                            <Link to="/clientes/listaClientes">
-                                <CButton type="button" color="secondary">
-                                    Cancelar
+                                <CButton type="submit" color="primary" className="me-2">
+                                    Guardar Cliente
                                 </CButton>
-                            </Link>
+
+                                <Link to="/clientes/listaClientes">
+                                    <CButton type="button" color="secondary">
+                                        Cancelar
+                                    </CButton>
+                                </Link>
+                            </div>
                         </form>
                     </CCardBody>
                 </CCard>

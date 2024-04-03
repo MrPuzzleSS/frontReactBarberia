@@ -19,7 +19,7 @@ const Register = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    axios.get('http://localhost:8095/api/rol')
+    axios.get('https://restapibarberia.onrender.com/api/rol')
       .then(response => {
         console.log('Roles obtenidos:', response.data.listaRoles);
         setRoles(response.data.listaRoles);
@@ -27,6 +27,7 @@ const Register = () => {
       .catch(error => console.error('Error al obtener roles:', error));
   }, []);
 
+  
   const handleAddUser = async () => {
     const validationErrors = {};
 
@@ -75,29 +76,38 @@ const Register = () => {
     if (Object.keys(validationErrors).length > 0) {
       return;
     }
-
     try {
-      const response = await axios.post('http://localhost:8095/api/usuario', newUser);
+      const response = await axios.post('https://restapibarberia.onrender.com/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
-
+    
       Swal.fire({
         icon: 'success',
         title: 'Usuario agregado con éxito',
         showConfirmButton: false,
         timer: 1500,
       });
-
+    
       setSubmitted(true);
     } catch (error) {
       console.error('Error al agregar usuario:', error);
-
-      Swal.fire({
-        icon: 'error',
-        title: 'Error al agregar usuario',
-        text: 'Ha ocurrido un error al intentar agregar el usuario.',
-      });
+    
+      if (error.response.status === 400 && error.response.data && error.response.data.error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al agregar usuario',
+          text: error.response.data.error,
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al agregar usuario',
+          text: 'Ha ocurrido un error al intentar agregar el usuario.',
+        });
+      }
     }
-  };
+  }
+
+  
 
   const handleInputChange = (fieldName, value) => {
     setNewUser({ ...newUser, [fieldName]: value });
@@ -119,7 +129,7 @@ const Register = () => {
           validationErrors.nombre_usuario = 'El nombre de usuario no debe contener caracteres especiales ni números.';
         } else if (value.length < 3) {
           validationErrors.nombre_usuario = 'El nombre de usuario debe tener al menos 3 caracteres.';
-        } else if (value.length > 20) {
+        } else if (value.length > 30) {
           validationErrors.nombre_usuario = 'El nombre de usuario no debe tener más de 20 caracteres.';
         } else if (/\s/.test(value)) {
           validationErrors.nombre_usuario = 'El nombre de usuario no debe contener espacios en blanco.';
@@ -172,7 +182,7 @@ const Register = () => {
 
               <CCardBody className="p-12">
               <CForm onSubmit={(e) => e.preventDefault()}>
-  <h2 className="mb-6 text-center">REGISTRAR USUARIO</h2>
+  <h2 className="mb-6 text-center">Registrar Usuario</h2>
   <div className="mb-3">
     <CFormLabel><strong>Rol del Usuario</strong></CFormLabel>
     <CFormSelect
@@ -220,7 +230,7 @@ const Register = () => {
   </div>
   <div className="mb-3 d-flex justify-content-center">
     <CButton type="submit" onClick={handleAddUser}>
-      REGISTRAR USUARIO
+      Registrar Usuario
     </CButton>
     <Link to="/listaUsuarios">
       <CButton type="button" color="secondary" className="ms-3">
