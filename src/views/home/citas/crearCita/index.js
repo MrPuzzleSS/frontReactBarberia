@@ -4,6 +4,8 @@
 
 
 import React, { useState, useEffect } from "react";
+
+
 import {
   CContainer,
   CCard,
@@ -30,7 +32,8 @@ import {
 } from "@coreui/react";
 import Servicios_S from "src/views/services/servicios_s";
 import ServicioBarbero from "src/views/services/empleado_agenda";
-import { format, parse, isAfter, isSameDay } from "date-fns";
+
+import { format, parse, isAfter, isSameDay, addMinutes } from "date-fns";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
 import interactionPlugin from "@fullcalendar/interaction"; // for selectable
@@ -61,6 +64,8 @@ const AgendarCita = () => {
   const [citasAgendadas, setCitasAgendadasData] = useState([]);
   const [citaServicio, setCitaServicio] = useState(null);
   const [selectedServicesDuration, setSelectedServicesDuration] = useState(0);
+  const [selectedHourEndTime, setSelectedHourEndTime] = useState(null);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -116,32 +121,35 @@ const AgendarCita = () => {
   };
 
 
+
   const handleDateSelect = (info) => {
-    const date = info.start;
-    const today = new Date(); // Obtener la fecha de hoy
+    const dateTimeStr = info.dateStr; // Obtiene la fecha y hora en formato de cadena ISO 8601
+    const dateTime = new Date(dateTimeStr); // Convierte la cadena en un objeto de fecha
 
-    // Formatear las fechas
-    const formattedDate = format(date, "yyyy-MM-dd");
-    const formattedToday = format(today, "yyyy-MM-dd");
+    const formattedDate = format(dateTime, "yyyy-MM-dd"); // Formatea la fecha
+    const selectedHour = format(dateTime, "HH:mm"); // Formatea la hora seleccionada
 
-    // Dentro de la función handleDateSelect, después de establecer la fecha y antes de mostrar el modal de hora
-    setSelectedDate(formattedDate);
+    const selectedDateObj = new Date(formattedDate); // Convierte la fecha seleccionada en un objeto Date
+    const today = new Date(); // Obtiene la fecha actual
 
-    // Asegúrate de que esta línea esté presente
-    setModalHoraVisible(true);
-
-    // Llama a calculateAppointmentTime para actualizar el tiempo total de la cita
-    calculateAppointmentTime(); // Agrega esta línea
-
-    // Convertir las fechas formateadas en objetos de fecha
-    const selectedDateObj = new Date(formattedDate);
-    const todayObj = new Date(formattedToday);
-
-    // Verificar si la fecha seleccionada es igual o posterior a la fecha de hoy
-    if (isAfter(selectedDateObj, todayObj) || isSameDay(selectedDateObj, todayObj)) {
-      // Si la fecha seleccionada es igual o posterior a la fecha de hoy
+    if (isAfter(selectedDateObj, today) || isSameDay(selectedDateObj, today)) {
       setSelectedDate(formattedDate);
       setModalHoraVisible(true);
+
+      // Obtener la duración total de los servicios seleccionados
+      const selectedServicesDurationMinutes = selectedServices.reduce(
+        (total, service) => total + parseInt(service.tiempo),
+        0
+      );
+
+      // Calcular la hora final sumando la duración del servicio a la hora seleccionada
+      const endTime = addMinutes(selectedHour, selectedServicesDurationMinutes);
+
+      // Establecer la hora final y la hora seleccionada en el estado
+      console.log("Selected Hour:", selectedHour);
+      console.log("Selected Services Duration:", selectedServicesDurationMinutes);
+      setSelectedHour(selectedHour);
+      setSelectedHourEndTime(endTime);
     } else {
       Swal.fire({
         icon: "error",
@@ -151,6 +159,38 @@ const AgendarCita = () => {
     }
   };
 
+
+
+
+
+
+
+
+  const calculateAppointmentTime = () => {
+    // Verificar si selectedHour es nulo
+    if (selectedHour === null) {
+      console.error("Error: La hora de inicio es nula (null)");
+      return null;
+    }
+
+    // Verificar si selectedHourEndTime es nulo
+    if (selectedHourEndTime === null) {
+      console.error("Error: La hora de finalización es nula (null)");
+      return null;
+    }
+
+    // Obtener la hora de inicio y fin de la cita
+    const horaInicio = selectedHour;
+    const horaFin = selectedHourEndTime;
+
+    // Calcular la duración total de la cita
+    const totalAppointmentTime = getIntervalDuration(horaInicio, horaFin);
+
+    console.log("Total Appointment Time:", totalAppointmentTime);
+
+    // Retorna el tiempo total de la cita
+    return totalAppointmentTime;
+  };
 
 
 
@@ -213,6 +253,14 @@ const AgendarCita = () => {
       // Puedes mostrar un mensaje o realizar alguna acción adicional aquí
     }
   };
+
+
+
+
+
+
+
+
 
   const checkTimeAvailability = () => {
     // Obtén el tiempo total de la cita
@@ -310,11 +358,16 @@ const AgendarCita = () => {
         : prevDuration + parseInt(service.tiempo) // Suma la duración del servicio
     );
 
-    // Llama a calculateAppointmentTime después de actualizar selectedServicesDuration
-    calculateAppointmentTime();
+    // Asegúrate de que selectedHour esté inicializado antes de llamar a calculateAppointmentTime
+    if (selectedHour !== null) {
+      // Llama a calculateAppointmentTime después de actualizar selectedServicesDuration
+      calculateAppointmentTime();
+    }
 
     console.log("Servicio seleccionado:", selectedService);
   };
+
+
 
   // Función para sumar minutos a una hora dada
   const addMinutes = (time, minutes) => {
@@ -335,41 +388,6 @@ const AgendarCita = () => {
     // Retorna la hora en formato HH:mm
     return `${formattedHours}:${formattedMins}`;
   };
-
-
-
-
-  const calculateAppointmentTime = () => {
-    // Verifica si selectedHour es nulo
-    if (selectedHour === null) {
-      // Maneja el caso en el que selectedHour es nulo, por ejemplo, lanzando un error o devolviendo un valor predeterminado
-      console.error("Error: La hora de inicio es nula (null)");
-      return null; // Otra acción adecuada según el contexto
-    }
-
-    // Obtén la hora de inicio y fin de la cita
-    const horaInicio = selectedHour;
-    const horaFin = addMinutes(selectedHour, -selectedServicesDuration); // Resta la duración de los servicios
-
-    // Verifica si horaFin es nulo
-    if (horaFin === null) {
-      // Maneja el caso en el que horaFin es nulo, por ejemplo, lanzando un error o devolviendo un valor predeterminado
-      console.error("Error: La hora de fin es nula (null)");
-      return null; // Otra acción adecuada según el contexto
-    }
-
-    // Calcula la duración total de la cita
-    const totalAppointmentTime = getIntervalDuration(horaInicio, horaFin);
-
-    console.log("Total Appointment Time:", totalAppointmentTime);
-
-    // Retorna el tiempo total de la cita
-    return totalAppointmentTime;
-  };
-
-
-
-
 
 
 
