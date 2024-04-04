@@ -531,6 +531,14 @@ const CrearConfiguracion = () => {
                 throw new Error('La fecha de inicio no puede ser posterior a la fecha de fin');
             }
 
+            // Obtener la diferencia en días entre la fecha de inicio y la fecha de fin
+            const diasDiferencia = Math.floor((fechaFinEvento - fechaInicioEvento) / (1000 * 60 * 60 * 24));
+
+            // Verificar si la diferencia en días es mayor a 14 (2 semanas)
+            if (diasDiferencia > 14) {
+                throw new Error('No puedes crear agendas con una duración superior a 2 semanas');
+            }
+
             // Resto del código para la creación de eventos...
             const newEvents = [];
             let currentDateEvent = new Date(fechaInicioEvento);
