@@ -633,6 +633,12 @@ const CrearConfiguracion = () => {
             const { id, start, end } = eventDropInfo.event;
             const empleadoId = eventDropInfo.event.extendedProps.id_empleado;
 
+            // Verificar si la agenda está deshabilitada antes de permitir la edición
+            if (!eventDropInfo.event.extendedProps.estado) {
+                // Revertir el movimiento
+                eventDropInfo.revert();
+                throw new Error('No puedes mover una agenda deshabilitada');
+            }
             // Validar si la fecha está fuera del día actual
             const currentDate = new Date();
             const fechaHoy = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
@@ -646,6 +652,20 @@ const CrearConfiguracion = () => {
                 eventDropInfo.event.setDates(originalStart, originalEnd);
                 throw new Error('No puedes arrastrar eventos a fechas anteriores al día actual');
             }
+
+            // Verificar si la fecha del evento ya pasó
+            const isPastEvent = endOnlyDate <= fechaHoy;
+
+            // Console.log para verificar la fecha del evento
+            console.log('Fecha del evento:', endOnlyDate);
+
+            // Si la fecha del evento ya pasó, restaurar las coordenadas originales del evento
+            if (isPastEvent) {
+                eventDropInfo.revert();
+                throw new Error('No puedes mover agendas que ya han pasado');
+            }
+
+
 
             // Verificar si la agenda está deshabilitada antes de permitir la edición
             if (!eventDropInfo.event.extendedProps.estado) {
@@ -784,8 +804,8 @@ const CrearConfiguracion = () => {
             <div className="row justify-content-center">
                 <div className="col-md-12">
                     <CCard className="w-100">
-                       
-                    <CCardBody style={{ maxHeight: '140vh', overflowY: 'auto' }}>
+
+                        <CCardBody style={{ maxHeight: '140vh', overflowY: 'auto' }}>
                             <div className="row mb-1">
                                 <div className="col-md-6">
                                     <div className="form-group mb-0">
@@ -798,7 +818,7 @@ const CrearConfiguracion = () => {
                                                 onChange={(e) => setSearchText(e.target.value)}
                                             />
 
-                                         
+
                                         </div>
                                     </div>
                                 </div>
@@ -836,13 +856,20 @@ const CrearConfiguracion = () => {
                                         (empleado) => empleado.value === empleadoIdSeleccionado
                                     );
 
-
-
                                     // Verificar si la agenda está deshabilitada
                                     const isDisabled = !arg.event.extendedProps.estado;
 
+                                    // Verificar si la fecha del evento ya pasó
+                                    const isPastEvent = evento.end < new Date();
+
                                     // Establecer el color del evento
-                                    const backgroundColor = isDisabled ? '#9eA3BA' : arg.event.backgroundColor;
+                                    let backgroundColor = isDisabled ? '#9eA3BA' : arg.event.backgroundColor;
+
+                                    // Si el evento es pasado, deshabilitarlo
+                                    if (isPastEvent) {
+                                        backgroundColor = '#CCCCCC'; // Color para eventos pasados
+                                    }
+
 
 
                                     return (
@@ -857,6 +884,7 @@ const CrearConfiguracion = () => {
                                             )}
                                         </span>
                                     );
+
                                 }}
 
 
@@ -1016,7 +1044,11 @@ const CrearConfiguracion = () => {
                                             }
                                         }
                                     });
+
                                 }}
+
+
+
                             />
 
 
