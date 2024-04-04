@@ -46,7 +46,7 @@ const ForgotPassword = () => {
         return;
       }
   
-      const response = await fetch('http://localhost:8095/api/solicitar-restablecimiento', {
+      const response = await fetch('https://restapibarberia.onrender.com/api/solicitar-restablecimiento', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
