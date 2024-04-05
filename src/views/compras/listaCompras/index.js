@@ -3,6 +3,8 @@ import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
 import CompraDataService from 'src/views/services/compraService';
 import ProveedoresService from 'src/views/services/ProveedoresService';
+import { FontAwesomeIcon, } from '@fortawesome/react-fontawesome';
+import { faEye, faDollarSign, faCancel } from '@fortawesome/free-solid-svg-icons';
 import {
   CCard,
   CCardBody,
@@ -20,7 +22,7 @@ import {
   CModalTitle,
   CModalHeader,
   CModalBody,
-  CModalFooter
+  CModalFooter,
 } from '@coreui/react';
 import PropTypes from 'prop-types'; // Importa PropTypes
 
@@ -156,6 +158,16 @@ function ListaCompras() {
     }
   };
 
+  const cancelarCompra = async (idCompra) => {
+    try {
+      await CompraDataService.EstadoCancelado(idCompra);
+      setTablaActualizada(true);
+      Swal.fire('Éxito', 'La compra se ha cancelado exitosamente', 'success')
+    } catch (error) {
+      Swal.fire('Error', 'No se pudo cancelar la compra', 'error')
+    }
+  }
+
   return (
     <CRow>
       <CCol xs={12}>
@@ -198,10 +210,48 @@ function ListaCompras() {
                       <CTableDataCell>{compra.compra.estado}</CTableDataCell>
                       <CTableDataCell>{formatFechaCompra(compra.compra.created_at)}</CTableDataCell>
                       <CTableDataCell>
-                        <CButton color="warning" onClick={() => pagarCompra(compra.compra.id_compra)}>
-                          Pagar
-                        </CButton>
-                        <CButton onClick={() => mostrarDetalleCompra(compra)}>Detalle</CButton>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <CButton style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '8px 14px',
+                            border: '1px solid #17a2b8',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            textTransform: 'uppercase',
+                            cursor: 'pointer',
+                          }} color='success' onClick={() => pagarCompra(compra.compra.id_compra)}>
+                            <FontAwesomeIcon icon={faDollarSign} />
+                          </CButton>
+
+                          <CButton color='info' style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '8px 12px',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            textTransform: 'uppercase',
+                            cursor: 'pointer',
+                          }} onClick={() => mostrarDetalleCompra(compra)}>
+                            <FontAwesomeIcon icon={faEye} style={{ color: '#000000' }} />
+                          </CButton>
+
+                          <CButton style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '8px 14px',
+                            border: '1px solid #17a2b8',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            textTransform: 'uppercase',
+                            cursor: 'pointer',
+                          }} color='danger' onClick={() => cancelarCompra(compra.compra.id_compra)}>
+                            <FontAwesomeIcon icon={faCancel} />
+                          </CButton>
+                        </div>
                       </CTableDataCell>
                     </CTableRow>
                   ))

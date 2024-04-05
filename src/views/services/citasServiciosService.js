@@ -4,6 +4,11 @@ const getAll = () => {
     return http.get("/citas_servicios");
 }
 
+const getAllCitasServiciosInfo = () => {
+    return http.get("/citas_servicios_info");
+
+}
+
 const get = id => {
     return http.get(`/citas_servicios/${id}`);
 }
@@ -26,6 +31,7 @@ const findByTitle = title => {
 
 const citasServiciosDataService = {
     getAll,
+    getAllCitasServiciosInfo,
     get,
     create,
     update,

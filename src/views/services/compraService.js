@@ -54,6 +54,16 @@ const cambiarEstadoCompra = async (id) => {
     }
   };
 
+  const EstadoCancelado = async (id) => {
+    try {
+      const response = await http.put(`/compras/${id}/cambiarEstado`, { estado: 'Cancelado' });
+      return response.data;
+    } catch (error) {
+      console.error('Error al cambiar el estado de la compra:', error);
+      throw error; // Puedes manejar el error según tus necesidades
+    }
+  };
+
 const CompraDataService = {
     getAll,
     getCompraDetalle,
@@ -66,7 +76,8 @@ const CompraDataService = {
     update,
     remove,
     findByTitle,
-    cambiarEstadoCompra
+    cambiarEstadoCompra,
+    EstadoCancelado
 }
 
 export default CompraDataService;
