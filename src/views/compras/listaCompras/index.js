@@ -23,6 +23,7 @@ import {
   CModalHeader,
   CModalBody,
   CModalFooter,
+  CBadge,
 } from '@coreui/react';
 import PropTypes from 'prop-types'; // Importa PropTypes
 
@@ -83,6 +84,7 @@ function ListaCompras() {
   const [visible, setVisible] = useState(false);
   const [compraSeleccionada, setCompraSeleccionada] = useState(null);
   const [tablaActualizada, setTablaActualizada] = useState(false);
+  const [estadoCompra, setEstadoCompra] = useState('Pagado');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -168,6 +170,18 @@ function ListaCompras() {
     }
   }
 
+  function getColorForEstado(estado) {
+    if (estado === "Pagado") {
+      return "success";
+    } else if (estado === "Cancelado") {
+      return "danger";
+    } else if (estado === "Pendiente") {
+      return "warning";
+    } else {
+      return "default";
+    }
+  }
+
   return (
     <CRow>
       <CCol xs={12}>
@@ -200,55 +214,66 @@ function ListaCompras() {
                 {Array.isArray(compras) && compras.length > 0 ? (
                   compras.map((compra, i) => (
                     <CTableRow key={i}>
-                      {/* <CTableHeaderCell scope="row">{i + 1}</CTableHeaderCell> */}
                       <CTableDataCell>
                         <ProveedorNombre idProveedor={compra.compra.id_proveedor} />
                       </CTableDataCell>
                       <CTableDataCell>{compra.compra.no_factura}</CTableDataCell>
                       <CTableDataCell>{compra.compra.total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</CTableDataCell>
                       <CTableDataCell>{compra.compra.tipoCompra}</CTableDataCell>
-                      <CTableDataCell>{compra.compra.estado}</CTableDataCell>
+                      <CTableDataCell><CBadge color={getColorForEstado(compra.compra.estado)}>{compra.compra.estado}</CBadge></CTableDataCell>
                       <CTableDataCell>{formatFechaCompra(compra.compra.created_at)}</CTableDataCell>
                       <CTableDataCell>
                         <div style={{ display: 'flex', gap: '10px' }}>
-                          <CButton style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '8px 14px',
-                            border: '1px solid #17a2b8',
-                            borderRadius: '4px',
-                            fontSize: '14px',
-                            textTransform: 'uppercase',
-                            cursor: 'pointer',
-                          }} color='success' onClick={() => pagarCompra(compra.compra.id_compra)}>
+                          <CButton
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '8px 14px',
+                              border: '1px solid #17a2b8',
+                              borderRadius: '4px',
+                              fontSize: '14px',
+                              textTransform: 'uppercase',
+                              cursor: 'pointer',
+                            }}
+                            color='success'
+                            onClick={() => pagarCompra(compra.compra.id_compra)}
+                            disabled={compra.compra.estado === 'Pagado' || compra.compra.estado === 'Cancelado'} // Deshabilita el botón si el estado de la compra es 'Pagado'
+                          >
                             <FontAwesomeIcon icon={faDollarSign} />
                           </CButton>
-
-                          <CButton color='info' style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            fontSize: '14px',
-                            textTransform: 'uppercase',
-                            cursor: 'pointer',
-                          }} onClick={() => mostrarDetalleCompra(compra)}>
+                          <CButton
+                            color='info'
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '8px 12px',
+                              borderRadius: '4px',
+                              fontSize: '14px',
+                              textTransform: 'uppercase',
+                              cursor: 'pointer',
+                            }}
+                            onClick={() => mostrarDetalleCompra(compra)}
+                          >
                             <FontAwesomeIcon icon={faEye} style={{ color: '#000000' }} />
                           </CButton>
-
-                          <CButton style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '8px 14px',
-                            border: '1px solid #17a2b8',
-                            borderRadius: '4px',
-                            fontSize: '14px',
-                            textTransform: 'uppercase',
-                            cursor: 'pointer',
-                          }} color='danger' onClick={() => cancelarCompra(compra.compra.id_compra)}>
+                          <CButton
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '8px 14px',
+                              border: '1px solid #17a2b8',
+                              borderRadius: '4px',
+                              fontSize: '14px',
+                              textTransform: 'uppercase',
+                              cursor: 'pointer',
+                            }}
+                            color='danger'
+                            onClick={() => cancelarCompra(compra.compra.id_compra)}
+                            disabled={compra.compra.estado === 'Pagado' || compra.compra.estado === 'Cancelado'} // Deshabilita el botón si el estado de la compra es 'Pagado'
+                          >
                             <FontAwesomeIcon icon={faCancel} />
                           </CButton>
                         </div>
@@ -259,6 +284,7 @@ function ListaCompras() {
                   <CTableRow></CTableRow>
                 )}
               </CTableBody>
+
             </CTable>
             <CModal
               alignment="center"
