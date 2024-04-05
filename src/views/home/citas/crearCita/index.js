@@ -344,7 +344,7 @@ const AgendarCita = () => {
     const end = parseInt(endHour.split(":")[0]); // Extract end hour
 
     for (let hour = start; hour <= end; hour++) {
-      for (let minute = 0; minute < 60; minute += 10) { 
+      for (let minute = 0; minute < 60; minute += 30) { 
         const suffix = hour >= 12 ? "PM" : "AM";
         const formattedHora = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00`;
 
