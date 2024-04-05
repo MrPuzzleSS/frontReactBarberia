@@ -41,8 +41,9 @@ const EditProfilePage = () => {
     }
 
     const validateName = (value) => {
-        return /^[a-zA-Z\s]*$/.test(value);
+        return /^[a-zA-Z0-9_-]*$/.test(value);
     }
+    
 
     const validateEmail = (value) => {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);

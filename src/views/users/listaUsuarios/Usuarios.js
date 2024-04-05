@@ -186,16 +186,14 @@ const ListaUsuarios = () => {
     // Validar nombre de usuario
     if (!nombreUsuario) {
       validationErrors.nombre_usuario = 'Por favor, ingresa un nombre de usuario.';
+    } else if (!/^[a-zA-Z0-9_-]+$/.test(nombreUsuario)) {
+      validationErrors.nombre_usuario = 'El nombre de usuario no debe contener caracteres especiales ni espacios.';
     } else if (nombreUsuario.length < 3) {
       validationErrors.nombre_usuario = 'El nombre de usuario debe tener al menos 3 caracteres.';
-      
-    }else if (nombreUsuario.length > 30) {
-      validationErrors.nombre_usuario = 'El nombre de usuario no puede contener mas de 30 caracteres.';
-      
+    } else if (nombreUsuario.length > 30) {
+      validationErrors.nombre_usuario = 'El nombre de usuario no puede contener más de 30 caracteres.';
     }
-     else if (/\s/.test(nombreUsuario)) {
-      validationErrors.nombre_usuario = 'El nombre de usuario no puede contener espacios en blanco.';
-    }
+    
   
     // Validar correo electrónico
     if (!correoElectronico) {
