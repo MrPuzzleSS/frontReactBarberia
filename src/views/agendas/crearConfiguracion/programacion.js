@@ -661,6 +661,8 @@ const CrearConfiguracion = () => {
                 throw new Error('No puedes arrastrar eventos a fechas anteriores al día actual');
             }
 
+            
+
             // Verificar si la fecha del evento ya pasó
             const isPastEvent = endOnlyDate <= fechaHoy;
 
