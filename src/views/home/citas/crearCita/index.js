@@ -665,7 +665,7 @@ const AgendarCita = () => {
                       <strong>Fecha:</strong> {selectedDate} <br />
                       <strong>Hora:</strong> {selectedHour !== null ? `${selectedHour > 12 ? selectedHour - 12 : selectedHour} ${selectedHour >= 12 ? 'PM' : 'AM'}` : 'Selecciona una hora'} <br />
                       <strong>Servicios:</strong>
-                    </p>npm
+                    </p>
 
                     <ul>
                       {tempSelectedServices.map((service, index) => (
