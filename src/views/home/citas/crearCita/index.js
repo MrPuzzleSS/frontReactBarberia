@@ -64,7 +64,7 @@ const AgendarCita = () => {
 
         const empleadosResponse = await ServicioBarbero.getAll();
         const nestedArray =
-          empleadosResponse.data && empleadosResponse.data.empleados;
+          empleadosResponse.data && empleadosResponse.data.empleados; 
 
         if (Array.isArray(nestedArray)) {
           setEmpleados(nestedArray);
@@ -160,7 +160,7 @@ const AgendarCita = () => {
       try {
 
         const formattedHour = selectedHour.slice(0, 5);
-
+        
         // Guarda la cita al hacer clic en "Agendar"
         const nuevaCita = {
           id_empleado: selectedBarberoId,
@@ -339,13 +339,13 @@ const AgendarCita = () => {
   };
 
   const generateHourOptions = (startHour, endHour, selectedDate, citasAgendadas) => {
-
+    
     const options = [];
     const start = parseInt(startHour.split(":")[0]); // Extract start hour
     const end = parseInt(endHour.split(":")[0]); // Extract end hour
 
     for (let hour = start; hour <= end; hour++) {
-      for (let minute = 0; minute < 60; minute += 10) {
+      for (let minute = 0; minute < 60; minute += 30) { 
         const suffix = hour >= 12 ? "PM" : "AM";
         const formattedHora = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00`;
 
@@ -358,7 +358,6 @@ const AgendarCita = () => {
         });
 
         const hora = `${hour}:${minute.toString().padStart(2, "0")} ${suffix}`;
-
 
         const handleClick = () => {
           if (!horaOcupada) {
