@@ -19,7 +19,7 @@ const Register = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    axios.get('https://restapibarberia.onrender.com/api/rol')
+    axios.get('http://localhost:8095/api/rol')
       .then(response => {
         console.log('Roles obtenidos:', response.data.listaRoles);
         setRoles(response.data.listaRoles);
@@ -37,15 +37,14 @@ const Register = () => {
 
     if (!newUser.nombre_usuario) {
       validationErrors.nombre_usuario = 'Por favor, ingresa el nombre de usuario.';
-    } else if (!/^[a-zA-Z]+$/.test(newUser.nombre_usuario)) {
-      validationErrors.nombre_usuario = 'El nombre de usuario no debe contener caracteres especiales ni números.';
+    } else if (!/^[a-zA-Z0-9_-]+$/.test(newUser.nombre_usuario)) {
+      validationErrors.nombre_usuario = 'El nombre de usuario no debe contener caracteres especiales ni espacios.';
     } else if (newUser.nombre_usuario.length < 3) {
       validationErrors.nombre_usuario = 'El nombre de usuario debe tener al menos 3 caracteres.';
     } else if (newUser.nombre_usuario.length > 20) {
       validationErrors.nombre_usuario = 'El nombre de usuario no debe tener más de 20 caracteres.';
-    } else if (/\s/.test(newUser.nombre_usuario)) {
-      validationErrors.nombre_usuario = 'El nombre de usuario no debe contener espacios en blanco.';
     }
+    
 
     if (!newUser.contrasena) {
       validationErrors.contrasena = 'Por favor, ingresa la contraseña.';
@@ -77,7 +76,7 @@ const Register = () => {
       return;
     }
     try {
-      const response = await axios.post('https://restapibarberia.onrender.com/api/usuario', newUser);
+      const response = await axios.post('http://localhost:8095/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
     
       Swal.fire({

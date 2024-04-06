@@ -10,7 +10,7 @@ import prueba2 from '../../../assets/images/fonds.jpg';
 import 'src/scss/css/global.css'; 
 
 const RegisterCliente = () => {
-  const roleIdCliente = 7;
+  const roleIdCliente = 2;
 
   const [newUser, setNewUser] = useState({
     id_rol: roleIdCliente,
@@ -83,8 +83,8 @@ const handleInputChange = (fieldName, value) => {
 const validateField = (fieldName, value) => {
   let error = '';
   if (fieldName === 'nombre_usuario') {
-    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,30}$/.test(value)) {
-      error = 'El nombre de usuario debe tener entre 3 y 30 caracteres y solo letras';
+    if (!/^[a-zA-Z0-9_-]{3,30}$/.test(value)) {
+      error = 'El nombre de usuario debe tener entre 3 y 30 caracteres y solo letras, números, guiones bajos y guiones';
     }
   } else if (fieldName === 'correo') {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
@@ -99,6 +99,7 @@ const validateField = (fieldName, value) => {
   // Actualizar el estado de los errores
   setErrors({ ...errors, [fieldName]: error });
 };
+
 
 const isFormValid = () => {
   // Verificar si todos los errores son una cadena vacía

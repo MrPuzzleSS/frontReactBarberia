@@ -57,7 +57,7 @@ const Login = () => {
     try {
       setError(null);
       
-      const response = await axios.post('https://restapibarberia.onrender.com/api/login', {
+      const response = await axios.post('http://localhost:8095/api/login', {
         nombre_usuario: nombreUsuario,
         contrasena,
       });
@@ -137,7 +137,7 @@ const Login = () => {
                         style={{ fontSize: '1.2rem', borderRadius: '5px' }}
                         onClick={handleLogin}
                       >
-                        Ingresar
+                        INGRESAR
                       </CButton>
                     </CCol>
                   </CRow>
@@ -156,7 +156,7 @@ const Login = () => {
                   <CRow className="mt-3">
                     <CCol xs={12} className="text-center">
                       <Link to="/register">
-                        <CButton color="success">Nueva Cuenta</CButton>
+                        <CButton color="success">NUEVA CUENTA</CButton>
                       </Link>
                     </CCol>
                   </CRow>
