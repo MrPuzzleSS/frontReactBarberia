@@ -36,6 +36,22 @@ const VentaService = {
             });
     },
 
+    cargarVenta: (cargarventa) => {
+        const token = localStorage.getItem('token');
+        return fetch(`${api_url}s`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ nueva_cargarventa: cargarventa }),
+        })
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Error al crear la venta:', error);
+            });
+    },
+
     cancelarVenta: (id_ventas) => {
         const token = localStorage.getItem('token');
         return fetch(`${api_url}/cancelar/${id_ventas}`, {
