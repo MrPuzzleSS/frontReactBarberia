@@ -63,6 +63,7 @@ function ListaCitas() {
   const [citas, setCitas] = useState([]);
   const [detallesCita, setDetallesCita] = useState([]);
   const [tablaActualizada, setTablaActualizada] = useState(false);
+  
 
   // Paginación
   const pageSize = 5;
@@ -81,6 +82,7 @@ function ListaCitas() {
               id_cliente: item.cita.id_cliente,
               Fecha_Atencion: item.cita.Fecha_Atencion,
               Hora_Atencion: item.cita.Hora_Atencion,
+              Hora_Fin: item.cita.Hora_Fin,
               estado: item.cita.estado,
             };
 
@@ -174,6 +176,7 @@ function ListaCitas() {
                     <CTableHeaderCell scope="col">Barbero</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Fecha de Atencion</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Hora de Atencion</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Hora Fin </CTableHeaderCell>
                     <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
                     <CTableHeaderCell scope="col"></CTableHeaderCell>
                   </CTableRow>
@@ -190,6 +193,7 @@ function ListaCitas() {
                           {format(new Date(cita.cita.Fecha_Atencion), 'dd-MM-yyyy')}
                         </CTableDataCell>
                         <CTableDataCell>{cita.cita.Hora_Atencion}</CTableDataCell>
+                        <CTableDataCell>{cita.cita.Hora_Fin}</CTableDataCell>
                         <CTableDataCell>{cita.cita.estado}</CTableDataCell>
                         <CTableDataCell>
                           <CButton

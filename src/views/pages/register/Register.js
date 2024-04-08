@@ -7,13 +7,15 @@ import CIcon from '@coreui/icons-react';
 import { Link, Navigate } from 'react-router-dom';
 import logoBarberia from '../../../assets/images/logoBarberia2.png';
 import prueba2 from '../../../assets/images/fonds.jpg';
-import 'src/scss/css/global.css'; 
+import 'src/scss/css/global.css';
 
 const RegisterCliente = () => {
   const roleIdCliente = 2;
 
   const [newUser, setNewUser] = useState({
     id_rol: roleIdCliente,
+    documento: '',
+    telefono: '',
     nombre_usuario: '',
     contrasena: '',
     correo: '',
@@ -21,31 +23,33 @@ const RegisterCliente = () => {
   });
 
   const [errors, setErrors] = useState({
+    documento: '',
+    telefono: '',
     nombre_usuario: '',
     correo: '',
     contrasena: '',
   });
 
   const [redirect, setRedirect] = useState(false);
- 
+
 
   const handleAddUser = async () => {
     try {
       setErrors({}); // Limpiar errores al intentar registrar
-      const response = await axios.post('https://restapibarberia.onrender.com/api/usuario', newUser);
+      const response = await axios.post(' http://localhost:8095/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
-  
+     
       Swal.fire({
         icon: 'success',
         title: 'Usuario registrado con éxito',
         showConfirmButton: false,
         timer: 1500,
       });
-  
+
       setRedirect(true); // Redirigir al usuario después de registrar
     } catch (error) {
       console.error('Error al registrar usuario:', error);
-  
+
       if (error.response.status === 400 && error.response.data && error.response.data.error) {
         Swal.fire({
           icon: 'error',
@@ -60,51 +64,65 @@ const RegisterCliente = () => {
         });
       }
     }
-};
+  };
 
 
-const handleInputChange = (fieldName, value) => {
-  // Validar espacios en blanco al inicio o al final del valor
-  if (value.trim() !== value) {
-    setErrors({ ...errors, [fieldName]: 'El valor no puede contener espacios en blanco al inicio o al final.' });
-    return;
-  }
-
-  // Limpiar errores si no hay espacios en blanco
-  setErrors({ ...errors, [fieldName]: '' });
-
-  // Validar el campo antes de actualizar el estado
-  validateField(fieldName, value);
-
-  // Actualizar el estado del nuevo usuario
-  setNewUser({ ...newUser, [fieldName]: value });
-};
-
-const validateField = (fieldName, value) => {
-  let error = '';
-  if (fieldName === 'nombre_usuario') {
-    if (!/^[a-zA-Z0-9_-]{3,30}$/.test(value)) {
-      error = 'El nombre de usuario debe tener entre 3 y 30 caracteres y solo letras, números, guiones bajos y guiones';
+  const handleInputChange = (fieldName, value) => {
+    // Validar espacios en blanco al inicio o al final del valor
+    if (value.trim() !== value) {
+      setErrors({ ...errors, [fieldName]: 'El valor no puede contener espacios en blanco al inicio o al final.' });
+      return;
     }
-  } else if (fieldName === 'correo') {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      error = 'El correo electrónico ingresado no es válido';
+
+    // Limpiar errores si no hay espacios en blanco
+    setErrors({ ...errors, [fieldName]: '' });
+
+    // Validar el campo antes de actualizar el estado
+    validateField(fieldName, value);
+
+    // Actualizar el estado del nuevo usuario
+    setNewUser({ ...newUser, [fieldName]: value });
+  };
+
+  const validateField = (fieldName, value) => {
+    let error = '';
+  
+    if (fieldName === 'documento') {
+      // Validación del documento
+      // Esta validación asume que el documento debe tener exactamente 10 dígitos sin caracteres especiales
+      if (!/^\d{10}$/.test(value)) {
+        error = 'El documento debe tener exactamente 10 dígitos';
+      }
+    } else if (fieldName === 'telefono') {
+      // Validación del teléfono
+      // Esta validación asume que el teléfono debe tener exactamente 10 dígitos sin caracteres especiales
+      if (!/^\d{10}$/.test(value)) {
+        error = 'El teléfono debe tener exactamente 10 dígitos';
+      }
+    } else if (fieldName === 'nombre_usuario') {
+      if (!/^[a-zA-Z0-9_-]{3,30}$/.test(value)) {
+        error = 'El nombre de usuario debe tener entre 3 y 30 caracteres y solo letras, números, guiones bajos y guiones';
+      }
+    } else if (fieldName === 'correo') {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        error = 'El correo electrónico ingresado no es válido';
+      }
+    } else if (fieldName === 'contrasena') {
+      if (!/(?=.*[A-Z])(?=.*[0-9]).{6,}/.test(value)) {
+        error = 'La contraseña debe tener al menos 6 caracteres, una mayúscula y un número';
+      }
     }
-  } else if (fieldName === 'contrasena') {
-    if (!/(?=.*[A-Z])(?=.*[0-9]).{6,}/.test(value)) {
-      error = 'La contraseña debe tener al menos 6 caracteres, una mayúscula y un número';
-    }
-  }
-
-  // Actualizar el estado de los errores
-  setErrors({ ...errors, [fieldName]: error });
-};
+  
+    // Actualizar el estado de los errores
+    setErrors({ ...errors, [fieldName]: error });
+  };
+  
 
 
-const isFormValid = () => {
-  // Verificar si todos los errores son una cadena vacía
-  return Object.values(errors).every((error) => error === '');
-};
+  const isFormValid = () => {
+    // Verificar si todos los errores son una cadena vacía
+    return Object.values(errors).every((error) => error === '');
+  };
 
 
   return (
@@ -120,6 +138,30 @@ const isFormValid = () => {
           </CRow>
           <CRow className="justify-content-center">
             <CForm style={{ width: '80%' }}>
+            <CInputGroup className="mb-3">
+                <CInputGroupText>
+                  <CIcon icon={cilUser} />
+                </CInputGroupText>
+                <CFormInput
+                  placeholder="Documento"
+                  autoComplete="document"
+                  value={newUser.documento}
+                  onChange={(e) => handleInputChange('documento', e.target.value)}
+                />
+              </CInputGroup>
+              {errors.telefono && <CAlert color="danger">{errors.telefono}</CAlert>}
+            <CInputGroup className="mb-3">
+                <CInputGroupText>
+                  <CIcon icon={cilUser} />
+                </CInputGroupText>
+                <CFormInput
+                  placeholder="Telefono"
+                  autoComplete="cell"
+                  value={newUser.telefono}
+                  onChange={(e) => handleInputChange('telefono', e.target.value)}
+                />
+              </CInputGroup>
+              {errors.telefono && <CAlert color="danger">{errors.telefono}</CAlert>}
               <CInputGroup className="mb-3">
                 <CInputGroupText>
                   <CIcon icon={cilUser} />

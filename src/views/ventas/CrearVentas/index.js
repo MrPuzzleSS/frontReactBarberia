@@ -30,7 +30,7 @@ import {
     CInputGroupText,
 } from '@coreui/react';
 
-const API_URL = 'https://restapibarberia.onrender.com/api';
+const API_URL = ' http://localhost:8095/api';
 
 function FormularioVentas() {
     const navigate = useNavigate();

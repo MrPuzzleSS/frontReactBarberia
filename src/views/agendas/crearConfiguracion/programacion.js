@@ -86,7 +86,7 @@ const CrearConfiguracion = () => {
             //  console.log('Iniciando fetch de empleados...');
 
 
-            const apiUrl = 'https://restapibarberia.onrender.com/api/empleado/activos';
+            const apiUrl = 'http://localhost:8095/api/empleado/activos';
             const response = await axios.get(apiUrl, {
                 headers: {
                     'Authorization': `Bearer ${getToken()}` // Añadir el token al encabezado Authorization
@@ -182,7 +182,7 @@ const CrearConfiguracion = () => {
             if (Array.isArray(agendas)) {
                 const formattedEvents = await Promise.all(agendas.map(async (agenda) => {
                     try {
-                        const empleadoResponse = await axios.get(`https://restapibarberia.onrender.com/api/empleado/${agenda.id_empleado}`, {
+                        const empleadoResponse = await axios.get(`http://localhost:8095/api/empleado/${agenda.id_empleado}`, {
                             headers: {
                                 'Authorization': `Bearer ${getToken()}`
                             }
@@ -905,8 +905,7 @@ const CrearConfiguracion = () => {
                                     const nombreEmpleadoRegex = /agenda\s(.+)/i;
                                     const match = clickInfo.event.title.match(nombreEmpleadoRegex);
                                     const nombreEmpleado = match ? match[1] : 'Desconocido';
-
-
+                                    
                                     Swal.fire({
                                         title: clickInfo.event.title,
                                         html: `
@@ -918,6 +917,7 @@ const CrearConfiguracion = () => {
                     Hora de inicio: ${clickInfo.event.extendedProps.horaInicio}<br/>
                     Hora de fin: ${clickInfo.event.extendedProps.horaFin}<br/>
                     Empleado: ${nombreEmpleado}
+               
                 </div>
             `,
 

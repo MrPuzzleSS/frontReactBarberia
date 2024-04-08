@@ -1,4 +1,4 @@
-const apiUrl = 'https://restapibarberia.onrender.com/api/cliente';
+const apiUrl = 'http://localhost:8095/api/cliente';
 
 const addAuthorizationHeader = (headers) => {
     const token = localStorage.getItem('token');

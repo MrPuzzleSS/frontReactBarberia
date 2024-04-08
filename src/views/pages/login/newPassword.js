@@ -41,7 +41,7 @@ const ResetPassword = () => {
   
       console.log('Enviando solicitud con token:', token);
   
-      const response = await fetch('https://restapibarberia.onrender.com/api/cambiar-contrasena', {
+      const response = await fetch('http://localhost:8095/api/cambiar-contrasena', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

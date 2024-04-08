@@ -78,7 +78,7 @@ function CrearProducto() {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
-  const apiUrl = 'https://restapibarberia.onrender.com/api/producto';
+  const apiUrl = ' http://localhost:8095/api/producto';
 
   const getToken = () => {
     return localStorage.getItem('token');
