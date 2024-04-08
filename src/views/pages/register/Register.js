@@ -10,7 +10,7 @@ import prueba2 from '../../../assets/images/fonds.jpg';
 import 'src/scss/css/global.css'; 
 
 const RegisterCliente = () => {
-  const roleIdCliente = 11;
+  const roleIdCliente = 2;
 
   const [newUser, setNewUser] = useState({
     id_rol: roleIdCliente,
@@ -32,7 +32,7 @@ const RegisterCliente = () => {
   const handleAddUser = async () => {
     try {
       setErrors({}); // Limpiar errores al intentar registrar
-      const response = await axios.post('http://localhost:8095/api/usuario', newUser);
+      const response = await axios.post('https://restapibarberia.onrender.com/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
   
       Swal.fire({
