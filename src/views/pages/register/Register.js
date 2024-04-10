@@ -8,9 +8,14 @@ import { Link, Navigate } from 'react-router-dom';
 import logoBarberia from '../../../assets/images/logoBarberia2.png';
 import prueba2 from '../../../assets/images/fonds.jpg';
 import 'src/scss/css/global.css'; 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const RegisterCliente = () => {
   const roleIdCliente = 2;
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [newUser, setNewUser] = useState({
     id_rol: roleIdCliente,
@@ -24,10 +29,10 @@ const RegisterCliente = () => {
     nombre_usuario: '',
     correo: '',
     contrasena: '',
+    confirmPassword: '',
   });
 
   const [redirect, setRedirect] = useState(false);
- 
 
   const handleAddUser = async () => {
     try {
@@ -60,52 +65,67 @@ const RegisterCliente = () => {
         });
       }
     }
-};
+  };
 
+  const handleInputChange = (fieldName, value) => {
+    if (fieldName === 'contrasena') {
+      // Validar el campo antes de actualizar el estado
+      validateField(fieldName, value);
 
-const handleInputChange = (fieldName, value) => {
-  // Validar espacios en blanco al inicio o al final del valor
-  if (value.trim() !== value) {
-    setErrors({ ...errors, [fieldName]: 'El valor no puede contener espacios en blanco al inicio o al final.' });
-    return;
-  }
+      // Actualizar el estado del nuevo usuario
+      setNewUser({ ...newUser, [fieldName]: value });
+    } else if (fieldName === 'confirmPassword') {
+      // Validar el campo antes de actualizar el estado
+      if (value !== newUser.contrasena) {
+        setErrors({ ...errors, [fieldName]: 'Las contraseñas no coinciden' });
+      } else {
+        setErrors({ ...errors, [fieldName]: '' });
+      }
 
-  // Limpiar errores si no hay espacios en blanco
-  setErrors({ ...errors, [fieldName]: '' });
+      // Actualizar el estado de la contraseña confirmada
+      setConfirmPassword(value);
+    } else {
+      // Validar espacios en blanco al inicio o al final del valor
+      if (value.trim() !== value) {
+        setErrors({ ...errors, [fieldName]: 'El valor no puede contener espacios en blanco al inicio o al final.' });
+        return;
+      }
 
-  // Validar el campo antes de actualizar el estado
-  validateField(fieldName, value);
+      // Limpiar errores si no hay espacios en blanco
+      setErrors({ ...errors, [fieldName]: '' });
 
-  // Actualizar el estado del nuevo usuario
-  setNewUser({ ...newUser, [fieldName]: value });
-};
+      // Validar el campo antes de actualizar el estado
+      validateField(fieldName, value);
 
-const validateField = (fieldName, value) => {
-  let error = '';
-  if (fieldName === 'nombre_usuario') {
-    if (!/^[a-zA-Z0-9_-]{3,30}$/.test(value)) {
-      error = 'El nombre de usuario debe tener entre 3 y 30 caracteres y solo letras, números, guiones bajos y guiones';
+      // Actualizar el estado del nuevo usuario
+      setNewUser({ ...newUser, [fieldName]: value });
     }
-  } else if (fieldName === 'correo') {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      error = 'El correo electrónico ingresado no es válido';
+  };
+
+  const validateField = (fieldName, value) => {
+    let error = '';
+    if (fieldName === 'nombre_usuario') {
+      if (!/^[a-zA-Z0-9_-]{3,30}$/.test(value)) {
+        error = 'El nombre de usuario debe tener entre 3 y 30 caracteres y solo letras, números, guiones bajos y guiones';
+      }
+    } else if (fieldName === 'correo') {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        error = 'El correo electrónico ingresado no es válido';
+      }
+    } else if (fieldName === 'contrasena') {
+      if (!/(?=.*[A-Z])(?=.*[0-9]).{6,}/.test(value)) {
+        error = 'La contraseña debe tener al menos 6 caracteres, una mayúscula y un número';
+      }
     }
-  } else if (fieldName === 'contrasena') {
-    if (!/(?=.*[A-Z])(?=.*[0-9]).{6,}/.test(value)) {
-      error = 'La contraseña debe tener al menos 6 caracteres, una mayúscula y un número';
-    }
-  }
 
-  // Actualizar el estado de los errores
-  setErrors({ ...errors, [fieldName]: error });
-};
+    // Actualizar el estado de los errores
+    setErrors({ ...errors, [fieldName]: error });
+  };
 
-
-const isFormValid = () => {
-  // Verificar si todos los errores son una cadena vacía
-  return Object.values(errors).every((error) => error === '');
-};
-
+  const isFormValid = () => {
+    // Verificar si todos los errores son una cadena vacía
+    return Object.values(errors).every((error) => error === '');
+  };
 
   return (
     <div className="min-vh-100 d-flex align-items-center">
@@ -147,10 +167,10 @@ const isFormValid = () => {
               {errors.correo && <CAlert color="danger">{errors.correo}</CAlert>}
               <CInputGroup className="mb-3">
                 <CInputGroupText>
-                  <CIcon icon={cilLockLocked} />
+                  <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} onClick={() => setShowPassword(!showPassword)} style={{ cursor: 'pointer' }} />
                 </CInputGroupText>
                 <CFormInput
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Contraseña"
                   autoComplete="new-password"
                   value={newUser.contrasena}
@@ -158,16 +178,19 @@ const isFormValid = () => {
                 />
               </CInputGroup>
               {errors.contrasena && <CAlert color="danger">{errors.contrasena}</CAlert>}
-              <CInputGroup className="mb-4">
+              <CInputGroup className="mb-3">
                 <CInputGroupText>
-                  <CIcon icon={cilLockLocked} />
+                  <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} onClick={() => setShowConfirmPassword(!showConfirmPassword)} style={{ cursor: 'pointer' }} />
                 </CInputGroupText>
                 <CFormInput
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirmar contraseña"
                   autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                 />
               </CInputGroup>
+              {errors.confirmPassword && <CAlert color="danger">{errors.confirmPassword}</CAlert>}
               <CButton color="primary" disabled={!isFormValid()} onClick={handleAddUser}>
                 Registrar
               </CButton>

@@ -3,6 +3,8 @@ import axios from 'axios';
 import { CButton, CCard, CCardBody, CContainer, CForm, CFormInput, CFormLabel, CFormSelect, CRow, CCol } from '@coreui/react';
 import { Link, Navigate } from 'react-router-dom';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const Register = () => {
   const [newUser, setNewUser] = useState({
@@ -17,6 +19,7 @@ const Register = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     axios.get('http://localhost:8095/api/rol')
@@ -206,17 +209,6 @@ const Register = () => {
     {errors.nombre_usuario && <div className="text-danger">{errors.nombre_usuario}</div>}
   </div>
   <div className="mb-3">
-    <CFormLabel><strong>Contraseña</strong></CFormLabel>
-    <CFormInput
-      type="password"
-      placeholder="Contraseña"
-      autoComplete="new-password"
-      value={newUser.contrasena}
-      onChange={(e) => handleInputChange('contrasena', e.target.value)}
-    />
-    {errors.contrasena && <div className="text-danger">{errors.contrasena}</div>}
-  </div>
-  <div className="mb-3">
     <CFormLabel><strong>Correo Electrónico</strong></CFormLabel>
     <CFormInput
       type="email"
@@ -227,6 +219,29 @@ const Register = () => {
     />
     {errors.correo && <div className="text-danger">{errors.correo}</div>}
   </div>
+  <div className="mb-3">
+  <CFormLabel><strong>Contraseña</strong></CFormLabel>
+  <div className="input-group">
+    <input
+      type={showPassword ? "text" : "password"}
+      className="form-control"
+      placeholder="Contraseña"
+      autoComplete="new-password"
+      value={newUser.contrasena}
+      onChange={(e) => handleInputChange('contrasena', e.target.value)}
+    />
+    <button
+      className="btn btn-outline-secondary"
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+    >
+      <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+    </button>
+  </div>
+  {errors.contrasena && <div className="text-danger">{errors.contrasena}</div>}
+</div>
+
+  
   <div className="mb-3 d-flex justify-content-center">
     <CButton type="submit" onClick={handleAddUser}>
       Registrar Usuario
