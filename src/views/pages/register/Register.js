@@ -13,9 +13,6 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const RegisterCliente = () => {
   const roleIdCliente = 2;
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [newUser, setNewUser] = useState({
     id_rol: roleIdCliente,
