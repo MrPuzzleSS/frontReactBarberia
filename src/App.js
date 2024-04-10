@@ -34,7 +34,7 @@ const App = () => {
           <Route path="/newPassword" element={<ResetPassword />} />
           <Route path="/404" element={<Page404 />} />
           <Route path="/500" element={<Page500 />} />
-         <Route path="*"element={isAuthenticated() ? <DefaultLayout />:  <Navigate to="/login" />} />
+         <Route path="*"element={isAuthenticated() ? <DefaultLayout />:  <Navigate to="/cliente" />} />
   
           <Route path="cliente/*" element={<ClienteLayaout />} />
         </Routes>

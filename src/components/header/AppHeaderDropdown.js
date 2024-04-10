@@ -6,25 +6,28 @@ import {
   CDropdownMenu,
   CDropdownToggle,
 } from '@coreui/react';
-import { cilUser, cilSettings, cilLockLocked,cilChevronBottom } from '@coreui/icons';
+import { cilUser, cilSettings, cilLockLocked, cilChevronBottom } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import { logout, getUserInfo } from '../../components/auht';
 import Swal from 'sweetalert2';
 
 const AppHeaderDropdown = () => {
   const [userName, setUserName] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const fetchUserName = async () => {
+    const fetchUserData = async () => {
       try {
         const userInfo = await getUserInfo();
         setUserName(userInfo.nombre_usuario || '');
+        setIsLoggedIn(true);
       } catch (error) {
         console.error('Error al obtener el nombre del usuario', error);
+        setIsLoggedIn(false);
       }
     };
 
-    fetchUserName();
+    fetchUserData();
   }, []);
 
   const handleLogout = () => {
@@ -44,6 +47,14 @@ const AppHeaderDropdown = () => {
       }
     });
   };
+  
+  if (!isLoggedIn) {
+    return (
+      <a href="/login" className="btn btn-primary" style={{ fontWeight: 'bold' }}>Iniciar Sesión</a>
+    );
+  }
+  
+
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
@@ -71,6 +82,6 @@ const AppHeaderDropdown = () => {
       </CDropdownMenu>
     </CDropdown>
   );
-  };  
+};
 
 export default AppHeaderDropdown;
