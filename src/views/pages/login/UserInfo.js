@@ -105,9 +105,10 @@ const UserInformationPage = () => {
                       </div>
                     </div>
 
-                    <Link to="/dashboard">
-                      <button className="btn btn-secondary">Regresar</button>
-                    </Link>
+                    <Link to={userData.rol.nombre === 'Cliente' ? '/cliente' : '/dashboard'}>
+  <button className="btn btn-secondary">Regresar</button>
+</Link>
+
                   </div>
                 ) : (
                   <p>Cargando...</p>

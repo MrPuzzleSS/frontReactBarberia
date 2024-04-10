@@ -6,7 +6,7 @@ import {
   CDropdownMenu,
   CDropdownToggle,
 } from '@coreui/react';
-import { cilUser, cilSettings, cilLockLocked } from '@coreui/icons';
+import { cilUser, cilSettings, cilLockLocked,cilChevronBottom } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import { logout, getUserInfo } from '../../components/auht';
 import Swal from 'sweetalert2';
@@ -44,14 +44,14 @@ const AppHeaderDropdown = () => {
       }
     });
   };
-
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <CIcon icon={cilUser} className="me-2" style={{ fontSize: '50px', color: '#000' }} />
-          <span style={{ fontSize: '23px', fontWeight: 'bold', color: '#333' }}>{userName}</span>
-          <div style={{ width: '15px', height: '15px', borderRadius: '50%', backgroundColor: '#00FF00', marginLeft: '10px' }}></div>
+          <div style={{ width: '15px', height: '15px', borderRadius: '50%', backgroundColor: '#00FF00', marginRight: '10px' }}></div>
+        
+          <span style={{ fontSize: '23px', fontWeight: 'bold', color: '#333', marginRight: '10px' }}>{userName}</span>
+          <CIcon icon={cilChevronBottom} style={{ fontSize: '20px', color: '#333', cursor: 'pointer' }} />
         </div>
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
@@ -71,6 +71,6 @@ const AppHeaderDropdown = () => {
       </CDropdownMenu>
     </CDropdown>
   );
-};
+  };  
 
 export default AppHeaderDropdown;
