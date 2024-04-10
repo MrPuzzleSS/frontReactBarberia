@@ -35,6 +35,7 @@ import 'src/scss/css/global.css';
 import CitasServiciosDataService from "src/views/services/citasServiciosService";
 import Swal from 'sweetalert2'
 import { getUserInfo } from '../../../../components/auht';
+import crearConfiguracion from 'src/views/agendas/crearConfiguracion/programacion';
 
 
 const AgendarCita = () => {
@@ -343,12 +344,15 @@ const AgendarCita = () => {
 
     try {
       const citasAgendadas = await CitasDataService.getAllCitasAgendadas();
+      console.log("Citas Agendadas:", citasAgendadas); // Mostrar citas agendadas en la consola
+
       const response = await CitasDataService.getEmpleadoAgendas(id_empleado);
       const agendas = response.data.agendas;
       const agendasEstadoTrue = agendas.filter(agenda => agenda.estado === true);
       setSelectedBarbero(response.data.empleado);
       setAgendaData(agendasEstadoTrue);
       setCitasAgendadasData(citasAgendadas.data.listCitas);
+      
 
 
       // Llamar a calculateAppointmentTime después de haber establecido todos los datos necesarios, incluida la hora seleccionada
@@ -388,6 +392,7 @@ const AgendarCita = () => {
 
         // Check if the hour is occupied by a scheduled appointment
         const horaOcupada = citasAgendadas.some(cita => {
+          
           const citaDate = new Date(cita.Fecha_Atencion);
           citaDate.setTime(citaDate.getTime() + citaDate.getTimezoneOffset() * 60 * 1000);
           const formattedCitaDate = format(citaDate, 'yyyy-MM-dd');
@@ -423,6 +428,9 @@ const AgendarCita = () => {
     }
     return <div className="row">{options}</div>;
   };
+
+ 
+
 
   // Function to calculate the total value of selected services
   const calculateTotalValue = () => {

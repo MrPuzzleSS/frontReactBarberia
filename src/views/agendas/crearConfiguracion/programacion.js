@@ -16,6 +16,7 @@ import esLocale from '@fullcalendar/core/locales/es';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import socket from '../../socket';
 import 'src/scss/css/calendarStyles.css';
+import CitasDataService from 'src/views/services/citasService';
 
 
 
@@ -347,10 +348,33 @@ const CrearConfiguracion = () => {
     const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [eventos, setEventos] = useState([]);
+    const [fechaSeleccionada, setFechaSeleccionada] = useState([]);
+
+    const fetchFechas = async () => {
+        try {
+            const citasAgendadas = await CitasDataService.getAllCitasAgendadas();
+            setFechaSeleccionada(citasAgendadas.data.listCitas)
+
+        } catch (error) {
+            console.log('Error al obtener detalles', error);
+
+        }
+    }
+
+    useEffect(() => {
+        fetchFechas()
+    }, [])
+
+
+
+    const citas = fechaSeleccionada;
+
 
 
     const handleEditEvent = async (clickInfo) => {
         const eventId = clickInfo?.event?.extendedProps?.id_agenda;
+
+        console.log('eventId', eventId);
 
         if (eventId) {
             try {
@@ -367,6 +391,8 @@ const CrearConfiguracion = () => {
         } else {
             console.error('ID de agenda inválido');
         }
+
+
     };
 
     const updateCalendar = () => {
@@ -375,16 +401,32 @@ const CrearConfiguracion = () => {
         }
     };
 
-
-
-
-
-
     const handleGuardarCambios = () => {
         console.log('Evento a actualizar:', eventoSeleccionado);
+
         if (eventoSeleccionado) {
-            // Validación de la hora de fin no sea inferior a la hora de inicio
-            const horaInicio = eventoSeleccionado.horaInicio;
+            const horasOcupado = (id_empleado, horaInicio, horaFin, citas) => {
+                const citasEmpleado = citas.filter(cita => cita.id_empleado === id_empleado);
+
+                for (const cita of citasEmpleado) {
+                    const horaInicioCita = new Date(`2000-01-01T${cita.Hora_Atencion}.000Z`);
+                    const horaFinCita = new Date(`2000-01-01T${cita.Hora_Fin}.000Z`);
+
+                    const horaInicioSeleccionada = new Date(`2000-01-01T${horaInicio}:00.000Z`);
+                    const horaFinSeleccionada = new Date(`2000-01-01T${horaFin}:00.000Z`);
+
+                    if ((horaInicioSeleccionada >= horaInicioCita && horaInicioSeleccionada < horaFinCita) ||
+                        (horaFinSeleccionada > horaInicioCita && horaFinSeleccionada <= horaFinCita) ||
+                        (horaInicioSeleccionada <= horaInicioCita && horaFinSeleccionada >= horaFinCita)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            };
+
+            const id_empleado = eventoSeleccionado.id_agenda;
+            const horaInicio = eventoSeleccionado.horaInicio; // Asegúrate de que estas propiedades estén establecidas en eventoSeleccionado
             const horaFin = eventoSeleccionado.horaFin;
 
             if (horaInicio > horaFin) {
@@ -393,23 +435,46 @@ const CrearConfiguracion = () => {
                     title: 'Error',
                     text: 'La hora de fin no puede ser inferior a la hora de inicio',
                 });
-                return; // Detener la ejecución de la función si hay un error
+                return;
             }
 
             const eventId = eventoSeleccionado.id_agenda;
+
+
+
+            // Verificar si el empleado actual está ocupado en algún evento
+            const ocupado = horasOcupado(id_empleado, horaInicio, horaFin, citas);
+            if (ocupado) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'El empleado actual está ocupado en este horario. No se puede cambiar.',
+                });
+                return;
+            }
+
+            // Verificar si se ha cambiado el empleado
+            const nuevoIdEmpleado = eventoSeleccionado.id_empleado;
+            if (nuevoIdEmpleado !== id_empleado) {
+                // Verificar si el nuevo empleado está ocupado en algún evento
+                const nuevoEmpleadoOcupado = horasOcupado(nuevoIdEmpleado, horaInicio, horaFin, citas);
+                if (nuevoEmpleadoOcupado) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'El nuevo empleado seleccionado está ocupado en este horario.',
+                    });
+                    return;
+                }
+            }
+
             agendaService.updateAgenda(eventId, eventoSeleccionado)
                 .then((response) => {
                     console.log('Respuesta de actualización:', response);
-                    // Realiza cualquier otra operación después de la actualización exitosa
 
-                    // Cierra el modal y reinicia el estado del evento seleccionado
                     setShowEditModal(false);
                     setEventoSeleccionado(null);
-
-                    // Actualiza el calendario después de la edición
                     updateCalendar();
-
-                    // Envía un mensaje al servidor de sockets indicando que el evento ha sido actualizado
                     socket.emit('eventoActualizado', eventId);
 
                     Swal.fire({
@@ -418,10 +483,9 @@ const CrearConfiguracion = () => {
                         text: 'El evento ha sido actualizado correctamente.',
                     });
 
-                    // Recarga la página después de 1 segundo (1000 milisegundos)
                     setTimeout(() => {
                         window.location.reload();
-                    }, 10);
+                    }, 1000);
                 })
                 .catch((error) => {
                     console.error('Error al actualizar la agenda:', error);
@@ -432,6 +496,7 @@ const CrearConfiguracion = () => {
             // Manejo si no hay ningún evento seleccionado para actualizar
         }
     };
+
 
 
 
@@ -661,7 +726,7 @@ const CrearConfiguracion = () => {
                 throw new Error('No puedes arrastrar eventos a fechas anteriores al día actual');
             }
 
-            
+
 
             // Verificar si la fecha del evento ya pasó
             const isPastEvent = endOnlyDate <= fechaHoy;
@@ -838,7 +903,6 @@ const CrearConfiguracion = () => {
                             </div>
                             <FullCalendar
                                 plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
-
                                 dateClick={handleDateClick}
                                 eventDrop={handleEventDrop}
                                 // deleteEvent={handleEventDelete}
@@ -880,8 +944,6 @@ const CrearConfiguracion = () => {
                                         backgroundColor = '#CCCCCC'; // Color para eventos pasados
                                     }
 
-
-
                                     return (
                                         <span style={{ backgroundColor, color: 'white', padding: '2px 5px', borderRadius: '3px' }}>
                                             {isDisabled ? (
@@ -894,44 +956,35 @@ const CrearConfiguracion = () => {
                                             )}
                                         </span>
                                     );
-
                                 }}
-
-
-
                                 eventClick={(clickInfo) => {
                                     // Imprimir el título del evento en la consola
                                     console.log('Título del evento:', clickInfo.event.title);
                                     const nombreEmpleadoRegex = /agenda\s(.+)/i;
                                     const match = clickInfo.event.title.match(nombreEmpleadoRegex);
                                     const nombreEmpleado = match ? match[1] : 'Desconocido';
-                                    
+
+                                    const isPastEvent = clickInfo.event.end < new Date(); // Verificar si la fecha del evento ya pasó
+
                                     Swal.fire({
                                         title: clickInfo.event.title,
                                         html: `
                 <div style="font-weight: bold;">
-                    Detalles del  
-                     evento<br/>
+                    Detalles del evento<br/>
                     Fecha de inicio: ${clickInfo.event.start.toLocaleDateString()}<br/>
                     Fecha de fin: ${clickInfo.event.end ? clickInfo.event.end.toLocaleDateString() : 'No end date'}<br/>
                     Hora de inicio: ${clickInfo.event.extendedProps.horaInicio}<br/>
                     Hora de fin: ${clickInfo.event.extendedProps.horaFin}<br/>
-                    Empleado: ${nombreEmpleado}
-               
+                    Empleado: ${nombreEmpleado}<br/>
+
                 </div>
             `,
-
                                         showCancelButton: true,
-                                        showConfirmButton: true,
-                                        showDenyButton: true,
+                                        showConfirmButton: !isPastEvent, // Deshabilitar el botón de editar si el evento es pasado
+                                        showDenyButton: !isPastEvent, // Deshabilitar el botón de inhabilitar si el evento es pasado
                                         confirmButtonText: 'Editar',
                                         denyButtonText: !clickInfo.event.extendedProps.estado ? '✅ Agenda' : '🚫 Agenda',
                                     }).then((result) => {
-
-
-
-
-
 
                                         if (result.isConfirmed) {
                                             // Validar si la agenda está deshabilitada antes de editar
@@ -943,7 +996,7 @@ const CrearConfiguracion = () => {
                                             }
                                         } else if (result.isDenied) {
                                             const disableEvent = !clickInfo.event.extendedProps.estado;
-                                            if (disableEvent) {// Solo si se está deshabilitando
+                                            if (disableEvent) {
                                                 Swal.fire({
                                                     title: '¿Estás seguro de habilitar esta agenda?',
                                                     showCancelButton: true,
@@ -983,18 +1036,18 @@ const CrearConfiguracion = () => {
                                                 Swal.fire({
                                                     title: `Motivo de inhabilitación`,
                                                     html: `
-                            <div>
-                                <label for="motivoSelect">Motivo:</label>
-                                <select id="motivoSelect">
-                                    <option value="">Seleccionar motivo...</option>
-                                    ${motivosPredefinidos.map((motivo) => `<option value="${motivo}">${motivo}</option>`).join('')}
-                                    <option value="Otro">Otro</option> <!-- Nuevo campo 'Otro' -->
-                                </select>
-                                <br/>
-                                <label for="otroMotivo" id="otroMotivoLabel" style="display:none;">Ingrese el Motivo:</label>
-                                <textarea id="otroMotivo" style="display:none; width: 100%; height: 100px;"></textarea>
-                            </div>
-                        `,
+                                                        <div>
+                                                            <label for="motivoSelect">Motivo:</label>
+                                                            <select id="motivoSelect">
+                                                                <option value="">Seleccionar motivo...</option>
+                                                                ${motivosPredefinidos.map((motivo) => `<option value="${motivo}">${motivo}</option>`).join('')}
+                                                                <option value="Otro">Otro</option> <!-- Nuevo campo 'Otro' -->
+                                                            </select>
+                                                            <br/>
+                                                            <label for="otroMotivo" id="otroMotivoLabel" style="display:none;">Ingrese el Motivo:</label>
+                                                            <textarea id="otroMotivo" style="display:none; width: 100%; height: 100px;"></textarea>
+                                                        </div>
+                                                    `,
                                                     showCancelButton: true,
                                                     confirmButtonText: 'Inhabilitar',
                                                     preConfirm: () => {
@@ -1018,6 +1071,7 @@ const CrearConfiguracion = () => {
                                                             }
                                                         });
                                                     },
+                                                    allowOutsideClick: false // Evita que el usuario cierre el modal haciendo clic fuera de él
                                                 }).then((motivoResult) => {
                                                     if (motivoResult.isConfirmed) {
                                                         const motivoFinal = motivoResult.value;
@@ -1048,19 +1102,18 @@ const CrearConfiguracion = () => {
                                                                 .catch((error) => {
                                                                     console.error('Error al realizar la acción:', error);
                                                                 });
+                                                        } else {
+                                                            // Mostrar mensaje de error si no se ha seleccionado un motivo
+                                                            Swal.fire('Error', 'Debes seleccionar o ingresar un motivo ', 'error');
+                                                            return false;
                                                         }
                                                     }
                                                 });
                                             }
                                         }
                                     });
-
                                 }}
-
-
-
                             />
-
 
 
 

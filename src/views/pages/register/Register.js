@@ -14,8 +14,7 @@ const RegisterCliente = () => {
 
   const [newUser, setNewUser] = useState({
     id_rol: roleIdCliente,
-    documento: '',
-    telefono: '',
+  
     nombre_usuario: '',
     contrasena: '',
     correo: '',
@@ -23,8 +22,7 @@ const RegisterCliente = () => {
   });
 
   const [errors, setErrors] = useState({
-    documento: '',
-    telefono: '',
+   
     nombre_usuario: '',
     correo: '',
     contrasena: '',
@@ -138,30 +136,8 @@ const RegisterCliente = () => {
           </CRow>
           <CRow className="justify-content-center">
             <CForm style={{ width: '80%' }}>
-            <CInputGroup className="mb-3">
-                <CInputGroupText>
-                  <CIcon icon={cilUser} />
-                </CInputGroupText>
-                <CFormInput
-                  placeholder="Documento"
-                  autoComplete="document"
-                  value={newUser.documento}
-                  onChange={(e) => handleInputChange('documento', e.target.value)}
-                />
-              </CInputGroup>
-              {errors.telefono && <CAlert color="danger">{errors.telefono}</CAlert>}
-            <CInputGroup className="mb-3">
-                <CInputGroupText>
-                  <CIcon icon={cilUser} />
-                </CInputGroupText>
-                <CFormInput
-                  placeholder="Telefono"
-                  autoComplete="cell"
-                  value={newUser.telefono}
-                  onChange={(e) => handleInputChange('telefono', e.target.value)}
-                />
-              </CInputGroup>
-              {errors.telefono && <CAlert color="danger">{errors.telefono}</CAlert>}
+        
+            
               <CInputGroup className="mb-3">
                 <CInputGroupText>
                   <CIcon icon={cilUser} />
