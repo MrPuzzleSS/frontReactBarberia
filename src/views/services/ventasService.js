@@ -1,4 +1,4 @@
-const api_url = 'https://restapibarberia.onrender.com/api/venta';
+const api_url = 'http://localhost:8095/api/venta';
 
 const VentaService = {
 
@@ -79,8 +79,7 @@ const VentaService = {
                 console.error('Error al cambiar el estado de la venta:', error);
             });
     },
-    
-    
+
     getVentaById: (id) => {
         const token = localStorage.getItem('token');
         return fetch(`${api_url}/${id}`, {
@@ -98,7 +97,7 @@ const VentaService = {
             console.error(`Error al obtener la venta con ID ${id}:`, error.message);
         });
     },
-    
+
 };
 
 

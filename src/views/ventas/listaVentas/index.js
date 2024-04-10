@@ -113,12 +113,62 @@ function ListaVentas() {
     }
   };
 
-  const CambioAnulado = async (id_ventas) => {
-    try {
-      await VentaService.cambiarEstado(id_ventas);
-      fetchVentas();
-    } catch (error) {
-      console.error('no deja anular, tenemos un error', error);
+  const CambioAnulado = async (id_ventas, estado) => {
+    console.log(estado)
+    if (estado == "Activo") {
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Deseas anular la venta?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, anular',
+        cancelButtonText: 'Cancelar'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+
+          try {
+            await VentaService.cambiarEstado(id_ventas);
+            fetchVentas();
+          } catch (error) {
+            console.error('no deja anular, tenemos un error', error);
+          }
+
+          Swal.fire(
+            'Anulación Éxitosa',
+            'La Venta se anuló correctamente',
+            'success'
+          );
+        }
+      });
+    } else if (estado == "Inactivo") {
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Deseas activar la venta?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, activar',
+        cancelButtonText: 'Cancelar'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+
+          try {
+            await VentaService.cambiarEstado(id_ventas);
+            fetchVentas();
+          } catch (error) {
+            console.error('no deja anular, tenemos un error', error);
+          }
+
+          Swal.fire(
+            'Activación Éxitosa',
+            'La Venta se activó correctamente',
+            'success'
+          );
+        }
+      });
     }
   };
 
@@ -132,15 +182,15 @@ function ListaVentas() {
     try {
       const fechaAbono = new Date();
       const idCliente = selectedVenta.id_cliente;
-  
+
       await AbonoService.postAbonos(selectedVenta.id_ventas, idCliente, montoAbono, fechaAbono);
-  
+
       // Actualizar el estado de la lista de ventas después de un abono exitoso
       const updatedVentas = ventas.map(venta => {
         if (venta.id_ventas === selectedVenta.id_ventas) {
           venta.valor_abonado += montoAbono;
           venta.fecha_abono = fechaAbono;
-  
+
           // Verificar si el valor abonado es igual al valor total de la venta
           if (venta.valor_abonado === venta.precio) {
             venta.estado = 'Pagado';
@@ -148,12 +198,12 @@ function ListaVentas() {
         }
         return venta;
       });
-  
+
       setVentas(updatedVentas);
-  
+
       // Ocultar el modal después de realizar el abono
       setModalVisible(false);
-  
+
       // Mostrar mensaje de éxito con SweetAlert2
       Swal.fire({
         icon: 'success',
@@ -164,14 +214,6 @@ function ListaVentas() {
       console.error('Error al enviar el abono:', error);
     }
   };
-
-
-
-
-
-
-
-
 
   function getColorForEstado(estado_anulado) {
     if (estado_anulado === 'Activo') {
@@ -274,7 +316,6 @@ function ListaVentas() {
                     <CTableDataCell>{venta.valor_abonado}</CTableDataCell>
                     <CTableDataCell>{venta.precio - venta.valor_abonado}</CTableDataCell>
 
-
                     <CTableDataCell>{venta.fecha_abono ? new Date(venta.fecha_abono).toLocaleDateString() : '-'}</CTableDataCell>
 
                     <CTableDataCell>{venta.estado}</CTableDataCell>
@@ -339,7 +380,7 @@ function ListaVentas() {
                           color="danger" // Cambia el color del botón a rojo
                           size="sm"
                           variant="outline"
-                          onClick={() => CambioAnulado(venta.id_ventas)}
+                          onClick={() => CambioAnulado(venta.id_ventas, venta.estado_anulado)}
                           style={{
                             display: 'flex',
                             alignItems: 'center',
