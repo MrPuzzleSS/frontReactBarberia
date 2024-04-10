@@ -380,7 +380,7 @@ const ListaUsuarios = () => {
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === Math.ceil(users.length / pageSize)}
             >
-              Siguiente
+              Siguientee
             </CPaginationItem>
           </CPagination>
         </CCardBody>
