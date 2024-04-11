@@ -22,6 +22,8 @@ import {
   CModalTitle,
   CModalBody,
   CModalFooter,
+  CPagination,
+  CPaginationItem
 } from "@coreui/react";
 import PropTypes from 'prop-types'; // Importa PropTypes
 import { getUserInfo } from '../../../../components/auht';
@@ -59,16 +61,18 @@ BarberoNombre.propTypes = {
 function ListaCitas() {
   const [visible, setVisible] = useState(false);
   const [citas, setCitas] = useState([]);
-  const [detallesCita, setDetallesCita] = useState([]); // 
+  const [detallesCita, setDetallesCita] = useState([]);
   const [tablaActualizada, setTablaActualizada] = useState(false);
+
+  // Paginación
+  const pageSize = 5;
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const userInfo = await getUserInfo();
-
         const response = await CitasDataService.getAllCitasServicios(userInfo.userId);
-
         const citasConDetalle = await Promise.all(
           response.data.map(async (item) => {
             const cita = {
@@ -111,7 +115,6 @@ function ListaCitas() {
         setCitas(citasConDetalle);
       } catch (error) {
         console.error("Error al obtener citas:", error);
-        // Puedes manejar el error según tus necesidades
       }
     };
 
@@ -149,11 +152,13 @@ function ListaCitas() {
     }
   }
 
-
   const mostrarDetalleCompra = (cita) => {
     setVisible(true);
-    // Mueve la declaración de detallesCita aquí
     setDetallesCita(cita.detallesCita);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -163,46 +168,46 @@ function ListaCitas() {
           <CCard>
             <CCardHeader>Lista de citas</CCardHeader>
             <CCardBody>
-              <CTable>
-                <CTableHead>
+              <CTable responsive align="middle" striped>
+                <CTableHead color="dark">
                   <CTableRow>
                     <CTableHeaderCell scope="col">Barbero</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">
-                      Fecha de Atencion
-                    </CTableHeaderCell>
-                    <CTableHeaderCell scope="col">
-                      Hora de Atencion{" "}
-                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Fecha de Atencion</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Hora de Atencion</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Accion</CTableHeaderCell>
+                    <CTableHeaderCell scope="col"></CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                  {citas.map((cita, i) => (
-                    <CTableRow key={i}>
-                      <CTableDataCell><BarberoNombre id_empleado={cita.cita.id_empleado} /></CTableDataCell>
-                      <CTableDataCell>
-                        {format(new Date(cita.cita.Fecha_Atencion), 'dd-MM-yyyy')}
-                      </CTableDataCell>
-                      <CTableDataCell>{cita.cita.Hora_Atencion}</CTableDataCell>
-                      <CTableDataCell>{cita.cita.estado}</CTableDataCell>
-                      <CTableDataCell>
-                        <CButton
-                          color="info"
-                          onClick={() => mostrarDetalleCompra(cita)}
-                        >
-                          Detalle
-                        </CButton>
-                        <CButton
-                          color="danger"
-                          disabled={cita.cita.estado === 'Cancelada'} // Deshabilitar si el estado es "Cancelada"
-                          onClick={() => cancelarCita(cita.cita.id_cita, cita.cita.estado)}
-                        >
-                          Cancelar
-                        </CButton>
-                      </CTableDataCell>
-                    </CTableRow>
-                  ))}
+                  {citas
+                    .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                    .map((cita, index) => (
+                      <CTableRow key={index}>
+                        <CTableDataCell>
+                          <BarberoNombre id_empleado={cita.cita.id_empleado} />
+                        </CTableDataCell>
+                        <CTableDataCell>
+                          {format(new Date(cita.cita.Fecha_Atencion), 'dd-MM-yyyy')}
+                        </CTableDataCell>
+                        <CTableDataCell>{cita.cita.Hora_Atencion}</CTableDataCell>
+                        <CTableDataCell>{cita.cita.estado}</CTableDataCell>
+                        <CTableDataCell>
+                          <CButton
+                            color="info"
+                            onClick={() => mostrarDetalleCompra(cita)}
+                          >
+                            Detalle
+                          </CButton>
+                          <CButton
+                            color="danger"
+                            disabled={cita.cita.estado === 'Cancelada'}
+                            onClick={() => cancelarCita(cita.cita.id_cita)}
+                          >
+                            Cancelar
+                          </CButton>
+                        </CTableDataCell>
+                      </CTableRow>
+                    ))}
                 </CTableBody>
               </CTable>
               <CModal
@@ -255,6 +260,26 @@ function ListaCitas() {
                   </CButton>
                 </CModalFooter>
               </CModal>
+              <CPagination align="center" aria-label="Page navigation example" className="mt-3">
+                <CPaginationItem onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+                  Anterior
+                </CPaginationItem>
+                {Array.from({ length: Math.ceil(citas.length / pageSize) }, (_, i) => (
+                  <CPaginationItem
+                    key={i}
+                    onClick={() => handlePageChange(i + 1)}
+                    active={i + 1 === currentPage}
+                  >
+                    {i + 1}
+                  </CPaginationItem>
+                ))}
+                <CPaginationItem
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === Math.ceil(citas.length / pageSize)}
+                >
+                  Siguiente
+                </CPaginationItem>
+              </CPagination>
             </CCardBody>
           </CCard>
         </CCol>

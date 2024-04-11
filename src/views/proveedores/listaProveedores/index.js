@@ -64,19 +64,19 @@ function ListaProveedores() {
   const validateForm = () => {
     let isValid = true;
     const newErrors = {};
-  
+
     // Validar la dirección
     if (!editingProveedor.direccion.trim()) {
       newErrors.direccion = "La dirección es requerida";
       isValid = false;
     }
-  
+
     // Validar el número de teléfono
     if (!/^\d{10}$/.test(editingProveedor.telefono)) {
       newErrors.telefono = "El número de teléfono debe tener 10 dígitos";
       isValid = false;
     }
-  
+
     setErrors(newErrors);
     return isValid;
   };
@@ -98,24 +98,24 @@ function ListaProveedores() {
     if (!validateForm()) {
       return;
     }
-  
+
     try {
       const response = await ProveedoresDataService.update(
         editingProveedor.id_proveedor,
         editingProveedor,
       );
-  
+
       // Actualizar la lista después de la edición exitosa
       const updatedProveedores = proveedores.map((proveedor) =>
         proveedor.id_proveedor === editingProveedor.id_proveedor
           ? response.data.proveedor // Usar el proveedor editado del response
           : proveedor,
       );
-  
+
       setProveedores(updatedProveedores); // Actualizar la lista de proveedores
       setVisible(false);
       setForceRerender(!forceRerender); // Forzar el re-renderizado de la tabla
-  
+
       Swal.fire({
         position: "top-end",
         icon: "success",
@@ -128,7 +128,7 @@ function ListaProveedores() {
       // Puedes manejar el error de alguna manera (mostrar un mensaje, etc.)
     }
   };
-  
+
 
   // Filtrar proveedores basado en el término de búsqueda
   const filteredProveedores = proveedores.filter((proveedor) => {
@@ -137,10 +137,10 @@ function ListaProveedores() {
     const direccionMatches = proveedor.direccion.toLowerCase().includes(searchTerm.toLowerCase());
     const telefonoMatches = proveedor.telefono.toLowerCase().includes(searchTerm.toLowerCase());
     const emailMatches = proveedor.email.toLowerCase().includes(searchTerm.toLowerCase());
-  
+
     return nombreMatches || direccionMatches || telefonoMatches || emailMatches;
   });
-  
+
 
   const indexOfLastProveedor = currentPage * pageSize;
   const indexOfFirstProveedor = indexOfLastProveedor - pageSize;
@@ -198,8 +198,8 @@ function ListaProveedores() {
       }
     });
   };
-  
-  
+
+
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -261,7 +261,7 @@ function ListaProveedores() {
                         size="xl"
                         label=""
                         id={`cambiarEstado-${proveedor.id_proveedor}`}
-                     defaultChecked   ={proveedor.estado === 'Activo'}
+                        defaultChecked={proveedor.estado === 'Activo'}
                         onChange={() => handleEstadoChange(proveedor)}
                       />
                       <CButton
@@ -269,7 +269,7 @@ function ListaProveedores() {
                         size="sm"
                         onClick={() => handleEditClick(proveedor)}
                       >
-                        <FaEdit style={{ color: 'black' }} /> 
+                        <FaEdit style={{ color: 'black' }} />
                       </CButton>
                     </CTableDataCell>
                   </CTableRow>
@@ -314,7 +314,7 @@ function ListaProveedores() {
                 disabled
               />
             </div>
-          <div className="mb-3">
+            <div className="mb-3">
               <CFormLabel>Documento</CFormLabel>
               <CFormInput
                 type="text"
