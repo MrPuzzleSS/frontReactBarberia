@@ -1,7 +1,7 @@
 // servicioService.js
 import axios from 'axios';
 
-const apiUrl = 'http://localhost:8095/api/servicio';
+const apiUrl = 'https://restapibarberia.onrender.com/api/servicio';
 
 const getToken = () => {
     return localStorage.getItem('token');

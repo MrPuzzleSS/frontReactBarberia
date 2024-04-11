@@ -8,7 +8,7 @@ const captureImage = () => {
     const image = canvas.toDataURL("image/jpeg");
   
     // Envío de la imagen a la API
-    fetch('http://localhost:8095/api/registroFacial', {
+    fetch('https://restapibarberia.onrender.com/api/registroFacial', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

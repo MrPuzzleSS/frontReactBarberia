@@ -19,7 +19,7 @@ const Register = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    axios.get('http://localhost:8095/api/rol')
+    axios.get('https://restapibarberia.onrender.com/api/rol')
       .then(response => {
         console.log('Roles obtenidos:', response.data.listaRoles);
         setRoles(response.data.listaRoles);
@@ -77,7 +77,7 @@ const Register = () => {
       return;
     }
     try {
-      const response = await axios.post('http://localhost:8095/api/usuario', newUser);
+      const response = await axios.post('https://restapibarberia.onrender.com/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
     
       Swal.fire({
