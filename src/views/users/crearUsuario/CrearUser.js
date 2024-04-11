@@ -3,6 +3,8 @@ import axios from 'axios';
 import { CButton, CCard, CCardBody, CContainer, CForm, CFormInput, CFormLabel, CFormSelect, CRow, CCol } from '@coreui/react';
 import { Link, Navigate } from 'react-router-dom';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const Register = () => {
   const [newUser, setNewUser] = useState({
@@ -17,9 +19,10 @@ const Register = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    axios.get('https://restapibarberia.onrender.com/api/rol')
+    axios.get('http://localhost:8095/api/rol')
       .then(response => {
         console.log('Roles obtenidos:', response.data.listaRoles);
         setRoles(response.data.listaRoles);
@@ -37,15 +40,14 @@ const Register = () => {
 
     if (!newUser.nombre_usuario) {
       validationErrors.nombre_usuario = 'Por favor, ingresa el nombre de usuario.';
-    } else if (!/^[a-zA-Z]+$/.test(newUser.nombre_usuario)) {
-      validationErrors.nombre_usuario = 'El nombre de usuario no debe contener caracteres especiales ni números.';
+    } else if (!/^[a-zA-Z0-9_-]+$/.test(newUser.nombre_usuario)) {
+      validationErrors.nombre_usuario = 'El nombre de usuario no debe contener caracteres especiales ni espacios.';
     } else if (newUser.nombre_usuario.length < 3) {
       validationErrors.nombre_usuario = 'El nombre de usuario debe tener al menos 3 caracteres.';
     } else if (newUser.nombre_usuario.length > 20) {
       validationErrors.nombre_usuario = 'El nombre de usuario no debe tener más de 20 caracteres.';
-    } else if (/\s/.test(newUser.nombre_usuario)) {
-      validationErrors.nombre_usuario = 'El nombre de usuario no debe contener espacios en blanco.';
     }
+    
 
     if (!newUser.contrasena) {
       validationErrors.contrasena = 'Por favor, ingresa la contraseña.';
@@ -77,7 +79,7 @@ const Register = () => {
       return;
     }
     try {
-      const response = await axios.post('https://restapibarberia.onrender.com/api/usuario', newUser);
+      const response = await axios.post('http://localhost:8095/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
     
       Swal.fire({
@@ -207,17 +209,6 @@ const Register = () => {
     {errors.nombre_usuario && <div className="text-danger">{errors.nombre_usuario}</div>}
   </div>
   <div className="mb-3">
-    <CFormLabel><strong>Contraseña</strong></CFormLabel>
-    <CFormInput
-      type="password"
-      placeholder="Contraseña"
-      autoComplete="new-password"
-      value={newUser.contrasena}
-      onChange={(e) => handleInputChange('contrasena', e.target.value)}
-    />
-    {errors.contrasena && <div className="text-danger">{errors.contrasena}</div>}
-  </div>
-  <div className="mb-3">
     <CFormLabel><strong>Correo Electrónico</strong></CFormLabel>
     <CFormInput
       type="email"
@@ -228,6 +219,29 @@ const Register = () => {
     />
     {errors.correo && <div className="text-danger">{errors.correo}</div>}
   </div>
+  <div className="mb-3">
+  <CFormLabel><strong>Contraseña</strong></CFormLabel>
+  <div className="input-group">
+    <input
+      type={showPassword ? "text" : "password"}
+      className="form-control"
+      placeholder="Contraseña"
+      autoComplete="new-password"
+      value={newUser.contrasena}
+      onChange={(e) => handleInputChange('contrasena', e.target.value)}
+    />
+    <button
+      className="btn btn-outline-secondary"
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+    >
+      <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+    </button>
+  </div>
+  {errors.contrasena && <div className="text-danger">{errors.contrasena}</div>}
+</div>
+
+  
   <div className="mb-3 d-flex justify-content-center">
     <CButton type="submit" onClick={handleAddUser}>
       Registrar Usuario

@@ -142,7 +142,7 @@ const routes = [
   { path: '/EditProfile', name: 'EditarUsuario', element: EditarUsuarios},
   { path: '/UserInfo', name: 'InfoUsuario', element: UserInformationPage},
 
- { path: '/ListaRol', name: 'Roles', element: Roles},
+  { path: '/ListaRol', name: 'Roles', element: Roles},
   { path: '/CrearRol', name: 'CrearRol', element: CrearRol},
   
 

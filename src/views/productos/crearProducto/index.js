@@ -19,15 +19,16 @@ import ProductoService from 'src/views/services/productoService';
 function CrearProducto() {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [precioCosto, setPrecioCosto] = useState(0); // Inicializado en 0
-  const [precioVenta, setPrecioVenta] = useState(0); // Inicializado en 0
-  const [stock, setStock] = useState(0); // Inicializado en 0
+  const [precioCosto, setPrecioCosto] = useState(0);
+  const [precioVenta, setPrecioVenta] = useState(0);
+  const [stock, setStock] = useState(0);
   const [tipo, setTipo] = useState('');
+  const [tipoValido, setTipoValido] = useState(false);
   const [nombreValido, setNombreValido] = useState(true);
   const [descripcionValida, setDescripcionValida] = useState(true);
 
   useEffect(() => {
-    // Puedes realizar aquí cualquier inicialización necesaria
+    // Cualquier inicialización necesaria aquí
   }, []);
 
   const handleIngresoManual = (campo, valor) => {
@@ -51,6 +52,7 @@ function CrearProducto() {
         break;
       case 'tipo':
         setTipo(valor);
+        validarTipo(valor);
         break;
       default:
         break;
@@ -58,93 +60,81 @@ function CrearProducto() {
   };
 
   const validarNombre = (valor) => {
-    const nombreRegex = /^[a-zA-Z0-9\sñáéíóúÁÉÍÓÚüÜ]+$/; // Permitir letras, números y espacios
-    setNombreValido(nombreRegex.test(valor));
+    const nombreRegex = /^[a-zA-Z0-9\sñáéíóúÁÉÍÓÚüÜ]+$/;
+    setNombreValido(nombreRegex.test(valor) && valor.length >= 3 && valor.length <= 20);
   };
-
+  
   const validarDescripcion = (valor) => {
-    const descripcionRegex = /^[a-zA-Z\sñáéíóúÁÉÍÓÚüÜ\d.,;:¡!¿?()\[\]{}'"\-_&%$#@|]+$/;
-    setDescripcionValida(descripcionRegex.test(valor));
+    const descripcionRegex = /^[a-zA-Z0-9\sñáéíóúÁÉÍÓÚüÜ]+$/;
+    setDescripcionValida(descripcionRegex.test(valor) && valor.length >= 3 && valor.length <= 20);
+  };
+  
+
+  const validarTipo = (valor) => {
+    setTipoValido(valor !== '');
   };
 
   const capitalizeFirstLetter = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
-  const apiUrl = 'https://restapibarberia.onrender.com/api/producto'; // URL de la API para obtener productos
+
+  const apiUrl = ' http://localhost:8095/api/producto';
+
   const getToken = () => {
-    // Obtener el token del localStorage
     return localStorage.getItem('token');
   };
-
 
   const handleGuardarProducto = async (e) => {
     e.preventDefault();
 
     if (!nombreValido) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'El campo Nombre solo puede contener letras, números y espacios.',
-      });
+      mostrarError('El campo Nombre solo puede contener letras, números y espacios y no menos de 3 caracteres.');
       return;
     }
 
     if (!descripcionValida) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'El campo Descripción solo puede contener letras, números y algunos caracteres especiales.',
-      });
+      mostrarError('El campo Descripción solo puede contener letras, números y algunos caracteres especiales y no menos de 3 caracteres.');
+      return;
+    }
+
+    if (!tipoValido) {
+      mostrarError('Debe seleccionar un tipo.');
       return;
     }
 
     if (precioCosto < 0 || precioVenta < 0 || stock < 0) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Los campos Precio Costo, Precio Venta y Stock no pueden ser negativos.',
-      });
+      mostrarError('Los campos Precio Costo, Precio Venta y Stock no pueden ser negativos.');
       return;
     }
 
     try {
       const token = getToken();
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-      };
+      const headers = { 'Authorization': `Bearer ${token}` };
 
-      // Obtener la lista de productos
       const response = await axios.get(apiUrl, { headers });
       const productos = response.data.productos;
 
-      // Verificar si el producto ya existe antes de guardarlo
       const existeProducto = productos.some(producto => producto.nombre === nombre);
       if (existeProducto) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Ya existe un producto con este nombre. Por favor, elija otro nombre para el producto.',
-        });
+        mostrarError('Ya existe un producto con este nombre. Por favor, elija otro nombre para el producto.');
         return;
       }
 
       guardarProducto();
     } catch (error) {
       console.error('Error al obtener los productos:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Hubo un error al obtener los productos.',
-      });
+      mostrarError('Hubo un error al obtener los productos.');
     }
   };
 
-
+  const mostrarError = (mensaje) => {
+    Swal.fire({ icon: 'error', title: 'Error', text: mensaje });
+  };
 
   const guardarProducto = async () => {
     const nombreCapitalizado = capitalizeFirstLetter(nombre);
     const descripcionCapitalizado = capitalizeFirstLetter(descripcion);
-    setNombre(nombreCapitalizado); // Capitalizar el nombre antes de mostrarlo en la interfaz
+    setNombre(nombreCapitalizado);
 
     const nuevoProducto = {
       nombre: nombreCapitalizado,
@@ -160,41 +150,25 @@ function CrearProducto() {
 
       if (response) {
         console.log('Producto guardado:', response.producto);
-        Swal.fire({
-          icon: 'success',
-          title: 'Éxito',
-          text: 'Producto guardado exitosamente.',
-        }).then((result) => {
+        Swal.fire({ icon: 'success', title: 'Éxito', text: 'Producto guardado exitosamente.' }).then((result) => {
           if (result.isConfirmed || result.isDismissed) {
-            setTimeout(() => {
-              window.location.href = '/Productos/lista-Productos';
-            }, 1000);
+            setTimeout(() => { window.location.href = '/Productos/lista-Productos'; }, 1000);
           }
         });
       } else {
         console.error('Error al guardar el producto:', response.error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Hubo un error al guardar el producto.',
-        });
+        mostrarError('Hubo un error al guardar el producto.');
       }
     } catch (error) {
-      console.error('Error al enviar los datos del producto al servidor:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Hubo un error al enviar los datos del producto al servidor.',
-      });
+      console.error('Error el Nombre del producto ya existe :', error);
+      mostrarError('Error el Nombre del producto ya existe, ingrese un nombre diferente .');
     }
   };
-
 
   const tipoOptions = [
     { value: 'Producto', label: 'Producto' },
     { value: 'Insumo', label: 'Insumo' },
   ];
-
 
   return (
     <CRow>
@@ -213,14 +187,12 @@ function CrearProducto() {
                   </CFormLabel>
                   <CFormInput
                     type="text"
-                    value={nombre} // Mantenemos el valor original del estado
+                    value={nombre}
                     onChange={(e) => handleIngresoManual('nombre', capitalizeFirstLetter(e.target.value))}
                     required
                   />
-
-
                   {!nombreValido && (
-                    <span className="text-danger">El campo Nombre solo puede contener letras y espacios.</span>
+                    <span className="text-danger">El campo Nombre solo puede contener letras, números y espacios y no menos de 3 caracteres y max 20.</span>
                   )}
                 </div>
                 <div className="mb-3">
@@ -234,9 +206,7 @@ function CrearProducto() {
                     required
                   />
                   {!descripcionValida && (
-                    <span className="text-danger">
-                      El campo Descripción solo puede contener letras, números y algunos caracteres especiales.
-                    </span>
+                    <span className="text-danger">El campo Descripción solo puede contener letras, números y espacios y no menos de 3 caracteres y max 20.</span>
                   )}
                 </div>
                 <div className="mb-3">
@@ -249,6 +219,9 @@ function CrearProducto() {
                     onChange={(selectedOption) => handleIngresoManual('tipo', selectedOption.value)}
                     required
                   />
+                  {!tipoValido && (
+                    <span className="text-danger">Debe seleccionar un tipo.</span>
+                  )}
                 </div>
               </CCol>
 
@@ -268,8 +241,6 @@ function CrearProducto() {
       </CCol>
     </CRow>
   );
-
-
 }
 
 export default CrearProducto;

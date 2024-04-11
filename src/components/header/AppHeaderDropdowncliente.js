@@ -6,39 +6,65 @@ import {
   CDropdownMenu,
   CDropdownToggle,
 } from '@coreui/react';
-import { cilUser, cilSettings, cilLockLocked } from '@coreui/icons';
+import { cilUser, cilSettings, cilLockLocked, cilChevronBottom } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import { logout, getUserInfo } from '../../components/auht';
+import Swal from 'sweetalert2';
 
-const AppHeaderDropdownCliente = () => {
+const AppHeaderDropdown = () => {
   const [userName, setUserName] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const fetchUserName = async () => {
+    const fetchUserData = async () => {
       try {
         const userInfo = await getUserInfo();
-        console.log('userInfo', userInfo);
         setUserName(userInfo.nombre_usuario || '');
+        setIsLoggedIn(true);
       } catch (error) {
         console.error('Error al obtener el nombre del usuario', error);
+        setIsLoggedIn(false);
       }
     };
 
-    fetchUserName();
+    fetchUserData();
   }, []);
 
   const handleLogout = () => {
-    logout();
-    window.location.href = '/login'; // Redireccionar a la página de inicio de sesión
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Deseas cerrar la sesión?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logout();
+        window.location.href = '/login'; // Redireccionar a la página de inicio de sesión
+      }
+    });
   };
+  
+  if (!isLoggedIn) {
+    return (
+      <strong>
+        <a href="/login" className="btn btn-cafe-claro" style={{ fontWeight: 'bold' }}>Iniciar Sesión</a>
+      </strong>
+    );
+  }
+  
 
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <CIcon icon={cilUser} className="me-2" style={{ fontSize: '50px', color: '#ffff' }} />
-          <span style={{ fontSize: '23px', fontWeight: 'bold', color: '#ffff' }}>{userName}</span>
-          <div style={{ width: '15px', height: '15px', borderRadius: '50%', backgroundColor: '#00FF00', marginLeft: '10px' }}></div>
+          <div style={{ width: '15px', height: '15px', borderRadius: '50%', backgroundColor: '#00FF00', marginRight: '10px' }}></div>
+        
+          <span style={{ fontSize: '23px', fontWeight: 'bold', color: '#333', marginRight: '10px' }}>{userName}</span>
+          <CIcon icon={cilChevronBottom} style={{ fontSize: '20px', color: '#333', cursor: 'pointer' }} />
         </div>
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
@@ -60,4 +86,4 @@ const AppHeaderDropdownCliente = () => {
   );
 };
 
-export default AppHeaderDropdownCliente;
+export default AppHeaderDropdown;

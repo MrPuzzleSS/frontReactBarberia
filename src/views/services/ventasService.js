@@ -1,4 +1,4 @@
-const api_url = 'https://restapibarberia.onrender.com/api/venta';
+const api_url = 'http://localhost:8095/api/venta';
 
 const VentaService = {
 
@@ -29,6 +29,22 @@ const VentaService = {
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({ nueva_venta: nuevaVenta }),
+        })
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Error al crear la venta:', error);
+            });
+    },
+
+    cargarVenta: (cargarventa) => {
+        const token = localStorage.getItem('token');
+        return fetch(`${api_url}s`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ nueva_cargarventa: cargarventa }),
         })
             .then(response => response.json())
             .catch(error => {

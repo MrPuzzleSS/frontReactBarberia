@@ -88,7 +88,7 @@ const CreateRol = () => {
     }
   
     try {
-      const response = await axios.post('https://restapibarberia.onrender.com/api/rol', newRole);
+      const response = await axios.post('http://localhost:8095/api/rol', newRole);
       console.log('Respuesta al agregar rol:', response.data);
   
       if (response.status === 200) {

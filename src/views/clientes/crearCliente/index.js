@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types'; // Importa PropTypes
 import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import {
@@ -13,24 +14,24 @@ import {
 } from '@coreui/react';
 import ClienteService from 'src/views/services/clienteService';
 
+
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function CrearCliente() {
+function CrearCliente(props) {
+    const { newCliente } = props; // Desestructura newCliente de las props
     const [documento, setDocumento] = useState('');
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
     const [correo, setCorreo] = useState('');
     const [telefono, setTelefono] = useState('');
 
-
     const [errorDocumento, setErrorDocumento] = useState('');
     const [errorNombre, setErrorNombre] = useState('');
     const [errorApellido, setErrorApellido] = useState('');
     const [errorCorreo, setErrorCorreo] = useState('');
     const [errorTelefono, setErrorTelefono] = useState('');
-
 
     const navigate = useNavigate();
 
@@ -56,7 +57,6 @@ function CrearCliente() {
         return true;
     };
 
-
     const validateNombre = (value) => {
         if (!/^[a-zA-Z ñÑ]{2,}$/.test(value)) {
             setErrorNombre('Nombre debe contener solo letras y tener al menos 2 caracteres.');
@@ -68,7 +68,6 @@ function CrearCliente() {
 
     const nombreCapitalizado = capitalizeFirstLetter(nombre);
 
-
     const validateApellido = (value) => {
         if (!/^[a-zA-Z ñÑ]{2,}$/.test(value)) {
             setErrorApellido('Apellido debe contener solo letras y tener al menos 2 caracteres.');
@@ -78,8 +77,7 @@ function CrearCliente() {
         return true;
     };
 
-    const apellidoCapitalizado =    (apellido);
-
+    const apellidoCapitalizado = capitalizeFirstLetter(apellido);
 
     const validateCorreo = (value) => {
         if (!/^\S+@\S+\.\S+$/.test(value)) {
@@ -98,8 +96,6 @@ function CrearCliente() {
         setErrorTelefono('');
         return true;
     };
-    
-
 
     const handleGuardarCliente = async (e) => {
         e.preventDefault();
@@ -111,11 +107,10 @@ function CrearCliente() {
 
         const newCliente = {
             documento,
-            nombre : nombreCapitalizado,
-            apellido: apellidoCapitalizado ,
+            nombre: nombreCapitalizado,
+            apellido: apellidoCapitalizado,
             correo,
             telefono,
-
         };
 
         try {
@@ -127,7 +122,6 @@ function CrearCliente() {
             setApellido('');
             setCorreo('');
             setTelefono('');
-
 
             Swal.fire('Éxito', 'Cliente creado correctamente.', 'success').then(() => {
                 navigate('/clientes/listaClientes');
@@ -150,7 +144,7 @@ function CrearCliente() {
                         <form onSubmit={handleGuardarCliente}>
                             <div className="mb-3 d-flex align-items-center">
                                 <CCol xs="5" className="me-3">
-                                <CFormLabel style={{ fontWeight: 'bold' }}>Documento</CFormLabel>
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Documento</CFormLabel>
                                     <CFormInput
                                         type="text"
                                         value={documento}
@@ -160,7 +154,7 @@ function CrearCliente() {
                                 </CCol>
 
                                 <CCol xs="5">
-                                <CFormLabel style={{ fontWeight: 'bold' }}>Nombre</CFormLabel>
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Nombre</CFormLabel>
                                     <CFormInput
                                         type="text"
                                         value={nombre}
@@ -172,17 +166,17 @@ function CrearCliente() {
 
                             <div className="mb-3 d-flex align-items-center">
                                 <CCol xs="5" className="me-3">
-                                <CFormLabel style={{ fontWeight: 'bold' }}>Apellido</CFormLabel>
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Apellido</CFormLabel>
                                     <CFormInput
                                         type="text"
-                                        value={capitalizeFirstLetter(apellido)}
+                                        value={apellido}
                                         onChange={(e) => setApellido(e.target.value)}
                                     />
                                     <div className="text-danger">{errorApellido}</div>
                                 </CCol>
 
                                 <CCol xs="5">
-                                <CFormLabel style={{ fontWeight: 'bold' }}>Correo</CFormLabel>
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Correo</CFormLabel>
                                     <CFormInput
                                         type="email"
                                         value={correo}
@@ -192,11 +186,8 @@ function CrearCliente() {
                                 </CCol>
                             </div>
                             <div className="mb-3 d-flex align-items-center">
-
                                 <CCol xs="5" className="me-3">
-                                <CFormLabel style={{ fontWeight: 'bold' }}>Teléfono</CFormLabel>
-
-
+                                    <CFormLabel style={{ fontWeight: 'bold' }}>Teléfono</CFormLabel>
                                     <CFormInput
                                         type="text"
                                         value={telefono}
@@ -204,14 +195,11 @@ function CrearCliente() {
                                     />
                                     <div className="text-danger">{errorTelefono}</div>
                                 </CCol>
-
                             </div>
-
                             <div className="mb-3">
                                 <CButton type="submit" color="primary" className="me-2">
                                     Guardar Cliente
                                 </CButton>
-
                                 <Link to="/clientes/listaClientes">
                                     <CButton type="button" color="secondary">
                                         Cancelar
@@ -225,5 +213,16 @@ function CrearCliente() {
         </CRow>
     );
 }
+
+// Define las PropTypes para el componente
+CrearCliente.propTypes = {
+    newCliente: PropTypes.shape({
+        documento: PropTypes.string,
+        nombre: PropTypes.string,
+        apellido: PropTypes.string,
+        correo: PropTypes.string,
+        telefono: PropTypes.string,
+    }).isRequired,
+};
 
 export default CrearCliente;

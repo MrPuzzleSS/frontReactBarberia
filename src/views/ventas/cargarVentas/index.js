@@ -31,7 +31,7 @@ import {
 } from "@coreui/react";
 import citasServiciosDataService from "src/views/services/citasServiciosService";
 
-const API_URL = "https://restapibarberia.onrender.com/api";
+const API_URL = " http://localhost:8095/api";
 
 function CargarVentas() {
 
@@ -41,7 +41,7 @@ function CargarVentas() {
   const [errorCedula, setErrorCedula] = useState(false);
   const [mostrarServicio, setMostrarServicio] = useState(false);
   const [mostrarProducto, setMostrarProducto] = useState(false);
-  const [clientes, setClientes] = useState([]);
+  //const [clientes, setClientes] = useState([]);
   const [servicios, setServicios] = useState([]);
   const [productos, setProductos] = useState([]);
   const [citas, setCitas] = useState([]);
@@ -56,14 +56,15 @@ function CargarVentas() {
   const [selectedEmpleado, setSelectedEmpleado] = useState(null);
   const [citaSeleccionada, setCitaSeleccionada] = useState(null);
   const [citaData, setCitaData] = useState(null);
-  const [cantidadProductos, setCantidadProductos] = useState(null);
-  const [cantidadServicios, setCantidadServicios] = useState(null);
+  const [cantidadProductos, setCantidadProductos] = useState(0);
+  const [cantidadServicios, setCantidadServicios] = useState(0);
   const [apellido, setApellido] = useState("");
   const [documento, setDocumento] = useState("");
   const [numeroFactura, setNumeroFactura] = useState("");
   const [nuevoNumeroCedula, setNumeroCita] = useState("");
   const [citaId, setCitaId] = useState("");
   const [totalVenta, setTotalVenta] = useState(0);
+  const [estadoVenta, setEstadoVenta] = useState('Pendiente');
 
   //citas con usuario
   const [selectedUsuario, setSelectedUsuario] = useState(null);
@@ -73,15 +74,14 @@ function CargarVentas() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const clientesPromise = fetchClientes();
         const usuariosPromise = fetchUsuario();
         const serviciosPromise = fetchServicios();
         const productosPromise = fetchProductos();
         const ventasPromise = fetchVentas();
         const empleadosPromise = fetchEmpleados();
 
-        await Promise.all([clientesPromise, serviciosPromise, productosPromise, ventasPromise, empleadosPromise, usuariosPromise]);
-
+        await Promise.all([serviciosPromise, productosPromise, ventasPromise, empleadosPromise, usuariosPromise]);
+  
         fetchCitas();
       } catch (error) {
         console.error('Error al cargar los datos:', error);
@@ -105,7 +105,7 @@ function CargarVentas() {
     try {
       const nextNumeroFactura = getNextNumeroFactura();
       setNumeroFactura(nextNumeroFactura);
-      const response = await VentaService.crearVenta({
+      const response = await VentaService.cargarVenta({
         citaId: citaData.id_cita,
         usuarioId: selectedUsuario.id_usuario,
         empleadoId: selectedEmpleado.id_empleado,
@@ -113,6 +113,7 @@ function CargarVentas() {
         productos: productosEnVenta,
         totalVenta: totalVenta,
         numeroFactura: nextNumeroFactura,
+        estado: estadoVenta,
       });
       console.log("Sale created:", response);
       setTimeout(() => {
@@ -178,21 +179,6 @@ function CargarVentas() {
       }
     } catch (error) {
       console.error("Error la lista de empleados:", error);
-    }
-  };
-
-
-
-  const fetchClientes = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/cliente`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      setClientes(response.data.listClientes);
-    } catch (error) {
-      console.error("Error al obtener la lista de clientes:", error);
     }
   };
 
@@ -294,22 +280,6 @@ function CargarVentas() {
       }
     } catch (error) {
       console.error("Error al obtener las ventas:", error);
-    }
-  };
-
-
-
-  const handleClienteChange = (clienteId) => {
-    const selected = clientes.find(
-      (cliente) => cliente.id_cliente == clienteId,
-    );
-    if (selected) {
-      setSelectedCliente(selected);
-      setApellido(selected.apellido);
-      setDocumento(selected.documento);
-    } else {
-      console.error("Cliente no encontrado con el ID:", clienteId);
-      console.log(typeof clienteId);
     }
   };
 
@@ -500,13 +470,10 @@ function CargarVentas() {
     setMostrarProducto(true);
     setMostrarServicio(false);
   };
-
-
- 
-
-  const abrirModal = () => {
-    setVisible(true);
-  };
+  
+    const abrirModal = () => {
+      setVisible(true);
+    };
 
 
 
@@ -590,9 +557,7 @@ function CargarVentas() {
                   <CFormLabel style={{ fontWeight: 'bold' }}>Cliente</CFormLabel>
                   <CFormInput
                     value={
-                      selectedUsuario != undefined
-                        ? selectedUsuario?.nombre_usuario + " " + apellido
-                        : " "
+                      selectedUsuario?.nombre_usuario ? selectedUsuario.nombre_usuario + " " + apellido : ""
                     }
                     readOnly
                   />
@@ -623,6 +588,18 @@ function CargarVentas() {
                     readOnly
                   />
                 </div>
+              </div>
+
+              <div style={{ flex: 1, marginRight: "10px", marginBottom: "10px", display: "flex", flexDirection: "column" }}>
+                <CFormLabel>Estado de la Venta</CFormLabel>
+                <CFormSelect
+                onChange={(e) => setEstadoVenta(e.target.value)}
+                value={estadoVenta}
+                style={{ width: "33%" }} // Establece el ancho del select
+                >
+                  <option value="Pendiente">Pendiente</option>
+                  <option value="Pagado">Pagado</option>
+                  </CFormSelect>
               </div>
 
               <div className="mb-3" style={{ display: "none" }}>
@@ -664,34 +641,37 @@ function CargarVentas() {
                           alignItems: "center",
                         }}
                       >
-                        <CFormSelect
-                          onChange={(e) => handleServicioChange(e.target.value)}
-                        >
-                          <option value="">Seleccionar Servicio</option>
-                          {servicios.map((servicio) => (
-                            <option
-                              key={servicio.id}
-                              value={servicio.id}
-                            >
-                              {servicio.nombre.cantidad}
-                            </option>
-                          ))}
-                        </CFormSelect>
-                        <CFormInput
-                          type="number"
-                          name="cantidadServicios"
-                          placeholder="Ingrese su cantidad"
-                          value={cantidadServicios}
-                          onChange={(e) => setCantidadServicios(e.target.value)}
-                          style={{ marginLeft: "5px" }}
-                        />
-                        <CButton
-                          color="primary" // Cambiar el color del botón a tu elección (e.g., primary, success, danger, etc.)
-                          onClick={handleAgregarServicio}
-                          style={{ marginLeft: "5px", marginRight: "-6px" }}
-                        >
-                         <FaCheck   />  {/* Usar el icono FaPlus en lugar del signo más */}
-                        </CButton>
+                      <CFormSelect
+                        onChange={(e) => handleServicioChange(e.target.value)}
+                      >
+                        <option value="">Seleccionar Servicio</option>
+                        {servicios.map((servicio) => (
+                          <option key={servicio.id} value={servicio.id}>
+                            {servicio.nombre}
+                          </option>
+                        ))}
+                      </CFormSelect>
+                      <CFormInput
+                        type="text"
+                        name="cantidadServicios"
+                        placeholder="Ingrese su cantidad"
+                        value={cantidadServicios}
+                        onChange={(e) => {
+                          const value = e.target.value;
+
+                          if (/^\d*$/.test(value)) {
+                            setCantidadServicios(value);
+                          }
+                        }}
+                        style={{ marginLeft: "5px" }}
+                      />
+                      <CButton
+                        color="success"
+                        onClick={handleAgregarServicio}
+                        style={{ marginLeft: "5px", marginRight: "-6px" }}
+                      >
+                        +
+                      </CButton>
                       </div>
                     </div>
                   </div>
@@ -717,22 +697,24 @@ function CargarVentas() {
                         >
                           <option value="">Seleccionar Producto</option>
                           {productos.map((producto) => (
-                            <option
-                              key={producto.id_productos}
-                              value={producto.id_productos}
-                            >
-                              
+                            <option key={producto.id_productos} value={producto.id_productos}>
                               {producto.nombre}
                             
                             </option>
                           ))}
                         </CFormSelect>
                         <CFormInput
-                          type="number"
+                          type="text"
                           name="cantidadProductos"
                           placeholder="Ingrese la cantidad"
                           value={cantidadProductos}
-                          onChange={(e) => setCantidadProductos(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+
+                            if (/^\d*$/.test(value)) {
+                              setCantidadProductos(value);
+                            }
+                          }}
                           style={{ marginLeft: "5px" }}
                         />
                         <CButton

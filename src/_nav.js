@@ -30,7 +30,7 @@ const _nav = [
   },
   {
     component: CNavGroup,
-    name: 'Procesos de Compra',
+    name: <span style={{ fontWeight: 'bold' }}>Procesos de Compra</span>,
     to: '/compras',
     icon: <CIcon icon={cilBasket} customClassName="nav-icon" />,
     items: [
@@ -56,7 +56,7 @@ const _nav = [
   },
   {
     component: CNavGroup,
-    name: 'Procesos de Servicio',
+    name: <span style={{ fontWeight: 'bold' }}>Procesos de Servicio</span>,
     to: '/servicios',
     icon: <CIcon icon={cilCut} customClassName="nav-icon" />,
     items: [
@@ -76,13 +76,13 @@ const _nav = [
   },
       {
         component: CNavItem,
-        name: 'Agendas',
+        name: <span style={{ fontWeight: 'bold' }}>Programación de  Turnos</span>,
         to: '/agendas/crearconfiguracion',
         icon: <CIcon icon={cilCalendar} customClassName="nav-icon" />,
       },
   {
     component: CNavGroup,
-    name: 'Procesos de Venta',
+    name: <span style={{ fontWeight: 'bold' }}>Procesos de Venta</span>,
     to: '/ventas',
     icon: <CIcon icon={cilMoney} customClassName="nav-icon" />,
     items: [
@@ -102,7 +102,7 @@ const _nav = [
   },
   {
     component: CNavGroup,
-    name: 'Configuración',
+    name: <span style={{ fontWeight: 'bold' }}>Configuración</span>,
     to: '/configuracion',
     icon: <CIcon icon={cilCog} customClassName="nav-icon" />,
     items: [

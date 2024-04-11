@@ -44,7 +44,7 @@ const ListaRol = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const rolesResponse = await axios.get('https://restapibarberia.onrender.com/api/rol');
+        const rolesResponse = await axios.get('http://localhost:8095/api/rol');
         setRoles(rolesResponse.data?.listaRoles || []);
         setLoading(false);
       } catch (error) {
@@ -57,7 +57,7 @@ const ListaRol = () => {
 
     const fetchAllPermisos = async () => {
       try {
-        const permisosResponse = await axios.get('https://restapibarberia.onrender.com/api/permisos');
+        const permisosResponse = await axios.get('http://localhost:8095/api/permisos');
         setAllPermisos(permisosResponse.data?.listaPermisos || []);
       } catch (error) {
         console.error('Error al obtener permisos:', error);
@@ -97,7 +97,7 @@ const ListaRol = () => {
       });
 
       if (confirmed.isConfirmed) {
-        const response = await axios.put(`https://restapibarberia.onrender.com/api/rol/${item.id_rol}`, {
+        const response = await axios.put(`http://localhost:8095/api/rol/${item.id_rol}`, {
           estado: newStatus,
         });
 
@@ -174,7 +174,7 @@ const ListaRol = () => {
         permisos: editRolePermisos,
       };
 
-      await axios.put(`https://restapibarberia.onrender.com/api/rol/${editRoleId}`, editedRole);
+      await axios.put(`http://localhost:8095/api/rol/${editRoleId}`, editedRole);
 
       setVisible(false);
       Swal.fire({
@@ -214,7 +214,7 @@ const ListaRol = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`https://restapibarberia.onrender.com/api/rol/${item.id_rol}`);
+          await axios.delete(`http://localhost:8095/api/rol/${item.id_rol}`);
 
           const updatedRoles = roles.filter(role => role.id_rol !== item.id_rol);
           setRoles(updatedRoles);

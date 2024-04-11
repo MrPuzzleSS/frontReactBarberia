@@ -16,14 +16,19 @@ import {
   CAlert,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilLockLocked, cilUser } from '@coreui/icons';
+import { cilLockLocked, cilUser} from '@coreui/icons';
 import logoBarberia from '../../../assets/images/logoBarberia2.png';
 import fonds from '../../../assets/images/ftos/bb.jpg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+
 const Login = () => {
   const [nombreUsuario, setNombreUsuario] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const validateUsername = (username) => {
     if (!username.trim()) {
@@ -57,7 +62,7 @@ const Login = () => {
     try {
       setError(null);
       
-      const response = await axios.post('https://restapibarberia.onrender.com/api/login', {
+      const response = await axios.post('http://localhost:8095/api/login', {
         nombre_usuario: nombreUsuario,
         contrasena,
       });
@@ -103,64 +108,75 @@ const Login = () => {
             <CCol md={10}>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
                 <img src={logoBarberia} alt="logo empresa" width="70%" style={{ marginBottom: '20px' }} />
-                <CForm style={{ width: '80%', margin: '0 auto' }}>
-                  <h2>Iniciar sesión</h2>
-                  {error && <CAlert color="danger">{error}</CAlert>}
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilUser} />
-                    </CInputGroupText>
-                    <CFormInput
-                      placeholder="USUARIO"
-                      autoComplete="username"
-                      value={nombreUsuario}
-                      onChange={(e) => setNombreUsuario(e.target.value)}
-                    />
-                  </CInputGroup>
-                  <CInputGroup className="mb-4">
-                    <CInputGroupText>
-                      <CIcon icon={cilLockLocked} />
-                    </CInputGroupText>
-                    <CFormInput
-                      type="password"
-                      placeholder="CONTRASEÑA"
-                      autoComplete="current-password"
-                      value={contrasena}
-                      onChange={(e) => setContrasena(e.target.value)}
-                    />
-                  </CInputGroup>
-                  <CRow className="mt-3">
-                    <CCol xs={12} className="text-center">
-                      <CButton
-                        color="primary"
-                        className="px-4"
-                        style={{ fontSize: '1.2rem', borderRadius: '5px' }}
-                        onClick={handleLogin}
-                      >
-                        Ingresar
-                      </CButton>
-                    </CCol>
-                  </CRow>
-                  <CRow className="mt-3">
-                    <CCol xs={12} className="text-center">
-                      <CButton
-                        color="link"
-                        className="px-0"
-                        style={{ color: '#333', fontSize: '0.9rem' }}
-                        onClick={() => navigate('/resetPassword')}
-                      >
-                        ¿Olvidó su contraseña?
-                      </CButton>
-                    </CCol>
-                  </CRow>
-                  <CRow className="mt-3">
-                    <CCol xs={12} className="text-center">
-                      <Link to="/register">
-                        <CButton color="success">Nueva Cuenta</CButton>
-                      </Link>
-                    </CCol>
-                  </CRow>
-                </CForm>
+                <CForm style={{ width: '80%', margin: '0 auto', textAlign: 'center' }}>
+  <h2 style={{ marginBottom: '20px' }}>Iniciar sesión</h2>
+  {error && <CAlert color="danger">{error}</CAlert>}
+  <CInputGroup className="mb-3">
+    <CInputGroupText>
+      <CIcon icon={cilUser} />
+    </CInputGroupText>
+    <CFormInput
+      placeholder="USUARIO"
+      autoComplete="username"
+      value={nombreUsuario}
+      onChange={(e) => setNombreUsuario(e.target.value)}
+    />
+  </CInputGroup>
+  <CInputGroup className="mb-4">
+    <CInputGroupText>
+      <CIcon icon={cilLockLocked} />
+    </CInputGroupText>
+    <CFormInput
+  type={showPassword ? "text" : "password"}
+  placeholder="CONTRASEÑA"
+  autoComplete="current-password"
+  value={contrasena}
+  onChange={(e) => setContrasena(e.target.value)}
+/>
+
+<CInputGroupText>
+  <FontAwesomeIcon
+    icon={showPassword ? faEyeSlash : faEye}
+    onClick={() => setShowPassword(!showPassword)}
+    style={{ cursor: 'pointer' }}
+  />
+</CInputGroupText>
+
+   
+  </CInputGroup>
+  <CRow className="mt-3">
+    <CCol xs={12} className="text-center">
+      <CButton
+        color="primary"
+        className="px-4"
+        style={{ fontSize: '1.2rem', borderRadius: '5px' }}
+        onClick={handleLogin}
+      >
+        INGRESAR
+      </CButton>
+    </CCol>
+  </CRow>
+  <CRow className="mt-3">
+    <CCol xs={12} className="text-center">
+      <CButton
+        color="link"
+        className="px-0"
+        style={{ color: '#333', fontSize: '0.9rem' }}
+        onClick={() => navigate('/resetPassword')}
+      >
+        ¿Olvidó su contraseña?
+      </CButton>
+    </CCol>
+  </CRow>
+  <CRow className="mt-3">
+    <CCol xs={12} className="text-center">
+      <Link to="/register">
+        <CButton color="success">NUEVA CUENTA</CButton>
+      </Link>
+    </CCol>
+  </CRow>
+</CForm>
+
               </div>
             </CCol>
           </CRow>

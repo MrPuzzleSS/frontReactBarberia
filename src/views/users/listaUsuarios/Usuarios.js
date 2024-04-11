@@ -41,8 +41,8 @@ const ListaUsuarios = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const rolesResponse = await axios.get('https://restapibarberia.onrender.com/api/rol');
-        const usuariosResponse = await axios.get('https://restapibarberia.onrender.com/api/usuario');
+        const rolesResponse = await axios.get(' http://localhost:8095/api/rol');
+        const usuariosResponse = await axios.get(' http://localhost:8095/api/usuario');
         setUsers(usuariosResponse.data.usuarios || []);
         setRoles(rolesResponse.data.listaRoles);
       } catch (error) {
@@ -82,7 +82,7 @@ const ListaUsuarios = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`https://restapibarberia.onrender.com/api/usuario/${item.id_usuario}`);
+          await axios.delete(` http://localhost:8095/api/usuario/${item.id_usuario}`);
           setUsers((prevUsers) => prevUsers.filter((user) => user.id_usuario !== item.id_usuario));
 
           Swal.fire({
@@ -137,7 +137,7 @@ const ListaUsuarios = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.put(`https://restapibarberia.onrender.com/api/usuario/${item.id_usuario}`, {
+          await axios.put(` http://localhost:8095/api/usuario/${item.id_usuario}`, {
             ...item,
             estado: newStatus,
           });
@@ -186,16 +186,14 @@ const ListaUsuarios = () => {
     // Validar nombre de usuario
     if (!nombreUsuario) {
       validationErrors.nombre_usuario = 'Por favor, ingresa un nombre de usuario.';
+    } else if (!/^[a-zA-Z0-9_-]+$/.test(nombreUsuario)) {
+      validationErrors.nombre_usuario = 'El nombre de usuario no debe contener caracteres especiales ni espacios.';
     } else if (nombreUsuario.length < 3) {
       validationErrors.nombre_usuario = 'El nombre de usuario debe tener al menos 3 caracteres.';
-      
-    }else if (nombreUsuario.length > 30) {
-      validationErrors.nombre_usuario = 'El nombre de usuario no puede contener mas de 30 caracteres.';
-      
+    } else if (nombreUsuario.length > 30) {
+      validationErrors.nombre_usuario = 'El nombre de usuario no puede contener más de 30 caracteres.';
     }
-     else if (/\s/.test(nombreUsuario)) {
-      validationErrors.nombre_usuario = 'El nombre de usuario no puede contener espacios en blanco.';
-    }
+    
   
     // Validar correo electrónico
     if (!correoElectronico) {
@@ -229,7 +227,7 @@ const ListaUsuarios = () => {
           correo: document.getElementById('correoElectronico').value,
         };
 
-        await axios.put(`https://restapibarberia.onrender.com/api/usuario/${editedUser.id_usuario}`, editedUser);
+        await axios.put(`http://localhost:8095/api/usuario/${editedUser.id_usuario}`, editedUser);
 
         setUsers((prevUsers) =>
           prevUsers.map((user) => (user.id_usuario === selectedItem.id_usuario ? editedUser : user))
@@ -382,7 +380,7 @@ const ListaUsuarios = () => {
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === Math.ceil(users.length / pageSize)}
             >
-              Siguiente
+              Siguientee
             </CPaginationItem>
           </CPagination>
         </CCardBody>

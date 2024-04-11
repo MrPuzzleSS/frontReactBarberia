@@ -97,21 +97,7 @@ function ListaProductos() {
     }
   };
 
-  // const handleCambiarEstado = async (id_producto, estado) => {
-  //   try {
-  //     await ProductoService.putProducto(id_producto, estado);
-  //     fetchProductos();
-  //     Swal.fire({
-  //       icon: 'success',
-  //       title: 'Estado cambiado',
-  //       showConfirmButton: false,
-  //       timer: 1500,
-  //     });
-  //   } catch (error) {
-  //     console.error('Error al cambiar el estado del producto:', error);
-  //   }
-  // };
-
+  
 
 
 

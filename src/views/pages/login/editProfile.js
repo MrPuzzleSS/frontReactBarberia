@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { CContainer, CRow, CCol, CCard, CCardBody, CCardHeader, CInputGroup, CCardFooter, CInputGroupText, CFormInput, CButton } from '@coreui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope, faCheck, faUserEdit, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faUserEdit, faEdit, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { getUserInfo } from '../../../components/auht'; // Corregí el nombre del archivo
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import 'src/scss/css/global.css'; 
 
 const EditProfilePage = () => {
     const [name, setName] = useState('');
@@ -17,7 +16,10 @@ const EditProfilePage = () => {
     const [updateError, setUpdateError] = useState(null);
     const [editingField, setEditingField] = useState(null);
     const [isProfileUpdated, setIsProfileUpdated] = useState(false);
+    const [userData, setUserData] = useState(null);
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -25,6 +27,7 @@ const EditProfilePage = () => {
                 const userInfo = await getUserInfo();
                 setName(userInfo.nombre_usuario || '');
                 setEmail(userInfo.correo || '');
+                setUserData(userInfo);
             } catch (error) {
                 console.error('Error al obtener datos del usuario', error);
             }
@@ -42,7 +45,7 @@ const EditProfilePage = () => {
     }
 
     const validateName = (value) => {
-        return /^[a-zA-Z\s]*$/.test(value);
+        return /^[a-zA-Z0-9_-]*$/.test(value);
     }
 
     const validateEmail = (value) => {
@@ -100,7 +103,7 @@ const EditProfilePage = () => {
 
     const confirmUpdate = async () => {
         try {
-            const response = await fetch('https://restapibarberia.onrender.com/api/actualizarPerfil', {
+            const response = await fetch('http://localhost:8095/api/actualizarPerfil', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -116,12 +119,12 @@ const EditProfilePage = () => {
             if (response.ok) {
                 setUpdateSuccess(true);
                 setTimeout(() => {
-                    navigate('/login');
+                    navigate('/login'); // Redireccionar al login después de actualizar el perfil
                 }, 3000);
             } else {
                 const data = await response.json();
+                let errorMessage = '';
                 if (data.error && data.error.sqlMessage) {
-                    let errorMessage = '';
                     if (data.error.sqlMessage.includes('nombre_usuario')) {
                         errorMessage = 'El nombre de usuario ya está en uso';
                     } else if (data.error.sqlMessage.includes('correo')) {
@@ -129,18 +132,14 @@ const EditProfilePage = () => {
                     } else {
                         errorMessage = 'Error al actualizar el perfil. Por favor, inténtalo de nuevo.';
                     }
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error al actualizar el perfil',
-                        text: errorMessage,
-                    });
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error al actualizar el perfil',
-                        text: 'Error al actualizar el perfil. Por favor, inténtalo de nuevo.',
-                    });
+                    errorMessage = 'Error al actualizar el perfil. Por favor, inténtalo de nuevo.';
                 }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al actualizar el perfil',
+                    text: errorMessage,
+                });
             }
         } catch (error) {
             console.error('Error al realizar la actualización', error);
@@ -148,18 +147,16 @@ const EditProfilePage = () => {
         }
     }
     
-    
-
     return (
         <div className="min-vh-100 d-flex flex-row align-items-center">
             <CContainer className="text-center">
                 <CRow className="justify-content-center">
                     <CCol md={7}>
                         <CCard style={{ marginTop: '-290px' }}>
-                        <CCardHeader style={{ backgroundColor: '#9ea3ba' }}>
+                            <CCardHeader className="bg-dark text-white">
                                 <CRow className="justify-content-between align-items-center">
                                     <CCol>
-                                        <h2 className="display-14 mb-0 font-weight-bold">Editar perfil</h2>
+                                        <h1 className="display-8 mb-0 font-weight-bold">Editar perfil</h1>
                                     </CCol>
                                     <CCol xs="auto">
                                         <FontAwesomeIcon icon={faUserEdit} style={{ fontSize: '2rem' }} />
@@ -208,40 +205,56 @@ const EditProfilePage = () => {
                                     </CButton>
                                 </CInputGroup>
                                 <CInputGroup className="mb-4">
-                                    <CInputGroupText>
-                                        <FontAwesomeIcon icon={faCheck} />
-                                    </CInputGroupText>
-                                    <CFormInput
-                                        type="password"
-                                        placeholder="Nueva Contraseña"
-                                        value={newPassword}
-                                        onChange={(e) => setNewPassword(e.target.value)}
-                                        disabled={editingField !== 'password'}
-                                    />
-                                    <CButton
-                                        color="info"
-                                        onClick={() => handleEdit('password')}
-                                    >
-                                        <FontAwesomeIcon icon={faEdit} />
-                                    </CButton>
+                                    <div className="input-group">
+                                        <button
+                                            className="btn btn-outline-secondary"
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                                        </button>
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            className="form-control"
+                                            placeholder="Nueva Contraseña"
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            disabled={editingField !== 'password'}
+                                        />
+                                        <CButton
+                                            color="info"
+                                            onClick={() => handleEdit('password')}
+                                            disabled={editingField === 'password'}
+                                        >
+                                            <FontAwesomeIcon icon={faEdit} />
+                                        </CButton>
+                                    </div>
                                 </CInputGroup>
                                 <CInputGroup className="mb-4">
-                                    <CInputGroupText>
-                                        <FontAwesomeIcon icon={faCheck} />
-                                    </CInputGroupText>
-                                    <CFormInput
-                                        type="password"
-                                        placeholder="Confirmar Nueva Contraseña"
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        disabled={editingField !== 'confirmPassword'}
-                                    />
-                                    <CButton
-                                        color="info"
-                                        onClick={() => handleEdit('confirmPassword')}
-                                    >
-                                        <FontAwesomeIcon icon={faEdit} />
-                                    </CButton>
+                                    <div className="input-group">
+                                        <button
+                                            className="btn btn-outline-secondary"
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        >
+                                            <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
+                                        </button>
+                                        <input
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            className="form-control"
+                                            placeholder="Confirmar Nueva Contraseña"
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            disabled={editingField !== 'confirmPassword'}
+                                        />
+                                        <CButton
+                                            color="info"
+                                            onClick={() => handleEdit('confirmPassword')}
+                                            disabled={editingField === 'confirmPassword'}
+                                        >
+                                            <FontAwesomeIcon icon={faEdit} />
+                                        </CButton>
+                                    </div>
                                 </CInputGroup>
                             </CCardBody>
                             <CCardFooter className="text-center">
@@ -253,9 +266,13 @@ const EditProfilePage = () => {
                                     Actualizar Perfil
                                 </CButton>
                                 <div className="d-inline-block mx-3">
-                                    <Link to="/dashboard">
-                                        <button className="btn btn-secondary">Regresar</button>
-                                    </Link>
+                                    {userData && userData.rol && (
+                                        <div className="d-inline-block mx-3">
+                                            <Link to={userData.rol.nombre === 'Cliente' ? '/cliente' : '/dashboard'}>
+                                                <button className="btn btn-secondary">Regresar</button>
+                                            </Link>
+                                        </div>
+                                    )}
                                 </div>
                                 {updateSuccess && (
                                     <div className="alert alert-success mt-3" role="alert">
