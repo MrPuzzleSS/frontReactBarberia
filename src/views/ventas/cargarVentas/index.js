@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import VentaService from "src/views/services/ventasService";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { FaCheck   } from 'react-icons/fa'; 
+import { FaCheck   } from 'react-icons/fa';
 import {
   CFormLabel,
   CFormSelect,
@@ -31,7 +31,7 @@ import {
 } from "@coreui/react";
 import citasServiciosDataService from "src/views/services/citasServiciosService";
 
-const API_URL = " http://localhost:8095/api";
+const API_URL = "https://restapibarberia.onrender.com/api";
 
 function CargarVentas() {
 
@@ -57,7 +57,7 @@ function CargarVentas() {
   const [citaSeleccionada, setCitaSeleccionada] = useState(null);
   const [citaData, setCitaData] = useState(null);
   const [cantidadProductos, setCantidadProductos] = useState(0);
-  const [cantidadServicios, setCantidadServicios] = useState(0);
+  const [cantidadServicios, setCantidadServicios] = useState(1);
   const [apellido, setApellido] = useState("");
   const [documento, setDocumento] = useState("");
   const [numeroFactura, setNumeroFactura] = useState("");
@@ -81,7 +81,7 @@ function CargarVentas() {
         const empleadosPromise = fetchEmpleados();
 
         await Promise.all([serviciosPromise, productosPromise, ventasPromise, empleadosPromise, usuariosPromise]);
-  
+
         fetchCitas();
       } catch (error) {
         console.error('Error al cargar los datos:', error);
@@ -135,6 +135,7 @@ function CargarVentas() {
         }
       });
       setCitaData(response.data);
+      console.log("lacita", response);
       return response.data;
     } catch (error) {
       console.error("Error al obtener los datos de la cita:", error);
@@ -192,6 +193,8 @@ function CargarVentas() {
         }
       });
       const data = await response.json();
+
+      console.log("la data",)
       if (data && data.listServicios) {
         setServicios(data.listServicios);
         console.log(data.listServicios);
@@ -431,26 +434,47 @@ function CargarVentas() {
         });
         const data = response.data;
         infoServicio = data;
+        console.log(infoServicio);
       } catch (error) {
         console.error("Error al obtener los datos de la cita:", error);
       }
+      
+      let i = 0;
+      let totalVenta = 0;
 
-      const selected = servicios.find(
-        (servicio) => servicio?.id == infoServicio?.id_servicio,
-      );
-      if (selected) {
-        const nuevaFilaServicio = {
-          id: selected?.id,
-          nombre: selected?.nombre,
-          cantidad: 1,
-          precioUnitario: selected?.valor,
-          precioTotal: selected?.valor,
-        };
-        setServiciosEnVenta([nuevaFilaServicio]);
-        setSelectedServicio(null);
-        setTotalVenta(nuevaFilaServicio.precioTotal);
-        setVisible(false);
-      }
+      servicios.forEach((servicio) => {
+        // Verificar si el servicio actual coincide con el infoServicio
+        if (servicio?.id === infoServicio[i]?.id_servicio) {
+          console.log("el selected", servicio);
+
+          const nuevaFilaServicio = {
+            id: servicio?.id,
+            nombre: servicio?.nombre,
+            cantidad: 1,
+            precioUnitario: servicio?.valor,
+            precioTotal: servicio?.valor,
+          };
+
+          // Agregar el nuevo servicio a la lista de servicios en venta
+          setServiciosEnVenta(prevServicios => [...prevServicios, nuevaFilaServicio]);
+
+          // Aumentar el total de la venta sumando el precio total del nuevo servicio
+          totalVenta += nuevaFilaServicio.precioTotal;
+
+          // Restablecer el servicio seleccionado y ocultar el modal
+          setSelectedServicio(null);
+          setVisible(false);
+        } else {
+          console.log("servicio no encontrado");
+        }
+        i++;
+      });
+
+      // Actualizar el estado del total de la venta
+      setTotalVenta(totalVenta);
+
+      // Restablecer el contador de índice
+      i = 0;
     } catch (error) {
       console.error("Error al obtener los datos de la cita:", error);
       throw error;
@@ -470,7 +494,7 @@ function CargarVentas() {
     setMostrarProducto(true);
     setMostrarServicio(false);
   };
-  
+
     const abrirModal = () => {
       setVisible(true);
     };
@@ -666,11 +690,11 @@ function CargarVentas() {
                         style={{ marginLeft: "5px" }}
                       />
                       <CButton
-                        color="success"
+                        color="primary"
                         onClick={handleAgregarServicio}
                         style={{ marginLeft: "5px", marginRight: "-6px" }}
                       >
-                        +
+                        <FaCheck   />
                       </CButton>
                       </div>
                     </div>
@@ -699,7 +723,7 @@ function CargarVentas() {
                           {productos.map((producto) => (
                             <option key={producto.id_productos} value={producto.id_productos}>
                               {producto.nombre}
-                            
+
                             </option>
                           ))}
                         </CFormSelect>
@@ -722,7 +746,7 @@ function CargarVentas() {
                           onClick={handleAgregarProducto}
                           style={{ marginLeft: "5px", marginRight: "-6px" }}
                         >
-                        <FaCheck   /> 
+                        <FaCheck   />
                         </CButton>
                       </div>
                     </div>
