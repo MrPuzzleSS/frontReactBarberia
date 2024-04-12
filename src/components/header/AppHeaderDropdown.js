@@ -50,7 +50,7 @@ const AppHeaderDropdown = () => {
   
   if (!isLoggedIn) {
     return (
-      <a href="/login" className="btn btn-primary" style={{ fontWeight: 'bold' }}>Iniciar Sesión</a>
+      <a href="/login" className="btn btn-primary" style={{ fontWeight: 'bold' }}>Iniciar Sesiiiión</a>
     );
   }
   

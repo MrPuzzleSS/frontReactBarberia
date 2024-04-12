@@ -487,129 +487,132 @@ const AgendarCita = () => {
 
                   {/* Contenido para seleccionar servicios */}
                   {tempSelectedServices.length > 0 ? (
-                    <CCard className="mt-3">
-                      <CCardBody>
-                        <CCardTitle>Servicios Seleccionados</CCardTitle>
-                        <CTable>
-                          <CTableHead>
-                            <CTableRow>
-                              <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                              <CTableHeaderCell scope="col">
-                                Nombre
-                              </CTableHeaderCell>
-                              <CTableHeaderCell scope="col">
-                                Valor
-                              </CTableHeaderCell>
-                            </CTableRow>
-                          </CTableHead>
-                          <CTableBody>
-                            {tempSelectedServices.map((service, index) => (
-                              <CTableRow key={index}>
-                                <CTableDataCell>{index + 1}</CTableDataCell>
-                                <CTableDataCell>
-                                  {service.nombre}
-                                </CTableDataCell>
-                                <CTableDataCell>{service.valor}</CTableDataCell>
-                              </CTableRow>
-                            ))}
-                          </CTableBody>
-                        </CTable>
-                      </CCardBody>
-                    </CCard>
-                  ) : (
-                    <div className="mt-3">
-                      <CAlert color="info">
-                        No se han seleccionado servicios.
-                      </CAlert>
-                    </div>
-                  )}
+  <CCard className="mt-3">
+    <CCardBody>
+      <CCardTitle>Servicios Seleccionados</CCardTitle>
+      <CTable>
+        <CTableHead>
+          <CTableRow>
+            <CTableHeaderCell scope="col">#</CTableHeaderCell>
+            <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
+            <CTableHeaderCell scope="col">Valor</CTableHeaderCell>
+            <CTableHeaderCell scope="col">Acción</CTableHeaderCell>
+          </CTableRow>
+        </CTableHead>
+        <CTableBody>
+          {tempSelectedServices.map((service, index) => (
+            <CTableRow key={index}>
+              <CTableDataCell>{index + 1}</CTableDataCell>
+              <CTableDataCell>{service.nombre}</CTableDataCell>
+              <CTableDataCell>{service.valor}</CTableDataCell>
+              <CTableDataCell>
+                <CButton
+                  color="danger"
+                  onClick={() => handleRemoveService(service)}
+                >
+                  Quitar
+                </CButton>
+              </CTableDataCell>
+            </CTableRow>
+          ))}
+        </CTableBody>
+      </CTable>
+    </CCardBody>
+  </CCard>
+) : (
+  <div className="mt-3">
+    <CAlert color="info">
+      No se han seleccionado servicios.
+    </CAlert>
+  </div>
+)}
+
 
                   {/* Modal para seleccionar servicios */}
                   <CModal
-                    size="lg"
-                    scrollable
-                    visible={visibleLg}
-                    onClose={() => setVisibleLg(false)}
-                    aria-labelledby="ScrollingLongContentExampleLabel2"
+  size="lg"
+  scrollable
+  visible={visibleLg}
+  onClose={() => setVisibleLg(false)}
+  aria-labelledby="ScrollingLongContentExampleLabel2"
+>
+  <CModalHeader>
+    <CModalTitle id="ScrollingLongContentExampleLabel2">
+      Seleciona los servicios
+    </CModalTitle>
+  </CModalHeader>
+  <CModalBody>
+    <CTable>
+      <CTableHead>
+        <CTableRow></CTableRow>
+      </CTableHead>
+      <CTableBody>
+        <tr>
+          {servicesData.map((service) => (
+            <td
+              key={service.id}
+              style={{
+                padding: "8px",
+                border: selectedServices.some((s) => s.id === service.id)
+                  ? "2px solid #e83d3d"
+                  : "1px solid #ddd",
+              }}
+            >
+              <div style={{ width: "10rem" }}>
+                <div
+                  style={{
+                    borderBottom: "1px solid #ddd",
+                    padding: "8px",
+                  }}
+                >
+                  {service.nombre}
+                </div>
+                <div style={{ padding: "8px" }}>Precio: {service.valor}</div>
+                <button
+                  style={{
+                    backgroundColor: selectedServices.some(
+                      (s) => s.id === service.id
+                    )
+                      ? "#e83d3d"
+                      : "#4caf50",
+                    color: "#fff",
+                    padding: "8px",
+                    cursor: "pointer",
+                    borderRadius: "5px",
+                    width: "100%", // Ancho del botón al 100%
+                  }}
+                  onClick={() => handleServiceSelection(service)}
+                >
+                  {selectedServices.some((s) => s.id === service.id)
+                    ? "Quitar"
+                    : "Seleccionar"}
+                </button>
+                {selectedServices.some((s) => s.id === service.id) && (
+                  <CButton
+                    color="primary"
+                    onClick={handleAcceptButtonClick}
+                    style={{
+                      marginTop: "8px",
+                      width: "100%", // Ancho del botón al 100%
+                    }}
                   >
-                    <CModalHeader>
-                      <CModalTitle id="ScrollingLongContentExampleLabel2">
-                        Seleciona los servicios
-                      </CModalTitle>
-                    </CModalHeader>
-                    <CModalBody>
-                      <CTable>
-                        <CTableHead>
-                          <CTableRow></CTableRow>
-                        </CTableHead>
-                        <CTableBody>
-                          <tr>
-                            {servicesData.map((service) => (
-                              <td
-                                key={service.id}
-                                style={{
-                                  padding: "8px",
-                                  border: selectedServices.some(
-                                    (s) => s.id === service.id,
-                                  )
-                                    ? "2px solid #007bff"
-                                    : "1px solid #ddd",
-                                }}
-                              >
-                                <div style={{ width: "10rem" }}>
-                                  <div
-                                    style={{
-                                      borderBottom: "1px solid #ddd",
-                                      padding: "8px",
-                                    }}
-                                  >
-                                    {service.nombre}
-                                  </div>
-                                  <div style={{ padding: "8px" }}>
-                                    Precio: {service.valor}
-                                  </div>
-                                  <button
-                                    style={{
-                                      backgroundColor: selectedServices.some(
-                                        (s) => s.id === service.id,
-                                      )
-                                        ? "#e83d3d"
-                                        : "#4caf50",
-                                      color: "#fff",
-                                      padding: "8px",
-                                      cursor: "pointer",
-                                      borderRadius: "5px",
-                                    }}
-                                    onClick={() =>
-                                      handleServiceSelection(service)
-                                    }
-                                  >
-                                    {selectedServices.some((s) => s.id === service.id)
-                                      ? "Deseleccionar"
-                                      : "Seleccionar"}
-                                  </button>
-                                </div>
-                              </td>
-                            ))}
-                          </tr>
-                        </CTableBody>
-                      </CTable>
-                    </CModalBody>
-                    <CModalFooter>
-                      <CButton
-                        color="secondary"
-                        onClick={() => setVisibleLg(false)}
-                      >
-                        Cancelar
-                      </CButton>
-                      <CButton
-                        color="primary"
-                        onClick={handleAcceptButtonClick}
-                      >
-                        Aceptar
-                      </CButton>
-                    </CModalFooter>
-                  </CModal>
+                    Aceptar
+                  </CButton>
+                )}
+              </div>
+            </td>
+          ))}
+        </tr>
+      </CTableBody>
+    </CTable>
+  </CModalBody>
+  <CModalFooter>
+    <CButton color="secondary" onClick={() => setVisibleLg(false)}>
+      Cancelar
+    </CButton>
+  </CModalFooter>
+</CModal>
+
                 </>
               )}
 

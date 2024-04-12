@@ -16,7 +16,6 @@ const RegisterCliente = () => {
 
   const [newUser, setNewUser] = useState({
     id_rol: roleIdCliente,
-  
     nombre_usuario: '',
     contrasena: '',
     correo: '',

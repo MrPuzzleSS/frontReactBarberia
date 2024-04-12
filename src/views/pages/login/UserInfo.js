@@ -21,7 +21,6 @@ import {
   faEnvelope,
   faUnlockAlt,
   faCheck,
-  faLock
 } from '@fortawesome/free-solid-svg-icons';
 import fondo from '../../../assets/images/ftos/bk.jpg';
 import './UserInforPage.css';

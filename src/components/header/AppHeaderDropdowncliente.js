@@ -47,14 +47,15 @@ const AppHeaderDropdown = () => {
       }
     });
   };
-  
+ 
   if (!isLoggedIn) {
     return (
       <strong>
-        <a href="/login" className="btn btn-cafe-claro" style={{ fontWeight: 'bold' }}>Iniciar Sesión</a>
+        <a href="/login" className="btn" style={{ backgroundColor: '#b5bcc6', color: 'black', fontWeight: 'bold' }}>Iniciar Sesión</a>
       </strong>
     );
   }
+  
   
 
   return (

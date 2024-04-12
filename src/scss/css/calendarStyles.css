@@ -59,7 +59,7 @@ body {
 
 /* Para cambiar el color de fondo */
 .fc-header-toolbar {
-    background-color: #9eA3BA;
+    background-color: #999999;
 }
 
 
@@ -69,7 +69,7 @@ body {
 
 /* Estilos para el encabezado del calendario */
 .fc-header-toolbar {
-    background-color: #9eA3BA;
+    background-color: #999999;
     /* Cambia el color de fondo del encabezado */
     color: #070707;
     /* Cambia el color del texto en el encabezado */
@@ -93,7 +93,7 @@ body {
 
 /* Efecto de hover para los eventos */
 .fc-event:hover {
-    background-color: #9eA3BA;
+    background-color: #999999;
     /* Cambia el color de fondo al pasar el mouse */
 }
 
