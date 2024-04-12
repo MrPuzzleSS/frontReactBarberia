@@ -13,6 +13,9 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const RegisterCliente = () => {
   const roleIdCliente = 2;
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [newUser, setNewUser] = useState({
     id_rol: roleIdCliente,
@@ -23,7 +26,6 @@ const RegisterCliente = () => {
   });
 
   const [errors, setErrors] = useState({
-   
     nombre_usuario: '',
     correo: '',
     contrasena: '',
@@ -35,20 +37,20 @@ const RegisterCliente = () => {
   const handleAddUser = async () => {
     try {
       setErrors({}); // Limpiar errores al intentar registrar
-      const response = await axios.post(' http://localhost:8095/api/usuario', newUser);
+      const response = await axios.post('http://localhost:8095/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
-     
+  
       Swal.fire({
         icon: 'success',
         title: 'Usuario registrado con éxito',
         showConfirmButton: false,
         timer: 1500,
       });
-
+  
       setRedirect(true); // Redirigir al usuario después de registrar
     } catch (error) {
       console.error('Error al registrar usuario:', error);
-
+  
       if (error.response.status === 400 && error.response.data && error.response.data.error) {
         Swal.fire({
           icon: 'error',
@@ -138,8 +140,6 @@ const RegisterCliente = () => {
           </CRow>
           <CRow className="justify-content-center">
             <CForm style={{ width: '80%' }}>
-        
-            
               <CInputGroup className="mb-3">
                 <CInputGroupText>
                   <CIcon icon={cilUser} />
