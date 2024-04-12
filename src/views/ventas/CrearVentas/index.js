@@ -20,10 +20,17 @@ import {
     CTableDataCell,
     CTableHead,
     CTableHeaderCell,
-    CTableRow
+    CTableRow,
+    CModal,
+    CModalHeader,
+    CModalTitle,
+    CModalBody,
+    CModalFooter,
+    CInputGroup,
+    CInputGroupText,
 } from '@coreui/react';
 
-const API_URL = ' http://localhost:8095/api';
+const API_URL = 'https://restapibarberia.onrender.com/api';
 
 function FormularioVentas() {
     const navigate = useNavigate();
@@ -46,7 +53,7 @@ function FormularioVentas() {
     const [numeroFactura, setNumeroFactura] = useState('');
     const [totalVenta, setTotalVenta] = useState(0);
     const [cantidadProductos, setCantidadProductos] = useState(0);
-    const [cantidadServicios, setCantidadServicios] = useState(0);
+    const [cantidadServicios, setCantidadServicios] = useState(1);
     const [estadoVenta, setEstadoVenta] = useState('Pendiente');
 
 
@@ -219,7 +226,7 @@ function FormularioVentas() {
 
     //tomo los datos para cargar el cliente
     const handleClienteChange = (clienteId) => {
-        const selected = clientes.find((cliente) => cliente.id_cliente === clienteId);
+        const selected = clientes.find((cliente) => cliente.id_cliente == clienteId);
         if (selected) {
             setSelectedCliente(selected);
             setApellido(selected.apellido || '');
@@ -235,7 +242,7 @@ function FormularioVentas() {
 
     //tomo los datos para cargar el empleado
     const handleEmpleadoChange = (empleadoId) => {
-        const selected = empleados.find((empleado) => empleado.id_empleado === empleadoId);
+        const selected = empleados.find((empleado) => empleado.id_empleado == empleadoId);
         setSelectedEmpleado(selected || null);
         setFormValid(selectedCliente !== null && empleadoId !== '');
     };
@@ -243,14 +250,14 @@ function FormularioVentas() {
 
     //tomo los datos para cargar los servicios
     const handleServicioChange = (servicioId) => {
-        const selected = servicios.find((servicio) => servicio.id === servicioId);
+        const selected = servicios.find((servicio) => servicio.id == servicioId);
         setSelectedServicio(selected);
     };
 
 
     //tomo los datos para cargar los productos
     const handleProductoChange = (productoId) => {
-        const selected = productos.find((producto) => producto.nombre === productoId);
+        const selected = productos.find((producto) => producto.nombre == productoId);
         setSelectedProducto(selected);
         console.log(productoId)
     };
@@ -459,11 +466,17 @@ function FormularioVentas() {
                                                 ))}
                                             </CFormSelect>
                                             <CFormInput
-                                                type="number"
+                                                type="text"
                                                 name="cantidadServicios"
                                                 placeholder="Ingrese la cantidad"
                                                 value={cantidadServicios}
-                                                onChange={(e) => setCantidadServicios(e.target.value)}
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                          
+                                                    if (/^\d*$/.test(value)) {
+                                                      setCantidadServicios(value);
+                                                    }
+                                                  }}
                                                 style={{ marginLeft: "5px" }}
                                             />
                                             <CButton
@@ -508,11 +521,17 @@ function FormularioVentas() {
                                                 ))}
                                             </CFormSelect>
                                             <CFormInput
-                                                type="number"
+                                                type="text"
                                                 name="cantidadProductos"
                                                 placeholder="Ingrese la cantidad"
                                                 value={cantidadProductos}
-                                                onChange={(e) => setCantidadProductos(e.target.value)}
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                        
+                                                    if (/^\d*$/.test(value)) {
+                                                      setCantidadProductos(value);
+                                                    }
+                                                }}
                                                 style={{ marginLeft: "5px" }}
                                             />
                                             <CButton
