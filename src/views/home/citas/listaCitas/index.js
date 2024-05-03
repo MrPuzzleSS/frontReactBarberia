@@ -277,31 +277,17 @@ function ListaCitas() {
                   <CTable>
                     <CTableHead>
                       <CTableRow>
-                        <CTableHeaderCell scope="col">
-                          ID Servicio
-                        </CTableHeaderCell>
-                        {/* Ajusta aquí según la estructura de los datos del servicio */}
-                        <CTableHeaderCell scope="col">
-                          Nombre Servicio
-                        </CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Valor</CTableHeaderCell>
+                        <CTableHeaderCell>ID Servicio</CTableHeaderCell>
+                        <CTableHeaderCell>Nombre Servicio</CTableHeaderCell>
+                        <CTableHeaderCell>Valor</CTableHeaderCell>
                       </CTableRow>
                     </CTableHead>
                     <CTableBody>
                       {detallesCita.map((detalle, index) => (
                         <CTableRow key={index}>
                           <CTableDataCell>{detalle.id_servicio}</CTableDataCell>
-                          {/* Ajusta aquí según la estructura de los datos del servicio */}
-                          <CTableDataCell>
-                            {detalle.servicioInfo
-                              ? detalle.servicioInfo.nombre
-                              : "N/A"}
-                          </CTableDataCell>
-                          <CTableDataCell>
-                            {detalle.servicioInfo
-                              ? detalle.servicioInfo.valor
-                              : "N/A"}
-                          </CTableDataCell>
+                          <CTableDataCell>{detalle.servicioInfo.nombre}</CTableDataCell>
+                          <CTableDataCell>{detalle.servicioInfo.valor}</CTableDataCell>
                         </CTableRow>
                       ))}
                     </CTableBody>
