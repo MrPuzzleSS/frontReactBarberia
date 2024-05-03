@@ -125,6 +125,7 @@ function ListaCitas() {
                 Hora_Atencion: item.Hora_Atencion,
                 Hora_Fin: item.Hora_Fin,
                 estado: item.estado,
+                
               };
 
               // Obtener el nombre del barbero asociado a la cita
