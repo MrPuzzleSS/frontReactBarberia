@@ -28,15 +28,6 @@ import {
 import PropTypes from 'prop-types'; // Importa PropTypes
 import { getUserInfo } from '../../../../components/auht';
 
-async function getEmpleadoConCitas(id_empleado) {
-  try {
-    const response = await CitasDataService.getEmpleadoConCitas(id_empleado);
-    return response.data;
-  } catch (error) {
-    console.error('Error al obtener el empleado y sus citas:', error);
-    throw error;
-  }
-}
 
 async function getNombreBarbero(id_empleado) {
   try {
@@ -116,6 +107,7 @@ function ListaCitas() {
           const citasConDetalle = await Promise.all(
             response.data.citas.map(async (item) => {
               console.log("Cita item:", item);
+              console.log("Datos devueltos por el servicio:", item.citaServicio); // Aquí
 
               const cita = {
                 id_cita: item.id_cita,
