@@ -35,7 +35,6 @@ import 'src/scss/css/global.css';
 import CitasServiciosDataService from "src/views/services/citasServiciosService";
 import Swal from 'sweetalert2'
 import { getUserInfo } from '../../../../components/auht';
-import crearConfiguracion from 'src/views/agendas/crearConfiguracion/programacion';
 
 
 const AgendarCita = () => {
@@ -56,7 +55,7 @@ const AgendarCita = () => {
   const [citasAgendadas, setCitasAgendadasData] = useState([]);
   const [selectedServicesDuration, setSelectedServicesDuration] = useState(0);
   const [selectedHourFin, setSelectedHourFin] = useState(null);
-
+  const [options, setOptions] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -150,13 +149,6 @@ const AgendarCita = () => {
   };
 
 
-
-
-
-
-
-
-
   const createCitaServicio = async (idCita, serviciosSeleccionados) => {
     try {
       // Iterar sobre los servicios seleccionados
@@ -177,10 +169,6 @@ const AgendarCita = () => {
       // Manejar el error según sea necesario
     }
   };
-
-
-
-
 
 
   // Función para calcular la duración entre dos horas en formato HH:mm
@@ -248,25 +236,26 @@ const AgendarCita = () => {
       return null; // Otra acción adecuada según el contexto
     }
 
-    // Divide la cadena de tiempo en horas y minutos
-    const [hours, mins] = time.split(':').map(Number);
+    // Divide la cadena de tiempo en horas, minutos y segundos
+    const [hours, mins, seconds] = time.split(":").map(parseFloat);
 
-    // Suma los minutos y calcula el exceso de horas si los minutos exceden 60
-    const newMins = (mins + minutes) % 60;
-    const extraHours = Math.floor((mins + minutes) / 60);
+    // Calcula el total de minutos y suma los minutos proporcionados
+    const totalMinutes = hours * 60 + mins + minutes;
 
-    // Suma las horas y el exceso de horas
-    const newHours = (hours + extraHours) % 24;
+    // Calcula las nuevas horas y minutos
+    const newHours = Math.floor(totalMinutes / 60) % 24;
+    const newMins = totalMinutes % 60;
 
     // Formatea la nueva hora y los minutos
-    const formattedHours = String(newHours).padStart(2, '0');
-    const formattedMins = String(newMins).padStart(2, '0');
+    const formattedHours = newHours.toString().padStart(2, "0");
+    const formattedMins = newMins.toString().padStart(2, "0");
 
-    // Retorna la hora en formato HH:mm
-    const result = `${formattedHours}:${formattedMins}`;
+    // Retorna la hora en formato HH:mm:ss
+    const result = `${formattedHours}:${formattedMins}:${seconds.toString().padStart(2, "0")}`;
     console.log("Hora de fin calculada en addMinutes:", result);
     return result;
   };
+
 
 
   const calculateAppointmentTime = () => {
@@ -296,6 +285,7 @@ const AgendarCita = () => {
     // Retorna el tiempo total de la cita
     return totalAppointmentTime;
   };
+  console.log('hora inicio es esta ', selectedHour)
 
 
   const handleBarberoSelection = async (id_empleado) => {
@@ -334,88 +324,138 @@ const AgendarCita = () => {
         });
       }
     } catch (error) {
-      console.error("Error al obtener la agenda del empleado:", error);
+      consol
+e.error("Error al obtener la agenda del empleado:", error);
     }
 
     handlePageChange(currentPage + 1);
   };
 
 
+  const isAfterOrEqual = (time1, time2) => {
+    const date1 = new Date(`1970-01-01T${time1}`);
+    const date2 = new Date(`1970-01-01T${time2}`);
+    return date1.getTime() >= date2.getTime();
+  };
+
+  // Verifica si la hora es anterior o igual a otra hora
+  const isBeforeOrEqual = (time1, time2) => {
+    const date1 = new Date(`1970-01-01T${time1}`);
+    const date2 = new Date(`1970-01-01T${time2}`);
+    return date1.getTime() <= date2.getTime();
+  };
+
+
+
   const generateHourOptions = (startHour, endHour, selectedDate, citasAgendadas) => {
     const options = [];
-    const start = parseInt(startHour.split(":")[0]); // Extract start hour
-    const end = parseInt(endHour.split(":")[0]); // Extract end hour
-
+    const start = parseInt(startHour.split(":")[0]); // Extraer la hora de inicio
+    const end = parseInt(endHour.split(":")[0]); // Extraer la hora de fin
+  
     for (let hour = start; hour <= end; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         const suffix = hour >= 12 ? "PM" : "AM";
         const formattedHora = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00`;
-
-        // Check if the hour is occupied by a scheduled appointment
+  
+        // Registros de depuración para verificar la fecha y hora seleccionadas
+        console.log("Fecha seleccionada:", selectedDate);
+        console.log("Hora seleccionada:", formattedHora);
+  
+        // Verificar si la hora está ocupada por una cita agendada
         const horaOcupada = citasAgendadas.some(cita => {
           const citaDate = new Date(cita.Fecha_Atencion);
           citaDate.setTime(citaDate.getTime() + citaDate.getTimezoneOffset() * 60 * 1000);
           const formattedCitaDate = format(citaDate, 'yyyy-MM-dd');
+          console.log("Fecha de la cita:", formattedCitaDate);
+          console.log("Hora de la cita:", cita.Hora_Atencion);
           return formattedCitaDate === selectedDate && cita.Hora_Atencion === formattedHora;
         });
-
+  
+        // Calcular la hora de fin de la cita
+        const horaFinCita = addMinutes(formattedHora, selectedServicesDuration);
+        console.log("Hora de fin calculada en addMinutes:", horaFinCita); // Agregar esta línea para imprimir la hora de fin calculada
+  
+        // Verificar si la hora está dentro del rango de horas disponibles
+        const horaDisponible = isAfterOrEqual(formattedHora, startHour) && isBeforeOrEqual(formattedHora, endHour);
+  
         const hora = `${hour}:${minute.toString().padStart(2, "0")} ${suffix}`;
-
-        // Dentro de tu función generateHourOptions
+  
+        // Después de seleccionar una hora de inicio, calcula y muestra las horas disponibles
         const handleClick = () => {
-          if (!horaOcupada) {
+          if (horaDisponible && !horaOcupada) {
             setSelectedHour(formattedHora);
-            // Calcular la hora de fin basada en la hora seleccionada y la duración de los servicios
-            const horaFin = addMinutes(formattedHora, selectedServicesDuration);
-            setSelectedHourFin(horaFin);
+            setSelectedHourFin(horaFinCita);
+            // Eliminar la hora seleccionada y las siguientes horas de las opciones disponibles
+            const remainingOptions = removeScheduledHourAndFollowingHours(formattedHora, options);
+            // Actualizar las opciones disponibles
+            setOptions(remainingOptions);
           }
         };
-
+  
         options.push(
           <CButton
-            color={horaOcupada ? "secondary" : selectedHour === formattedHora ? "success" : "info"}
+            color={horaOcupada ? "secondary" : 
+              selectedHour === formattedHora ? "success" : 
+              horaDisponible ? "info" : "light"
+            }
             key={formattedHora}
             onClick={handleClick}
-            disabled={horaOcupada}
+            disabled={!horaDisponible || horaOcupada}
             style={{ margin: "5px" }}
             className="col-1"
           >
             {hora}
           </CButton>
         );
+        
+        
       }
     }
     return <div className="row">{options}</div>;
   };
+  
+  
 
-  // Function to remove the selected hour and hours following it
-  const removeScheduledHourAndFollowingHours = (selectedHour, options) => {
-    const indexToRemove = options.findIndex(option => option.key === selectedHour);
-    return options.slice(0, indexToRemove);
+
+  const removeScheduledHourAndFollowingHours = (formattedHour, options) => {
+    console.log("Hora agendada:", formattedHour);
+    console.log("Opciones antes de eliminar la hora agendada:", options);
+
+    const remainingOptions = options.filter(option => {
+      const optionHour = option.key.split(":")[0]; // Extraer la hora de la clave de la opción
+      return optionHour >= formattedHour.split(":")[0]; // Comparar solo las horas
+    });
+    
+
+    console.log("Opciones restantes después de eliminar la hora agendada:", remainingOptions);
+    return remainingOptions;
   };
 
 
-  // After scheduling an appointment, reorganize the remaining hours
+
+
+  // Después de agendar una cita, elimina la hora agendada y actualiza las opciones disponibles
   const handleAgendarClick = async () => {
+    // Obtener la información del usuario
     const userInfo = await getUserInfo();
 
     if (selectedBarberoId && selectedDate && selectedHour !== null) {
       try {
         const formattedHour = selectedHour.slice(0, 5);
 
-        // Save the appointment when clicking "Agendar"
+        // Guarda la cita cuando se hace clic en "Agendar"
         const nuevaCita = {
           id_empleado: selectedBarberoId,
-          id_usuario: userInfo.userId, // TODO: Obtain client's id
+          id_usuario: userInfo.userId,
           Fecha_Atencion: selectedDate,
           Hora_Atencion: formattedHour,
-          Hora_Fin: selectedHourFin, // Use selectedHourFin instead of horaFin
+          Hora_Fin: selectedHourFin,
         };
 
-        // Use CitasDataService's create function to create the appointment
+        // Usa la función de create de CitasDataService para crear la cita
         const response = await CitasDataService.create(nuevaCita);
 
-        // Use CitasServiciosDataService's create function to create the cita_servicio
+        // Usa la función de create de CitasServiciosDataService para crear la cita_servicio
         await createCitaServicio(response.data.id_cita, selectedServices);
 
         if (response) {
@@ -428,10 +468,10 @@ const AgendarCita = () => {
             window.location.href = "/cliente/listacitas";
           }, 1200);
 
-          // Remove the selected hour and hours following it
-          const remainingOptions = removeScheduledHourAndFollowingHours(selectedHour, options);
+          // Elimina la hora seleccionada y las siguientes horas de las opciones disponibles
+          const remainingOptions = removeScheduledHourAndFollowingHours(formattedHour, options);
           console.log("Opciones restantes después de eliminar la hora agendada:", remainingOptions);
-          // Re-render the remaining hours
+          // Actualiza las opciones disponibles
           setOptions(remainingOptions);
         }
       } catch (error) {
@@ -451,6 +491,11 @@ const AgendarCita = () => {
       });
     }
   };
+
+
+
+
+
 
 
   const handleRemoveService = (serviceToRemove) => {
