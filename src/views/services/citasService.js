@@ -6,13 +6,15 @@ const getAll = () => {
 
 const getAllCitasAgendadas = () => {
     return http.get("/citas/agendadas");
-    
-}
-
-const getAllCitasServicios = (id) => {
-    return http.get(`/citas/servicios/${id}`);
 
 }
+
+const getAllCitasServicios = (id_usuario) => {
+    return http.get(`/citas/usuario/${id_usuario}`);
+}
+
+
+
 
 const get = id => {
     return http.get(`/citas/${id}`);
@@ -28,11 +30,24 @@ const getEmpleadoAgendas = id => {
 
 }
 
+const getEmpleadoConCitas = async (id) => {
+    try {
+        const response = await http.get(`/empleado/citas/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener el empleado y sus citas:', error);
+        throw error;
+    }
+}
+
+
+
+
 const create = data => {
     return http.post("/citas", data);
 }
 
-const update = (id, data) => {  
+const update = (id, data) => {
     return http.put(`/citas/${id}`, data);
 }
 
@@ -44,15 +59,19 @@ const findByTitle = title => {
     return http.get(`/citas?title=${title}`);
 }
 
+
+
+
+
 const cambiarEstadoCita = async (id) => {
     try {
-      const response = await http.put(`/citas/${id}/cambiarEstado`, { estado: 'Cancelada' });
-      return response.data;
+        const response = await http.put(`/citas/${id}/cambiarEstado`, { estado: 'Cancelada' });
+        return response.data;
     } catch (error) {
-      console.error('Error al cambiar el estado de la cita:', error);
-      throw error; // Puedes manejar el error según tus necesidades
+        console.error('Error al cambiar el estado de la cita:', error);
+        throw error; // Puedes manejar el error según tus necesidades
     }
-  }
+}
 
 const CitasDataService = {
     getAll,
@@ -65,6 +84,8 @@ const CitasDataService = {
     update,
     remove,
     findByTitle,
+    getEmpleadoConCitas,
+
     cambiarEstadoCita
 }
 

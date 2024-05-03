@@ -44,6 +44,8 @@ export const setSession = (token, expirationDate, userInfo) => {
 
   if (userInfo.rol.nombre === 'Cliente') {
     window.location.href = '/cliente'; // Redirigir al usuario con rol de cliente
+  } else if (userInfo.rol.nombre === 'Empleado') {
+    window.location.href = '/listaCitas'; // Redirigir al usuario con rol de empleado
   } else {
     window.location.href = '/dashboard'; // Redirigir a la ruta de dashboard para otros roles
   }

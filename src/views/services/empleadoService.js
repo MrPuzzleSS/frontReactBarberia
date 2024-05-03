@@ -73,6 +73,20 @@ const EmpleadoService = {
             });
     },
 
+    // getEmpleadoConCitas: (id) => {
+    //     const token = localStorage.getItem('token');
+    //     return fetch(`${apiUrl}/empleados/${id}?include=citas`, { // Incluir citas en la consulta
+    //         headers: {
+    //             'Authorization': `Bearer ${token}`
+    //         }
+    //     })
+    //         .then(response => response.json())
+    //         .catch(error => {
+    //             console.error('Error al obtener el empleado y sus citas por ID:', error);
+    //         });
+    // }
+
+
     eliminarEmpleado: (id) => {
         const token = localStorage.getItem('token');
         return fetch(`${apiUrl}/${id}`, {

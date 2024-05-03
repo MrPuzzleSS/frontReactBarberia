@@ -53,8 +53,8 @@ const Modals = React.lazy(() => import('./views/notifications/modals/Modals'))
 const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 
 
-
-
+const reservarCita = React.lazy(() => import('./views/home/citas/crearCita'))
+const listaCitas = React.lazy(() => import('./views/home/citas/listaCitas'))
 const ListaProveedores = React.lazy(()  => import('./views/proveedores/listaProveedores'))
 const CrearProveedor = React.lazy(() => import('./views/proveedores/crearProveedor'))
 const ListaCompras = React.lazy(() => import('./views/compras/listaCompras'))
@@ -129,6 +129,9 @@ const routes = [
   { path: '/servicios', name: 'Servicios', element: ListaServicios },
   { path: '/servicios/listaServicios', name: 'Listado de Servicios', element: ListaServicios },
   { path: '/servicios/crearServicio', name: 'Crear Servicio', element: CrearServicio },
+  { path: '/listaCitas', name:'Lista de citas', element: listaCitas},
+  { path: '/reservar', name:'Reservas', element: reservarCita},
+
   
 
   // { path: '/insumos', name: 'Insumos', element: ListaInsumos },

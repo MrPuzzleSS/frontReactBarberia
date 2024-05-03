@@ -1,6 +1,8 @@
 import React from 'react';
 import CIcon from '@coreui/icons-react';
-import 'src/scss/css/global.css'; 
+import { NavLink } from 'react-router-dom'; // Importa NavLink desde react-router-dom
+
+import 'src/scss/css/global.css';
 
 import {
   cilShieldAlt,
@@ -21,6 +23,7 @@ import {
 import { CNavGroup, CNavItem } from '@coreui/react';
 import { getUserInfo } from './components/auht';
 
+
 const _nav = [
   {
     component: CNavItem,
@@ -28,6 +31,7 @@ const _nav = [
     to: '/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
+ 
   {
     component: CNavGroup,
     name: <span style={{ fontWeight: 'bold' }}>Procesos de Compra</span>,
@@ -54,12 +58,15 @@ const _nav = [
       },
     ]
   },
+
+
   {
     component: CNavGroup,
     name: <span style={{ fontWeight: 'bold' }}>Procesos de Servicio</span>,
     to: '/servicios',
     icon: <CIcon icon={cilCut} customClassName="nav-icon" />,
     items: [
+
       {
         component: CNavItem,
         name: 'Empleados',
@@ -72,14 +79,27 @@ const _nav = [
         to: '/servicios',
         icon: <CIcon icon={cilCut} customClassName="nav-icon" />,
       },
-    ]
-  },
       {
         component: CNavItem,
-        name: <span style={{ fontWeight: 'bold' }}>Programación de  Turnos</span>,
-        to: '/agendas/crearconfiguracion',
-        icon: <CIcon icon={cilCalendar} customClassName="nav-icon" />,
+        name: 'Lista de citas',
+        to: '/listaCitas',
+        icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
       },
+      {
+        component: CNavItem,
+        name: 'Reservas',
+        to: '/reservar',
+        icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
+      },
+    ]
+  },
+  {
+    component: CNavItem,
+    name: <span style={{ fontWeight: 'bold' }}>Programación de  Turnos</span>,
+    to: '/agendas/crearconfiguracion',
+    icon: <CIcon icon={cilCalendar} customClassName="nav-icon" />,
+  },
+
   {
     component: CNavGroup,
     name: <span style={{ fontWeight: 'bold' }}>Procesos de Venta</span>,

@@ -7,7 +7,7 @@ import CIcon from '@coreui/icons-react';
 import { Link, Navigate } from 'react-router-dom';
 import logoBarberia from '../../../assets/images/logoBarberia2.png';
 import prueba2 from '../../../assets/images/fonds.jpg';
-import 'src/scss/css/global.css'; 
+import 'src/scss/css/global.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
@@ -19,16 +19,22 @@ const RegisterCliente = () => {
 
   const [newUser, setNewUser] = useState({
     id_rol: roleIdCliente,
+    documento: '',
     nombre_usuario: '',
-    contrasena: '',
+    apellido: '',
     correo: '',
+    telefono: '',
+    contrasena: '',
+
     estado: 'Activo',
   });
 
   const [errors, setErrors] = useState({
+    documento: '',
     nombre_usuario: '',
+    apellido: '',
     correo: '',
-    contrasena: '',
+    telefono: '',
     confirmPassword: '',
   });
 
@@ -39,18 +45,18 @@ const RegisterCliente = () => {
       setErrors({}); // Limpiar errores al intentar registrar
       const response = await axios.post('http://localhost:8095/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
-  
+
       Swal.fire({
         icon: 'success',
         title: 'Usuario registrado con éxito',
         showConfirmButton: false,
         timer: 1500,
       });
-  
+
       setRedirect(true); // Redirigir al usuario después de registrar
     } catch (error) {
       console.error('Error al registrar usuario:', error);
-  
+
       if (error.response.status === 400 && error.response.data && error.response.data.error) {
         Swal.fire({
           icon: 'error',
@@ -116,11 +122,24 @@ const RegisterCliente = () => {
       if (!/(?=.*[A-Z])(?=.*[0-9]).{6,}/.test(value)) {
         error = 'La contraseña debe tener al menos 6 caracteres, una mayúscula y un número';
       }
+    } else if (fieldName === 'apellido') {
+      if (!/^[a-zA-Z\s]*$/.test(value)) {
+        error = 'El apellido solo puede contener letras';
+      }
+    } else if (fieldName === 'documento') {
+      if (!/^\d{10}$/.test(value)) {
+        error = 'El documento debe tener exactamente 10 dígitos numéricos';
+      }
+    } else if (fieldName === 'telefono') {
+      if (!/^\d{10}$/.test(value)) {
+        error = 'El teléfono debe tener exactamente 10 dígitos numéricos';
+      }
     }
 
     // Actualizar el estado de los errores
     setErrors({ ...errors, [fieldName]: error });
   };
+
 
   const isFormValid = () => {
     // Verificar si todos los errores son una cadena vacía
@@ -134,7 +153,7 @@ const RegisterCliente = () => {
         <CContainer>
           <CRow className="justify-content-center">
             <div className="text-center">
-              <img src={logoBarberia} alt="logo empresa" style={{ width: '60%', marginBottom: '2rem' }} />
+              <img src={logoBarberia} alt="logo empresa" style={{ width: '60%', marginBottom: '-2rem' }} />
               <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Registrarse</p>
             </div>
           </CRow>
@@ -154,6 +173,18 @@ const RegisterCliente = () => {
               {errors.nombre_usuario && <CAlert color="danger">{errors.nombre_usuario}</CAlert>}
               <CInputGroup className="mb-3">
                 <CInputGroupText>
+                  <CIcon icon={cilUser} />
+                </CInputGroupText>
+                <CFormInput
+                  placeholder="Apellido"
+                  autoComplete="apellido"
+                  value={newUser.apellido}
+                  onChange={(e) => handleInputChange('apellido', e.target.value)}
+                />
+              </CInputGroup>
+              {errors.apellido && <CAlert color="danger">{errors.apellido}</CAlert>}
+              <CInputGroup className="mb-3">
+                <CInputGroupText>
                   <CIcon icon={cilLockLocked} />
                 </CInputGroupText>
                 <CFormInput
@@ -165,6 +196,30 @@ const RegisterCliente = () => {
                 />
               </CInputGroup>
               {errors.correo && <CAlert color="danger">{errors.correo}</CAlert>}
+              <CInputGroup className="mb-3">
+                <CInputGroupText>
+                  <CIcon icon={cilUser} />
+                </CInputGroupText>
+                <CFormInput
+                  placeholder="Documento"
+                  autoComplete="documento"
+                  value={newUser.documento}
+                  onChange={(e) => handleInputChange('documento', e.target.value)}
+                />
+              </CInputGroup>
+              {errors.documento && <CAlert color="danger">{errors.documento}</CAlert>}
+              <CInputGroup className="mb-3">
+                <CInputGroupText>
+                  <CIcon icon={cilUser} />
+                </CInputGroupText>
+                <CFormInput
+                  placeholder="Teléfono"
+                  autoComplete="telefono"
+                  value={newUser.telefono}
+                  onChange={(e) => handleInputChange('telefono', e.target.value)}
+                />
+              </CInputGroup>
+              {errors.telefono && <CAlert color="danger">{errors.telefono}</CAlert>}
               <CInputGroup className="mb-3">
                 <CInputGroupText>
                   <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} onClick={() => setShowPassword(!showPassword)} style={{ cursor: 'pointer' }} />
@@ -205,7 +260,8 @@ const RegisterCliente = () => {
         </CContainer>
       </div>
     </div>
-  );
+  )
 };
+
 
 export default RegisterCliente;

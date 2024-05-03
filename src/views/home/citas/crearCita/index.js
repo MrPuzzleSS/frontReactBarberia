@@ -101,27 +101,27 @@ const AgendarCita = () => {
   const handleDateSelect = (info) => {
     const date = info.start;
     const formattedDate = format(date, "yyyy-MM-dd");
-  
+
     // Formatear la fecha de la primera entrada en agendaData
     const firstAgendaDate = agendaData.length > 0 ? format(new Date(agendaData[0].fechaInicio), "yyyy-MM-dd") : null;
-  
+
     if (firstAgendaDate) {
       // Establecer la fecha seleccionada como la primera fecha en agendaData
       setSelectedDate(firstAgendaDate);
-  
+
       // Llamar a calculateAppointmentTime para actualizar el tiempo total de la cita
       calculateAppointmentTime();
-  
+
       // Convertir las fechas formateadas en objetos de fecha
       const selectedDateObj = new Date(formattedDate);
       const firstAgendaDateObj = new Date(firstAgendaDate);
-  
+
       // Verificar si la fecha seleccionada es igual o posterior a la primera fecha en agendaData
       if (isAfter(selectedDateObj, firstAgendaDateObj) || isSameDay(selectedDateObj, firstAgendaDateObj)) {
         // Verificar si la fecha seleccionada es anterior o igual a la última fecha de finalización en agendaData
         const lastAgendaDate = format(new Date(agendaData[agendaData.length - 1].fechaFin), "yyyy-MM-dd");
         const lastAgendaDateObj = new Date(lastAgendaDate);
-  
+
         if (isBefore(selectedDateObj, lastAgendaDateObj) || isSameDay(selectedDateObj, lastAgendaDateObj)) {
           // Si la fecha seleccionada es anterior o igual a la última fecha de finalización en agendaData
           setModalHoraVisible(true);
@@ -148,8 +148,8 @@ const AgendarCita = () => {
       });
     }
   };
-  
-  
+
+
 
 
 
@@ -179,55 +179,8 @@ const AgendarCita = () => {
   };
 
 
-  const handleAgendarClick = async () => {
-    const userInfo = await getUserInfo();
 
-    if (selectedBarberoId && selectedDate && selectedHour !== null) {
-      try {
 
-        const formattedHour = selectedHour.slice(0, 5);
-
-        // Guarda la cita al hacer clic en "Agendar"
-        const nuevaCita = {
-          id_empleado: selectedBarberoId,
-          id_usuario: userInfo.userId, // TODO: Obtener el id del cliente
-          Fecha_Atencion: selectedDate,
-          Hora_Atencion: formattedHour,
-          Hora_Fin: selectedHourFin, // Use selectedHourFin instead of horaFin
-
-        };
-
-        // Utiliza la función create de CitasDataService para crear la cita
-        const response = await CitasDataService.create(nuevaCita);
-
-        // Utiliza la función create de CitasServiciosDataService para crear la cita_servicio
-        await createCitaServicio(response.data.id_cita, selectedServices)
-
-        if (response) {
-          Swal.fire({
-            icon: "success",
-            title: "Se creó la cita correctamente",
-            showConfirmButton: false,
-          }).then(() => {
-            window.location.href = "/cliente/listacitas";
-          }, 1200);
-        }
-      } catch (error) {
-        Swal.fire({
-          icon: "error",
-          title: "Error al Agendar la Cita",
-          text: error.message,
-        });
-      }
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Error al Agendar la Cita",
-        text: "Completa la selección de empleado, fecha y hora antes de agendar",
-      })
-      // Puedes mostrar un mensaje o realizar alguna acción adicional aquí
-    }
-  };
 
 
   // Función para calcular la duración entre dos horas en formato HH:mm
@@ -346,45 +299,46 @@ const AgendarCita = () => {
 
 
   const handleBarberoSelection = async (id_empleado) => {
-
     setSelectedBarberoId(id_empleado);
 
     try {
-      const citasAgendadas = await CitasDataService.getAllCitasAgendadas();
-      console.log("Citas Agendadas:", citasAgendadas); // Mostrar citas agendadas en la consola
-
+      // Obtener las agendas del empleado seleccionado
       const response = await CitasDataService.getEmpleadoAgendas(id_empleado);
       const agendas = response.data.agendas;
-      const agendasEstadoTrue = agendas.filter(agenda => agenda.estado === true);
-      setSelectedBarbero(response.data.empleado);
-      setAgendaData(agendasEstadoTrue);
-      setCitasAgendadasData(citasAgendadas.data.listCitas);
-      
+      const agendasEstadoTrue = agendas.filter((agenda) => agenda.estado === true);
 
+      // Filtrar las agendas para mostrar solo los eventos iguales o futuros a la fecha actual
+      const currentDate = new Date(); // Obtener la fecha actual
+      const agendasFuturas = agendasEstadoTrue.filter((agenda) => {
+        const startDate = new Date(agenda.fechaInicio);
+        return startDate >= currentDate;
+      });
 
-      // Llamar a calculateAppointmentTime después de haber establecido todos los datos necesarios, incluida la hora seleccionada
-      calculateAppointmentTime();
+      // Verificar si hay agendas futuras para el empleado seleccionado
+      if (agendasFuturas.length > 0) {
+        // Establecer el empleado seleccionado y sus agendas
+        setSelectedBarbero(response.data.empleado);
+        setAgendaData(agendasFuturas);
 
-      // Obtener y almacenar el nombre del empleado
-      const empleadoSeleccionado = empleados.find(
-        (empleado) => empleado.id_empleado === id_empleado
-      );
-      if (empleadoSeleccionado) {
-        setSelectedBarberoName(empleadoSeleccionado.nombre);
+        // Llamar a calculateAppointmentTime después de haber establecido todos los datos necesarios, incluida la hora seleccionada
+        calculateAppointmentTime();
+
+        // Establecer el nombre del empleado seleccionado utilizando la respuesta del servidor
+        setSelectedBarberoName(response.data.empleado.nombre);
+      } else {
+        // Si no hay agendas futuras, mostrar un mensaje de error con SweetAlert
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se encontraron agendas futuras para el empleado seleccionado.",
+        });
       }
-
-
-      // Nuevo console.log para verificar la hora de fin después de calcularla
-      console.log("Hora de inicio:", selectedHour);
-      console.log("Hora de fin calculada:", selectedHourFin);
-
     } catch (error) {
       console.error("Error al obtener la agenda del empleado:", error);
     }
 
     handlePageChange(currentPage + 1);
   };
-
 
 
   const generateHourOptions = (startHour, endHour, selectedDate, citasAgendadas) => {
@@ -399,7 +353,6 @@ const AgendarCita = () => {
 
         // Check if the hour is occupied by a scheduled appointment
         const horaOcupada = citasAgendadas.some(cita => {
-          
           const citaDate = new Date(cita.Fecha_Atencion);
           citaDate.setTime(citaDate.getTime() + citaDate.getTimezoneOffset() * 60 * 1000);
           const formattedCitaDate = format(citaDate, 'yyyy-MM-dd');
@@ -430,13 +383,91 @@ const AgendarCita = () => {
             {hora}
           </CButton>
         );
-
       }
     }
     return <div className="row">{options}</div>;
   };
 
- 
+  // Function to remove the selected hour and hours following it
+  const removeScheduledHourAndFollowingHours = (selectedHour, options) => {
+    const indexToRemove = options.findIndex(option => option.key === selectedHour);
+    return options.slice(0, indexToRemove);
+  };
+
+
+  // After scheduling an appointment, reorganize the remaining hours
+  const handleAgendarClick = async () => {
+    const userInfo = await getUserInfo();
+
+    if (selectedBarberoId && selectedDate && selectedHour !== null) {
+      try {
+        const formattedHour = selectedHour.slice(0, 5);
+
+        // Save the appointment when clicking "Agendar"
+        const nuevaCita = {
+          id_empleado: selectedBarberoId,
+          id_usuario: userInfo.userId, // TODO: Obtain client's id
+          Fecha_Atencion: selectedDate,
+          Hora_Atencion: formattedHour,
+          Hora_Fin: selectedHourFin, // Use selectedHourFin instead of horaFin
+        };
+
+        // Use CitasDataService's create function to create the appointment
+        const response = await CitasDataService.create(nuevaCita);
+
+        // Use CitasServiciosDataService's create function to create the cita_servicio
+        await createCitaServicio(response.data.id_cita, selectedServices);
+
+        if (response) {
+          console.log("Cita agendada correctamente");
+          Swal.fire({
+            icon: "success",
+            title: "Cita agendada correctamente",
+            showConfirmButton: false,
+          }).then(() => {
+            window.location.href = "/cliente/listacitas";
+          }, 1200);
+
+          // Remove the selected hour and hours following it
+          const remainingOptions = removeScheduledHourAndFollowingHours(selectedHour, options);
+          console.log("Opciones restantes después de eliminar la hora agendada:", remainingOptions);
+          // Re-render the remaining hours
+          setOptions(remainingOptions);
+        }
+      } catch (error) {
+        console.error("Error al agendar la cita:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error al agendar la cita",
+          text: error.message,
+        });
+      }
+    } else {
+      console.error("Error al agendar la cita: No se han seleccionado empleado, fecha o hora");
+      Swal.fire({
+        icon: "error",
+        title: "Error al agendar la cita",
+        text: "Completa la selección de empleado, fecha y hora antes de agendar",
+      });
+    }
+  };
+
+
+  const handleRemoveService = (serviceToRemove) => {
+    // Filtrar los servicios seleccionados para eliminar el servicio seleccionado
+    const updatedSelectedServices = tempSelectedServices.filter(
+      (service) => service.id !== serviceToRemove.id
+    );
+
+    // Actualizar el estado de los servicios seleccionados
+    setTempSelectedServices(updatedSelectedServices);
+
+    // Actualizar la duración total de los servicios seleccionados
+    const removedServiceDuration = parseInt(serviceToRemove.tiempo);
+    setSelectedServicesDuration((prevDuration) => prevDuration - removedServiceDuration);
+  };
+
+
 
 
   // Function to calculate the total value of selected services
@@ -487,131 +518,131 @@ const AgendarCita = () => {
 
                   {/* Contenido para seleccionar servicios */}
                   {tempSelectedServices.length > 0 ? (
-  <CCard className="mt-3">
-    <CCardBody>
-      <CCardTitle>Servicios Seleccionados</CCardTitle>
-      <CTable>
-        <CTableHead>
-          <CTableRow>
-            <CTableHeaderCell scope="col">#</CTableHeaderCell>
-            <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
-            <CTableHeaderCell scope="col">Valor</CTableHeaderCell>
-            <CTableHeaderCell scope="col">Acción</CTableHeaderCell>
-          </CTableRow>
-        </CTableHead>
-        <CTableBody>
-          {tempSelectedServices.map((service, index) => (
-            <CTableRow key={index}>
-              <CTableDataCell>{index + 1}</CTableDataCell>
-              <CTableDataCell>{service.nombre}</CTableDataCell>
-              <CTableDataCell>{service.valor}</CTableDataCell>
-              <CTableDataCell>
-                <CButton
-                  color="danger"
-                  onClick={() => handleRemoveService(service)}
-                >
-                  Quitar
-                </CButton>
-              </CTableDataCell>
-            </CTableRow>
-          ))}
-        </CTableBody>
-      </CTable>
-    </CCardBody>
-  </CCard>
-) : (
-  <div className="mt-3">
-    <CAlert color="info">
-      No se han seleccionado servicios.
-    </CAlert>
-  </div>
-)}
+                    <CCard className="mt-3">
+                      <CCardBody>
+                        <CCardTitle>Servicios Seleccionados</CCardTitle>
+                        <CTable>
+                          <CTableHead>
+                            <CTableRow>
+                              <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                              <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
+                              <CTableHeaderCell scope="col">Valor</CTableHeaderCell>
+                              <CTableHeaderCell scope="col">Acción</CTableHeaderCell>
+                            </CTableRow>
+                          </CTableHead>
+                          <CTableBody>
+                            {tempSelectedServices.map((service, index) => (
+                              <CTableRow key={index}>
+                                <CTableDataCell>{index + 1}</CTableDataCell>
+                                <CTableDataCell>{service.nombre}</CTableDataCell>
+                                <CTableDataCell>{service.valor}</CTableDataCell>
+                                <CTableDataCell>
+                                  <CButton
+                                    color="danger"
+                                    onClick={() => handleRemoveService(service)}
+                                  >
+                                    Quitar
+                                  </CButton>
+                                </CTableDataCell>
+                              </CTableRow>
+                            ))}
+                          </CTableBody>
+                        </CTable>
+                      </CCardBody>
+                    </CCard>
+                  ) : (
+                    <div className="mt-3">
+                      <CAlert color="info">
+                        No se han seleccionado servicios.
+                      </CAlert>
+                    </div>
+                  )}
 
 
                   {/* Modal para seleccionar servicios */}
                   <CModal
-  size="lg"
-  scrollable
-  visible={visibleLg}
-  onClose={() => setVisibleLg(false)}
-  aria-labelledby="ScrollingLongContentExampleLabel2"
->
-  <CModalHeader>
-    <CModalTitle id="ScrollingLongContentExampleLabel2">
-      Seleciona los servicios
-    </CModalTitle>
-  </CModalHeader>
-  <CModalBody>
-    <CTable>
-      <CTableHead>
-        <CTableRow></CTableRow>
-      </CTableHead>
-      <CTableBody>
-        <tr>
-          {servicesData.map((service) => (
-            <td
-              key={service.id}
-              style={{
-                padding: "8px",
-                border: selectedServices.some((s) => s.id === service.id)
-                  ? "2px solid #e83d3d"
-                  : "1px solid #ddd",
-              }}
-            >
-              <div style={{ width: "10rem" }}>
-                <div
-                  style={{
-                    borderBottom: "1px solid #ddd",
-                    padding: "8px",
-                  }}
-                >
-                  {service.nombre}
-                </div>
-                <div style={{ padding: "8px" }}>Precio: {service.valor}</div>
-                <button
-                  style={{
-                    backgroundColor: selectedServices.some(
-                      (s) => s.id === service.id
-                    )
-                      ? "#e83d3d"
-                      : "#4caf50",
-                    color: "#fff",
-                    padding: "8px",
-                    cursor: "pointer",
-                    borderRadius: "5px",
-                    width: "100%", // Ancho del botón al 100%
-                  }}
-                  onClick={() => handleServiceSelection(service)}
-                >
-                  {selectedServices.some((s) => s.id === service.id)
-                    ? "Quitar"
-                    : "Seleccionar"}
-                </button>
-                {selectedServices.some((s) => s.id === service.id) && (
-                  <CButton
-                    color="primary"
-                    onClick={handleAcceptButtonClick}
-                    style={{
-                      marginTop: "8px",
-                      width: "100%", // Ancho del botón al 100%
-                    }}
+                    size="lg"
+                    scrollable
+                    visible={visibleLg}
+                    onClose={() => setVisibleLg(false)}
+                    aria-labelledby="ScrollingLongContentExampleLabel2"
                   >
-                    Aceptar
-                  </CButton>
-                )}
-              </div>
-            </td>
-          ))}
-        </tr>
-      </CTableBody>
-    </CTable>
-  </CModalBody>
-  <CModalFooter>
-    <CButton color="secondary" onClick={() => setVisibleLg(false)}>
-      Cancelar
-    </CButton>
-  </CModalFooter>
-</CModal>
+                    <CModalHeader>
+                      <CModalTitle id="ScrollingLongContentExampleLabel2">
+                        Seleciona los servicios
+                      </CModalTitle>
+                    </CModalHeader>
+                    <CModalBody>
+                      <CTable>
+                        <CTableHead>
+                          <CTableRow></CTableRow>
+                        </CTableHead>
+                        <CTableBody>
+                          <tr>
+                            {servicesData.map((service) => (
+                              <td
+                                key={service.id}
+                                style={{
+                                  padding: "8px",
+                                  border: selectedServices.some((s) => s.id === service.id)
+                                    ? "2px solid #e83d3d"
+                                    : "1px solid #ddd",
+                                }}
+                              >
+                                <div style={{ width: "10rem" }}>
+                                  <div
+                                    style={{
+                                      borderBottom: "1px solid #ddd",
+                                      padding: "8px",
+                                    }}
+                                  >
+                                    {service.nombre}
+                                  </div>
+                                  <div style={{ padding: "8px" }}>Precio: {service.valor}</div>
+                                  <button
+                                    style={{
+                                      backgroundColor: selectedServices.some(
+                                        (s) => s.id === service.id
+                                      )
+                                        ? "#e83d3d"
+                                        : "#4caf50",
+                                      color: "#fff",
+                                      padding: "8px",
+                                      cursor: "pointer",
+                                      borderRadius: "5px",
+                                      width: "100%", // Ancho del botón al 100%
+                                    }}
+                                    onClick={() => handleServiceSelection(service)}
+                                  >
+                                    {selectedServices.some((s) => s.id === service.id)
+                                      ? "Quitar"
+                                      : "Seleccionar"}
+                                  </button>
+                                  {selectedServices.some((s) => s.id === service.id) && (
+                                    <CButton
+                                      color="primary"
+                                      onClick={handleAcceptButtonClick}
+                                      style={{
+                                        marginTop: "8px",
+                                        width: "100%", // Ancho del botón al 100%
+                                      }}
+                                    >
+                                      Aceptar
+                                    </CButton>
+                                  )}
+                                </div>
+                              </td>
+                            ))}
+                          </tr>
+                        </CTableBody>
+                      </CTable>
+                    </CModalBody>
+                    <CModalFooter>
+                      <CButton color="secondary" onClick={() => setVisibleLg(false)}>
+                        Cancelar
+                      </CButton>
+                    </CModalFooter>
+                  </CModal>
 
                 </>
               )}
