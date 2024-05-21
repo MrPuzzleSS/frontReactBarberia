@@ -7,9 +7,6 @@ const addAuthorizationHeader = (headers) => {
     }
 };
 
-
-
-
 const ClienteService = {
     fetchWithAuthorization: async (url, options = {}) => {
         const headers = options.headers || {};
@@ -21,7 +18,24 @@ const ClienteService = {
             throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
 
-        return response.json();
+        return response.json(); // Devuelve el resultado parseado como JSON
+    },
+
+    enviarAgendaSemana: async (id_cliente) => {
+        try {
+            const data = await ClienteService.fetchWithAuthorization(`${apiUrl}/agenda-semana/${id_cliente}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({}),
+            });
+
+            return data; // Devuelve el resultado
+        } catch (error) {
+            console.error('Error al enviar la agenda de la semana:', error);
+            throw error;
+        }
     },
 
     getAllClientes: async () => {
@@ -87,7 +101,6 @@ const ClienteService = {
         try {
             return await ClienteService.fetchWithAuthorization(`${apiUrl}/${id_cliente}`, {
                 method: 'DELETE',
-                // Options such as headers, authentication, etc.
             });
         } catch (error) {
             console.error(`Error al eliminar el cliente: ${error.message}`);

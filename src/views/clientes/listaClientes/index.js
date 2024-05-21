@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FaTrash } from 'react-icons/fa';
-import {
-    // ... Otros imports
-
-    CPaginationItem,
-} from '@coreui/react';
+import { CPaginationItem } from '@coreui/react';
 import { FaEdit } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { MdDelete } from 'react-icons/md';
 import Switch from 'react-switch';
 import {
     CCard,
@@ -31,6 +26,7 @@ import {
     CModalFooter,
     CFormLabel,
     CFormInput,
+    CFormCheck,
     CPagination,
 } from '@coreui/react';
 import ClienteService from 'src/views/services/clienteService';
@@ -39,6 +35,7 @@ const ListaClientes = () => {
     const [visible, setVisible] = useState(false);
     const [clientes, setClientes] = useState(null);
     const [selectedClienteId, setSelectedClienteId] = useState(null);
+    const [selectedClientes, setSelectedClientes] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
@@ -58,6 +55,7 @@ const ListaClientes = () => {
     useEffect(() => {
         fetchClientes();
     }, []);
+
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
@@ -172,7 +170,66 @@ const ListaClientes = () => {
         });
     };
 
+    const handleSendMessage = async () => {
+        try {
+            const selectedClients = clientes.filter(cliente => selectedClientes.includes(cliente.id_cliente));
+            await Promise.all(selectedClients.map(async (cliente) => {
+                try {
+                    console.log(`Enviando mensaje al cliente ID: ${cliente.id_cliente}`);
+                    const response = await ClienteService.enviarAgendaSemana(cliente.id_cliente);
+                    console.log(`Mensaje enviado correctamente al cliente ID: ${cliente.id_cliente}`, response);
+                } catch (error) {
+                    console.error(`Error al enviar mensaje al cliente ID: ${cliente.id_cliente}`, error);
 
+                    // Mostrar mensaje de error específico en el frontend
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al enviar mensaje',
+                        text: `Error al enviar mensaje al cliente ID: ${cliente.id_cliente}: ${error.message}`,
+                    });
+                    throw error; // Re-lanza el error para que `Promise.all` lo capture
+                }
+            }));
+            Swal.fire({
+                icon: 'success',
+                title: 'Mensajes enviados correctamente',
+                showConfirmButton: false,
+                timer: 1500,
+            });
+        } catch (error) {
+            console.error('Error al enviar mensajes:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al enviar mensajes',
+                text: `Hubo un problema al enviar los mensajes a los clientes seleccionados: ${error.message}`,
+            });
+        }
+    };
+
+
+
+
+
+
+
+
+
+    const handleSelectAll = () => {
+        if (selectedClientes.length === paginatedClientes.length) {
+            setSelectedClientes([]);
+        } else {
+            const allClienteIds = paginatedClientes.map(cliente => cliente.id_cliente);
+            setSelectedClientes(allClienteIds);
+        }
+    };
+
+    const handleSelectCliente = (id_cliente) => {
+        setSelectedClientes(prevSelected =>
+            prevSelected.includes(id_cliente)
+                ? prevSelected.filter(id => id !== id_cliente)
+                : [...prevSelected, id_cliente]
+        );
+    };
 
     const filteredClientes = clientes
         ? clientes.filter((cliente) =>
@@ -189,18 +246,38 @@ const ListaClientes = () => {
     const paginatedClientes = filteredClientes.slice(startIndex, endIndex);
 
     return (
+
+
         <CRow>
             <CCol xs={12}>
                 <CCard>
-                    <CCardHeader>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <strong>Lista de Clientes</strong>
+                    <CCardHeader className="d-flex justify-content-between align-items-center">
+
+                        <div className="button-container">
                             <Link to="/Clientes/CrearClientes">
                                 <CButton color="primary">Agregar Cliente</CButton>
                             </Link>
+
+                            {selectedClientes.length > 0 && (
+                                <>
+                                    <CButton color="info" onClick={handleSelectAll}>
+                                        Select Todo
+                                    </CButton>
+                                    <CButton color="success" onClick={handleSendMessage}>
+                                        Enviar
+                                    </CButton>
+                                </>
+                            )}
                         </div>
+                    </CCardHeader>
+                    <br />
+                    <CCardHeader>
                         <CCol xs={3}>
                             <div className="mt-2">
+                                <div>
+                                    <strong>Listado de clientes</strong>
+                                </div>
+                                <br />
                                 <CFormInput
                                     type="text"
                                     placeholder="Buscar cliente..."
@@ -210,11 +287,15 @@ const ListaClientes = () => {
                             </div>
                         </CCol>
                     </CCardHeader>
+
+
                     <CCardBody>
                         <CTable align="middle" className="mb-0 border" hover responsive>
                             <CTableHead>
                                 <CTableRow>
-                                    {/* <CTableHeaderCell scope="col">Id</CTableHeaderCell> */}
+                                    <CTableHeaderCell>
+
+                                    </CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Documento</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Apellido</CTableHeaderCell>
@@ -229,13 +310,18 @@ const ListaClientes = () => {
                                     paginatedClientes.length > 0 &&
                                     paginatedClientes.map((cliente, index) => (
                                         <CTableRow key={cliente.id_cliente}>
-                                            {/* <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell> */}
+                                            <CTableDataCell>
+                                                <CFormCheck
+                                                    id={`select-${cliente.id_cliente}`}
+                                                    onChange={() => handleSelectCliente(cliente.id_cliente)}
+                                                    checked={selectedClientes.includes(cliente.id_cliente)}
+                                                />
+                                            </CTableDataCell>
                                             <CTableDataCell>{cliente.documento}</CTableDataCell>
                                             <CTableDataCell>{cliente.nombre}</CTableDataCell>
                                             <CTableDataCell>{cliente.apellido}</CTableDataCell>
                                             <CTableDataCell>{cliente.correo}</CTableDataCell>
                                             <CTableDataCell>{cliente.telefono}</CTableDataCell>
-
                                             <CTableDataCell>
                                                 <CButtonGroup aria-label="Acciones del Cliente">
                                                     <CTableDataCell>
@@ -243,7 +329,7 @@ const ListaClientes = () => {
                                                             style={{
                                                                 marginRight: '30px',
                                                                 marginTop: '2px',  // Ajusta el margen superior según tus necesidades
-                                                                backgroundColor: cliente.estado ? '#12B41A  ' : 'red  ',
+                                                                backgroundColor: cliente.estado ? '#12B41A' : 'red',
                                                                 color: 'white',
                                                                 fontWeight: 'bold',
                                                                 fontSize: '14px',  // Ajusta el tamaño del texto según tus necesidades
@@ -255,11 +341,8 @@ const ListaClientes = () => {
                                                         </CButton>
                                                     </CTableDataCell>
                                                     <div style={{ transform: 'scaleY(1.3)', marginRight: '7px', marginTop: '8px' }}>
-
                                                         <Switch
-                                                            onChange={() =>
-                                                                handleCambiarEstado(cliente.id_cliente)
-                                                            }
+                                                            onChange={() => handleCambiarEstado(cliente.id_cliente)}
                                                             checked={cliente.estado}
                                                             onColor="#001DAE"
                                                             onHandleColor="#FFFFFF"
@@ -312,7 +395,6 @@ const ListaClientes = () => {
                                                     >
                                                         <FaTrash /> {/* Icono de eliminar */}
                                                     </CButton>
-
                                                 </CButtonGroup>
                                             </CTableDataCell>
                                         </CTableRow>

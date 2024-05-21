@@ -9,15 +9,26 @@ const getAllCitasAgendadas = () => {
 
 }
 
-const getAllCitasServicios = (id_usuario) => {
-    return http.get(`/citas/usuario/${id_usuario}`);
+const getAllCitasServicios = (id_cita) => {
+    return http.get(`/citas/usuario/${id_cita}`);
+}
+//---------------------------
+const getUsuario = (id_usuario) => {
+    return http.get(`/usuario/${id_usuario}`);
+}
+//----------------------
+
+const CancelarCita = (id_cita) => {
+    return http.post(`/cancelar/${id_cita}`);
 }
 
-
-
+const TomarCita = (id_cita) => {
+    return http.post(`/tomar/${id_cita}`);
+}
 
 const get = id => {
     return http.get(`/citas/${id}`);
+
 }
 
 const getEmpleado = id => {
@@ -85,8 +96,13 @@ const CitasDataService = {
     remove,
     findByTitle,
     getEmpleadoConCitas,
+    getUsuario,
+    CancelarCita,
+    TomarCita,
 
     cambiarEstadoCita
 }
+
+export {getUsuario}
 
 export default CitasDataService;

@@ -69,7 +69,7 @@ function ListaCitas() {
   const [citas, setCitas] = useState([]);
   const [detallesCita, setDetallesCita] = useState([]);
   const [tablaActualizada, setTablaActualizada] = useState(false);
-  const [userId, setUserId] = useState(null);
+  const [, setUserId] = useState(null);
 
   // Paginación
   const pageSize = 5;
@@ -117,7 +117,7 @@ function ListaCitas() {
                 Hora_Atencion: item.Hora_Atencion,
                 Hora_Fin: item.Hora_Fin,
                 estado: item.estado,
-                
+
               };
 
               // Obtener el nombre del barbero asociado a la cita
@@ -174,9 +174,39 @@ function ListaCitas() {
 
     fetchData();
   }, [tablaActualizada]);
+  // Función para tomar una cita
+  const TomarCita = async (idCita) => {
+    const confirmacion = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Realmente quieres tomar esta cita?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, tomar cita',
+      cancelButtonText: 'No, mantener cita'
+    });
 
+    if (confirmacion.isConfirmed) {
+      try {
+        console.log('Tomando cita con ID:', idCita);
 
-  const cancelarCita = async (idCita) => {
+        await CitasDataService.TomarCita(idCita);
+
+        console.log('Cita tomada con éxito');
+
+        setTablaActualizada(prevState => !prevState);
+
+        Swal.fire('Éxito', 'La cita se ha tomado exitosamente', 'success');
+      } catch (error) {
+        console.error('Error al tomar la cita:', error);
+        Swal.fire('Error', 'No se pudo tomar la cita', 'error');
+      }
+    }
+  };
+
+  // Función para cancelar una cita
+  const CancelarCita = async (idCita) => {
     // Mostrar un cuadro de diálogo de confirmación
     const confirmacion = await Swal.fire({
       title: '¿Estás seguro?',
@@ -192,33 +222,49 @@ function ListaCitas() {
     // Si el usuario confirma la cancelación
     if (confirmacion.isConfirmed) {
       try {
-        // Llamar a la función para cambiar el estado de la cita
-        await CitasDataService.cambiarEstadoCita(idCita);
+        console.log('Cancelando cita con ID:', idCita); // Imprime el valor de idCita aquí
 
-        // Actualizar la tabla
+        // Llamar a la función para cancelar la cita
+        await CitasDataService.CancelarCita(idCita);
+
+        console.log('Cita cancelada con éxito');
+
+        // Actualizar la tabla de citas
         setTablaActualizada(prevState => !prevState);
 
-        // Mostrar mensaje de éxito
+        // Mostrar un mensaje de éxito
         Swal.fire('Éxito', 'La cita se ha cancelado exitosamente', 'success');
       } catch (error) {
         // Si ocurre un error, mostrar un mensaje de error
+        console.error('Error al cancelar la cita:', error);
         Swal.fire('Error', 'No se pudo cancelar la cita', 'error');
       }
     }
-  }
-
-  const mostrarDetalleCompra = (cita) => {
-    setVisible(true);
-    setDetallesCita(cita.detallesCita);
-    console.log("Detalles de la cita:", cita.detallesCita);
-
   };
+
+
+
+
+
+
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
+  const UsuarioNombre = ({ idUser }) => {
+    const [nombre, setNombre] = useState('');
 
+    useEffect(() => {
+      const fetchNombre = async () => {
+        const nombreUsuario = await CitasDataService.getUsuario(idUser);
+        setNombre(nombreUsuario.data.nombre_usuario);
+      };
+      fetchNombre();
+    }, [idUser]);
+
+    return <>{nombre}</>;
+  };
 
   return (
     <>
@@ -245,13 +291,26 @@ function ListaCitas() {
                       <CTableDataCell><BarberoNombre id_empleado={cita.cita.id_empleado} /></CTableDataCell>
                       <CTableDataCell>{format(new Date(cita.cita.Fecha_Atencion), "dd/MM/yyyy")}</CTableDataCell>
                       <CTableDataCell>{cita.cita.Hora_Atencion}</CTableDataCell>
-                      <CTableDataCell>{cita.cita.id_usuario}</CTableDataCell>
+                      <CTableDataCell> <UsuarioNombre idUser={cita.cita.id_usuario} /></CTableDataCell>
                       <CTableDataCell>{cita.cita.Hora_Fin}</CTableDataCell>
                       <CTableDataCell>{cita.cita.estado}</CTableDataCell>
                       <CTableDataCell>
-                        <CButton color="danger" onClick={() => cancelarCita(cita.cita.id_cita)}>Cancelar</CButton>
-                        <CButton color="info" onClick={() => mostrarDetalleCompra(cita)}>Detalle</CButton>
+                        <CButton
+                          color="danger"
+                          onClick={() => CancelarCita(cita.cita.id_cita)}
+                          disabled={cita.estadoCita === 'cancelada' || cita.estadoCita === 'tomada'}
+                        >
+                          Cancelar Cita
+                        </CButton>
+                        <CButton
+                          color="primary"
+                          onClick={() => TomarCita(cita.cita.id_cita)}
+                          disabled={cita.estadoCita === 'cancelada' || cita.estadoCita === 'tomada'}
+                        >
+                          Tomar Cita
+                        </CButton>
                       </CTableDataCell>
+
                     </CTableRow>
                   ))}
                 </CTableBody>
