@@ -17,22 +17,16 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import socket from '../../socket';
 import 'src/scss/css/calendarStyles.css';
 import CitasDataService from 'src/views/services/citasService';
-
-
-
+import Moment from 'moment';
+import 'moment-timezone';
 
 const CrearConfiguracion = () => {
-
 
     socket.on('eventoActualizado', (eventoActualizado) => {
         console.log('Evento actualizado recibido:', eventoActualizado);
         // Aquí puedes actualizar los datos relevantes en el cliente con el evento actualizado
         // Por ejemplo, puedes actualizar el estado de los eventos o recargar la página
     });
-
-
-
-
 
     const MultiSelect = ({ options, selectedValues, onChange }) => {
         const handleChange = (selectedOption) => {
@@ -78,8 +72,6 @@ const CrearConfiguracion = () => {
     };
 
 
-
-
     const fetchEmpleados = async () => {
 
         try {
@@ -122,8 +114,6 @@ const CrearConfiguracion = () => {
         }
     };
 
-
-
     useEffect(() => {
         fetchEmpleados();
     }, []);
@@ -143,10 +133,6 @@ const CrearConfiguracion = () => {
         console.log('Estado actual de formData:', formData);
     };
 
-
-
-
-
     const colorArray = [
 
 
@@ -162,10 +148,6 @@ const CrearConfiguracion = () => {
         '#F0FFFF', '#7FFFD4', '#00CED1', '#00FA9A',
         '#48D1CC', '#66CDAA', '#76EEC6', '#87CEFA'
     ];
-
-
-
-
 
     const generateColor = (id_empleado) => {
         const color = colorArray[id_empleado - 1] || '#CCCCCC';
@@ -365,8 +347,6 @@ const CrearConfiguracion = () => {
         fetchFechas()
     }, [])
 
-
-
     const citas = fechaSeleccionada;
 
 
@@ -391,7 +371,6 @@ const CrearConfiguracion = () => {
         } else {
             console.error('ID de agenda inválido');
         }
-
 
     };
 
@@ -439,8 +418,6 @@ const CrearConfiguracion = () => {
             }
 
             const eventId = eventoSeleccionado.id_agenda;
-
-
 
             // Verificar si el empleado actual está ocupado en algún evento
             const ocupado = horasOcupado(id_empleado, horaInicio, horaFin, citas);
@@ -497,10 +474,6 @@ const CrearConfiguracion = () => {
         }
     };
 
-
-
-
-
     // Escuchar el evento 'eventoActualizado' desde el servidor
     socket.on('eventoActualizado', (eventoActualizado) => {
         console.log('Evento actualizado recibido:', eventoActualizado);
@@ -521,8 +494,6 @@ const CrearConfiguracion = () => {
         // Actualizar el estado de los eventos en el cliente
         setEventos(eventosActualizados);
     });
-
-
 
     //---------------------------------------------------------------------------
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -551,7 +522,6 @@ const CrearConfiguracion = () => {
             busquedaEmpleado: '',
         });
     };
-
 
     const handleCrearAgenda = async () => {
         let errorMessage; // Declaración de la variable errorMessage
@@ -695,85 +665,66 @@ const CrearConfiguracion = () => {
     });
 
 
-
-
     const handleEventDrop = async (eventDropInfo) => {
         // Guardar las coordenadas originales del evento
         const originalStart = eventDropInfo.oldEvent.start;
         const originalEnd = eventDropInfo.oldEvent.end;
-
+    
         try {
             const { id, start, end } = eventDropInfo.event;
             const empleadoId = eventDropInfo.event.extendedProps.id_empleado;
-
+    
             // Verificar si la agenda está deshabilitada antes de permitir la edición
             if (!eventDropInfo.event.extendedProps.estado) {
                 // Revertir el movimiento
                 eventDropInfo.revert();
                 throw new Error('No puedes mover una agenda deshabilitada');
             }
-            // Validar si la fecha está fuera del día actual
-            const currentDate = new Date();
-            const fechaHoy = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-
-            // Convertir las fechas de inicio y fin a la parte de la fecha solamente
-            const startOnlyDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-            const endOnlyDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
-
-            if (startOnlyDate < fechaHoy || endOnlyDate < fechaHoy) {
+    
+            // Obtener la fecha actual en la misma zona horaria que las fechas de inicio y fin
+            const currentDate = new Date(start.getTime());
+    
+            // Comparar las fechas actuales con las fechas de inicio y fin del evento
+            if (start < currentDate || end < currentDate) {
                 // Si la fecha es anterior al día actual, restaurar las coordenadas originales del evento
                 eventDropInfo.event.setDates(originalStart, originalEnd);
                 throw new Error('No puedes arrastrar eventos a fechas anteriores al día actual');
             }
-
-
-
+    
             // Verificar si la fecha del evento ya pasó
-            const isPastEvent = endOnlyDate <= fechaHoy;
-
-            // Console.log para verificar la fecha del evento
-            console.log('Fecha del evento:', endOnlyDate);
-
+            const isPastEvent = end <= currentDate;
+    
             // Si la fecha del evento ya pasó, restaurar las coordenadas originales del evento
             if (isPastEvent) {
                 eventDropInfo.revert();
                 throw new Error('No puedes mover agendas que ya han pasado');
             }
-
-
-
-            // Verificar si la agenda está deshabilitada antes de permitir la edición
-            if (!eventDropInfo.event.extendedProps.estado) {
-                // Si la agenda está deshabilitada, restaurar las coordenadas originales del evento
-                eventDropInfo.event.setDates(originalStart, originalEnd);
-                throw new Error('No puedes editar una agenda deshabilitada');
-            }
-
+    
             // Verificar si el evento se está moviendo a una nueva posición ocupada
             if (eventDropInfo.oldEvent && eventDropInfo.oldEvent.id) {
                 // Filtrar eventos del mismo empleado, excluyendo el evento actual
                 const eventosEmpleado = events.filter((evento) => {
                     return evento.extendedProps.id_empleado === empleadoId && evento.id !== id;
                 });
-
+    
                 const nuevoEvento = {
                     start,
                     end,
                 };
-
+    
                 const hayCoincidencia = eventosEmpleado.some((evento) => {
                     const horarioEvento = {
                         start: evento.start,
                         end: evento.end,
                     };
-
+    
                     // Verificar si hay superposición de horarios
                     return (
                         nuevoEvento.start < horarioEvento.end &&
                         nuevoEvento.end > horarioEvento.start
                     );
                 });
-
+    
                 // Verificar si hay coincidencia de horarios
                 if (hayCoincidencia) {
                     // Si hay una coincidencia, restaurar las coordenadas originales del evento
@@ -781,20 +732,20 @@ const CrearConfiguracion = () => {
                     throw new Error('No puedes arrastrar eventos donde el empleado tiene el mismo horario');
                 }
             }
-
+    
             // Actualizar la agenda en la base de datos
             const response = await agendaService.updateAgenda(eventDropInfo.event.extendedProps.id_agenda, {
                 fechaInicio: start,
                 fechaFin: end
             });
-
+    
             // Verificar si hubo un error al actualizar la agenda
             if (response && response.error) {
                 // Si hay un error, restaurar las coordenadas originales del evento
                 eventDropInfo.event.setDates(originalStart, originalEnd);
                 throw new Error(response.error);
             }
-
+    
             // Actualizar el estado local solo si la actualización en la base de datos es exitosa
             const updatedEvents = events.map((event) => {
                 if (event.id === id) {
@@ -806,9 +757,9 @@ const CrearConfiguracion = () => {
                 }
                 return event;
             });
-
+    
             setEvents(updatedEvents);
-
+    
             // Mostrar mensaje de éxito con SweetAlert
             Swal.fire({
                 icon: 'success',
@@ -825,6 +776,143 @@ const CrearConfiguracion = () => {
             });
         }
     };
+    
+
+    // const handleEventDrop = async (eventDropInfo) => {
+    //     // Guardar las coordenadas originales del evento
+    //     const originalStart = eventDropInfo.oldEvent.start;
+    //     const originalEnd = eventDropInfo.oldEvent.end;
+
+    //     try {
+    //         const { id, start, end } = eventDropInfo.event;
+    //         const empleadoId = eventDropInfo.event.extendedProps.id_empleado;
+
+    //         // Verificar si la agenda está deshabilitada antes de permitir la edición
+    //         if (!eventDropInfo.event.extendedProps.estado) {
+    //             // Revertir el movimiento
+    //             eventDropInfo.revert();
+    //             throw new Error('No puedes mover una agenda deshabilitada');
+    //         }
+    //         // Validar si la fecha está fuera del día actual
+    //         const currentDate = new Date();
+    //         const fechaHoy = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+
+    //         // Convertir las fechas de inicio y fin a la parte de la fecha solamente
+    //         const startOnlyDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    //         const endOnlyDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+
+    //         if (startOnlyDate < fechaHoy || endOnlyDate < fechaHoy) {
+    //             // Si la fecha es anterior al día actual, restaurar las coordenadas originales del evento
+    //             eventDropInfo.event.setDates(originalStart, originalEnd);
+    //             throw new Error('No puedes arrastrar eventos a fechas anteriores al día actual');
+    //         }
+
+    //         // Comparar fechas y horas actuales con las fechas y horas de inicio y fin del evento
+    //         if (start < currentDate || end < currentDate) {
+    //             // Si la fecha es anterior al día actual, restaurar las coordenadas originales del evento
+    //             eventDropInfo.event.setDates(originalStart, originalEnd);
+    //             throw new Error('No puedes arrastrar eventos a fechas anteriores al día actual');
+    //         }
+
+
+
+    //         // Verificar si la fecha del evento ya pasó
+    //         const isPastEvent = endOnlyDate <= fechaHoy;
+
+    //         // Console.log para verificar la fecha del evento
+    //         console.log('Fecha del evento:', endOnlyDate);
+
+    //         // Si la fecha del evento ya pasó, restaurar las coordenadas originales del evento
+    //         if (isPastEvent) {
+    //             eventDropInfo.revert();
+    //             throw new Error('No puedes mover agendas que ya han pasado');
+    //         }
+
+
+
+    //         // Verificar si la agenda está deshabilitada antes de permitir la edición
+    //         if (!eventDropInfo.event.extendedProps.estado) {
+    //             // Si la agenda está deshabilitada, restaurar las coordenadas originales del evento
+    //             eventDropInfo.event.setDates(originalStart, originalEnd);
+    //             throw new Error('No puedes editar una agenda deshabilitada');
+    //         }
+
+    //         // Verificar si el evento se está moviendo a una nueva posición ocupada
+    //         if (eventDropInfo.oldEvent && eventDropInfo.oldEvent.id) {
+    //             // Filtrar eventos del mismo empleado, excluyendo el evento actual
+    //             const eventosEmpleado = events.filter((evento) => {
+    //                 return evento.extendedProps.id_empleado === empleadoId && evento.id !== id;
+    //             });
+
+    //             const nuevoEvento = {
+    //                 start,
+    //                 end,
+    //             };
+
+    //             const hayCoincidencia = eventosEmpleado.some((evento) => {
+    //                 const horarioEvento = {
+    //                     start: evento.start,
+    //                     end: evento.end,
+    //                 };
+
+    //                 // Verificar si hay superposición de horarios
+    //                 return (
+    //                     nuevoEvento.start < horarioEvento.end &&
+    //                     nuevoEvento.end > horarioEvento.start
+    //                 );
+    //             });
+
+    //             // Verificar si hay coincidencia de horarios
+    //             if (hayCoincidencia) {
+    //                 // Si hay una coincidencia, restaurar las coordenadas originales del evento
+    //                 eventDropInfo.event.setDates(originalStart, originalEnd);
+    //                 throw new Error('No puedes arrastrar eventos donde el empleado tiene el mismo horario');
+    //             }
+    //         }
+
+    //         // Actualizar la agenda en la base de datos
+    //         const response = await agendaService.updateAgenda(eventDropInfo.event.extendedProps.id_agenda, {
+    //             fechaInicio: start,
+    //             fechaFin: end
+    //         });
+
+    //         // Verificar si hubo un error al actualizar la agenda
+    //         if (response && response.error) {
+    //             // Si hay un error, restaurar las coordenadas originales del evento
+    //             eventDropInfo.event.setDates(originalStart, originalEnd);
+    //             throw new Error(response.error);
+    //         }
+
+    //         // Actualizar el estado local solo si la actualización en la base de datos es exitosa
+    //         const updatedEvents = events.map((event) => {
+    //             if (event.id === id) {
+    //                 return {
+    //                     ...event,
+    //                     start,
+    //                     end,
+    //                 };
+    //             }
+    //             return event;
+    //         });
+
+    //         setEvents(updatedEvents);
+
+    //         // Mostrar mensaje de éxito con SweetAlert
+    //         Swal.fire({
+    //             icon: 'success',
+    //             title: '¡Éxito!',
+    //             text: 'El evento ha sido actualizado correctamente.',
+    //         });
+    //     } catch (error) {
+    //         console.error('Error al actualizar el evento:', error);
+    //         // Mostrar mensaje de error con SweetAlert
+    //         Swal.fire({
+    //             icon: 'error',
+    //             title: 'Error',
+    //             text: error.message,
+    //         });
+    //     }
+    // };
 
 
 
@@ -858,16 +946,6 @@ const CrearConfiguracion = () => {
             });
         }
     };
-
-
-
-
-
-
-
-
-
-
 
     const motivosPredefinidos = [
         'Enfermedad',

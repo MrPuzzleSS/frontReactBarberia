@@ -3,6 +3,7 @@ import CitasDataService from "src/views/services/citasService";
 import Servicios_S from "src/views/services/servicios_s";
 import Swal from 'sweetalert2';
 import { format } from 'date-fns';
+import { FaTimes, FaCheck } from 'react-icons/fa';
 import 'src/scss/css/global.css';
 import {
   CCard,
@@ -25,22 +26,20 @@ import {
   CPagination,
   CPaginationItem
 } from "@coreui/react";
-import PropTypes from 'prop-types'; // Importa PropTypes
+import PropTypes from 'prop-types';
 import { getUserInfo } from '../../../../components/auht';
-
 
 async function getNombreBarbero(id_empleado) {
   try {
     if (id_empleado) {
-      // Si se proporciona el ID del empleado, obtén el nombre del barbero
       const response = await CitasDataService.getEmpleado(id_empleado);
-      return response.data.nombre;
+      return response.data;
     } else {
-      return "Nombre no disponible";
+      return { nombre: "Nombre no disponible", telefono: "Teléfono no disponible" };
     }
   } catch (error) {
     console.error("Error obteniendo el nombre:", error);
-    return "Nombre no disponible";
+    return { nombre: "Nombre no disponible", telefono: "Teléfono no disponible" };
   }
 }
 
@@ -49,12 +48,11 @@ function BarberoNombre({ id_empleado }) {
 
   useEffect(() => {
     const fetchDataNombre = async () => {
-      const nombre = await getNombreBarbero(id_empleado);
-      setNombre(nombre);
+      const data = await getNombreBarbero(id_empleado);
+      setNombre(data.nombre);
     };
 
     fetchDataNombre();
-
   }, [id_empleado]);
 
   return <>{nombre}</>;
@@ -69,46 +67,33 @@ function ListaCitas() {
   const [citas, setCitas] = useState([]);
   const [detallesCita, setDetallesCita] = useState([]);
   const [tablaActualizada, setTablaActualizada] = useState(false);
-  const [, setUserId] = useState(null);
+  const [userId, setUserId] = useState(null);
 
-  // Paginación
   const pageSize = 5;
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Obtener la información del usuario logueado
         const userInfo = await getUserInfo();
         console.log("User ID:", userInfo.userId);
         setUserId(userInfo.userId);
 
-        // Obtener todas las citas para el usuario logueado
         let response;
         if (userInfo.userType === 1) {
-          // Si el usuario es Admin, obtén las citas de los usuarios 2 y 3
           const response1 = await CitasDataService.getAllCitasServicios(2);
           const response2 = await CitasDataService.getAllCitasServicios(3);
           const citasData = response1.data.concat(response2.data);
           response = { data: { citas: citasData } };
         } else if (userInfo.userType === 2) {
-          // Si el usuario es Empleado, obtén sus citas específicas
           response = await CitasDataService.getEmpleadoConCitas(userInfo.userId);
         } else {
-          // Si el usuario es Cliente, obtén solo sus citas
           response = await CitasDataService.getAllCitasServicios(userInfo.userId);
         }
 
-        console.log("Citas response:", response);
-
-        // Verificar si response.data.citas es un array antes de mapearlo
         if (Array.isArray(response.data?.citas)) {
-          // Mapear las citas con sus detalles
           const citasConDetalle = await Promise.all(
             response.data.citas.map(async (item) => {
-              console.log("Cita item:", item);
-              console.log("Datos devueltos por el servicio:", item.citaServicio); // Aquí
-
               const cita = {
                 id_cita: item.id_cita,
                 id_empleado: item.id_empleado,
@@ -117,28 +102,22 @@ function ListaCitas() {
                 Hora_Atencion: item.Hora_Atencion,
                 Hora_Fin: item.Hora_Fin,
                 estado: item.estado,
-
               };
 
-              // Obtener el nombre del barbero asociado a la cita
-              const nombreBarbero = await getNombreBarbero(item.id_empleado);
-              console.log("Nombre del barbero:", nombreBarbero);
+              const barberoData = await getNombreBarbero(item.id_empleado);
+              const nombreBarbero = barberoData.nombre;
+              const telefonoBarbero = barberoData.telefono;
 
-              // Verificar si item.citaServicio está definido antes de mapearlo
               const detallesCita = Array.isArray(item.citaServicio) ? await Promise.all(
                 item.citaServicio.map(async (detalle) => {
                   try {
                     const response = await Servicios_S.get(detalle.id_servicio);
-                    console.log("Servicio detalle:", response.data);
                     return {
                       id_servicio: detalle.id_servicio,
                       servicioInfo: response.data,
                     };
                   } catch (error) {
-                    console.error(
-                      `Error obteniendo detalles del servicio con ID ${detalle.id_servicio}:`,
-                      error,
-                    );
+                    console.error(`Error obteniendo detalles del servicio con ID ${detalle.id_servicio}:`, error);
                     return {
                       id_servicio: detalle.id_servicio,
                       servicioInfo: null,
@@ -151,17 +130,15 @@ function ListaCitas() {
                 cita,
                 detallesCita,
                 nombreBarbero,
+                telefonoBarbero,
               };
             }),
           );
 
-          // Actualizar las citas según el tipo de usuario
           if (userInfo.userType === 2) {
-            // Si es Empleado, filtrar las citas por su ID
             const citasEmpleado = citasConDetalle.filter(cita => cita.cita.id_empleado === userInfo.userId);
             setCitas(citasEmpleado);
           } else {
-            // Si es Admin o Cliente, mostrar todas las citas
             setCitas(citasConDetalle);
           }
         } else {
@@ -174,7 +151,7 @@ function ListaCitas() {
 
     fetchData();
   }, [tablaActualizada]);
-  // Función para tomar una cita
+
   const TomarCita = async (idCita) => {
     const confirmacion = await Swal.fire({
       title: '¿Estás seguro?',
@@ -183,20 +160,16 @@ function ListaCitas() {
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, tomar cita',
-      cancelButtonText: 'No, mantener cita'
+      confirmButtonText: 'Sí, Confirmar',
+      cancelButtonText: 'No'
     });
 
     if (confirmacion.isConfirmed) {
       try {
         console.log('Tomando cita con ID:', idCita);
-
         await CitasDataService.TomarCita(idCita);
-
-        console.log('Cita tomada con éxito');
-
+        console.log('Cita Confirmada con éxito');
         setTablaActualizada(prevState => !prevState);
-
         Swal.fire('Éxito', 'La cita se ha tomado exitosamente', 'success');
       } catch (error) {
         console.error('Error al tomar la cita:', error);
@@ -205,43 +178,35 @@ function ListaCitas() {
     }
   };
 
-  // Función para cancelar una cita
-  const CancelarCita = async (idCita) => {
-    // Mostrar un cuadro de diálogo de confirmación
+  const CancelarCita = async (idCita, idEmpleado) => {
+    const barberoData = await getNombreBarbero(idEmpleado);
+
+
+
     const confirmacion = await Swal.fire({
       title: '¿Estás seguro?',
-      text: '¿Realmente quieres cancelar esta cita?',
+      text: userId === 3 ? `Si necesitas cancelar con tu barbero ${barberoData.nombre}, comunícate con él al ${barberoData.telefono}.` : '¿Realmente quieres cancelar esta cita?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, cancelar cita',
-      cancelButtonText: 'No, mantener cita'
+      confirmButtonText: 'Sí, Cancelar',
+      cancelButtonText: 'No'
     });
 
-    // Si el usuario confirma la cancelación
     if (confirmacion.isConfirmed) {
       try {
-        console.log('Cancelando cita con ID:', idCita); // Imprime el valor de idCita aquí
-
-        // Llamar a la función para cancelar la cita
+        console.log('Cancelando cita con ID:', idCita);
         await CitasDataService.CancelarCita(idCita);
-
         console.log('Cita cancelada con éxito');
-
-        // Actualizar la tabla de citas
         setTablaActualizada(prevState => !prevState);
-
-        // Mostrar un mensaje de éxito
         Swal.fire('Éxito', 'La cita se ha cancelado exitosamente', 'success');
       } catch (error) {
-        // Si ocurre un error, mostrar un mensaje de error
         console.error('Error al cancelar la cita:', error);
         Swal.fire('Error', 'No se pudo cancelar la cita', 'error');
       }
     }
   };
-
 
 
 
@@ -264,6 +229,10 @@ function ListaCitas() {
     }, [idUser]);
 
     return <>{nombre}</>;
+  };
+
+  const isUser1Or2Confirmed = (cita) => {
+    return cita.cita.estado === 'Confirmada' && (userId === 1 || userId === 2);
   };
 
   return (
@@ -289,31 +258,72 @@ function ListaCitas() {
                   {citas.map((cita, index) => (
                     <CTableRow key={index}>
                       <CTableDataCell><BarberoNombre id_empleado={cita.cita.id_empleado} /></CTableDataCell>
-                      <CTableDataCell>{format(new Date(cita.cita.Fecha_Atencion), "dd/MM/yyyy")}</CTableDataCell>
+                      <CTableDataCell>{format(new Date(cita.cita.Fecha_Atencion.substring(0, 10)), "dd/MM/yyyy")}</CTableDataCell>
                       <CTableDataCell>{cita.cita.Hora_Atencion}</CTableDataCell>
                       <CTableDataCell> <UsuarioNombre idUser={cita.cita.id_usuario} /></CTableDataCell>
                       <CTableDataCell>{cita.cita.Hora_Fin}</CTableDataCell>
-                      <CTableDataCell>{cita.cita.estado}</CTableDataCell>
                       <CTableDataCell>
-                        <CButton
-                          color="danger"
-                          onClick={() => CancelarCita(cita.cita.id_cita)}
-                          disabled={cita.estadoCita === 'cancelada' || cita.estadoCita === 'tomada'}
+                        <span
+                          className={`btn ${cita.cita.estado === 'Cancelada' ? 'btn-danger' : cita.cita.estado === 'Confirmada' ? 'btn-success' : isUser1Or2Confirmed(cita) ? 'btn-success' : 'btn-warning'}`}
+                          style={{ cursor: 'default' }}
                         >
-                          Cancelar Cita
-                        </CButton>
-                        <CButton
-                          color="primary"
-                          onClick={() => TomarCita(cita.cita.id_cita)}
-                          disabled={cita.estadoCita === 'cancelada' || cita.estadoCita === 'tomada'}
-                        >
-                          Tomar Cita
-                        </CButton>
+                          {cita.cita.estado === 'Cancelada' ? 'Cancelada' : cita.cita.estado === 'Confirmada' ? 'Confirmada' : isUser1Or2Confirmed(cita) ? 'Confirmada' : 'Pendiente'}
+                        </span>
                       </CTableDataCell>
-
+                      <CTableDataCell>
+                        {cita.cita.estado !== 'Cancelada' && cita.cita.estado !== 'Confirmada' && (
+                          <>
+                            {userId === 3 && (
+                              <CButton
+                                color="danger"
+                                onClick={() => CancelarCita(cita.cita.id_cita, cita.cita.id_empleado)}
+                                style={{ marginRight: '5px' }}
+                              >
+                                <FaTimes style={{ marginRight: '5px' }} />
+                                Cancelar
+                              </CButton>
+                            )}
+                            {(userId === 1 || userId === 2) && (
+                              <>
+                                <CButton
+                                  color="danger"
+                                  onClick={() => CancelarCita(cita.cita.id_cita, cita.cita.id_empleado)}
+                                  style={{ marginRight: '5px' }}
+                                >
+                                  <FaTimes style={{ marginRight: '5px' }} />
+                                  Cancelar
+                                </CButton>
+                                <CButton
+                                  color="success"
+                                  onClick={() => TomarCita(cita.cita.id_cita)}
+                                  disabled={cita.cita.estado === 'Confirmada'}
+                                  style={{ marginRight: '5px' }}
+                                >
+                                  <FaCheck style={{ marginRight: '5px' }} />
+                                  Confirmar
+                                </CButton>
+                              </>
+                            )}
+                          </>
+                        )}
+                        {cita.cita.estado === 'Confirmada' && (
+                          <CButton color="secondary" disabled style={{ marginRight: '5px' }}>
+                            <FaCheck style={{ marginRight: '5px' }} />
+                            Confirmada
+                          </CButton>
+                        )}
+                        {cita.cita.estado === 'Cancelada' && (
+                          <CButton color="secondary" disabled style={{ marginRight: '5px' }}>
+                            <FaTimes style={{ marginRight: '5px' }} />
+                            Cancelada
+                          </CButton>
+                        )}
+                      </CTableDataCell>
                     </CTableRow>
                   ))}
                 </CTableBody>
+
+
               </CTable>
               <CModal
                 visible={visible}

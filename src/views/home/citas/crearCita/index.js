@@ -285,34 +285,36 @@ const AgendarCita = () => {
     // Retorna el tiempo total de la cita
     return totalAppointmentTime;
   };
+
+  
   console.log('hora inicio es esta ', selectedHour)
 
 
   const handleBarberoSelection = async (id_empleado) => {
     setSelectedBarberoId(id_empleado);
-
+  
     try {
       // Obtener las agendas del empleado seleccionado
       const response = await CitasDataService.getEmpleadoAgendas(id_empleado);
       const agendas = response.data.agendas;
       const agendasEstadoTrue = agendas.filter((agenda) => agenda.estado === true);
-
+  
       // Filtrar las agendas para mostrar solo los eventos iguales o futuros a la fecha actual
       const currentDate = new Date(); // Obtener la fecha actual
       const agendasFuturas = agendasEstadoTrue.filter((agenda) => {
         const startDate = new Date(agenda.fechaInicio);
         return startDate >= currentDate;
       });
-
+  
       // Verificar si hay agendas futuras para el empleado seleccionado
       if (agendasFuturas.length > 0) {
         // Establecer el empleado seleccionado y sus agendas
         setSelectedBarbero(response.data.empleado);
         setAgendaData(agendasFuturas);
-
+  
         // Llamar a calculateAppointmentTime después de haber establecido todos los datos necesarios, incluida la hora seleccionada
         calculateAppointmentTime();
-
+  
         // Establecer el nombre del empleado seleccionado utilizando la respuesta del servidor
         setSelectedBarberoName(response.data.empleado.nombre);
       } else {
@@ -324,12 +326,12 @@ const AgendarCita = () => {
         });
       }
     } catch (error) {
-      consol
-e.error("Error al obtener la agenda del empleado:", error);
+      console.error("Error al obtener la agenda del empleado:", error);
     }
-
+  
     handlePageChange(currentPage + 1);
   };
+  
 
 
   const isAfterOrEqual = (time1, time2) => {
