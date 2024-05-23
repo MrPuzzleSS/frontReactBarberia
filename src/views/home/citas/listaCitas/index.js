@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import CitasDataService from "src/views/services/citasService";
+import ServicioService from "src/views/services/servicioService";
 import Servicios_S from "src/views/services/servicios_s";
 import Swal from 'sweetalert2';
-import { format } from 'date-fns';
 import { FaTimes, FaCheck } from 'react-icons/fa';
 import 'src/scss/css/global.css';
+import moment from 'moment';
 import {
   CCard,
   CCardBody,
@@ -43,6 +44,7 @@ async function getNombreBarbero(id_empleado) {
   }
 }
 
+
 function BarberoNombre({ id_empleado }) {
   const [nombre, setNombre] = useState(null);
 
@@ -58,9 +60,55 @@ function BarberoNombre({ id_empleado }) {
   return <>{nombre}</>;
 }
 
+
+
 BarberoNombre.propTypes = {
   id_empleado: PropTypes.number
 }
+
+
+//-----------------------------------------------------------
+
+function ServicioNombre({ id }) {
+  const [nombre, setNombre] = useState(null);
+
+  useEffect(() => {
+    const fetchNombreServicio = async () => {
+      try {
+        console.log("Obteniendo todos los servicios");
+        const response = await ServicioService.getAllServicios();
+        console.log("Respuesta obtenida:", response);
+
+        if (response && response.listServicios) {
+          const servicio = response.listServicios.find(serv => serv.id === id);
+          if (servicio) {
+            console.log("Servicio encontrado:", servicio);
+            setNombre(servicio.nombre);
+            console.log("Nombre del servicio:", servicio.nombre);
+          } else {
+            console.log("No se encontró el servicio con ID:", id);
+            setNombre("Nombre no disponible");
+          }
+        } else {
+          console.log("La lista de servicios no está disponible");
+          setNombre("Nombre no disponible");
+        }
+      } catch (error) {
+        console.error("Error obteniendo el nombre del servicio:", error);
+        setNombre("Nombre no disponible");
+      }
+    };
+
+    fetchNombreServicio();
+  }, [id]);
+
+  return <>{nombre}</>;
+}
+
+ServicioNombre.propTypes = {
+  id: PropTypes.number.isRequired
+};
+
 
 function ListaCitas() {
   const [visible, setVisible] = useState(false);
@@ -104,6 +152,9 @@ function ListaCitas() {
                 estado: item.estado,
               };
 
+              // Agrega la conversión de la fecha original aquí
+              const fechaAtencion = moment.utc(item.Fecha_Atencion).format('YYYY-MM-DD');
+
               const barberoData = await getNombreBarbero(item.id_empleado);
               const nombreBarbero = barberoData.nombre;
               const telefonoBarbero = barberoData.telefono;
@@ -127,7 +178,7 @@ function ListaCitas() {
               ) : [];
 
               return {
-                cita,
+                cita: { ...cita, Fecha_Atencion: fechaAtencion }, // Reemplaza la fecha original con la convertida
                 detallesCita,
                 nombreBarbero,
                 telefonoBarbero,
@@ -235,6 +286,12 @@ function ListaCitas() {
     return cita.cita.estado === 'Confirmada' && (userId === 1 || userId === 2);
   };
 
+  const isCitaPasada = (fechaCita) => {
+    const fechaActual = moment();
+    const fechaCitaMoment = moment.utc(fechaCita, 'YYYY-MM-DD');
+    return fechaCitaMoment.isBefore(fechaActual, 'day');
+  };
+
   return (
     <>
       <CRow>
@@ -249,6 +306,7 @@ function ListaCitas() {
                     <CTableHeaderCell scope="col">Fecha de Atencion</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Hora de Atencion</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Cliente</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">tipo Corte</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Hora Fin </CTableHeaderCell>
                     <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
@@ -258,9 +316,13 @@ function ListaCitas() {
                   {citas.map((cita, index) => (
                     <CTableRow key={index}>
                       <CTableDataCell><BarberoNombre id_empleado={cita.cita.id_empleado} /></CTableDataCell>
-                      <CTableDataCell>{format(new Date(cita.cita.Fecha_Atencion.substring(0, 10)), "dd/MM/yyyy")}</CTableDataCell>
+                      <CTableDataCell>{moment.utc(cita.cita.Fecha_Atencion).format('DD-MM-YYYY')}</CTableDataCell>
                       <CTableDataCell>{cita.cita.Hora_Atencion}</CTableDataCell>
                       <CTableDataCell> <UsuarioNombre idUser={cita.cita.id_usuario} /></CTableDataCell>
+                      <CTableDataCell key={index}>
+                        <ServicioNombre id={cita.detallesCita[index]?.id_servicio} />
+                      </CTableDataCell>
+
                       <CTableDataCell>{cita.cita.Hora_Fin}</CTableDataCell>
                       <CTableDataCell>
                         <span
@@ -294,14 +356,19 @@ function ListaCitas() {
                                   Cancelar
                                 </CButton>
                                 <CButton
-                                  color="success"
+                                  color={isCitaPasada(cita.cita.Fecha_Atencion) ? "secondary" : "success"}
                                   onClick={() => TomarCita(cita.cita.id_cita)}
-                                  disabled={cita.cita.estado === 'Confirmada'}
-                                  style={{ marginRight: '5px' }}
+                                  disabled={cita.cita.estado === 'Confirmada' || isCitaPasada(cita.cita.Fecha_Atencion)}
+                                  style={{
+                                    marginRight: '5px',
+                                    cursor: cita.cita.estado === 'Confirmada' || isCitaPasada(cita.cita.Fecha_Atencion) ? 'not-allowed' : 'pointer'
+                                  }}
                                 >
-                                  <FaCheck style={{ marginRight: '5px' }} />
-                                  Confirmar
+                                  {cita.cita.estado === 'Confirmada' || isCitaPasada(cita.cita.Fecha_Atencion) ? 'Vencida' : 'Confirmar'}
                                 </CButton>
+
+
+
                               </>
                             )}
                           </>

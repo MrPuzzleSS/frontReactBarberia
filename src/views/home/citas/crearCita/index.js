@@ -97,9 +97,11 @@ const AgendarCita = () => {
 
 
 
+
   const handleDateSelect = (info) => {
     const date = info.start;
     const formattedDate = format(date, "yyyy-MM-dd");
+    console.log("Fecha original:", date);
 
     // Formatear la fecha de la primera entrada en agendaData
     const firstAgendaDate = agendaData.length > 0 ? format(new Date(agendaData[0].fechaInicio), "yyyy-MM-dd") : null;
@@ -286,35 +288,50 @@ const AgendarCita = () => {
     return totalAppointmentTime;
   };
 
-  
+
   console.log('hora inicio es esta ', selectedHour)
+
+
 
 
   const handleBarberoSelection = async (id_empleado) => {
     setSelectedBarberoId(id_empleado);
-  
+
     try {
-      // Obtener las agendas del empleado seleccionado
+      // Obtener las agendas del empleado seleccionado, ordenadas por fecha de inicio
       const response = await CitasDataService.getEmpleadoAgendas(id_empleado);
-      const agendas = response.data.agendas;
+      console.log("Agendas del empleado:", response.data.agendas);
+      let agendas = response.data.agendas;
+
+      // Ordenar las agendas por fecha de inicio en orden ascendente
+      agendas.sort((a, b) => new Date(a.fechaInicio) - new Date(b.fechaInicio));
+
+      // Filtrar las agendas para mostrar solo los eventos con estado true
       const agendasEstadoTrue = agendas.filter((agenda) => agenda.estado === true);
-  
-      // Filtrar las agendas para mostrar solo los eventos iguales o futuros a la fecha actual
-      const currentDate = new Date(); // Obtener la fecha actual
+      console.log('Agendas con estado true:', agendasEstadoTrue);
+
+      // Obtener la fecha actual
+      const currentDate = new Date();
+      console.log("Fecha actual:", currentDate);
+
+      // Filtrar las agendas para mostrar solo los eventos a partir de la fecha actual
       const agendasFuturas = agendasEstadoTrue.filter((agenda) => {
         const startDate = new Date(agenda.fechaInicio);
-        return startDate >= currentDate;
+        // Comparar solo la fecha sin la hora (para incluir las agendas de hoy)
+        const isFuture = startDate.setHours(0, 0, 0, 0) >= currentDate.setHours(0, 0, 0, 0);
+        return isFuture;
       });
-  
+      console.log('Agendas futuras:', agendasFuturas);
+
       // Verificar si hay agendas futuras para el empleado seleccionado
       if (agendasFuturas.length > 0) {
         // Establecer el empleado seleccionado y sus agendas
         setSelectedBarbero(response.data.empleado);
         setAgendaData(agendasFuturas);
-  
+
         // Llamar a calculateAppointmentTime después de haber establecido todos los datos necesarios, incluida la hora seleccionada
         calculateAppointmentTime();
-  
+
         // Establecer el nombre del empleado seleccionado utilizando la respuesta del servidor
         setSelectedBarberoName(response.data.empleado.nombre);
       } else {
@@ -328,10 +345,14 @@ const AgendarCita = () => {
     } catch (error) {
       console.error("Error al obtener la agenda del empleado:", error);
     }
-  
+
+    // Incrementar el número de página después de manejar la selección del barbero
     handlePageChange(currentPage + 1);
   };
-  
+
+
+
+
 
 
   const isAfterOrEqual = (time1, time2) => {
@@ -353,16 +374,16 @@ const AgendarCita = () => {
     const options = [];
     const start = parseInt(startHour.split(":")[0]); // Extraer la hora de inicio
     const end = parseInt(endHour.split(":")[0]); // Extraer la hora de fin
-  
+
     for (let hour = start; hour <= end; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         const suffix = hour >= 12 ? "PM" : "AM";
         const formattedHora = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00`;
-  
+
         // Registros de depuración para verificar la fecha y hora seleccionadas
         console.log("Fecha seleccionada:", selectedDate);
         console.log("Hora seleccionada:", formattedHora);
-  
+
         // Verificar si la hora está ocupada por una cita agendada
         const horaOcupada = citasAgendadas.some(cita => {
           const citaDate = new Date(cita.Fecha_Atencion);
@@ -372,16 +393,16 @@ const AgendarCita = () => {
           console.log("Hora de la cita:", cita.Hora_Atencion);
           return formattedCitaDate === selectedDate && cita.Hora_Atencion === formattedHora;
         });
-  
+
         // Calcular la hora de fin de la cita
         const horaFinCita = addMinutes(formattedHora, selectedServicesDuration);
         console.log("Hora de fin calculada en addMinutes:", horaFinCita); // Agregar esta línea para imprimir la hora de fin calculada
-  
+
         // Verificar si la hora está dentro del rango de horas disponibles
         const horaDisponible = isAfterOrEqual(formattedHora, startHour) && isBeforeOrEqual(formattedHora, endHour);
-  
+
         const hora = `${hour}:${minute.toString().padStart(2, "0")} ${suffix}`;
-  
+
         // Después de seleccionar una hora de inicio, calcula y muestra las horas disponibles
         const handleClick = () => {
           if (horaDisponible && !horaOcupada) {
@@ -393,12 +414,12 @@ const AgendarCita = () => {
             setOptions(remainingOptions);
           }
         };
-  
+
         options.push(
           <CButton
-            color={horaOcupada ? "secondary" : 
-              selectedHour === formattedHora ? "success" : 
-              horaDisponible ? "info" : "light"
+            color={horaOcupada ? "secondary" :
+              selectedHour === formattedHora ? "success" :
+                horaDisponible ? "info" : "light"
             }
             key={formattedHora}
             onClick={handleClick}
@@ -409,14 +430,14 @@ const AgendarCita = () => {
             {hora}
           </CButton>
         );
-        
-        
+
+
       }
     }
     return <div className="row">{options}</div>;
   };
-  
-  
+
+
 
 
   const removeScheduledHourAndFollowingHours = (formattedHour, options) => {
@@ -427,7 +448,7 @@ const AgendarCita = () => {
       const optionHour = option.key.split(":")[0]; // Extraer la hora de la clave de la opción
       return optionHour >= formattedHour.split(":")[0]; // Comparar solo las horas
     });
-    
+
 
     console.log("Opciones restantes después de eliminar la hora agendada:", remainingOptions);
     return remainingOptions;
@@ -522,7 +543,6 @@ const AgendarCita = () => {
     return tempSelectedServices.reduce((total, service) => total + service.valor, 0);
   };
 
-
   return (
     <CContainer>
       <h3 className="text-center">RESERVAR CITA</h3>
@@ -550,20 +570,19 @@ const AgendarCita = () => {
                   3. Fecha y Hora
                 </CPaginationItem>
               </CPagination>
-
+  
               <CCardTitle>
                 {currentPage === 1 && "Selecciona un Servicio"}
                 {currentPage === 2 && "Selecciona un Barbero"}
                 {currentPage === 3 && "Selecciona Fecha y Hora"}
               </CCardTitle>
-
+  
               {currentPage === 1 && (
                 <>
                   <CButton onClick={() => setVisibleLg(!visibleLg)}>
                     Seleccionar Servicios
                   </CButton>
-
-                  {/* Contenido para seleccionar servicios */}
+  
                   {tempSelectedServices.length > 0 ? (
                     <CCard className="mt-3">
                       <CCardBody>
@@ -604,9 +623,7 @@ const AgendarCita = () => {
                       </CAlert>
                     </div>
                   )}
-
-
-                  {/* Modal para seleccionar servicios */}
+  
                   <CModal
                     size="lg"
                     scrollable
@@ -657,7 +674,7 @@ const AgendarCita = () => {
                                       padding: "8px",
                                       cursor: "pointer",
                                       borderRadius: "5px",
-                                      width: "100%", // Ancho del botón al 100%
+                                      width: "100%",
                                     }}
                                     onClick={() => handleServiceSelection(service)}
                                   >
@@ -665,18 +682,6 @@ const AgendarCita = () => {
                                       ? "Quitar"
                                       : "Seleccionar"}
                                   </button>
-                                  {selectedServices.some((s) => s.id === service.id) && (
-                                    <CButton
-                                      color="primary"
-                                      onClick={handleAcceptButtonClick}
-                                      style={{
-                                        marginTop: "8px",
-                                        width: "100%", // Ancho del botón al 100%
-                                      }}
-                                    >
-                                      Aceptar
-                                    </CButton>
-                                  )}
                                 </div>
                               </td>
                             ))}
@@ -688,135 +693,135 @@ const AgendarCita = () => {
                       <CButton color="secondary" onClick={() => setVisibleLg(false)}>
                         Cancelar
                       </CButton>
+                      <CButton
+                        color="primary"
+                        onClick={() => {
+                          handleAcceptButtonClick();
+                          handlePageChange(2); // Cambia a la página de Barberos
+                        }}
+                        style={{
+                          marginTop: "8px",
+                          width: "100%",
+                        }}
+                      >
+                        Aceptar
+                      </CButton>
                     </CModalFooter>
                   </CModal>
-
                 </>
               )}
-
+  
               {currentPage === 2 && (
-                <>
-                  <CContainer>
-                    <h3>Barberos Disponibles</h3>
-                    {empleados.length > 0 ? (
-                      <CRow>
-                        {empleados.map((empleado, index) => (
-                          <CCol key={index} sm="4">
-                            <CCard
-                              onClick={() =>
-                                handleBarberoSelection(empleado.id_empleado)
-                              }
-                              style={{
-                                cursor: "pointer",
-                                border:
-                                  selectedBarberoId === empleado.id_empleado
-                                    ? "2px solid #007bff"
-                                    : "1px solid #000",
-                              }}
-                            >
-                              <CCardBody>
-                                <CCardTitle>{empleado.nombre}</CCardTitle>
-                              </CCardBody>
-                            </CCard>
-                          </CCol>
-                        ))}
-                      </CRow>
-                    ) : (
-                      <div className="mt-3">
-                        <CAlert color="info">
-                          No hay datos de agenda disponibles.
-                        </CAlert>
-                      </div>
-                    )}
-
-                  </CContainer>
-
-                </>
-              )}
-
-              {currentPage === 3 && (
-                <>
-                  <CCard>
-                    <CCardBody>
-                      <FullCalendar
-                        plugins={[dayGridPlugin, interactionPlugin]}
-                        initialView="dayGridMonth"
-                        initialDate={new Date()} // Establece la fecha inicial en la fecha de hoy
-                        selectable={true}
-                        select={(info) => handleDateSelect(info)}
-                        events={agendaData.map((agendaItem, index) => ({
-                          title: "Disponible",
-                          start: agendaItem.fechaInicio,
-                          end: agendaItem.fechaFin,
-                          color: "#28a745",
-                          textColor: "#fff",
-                          allDay: false,
-                          editable: false,
-                          selectable: true,
-                        }))} />
-                      <CModal
-                        scrollable
-                        alignment="center"
-                        size="lg"
-                        backdrop="static"
-                        visible={modalHoraVisible}
-                        onClose={() => setModalHoraVisible(false)}
-                        aria-labelledby="LiveDemoExampleLabel"
-                      >
-                        <CModalHeader
-                        >
-                          <CModalTitle id="LiveDemoExampleLabel">
-                            Selecciona una Hora
-                          </CModalTitle>
-                        </CModalHeader>
-                        <CModalBody>
-                          <CModalBody>
-                            {agendaData && agendaData.length > 0 && (
-                              <div>
-                                <h4>Horas para el día {selectedDate}</h4>
-                                <div>
-                                  {generateHourOptions(
-                                    agendaData[0].horaInicio,
-                                    agendaData[0].horaFin,
-                                    selectedDate,
-                                    citasAgendadas
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </CModalBody>
-                        </CModalBody>
-                        <CModalFooter>
-                          <CButton color="secondary" onClick={() => setModalHoraVisible(false)}>
-                            Cancelar
-                          </CButton>
-                          <CButton
-                            color="primary"
-                            onClick={() => {
-                              // Verifica si se ha seleccionado una hora
-                              if (selectedHour !== null) {
-                                // Calcula la hora de fin basada en la hora seleccionada y la duración de los servicios
-                                const horaFin = addMinutes(selectedHour, selectedServicesDuration);
-                                setSelectedHourFin(horaFin);
-                                // Cierra el modal
-                                setModalHoraVisible(false);
-                              } else {
-                                // Muestra un mensaje de error si no se ha seleccionado una hora
-                                Swal.fire({
-                                  icon: "error",
-                                  title: "Error al Seleccionar la Hora",
-                                  text: "Selecciona una hora antes de continuar",
-                                });
-                              }
+                <CContainer>
+                  <h3>Barberos Disponibles</h3>
+                  {empleados.length > 0 ? (
+                    <CRow>
+                      {empleados.map((empleado, index) => (
+                        <CCol key={index} sm="4">
+                          <CCard
+                            onClick={() =>
+                              handleBarberoSelection(empleado.id_empleado)
+                            }
+                            style={{
+                              cursor: "pointer",
+                              border:
+                                selectedBarberoId === empleado.id_empleado
+                                  ? "2px solid #007bff"
+                                  : "1px solid #000",
                             }}
                           >
-                            Seleccionar Hora
-                          </CButton>
-                        </CModalFooter>
-                      </CModal>
-                    </CCardBody>
-                  </CCard>
-                </>
+                            <CCardBody>
+                              <CCardTitle>{empleado.nombre}</CCardTitle>
+                            </CCardBody>
+                          </CCard>
+                        </CCol>
+                      ))}
+                    </CRow>
+                  ) : (
+                    <div className="mt-3">
+                      <CAlert color="info">
+                        No hay datos de agenda disponibles.
+                      </CAlert>
+                    </div>
+                  )}
+                </CContainer>
+              )}
+  
+              {currentPage === 3 && (
+                <CCard>
+                  <CCardBody>
+                    <FullCalendar
+                      plugins={[dayGridPlugin, interactionPlugin]}
+                      initialView="dayGridMonth"
+                      initialDate={new Date()}
+                      selectable={true}
+                      select={(info) => handleDateSelect(info)}
+                      events={agendaData.map((agendaItem, index) => ({
+                        title: "Disponible",
+                        start: agendaItem.fechaInicio,
+                        end: agendaItem.fechaFin,
+                        color: "#28a745",
+                        textColor: "#fff",
+                        allDay: false,
+                        editable: false,
+                        selectable: true,
+                      }))}
+                    />
+                    <CModal
+                      scrollable
+                      alignment="center"
+                      size="lg"
+                      backdrop="static"
+                      visible={modalHoraVisible}
+                      onClose={() => setModalHoraVisible(false)}
+                      aria-labelledby="LiveDemoExampleLabel"
+                    >
+                      <CModalHeader>
+                        <CModalTitle id="LiveDemoExampleLabel">
+                          Selecciona una Hora
+                        </CModalTitle>
+                      </CModalHeader>
+                      <CModalBody>
+                        {agendaData && agendaData.length > 0 && (
+                          <div>
+                            <h4>Horas para el día {selectedDate}</h4>
+                            <div>
+                              {generateHourOptions(
+                                agendaData[0].horaInicio,
+                                agendaData[0].horaFin,
+                                selectedDate,
+                                citasAgendadas
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </CModalBody>
+                      <CModalFooter>
+                        <CButton color="secondary" onClick={() => setModalHoraVisible(false)}>
+                          Cancelar
+                        </CButton>
+                        <CButton
+                          color="primary"
+                          onClick={() => {
+                            if (selectedHour !== null) {
+                              const horaFin = addMinutes(selectedHour, selectedServicesDuration);
+                              setSelectedHourFin(horaFin);
+                              setModalHoraVisible(false);
+                            } else {
+                              Swal.fire({
+                                icon: "error",
+                                title: "Error al Seleccionar la Hora",
+                                text: "Selecciona una hora antes de continuar",
+                              });
+                            }
+                          }}
+                        >
+                          Seleccionar Hora
+                        </CButton>
+                      </CModalFooter>
+                    </CModal>
+                  </CCardBody>
+                </CCard>
               )}
             </CCardBody>
           </CCard>
@@ -826,10 +831,10 @@ const AgendarCita = () => {
             <CCardText>
               {selectedBarberoId && selectedDate && selectedHour ? (
                 <div>
-                  <p> <CCardTitle className="text-center">
-                    <strong>Información de tus Servicios</strong>
-                  </CCardTitle>
-
+                  <p>
+                    <CCardTitle className="text-center">
+                      <strong>Información de tus Servicios</strong>
+                    </CCardTitle>
                     <strong>Empleado:</strong> {selectedBarberoName} <br />
                     <strong>Fecha:</strong> {selectedDate} <br />
                     <strong>Hora inicio:</strong> {selectedHour !== null ? `${selectedHour > 12 ? selectedHour - 12 : selectedHour} ${selectedHour >= 12 ? 'PM' : 'AM'}` : 'Selecciona una hora'} <br />
@@ -846,18 +851,11 @@ const AgendarCita = () => {
                     ))}
                   </ul>
                   <p><strong>Tiempo aprox  de la cita:</strong> {selectedServicesDuration} minutos</p>
-
-                  {/* Calculate and display the total value of selected services */}
-
-
-                  {/* Puedes agregar más detalles según sea necesario */}
                 </div>
               ) : (
                 <p>Completa la selección de empleado, fecha y hora.</p>
               )}
             </CCardText>
-
-
           </CCard>
         </CCol>
       </CRow>
@@ -891,6 +889,10 @@ const AgendarCita = () => {
       </CRow>
     </CContainer>
   );
+  
+  
+  
 };
 
 export default AgendarCita;
+
