@@ -570,19 +570,19 @@ const AgendarCita = () => {
                   3. Fecha y Hora
                 </CPaginationItem>
               </CPagination>
-  
+
               <CCardTitle>
                 {currentPage === 1 && "Selecciona un Servicio"}
                 {currentPage === 2 && "Selecciona un Barbero"}
                 {currentPage === 3 && "Selecciona Fecha y Hora"}
               </CCardTitle>
-  
+
               {currentPage === 1 && (
                 <>
                   <CButton onClick={() => setVisibleLg(!visibleLg)}>
                     Seleccionar Servicios
                   </CButton>
-  
+
                   {tempSelectedServices.length > 0 ? (
                     <CCard className="mt-3">
                       <CCardBody>
@@ -623,7 +623,7 @@ const AgendarCita = () => {
                       </CAlert>
                     </div>
                   )}
-  
+
                   <CModal
                     size="lg"
                     scrollable
@@ -653,16 +653,16 @@ const AgendarCita = () => {
                                     : "1px solid #ddd",
                                 }}
                               >
-                                <div style={{ width: "10rem" }}>
+                                <div style={{ width: "18rem" }}>
                                   <div
                                     style={{
-                                      borderBottom: "1px solid #ddd",
-                                      padding: "8px",
+                                      borderBottom: "3px solid #ddd",
+                                      padding: "0px",
                                     }}
                                   >
                                     {service.nombre}
                                   </div>
-                                  <div style={{ padding: "8px" }}>Precio: {service.valor}</div>
+                                  <div style={{ padding: "1px" }}>Precio: {service.valor}</div>
                                   <button
                                     style={{
                                       backgroundColor: selectedServices.some(
@@ -671,10 +671,10 @@ const AgendarCita = () => {
                                         ? "#e83d3d"
                                         : "#4caf50",
                                       color: "#fff",
-                                      padding: "8px",
+                                      padding: "2px",
                                       cursor: "pointer",
-                                      borderRadius: "5px",
-                                      width: "100%",
+                                      borderRadius: "7px",
+                                      width: "50%",
                                     }}
                                     onClick={() => handleServiceSelection(service)}
                                   >
@@ -689,10 +689,7 @@ const AgendarCita = () => {
                         </CTableBody>
                       </CTable>
                     </CModalBody>
-                    <CModalFooter>
-                      <CButton color="secondary" onClick={() => setVisibleLg(false)}>
-                        Cancelar
-                      </CButton>
+                    <CModalFooter style={{ justifyContent: 'center' }}>
                       <CButton
                         color="primary"
                         onClick={() => {
@@ -700,17 +697,31 @@ const AgendarCita = () => {
                           handlePageChange(2); // Cambia a la página de Barberos
                         }}
                         style={{
-                          marginTop: "8px",
-                          width: "100%",
+                          marginTop: "5px",
+                          width: "50%",
                         }}
                       >
                         Aceptar
                       </CButton>
+                      <CButton
+                        color="secondary"
+                        onClick={() => {
+                        }}
+                        style={{
+                          marginTop: "5px",
+                          width: "50%",
+                        }}
+                      >
+                        Cancelar
+                      </CButton>
                     </CModalFooter>
+
                   </CModal>
+
+
                 </>
               )}
-  
+
               {currentPage === 2 && (
                 <CContainer>
                   <h3>Barberos Disponibles</h3>
@@ -746,7 +757,7 @@ const AgendarCita = () => {
                   )}
                 </CContainer>
               )}
-  
+
               {currentPage === 3 && (
                 <CCard>
                   <CCardBody>
@@ -767,59 +778,107 @@ const AgendarCita = () => {
                         selectable: true,
                       }))}
                     />
+
                     <CModal
-                      scrollable
-                      alignment="center"
                       size="lg"
-                      backdrop="static"
-                      visible={modalHoraVisible}
-                      onClose={() => setModalHoraVisible(false)}
-                      aria-labelledby="LiveDemoExampleLabel"
+                      scrollable
+                      visible={visibleLg}
+                      onClose={() => {
+                        if (!cancelModal) {
+                          setVisibleLg(false);
+                        }
+                      }}
+                      aria-labelledby="ScrollingLongContentExampleLabel2"
                     >
                       <CModalHeader>
-                        <CModalTitle id="LiveDemoExampleLabel">
-                          Selecciona una Hora
+                        <CModalTitle id="ScrollingLongContentExampleLabel2">
+                          Seleciona los servicios
                         </CModalTitle>
                       </CModalHeader>
                       <CModalBody>
-                        {agendaData && agendaData.length > 0 && (
-                          <div>
-                            <h4>Horas para el día {selectedDate}</h4>
-                            <div>
-                              {generateHourOptions(
-                                agendaData[0].horaInicio,
-                                agendaData[0].horaFin,
-                                selectedDate,
-                                citasAgendadas
-                              )}
-                            </div>
-                          </div>
-                        )}
+                        <CTable>
+                          <CTableHead>
+                            <CTableRow></CTableRow>
+                          </CTableHead>
+                          <CTableBody>
+                            <tr>
+                              {servicesData.map((service) => (
+                                <td
+                                  key={service.id}
+                                  style={{
+                                    padding: "8px",
+                                    border: selectedServices.some((s) => s.id === service.id)
+                                      ? "2px solid #e83d3d"
+                                      : "1px solid #ddd",
+                                  }}
+                                >
+                                  <div style={{ width: "18rem" }}>
+                                    <div
+                                      style={{
+                                        borderBottom: "3px solid #ddd",
+                                        padding: "0px",
+                                      }}
+                                    >
+                                      {service.nombre}
+                                    </div>
+                                    <div style={{ padding: "1px" }}>Precio: {service.valor}</div>
+                                    <button
+                                      style={{
+                                        backgroundColor: selectedServices.some(
+                                          (s) => s.id === service.id
+                                        )
+                                          ? "#e83d3d"
+                                          : "#4caf50",
+                                        color: "#fff",
+                                        padding: "2px",
+                                        cursor: "pointer",
+                                        borderRadius: "7px",
+                                        width: "50%",
+                                      }}
+                                      onClick={() => handleServiceSelection(service)}
+                                    >
+                                      {selectedServices.some((s) => s.id === service.id)
+                                        ? "Quitar"
+                                        : "Seleccionar"}
+                                    </button>
+                                  </div>
+                                </td>
+                              ))}
+                            </tr>
+                          </CTableBody>
+                        </CTable>
                       </CModalBody>
                       <CModalFooter>
-                        <CButton color="secondary" onClick={() => setModalHoraVisible(false)}>
-                          Cancelar
-                        </CButton>
                         <CButton
                           color="primary"
                           onClick={() => {
-                            if (selectedHour !== null) {
-                              const horaFin = addMinutes(selectedHour, selectedServicesDuration);
-                              setSelectedHourFin(horaFin);
-                              setModalHoraVisible(false);
-                            } else {
-                              Swal.fire({
-                                icon: "error",
-                                title: "Error al Seleccionar la Hora",
-                                text: "Selecciona una hora antes de continuar",
-                              });
-                            }
+                            handleAcceptButtonClick();
+                            handlePageChange(2); // Cambia a la página de Barberos
+                          }}
+                          style={{
+                            marginTop: "5px",
+                            width: "50%",
                           }}
                         >
-                          Seleccionar Hora
+                          Aceptar
+                        </CButton>
+                        <CButton
+                          color="secondary"
+                          onClick={() => {
+                            setVisibleLg(false);
+                          }}
+                          style={{
+                            marginTop: "5px",
+                            width: "50%",
+                          }}
+                        >
+                          Cancelar
                         </CButton>
                       </CModalFooter>
                     </CModal>
+
+
+
                   </CCardBody>
                 </CCard>
               )}
@@ -889,9 +948,9 @@ const AgendarCita = () => {
       </CRow>
     </CContainer>
   );
-  
-  
-  
+
+
+
 };
 
 export default AgendarCita;
