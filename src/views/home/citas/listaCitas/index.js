@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import CitasDataService from "src/views/services/citasService";
-import ServicioService from "src/views/services/servicioService";
 import Servicios_S from "src/views/services/servicios_s";
 import Swal from 'sweetalert2';
 import { FaTimes, FaCheck } from 'react-icons/fa';
@@ -11,6 +10,7 @@ import {
   CCardBody,
   CCardHeader,
   CCol,
+  CBadge,
   CRow,
   CTable,
   CTableBody,
@@ -19,16 +19,44 @@ import {
   CTableHeaderCell,
   CTableRow,
   CButton,
-  CModal,
-  CModalHeader,
-  CModalTitle,
-  CModalBody,
-  CModalFooter,
   CPagination,
   CPaginationItem
 } from "@coreui/react";
 import PropTypes from 'prop-types';
 import { getUserInfo } from '../../../../components/auht';
+
+async function getUsuarioNombre(id_usuario) {
+  try {
+    if (id_usuario) {
+      const response = await CitasDataService.getUsuario(id_usuario);
+      return response.data;
+    } else {
+      return { nombre: "Nombre no disponible" };
+    }
+  } catch (error) {
+    console.error("Error obteniendo el nombre del usuario:", error);
+    return { nombre: "Nombre no disponible" };
+  }
+}
+
+function UsuarioNombre({ idUser }) {
+  const [nombre, setNombre] = useState(null);
+
+  useEffect(() => {
+    const fetchDataNombre = async () => {
+      const data = await getUsuarioNombre(idUser);
+      setNombre(data.nombre);
+    };
+
+    fetchDataNombre();
+  }, [idUser]);
+
+  return <>{nombre}</>;
+}
+
+UsuarioNombre.propTypes = {
+  idUser: PropTypes.number
+}
 
 async function getNombreBarbero(id_empleado) {
   try {
@@ -43,7 +71,6 @@ async function getNombreBarbero(id_empleado) {
     return { nombre: "Nombre no disponible", telefono: "Teléfono no disponible" };
   }
 }
-
 
 function BarberoNombre({ id_empleado }) {
   const [nombre, setNombre] = useState(null);
@@ -60,55 +87,9 @@ function BarberoNombre({ id_empleado }) {
   return <>{nombre}</>;
 }
 
-
-
 BarberoNombre.propTypes = {
   id_empleado: PropTypes.number
 }
-
-
-//-----------------------------------------------------------
-
-function ServicioNombre({ id }) {
-  const [nombre, setNombre] = useState(null);
-
-  useEffect(() => {
-    const fetchNombreServicio = async () => {
-      try {
-        console.log("Obteniendo todos los servicios");
-        const response = await ServicioService.getAllServicios();
-        console.log("Respuesta obtenida:", response);
-
-        if (response && response.listServicios) {
-          const servicio = response.listServicios.find(serv => serv.id === id);
-          if (servicio) {
-            console.log("Servicio encontrado:", servicio);
-            setNombre(servicio.nombre);
-            console.log("Nombre del servicio:", servicio.nombre);
-          } else {
-            console.log("No se encontró el servicio con ID:", id);
-            setNombre("Nombre no disponible");
-          }
-        } else {
-          console.log("La lista de servicios no está disponible");
-          setNombre("Nombre no disponible");
-        }
-      } catch (error) {
-        console.error("Error obteniendo el nombre del servicio:", error);
-        setNombre("Nombre no disponible");
-      }
-    };
-
-    fetchNombreServicio();
-  }, [id]);
-
-  return <>{nombre}</>;
-}
-
-ServicioNombre.propTypes = {
-  id: PropTypes.number.isRequired
-};
-
 
 function ListaCitas() {
   const [visible, setVisible] = useState(false);
@@ -116,6 +97,7 @@ function ListaCitas() {
   const [detallesCita, setDetallesCita] = useState([]);
   const [tablaActualizada, setTablaActualizada] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [userRoleId, setUserRoleId] = useState(null);
 
   const pageSize = 5;
   const [currentPage, setCurrentPage] = useState(1);
@@ -124,22 +106,44 @@ function ListaCitas() {
     const fetchData = async () => {
       try {
         const userInfo = await getUserInfo();
-        console.log("User ID:", userInfo.userId);
+        console.log('User Info:', userInfo);
+        console.log('User ID:', userInfo.userId);
+        console.log('User Role ID:', userInfo.rol.id_rol);
+
         setUserId(userInfo.userId);
+        setUserRoleId(userInfo.rol.id_rol);
 
         let response;
-        if (userInfo.userType === 1) {
+        if (userInfo.rol.id_rol === 1) { // SuperAdmin
+          console.log("Fetching citas for SuperAdmin");
           const response1 = await CitasDataService.getAllCitasServicios(2);
+          console.log("Response1 for SuperAdmin:", response1);
           const response2 = await CitasDataService.getAllCitasServicios(3);
-          const citasData = response1.data.concat(response2.data);
-          response = { data: { citas: citasData } };
-        } else if (userInfo.userType === 2) {
-          response = await CitasDataService.getEmpleadoConCitas(userInfo.userId);
-        } else {
+          console.log("Response2 for SuperAdmin:", response2);
+
+          if (Array.isArray(response1.data.citas) && Array.isArray(response2.data.citas)) {
+            // Eliminar duplicados basados en el id_cita
+            const combinedCitas = [...response1.data.citas, ...response2.data.citas];
+            const uniqueCitas = combinedCitas.filter((cita, index, self) =>
+              index === self.findIndex((t) => t.id_cita === cita.id_cita)
+            );
+            response = { data: { citas: uniqueCitas } };
+            console.log("Unique citasData for SuperAdmin:", uniqueCitas);
+          } else {
+            console.error("Error: response1.data.citas or response2.data.citas is not an array");
+          }
+        } else if (userInfo.rol.id_rol === 2) { // Empleado
+          console.log("Fetching citas for Empleado");
           response = await CitasDataService.getAllCitasServicios(userInfo.userId);
+          console.log("Response for Empleado:", response);
+        } else if (userInfo.rol.id_rol === 3) { // Cliente
+          console.log("Fetching citas for Cliente");
+          response = await CitasDataService.getAllCitasServicios(userInfo.userId);
+          console.log("Response for Cliente:", response);
         }
 
-        if (Array.isArray(response.data?.citas)) {
+        console.log("Response:", response);
+        if (response && Array.isArray(response.data?.citas)) {
           const citasConDetalle = await Promise.all(
             response.data.citas.map(async (item) => {
               const cita = {
@@ -152,7 +156,6 @@ function ListaCitas() {
                 estado: item.estado,
               };
 
-              // Agrega la conversión de la fecha original aquí
               const fechaAtencion = moment.utc(item.Fecha_Atencion).format('YYYY-MM-DD');
 
               const barberoData = await getNombreBarbero(item.id_empleado);
@@ -178,32 +181,41 @@ function ListaCitas() {
               ) : [];
 
               return {
-                cita: { ...cita, Fecha_Atencion: fechaAtencion }, // Reemplaza la fecha original con la convertida
+                cita: { ...cita, Fecha_Atencion: fechaAtencion },
                 detallesCita,
                 nombreBarbero,
                 telefonoBarbero,
               };
-            }),
+            })
           );
 
-          if (userInfo.userType === 2) {
-            const citasEmpleado = citasConDetalle.filter(cita => cita.cita.id_empleado === userInfo.userId);
-            setCitas(citasEmpleado);
-          } else {
-            setCitas(citasConDetalle);
-          }
+          console.log("Citas con detalle:", citasConDetalle);
+
+          setCitas(citasConDetalle);
         } else {
           console.error("Error: response.data.citas no es un array");
         }
       } catch (error) {
-        console.error("Error al obtener citas:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
   }, [tablaActualizada]);
 
+
+  const isUser1Or2Confirmed = (cita) => {
+    return userRoleId === 1 || userRoleId === 2 ? cita.cita.estado === 'Confirmada' : false;
+  };
+
+  const isCitaPasada = (fechaAtencion) => {
+    const fechaCita = moment(fechaAtencion);
+    const fechaActual = moment();
+    return fechaCita.isBefore(fechaActual, 'day');
+  };
+
   const TomarCita = async (idCita) => {
+    console.log('Tomando cita con ID:', idCita);
     const confirmacion = await Swal.fire({
       title: '¿Estás seguro?',
       text: '¿Realmente quieres tomar esta cita?',
@@ -217,7 +229,6 @@ function ListaCitas() {
 
     if (confirmacion.isConfirmed) {
       try {
-        console.log('Tomando cita con ID:', idCita);
         await CitasDataService.TomarCita(idCita);
         console.log('Cita Confirmada con éxito');
         setTablaActualizada(prevState => !prevState);
@@ -230,13 +241,11 @@ function ListaCitas() {
   };
 
   const CancelarCita = async (idCita, idEmpleado) => {
+    console.log('Cancelando cita con ID:', idCita);
     const barberoData = await getNombreBarbero(idEmpleado);
-
-
-
     const confirmacion = await Swal.fire({
       title: '¿Estás seguro?',
-      text: userId === 3 ? `Si necesitas cancelar con tu barbero ${barberoData.nombre}, comunícate con él al ${barberoData.telefono}.` : '¿Realmente quieres cancelar esta cita?',
+      text: userRoleId === 3 ? `Si necesitas cancelar con tu barbero ${barberoData.nombre}, comunícate al #  ${barberoData.telefono}.` : '¿Realmente quieres cancelar esta cita?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -247,9 +256,8 @@ function ListaCitas() {
 
     if (confirmacion.isConfirmed) {
       try {
-        console.log('Cancelando cita con ID:', idCita);
-        await CitasDataService.CancelarCita(idCita);
-        console.log('Cita cancelada con éxito');
+        await CitasDataService.CancelarCita(idCita);  // Adjusted to match the method name
+        console.log('Cita Cancelada con éxito');
         setTablaActualizada(prevState => !prevState);
         Swal.fire('Éxito', 'La cita se ha cancelado exitosamente', 'success');
       } catch (error) {
@@ -259,57 +267,29 @@ function ListaCitas() {
     }
   };
 
-
-
-
-
-
   const handlePageChange = (page) => {
     setCurrentPage(page);
-  };
-
-  const UsuarioNombre = ({ idUser }) => {
-    const [nombre, setNombre] = useState('');
-
-    useEffect(() => {
-      const fetchNombre = async () => {
-        const nombreUsuario = await CitasDataService.getUsuario(idUser);
-        setNombre(nombreUsuario.data.nombre_usuario);
-      };
-      fetchNombre();
-    }, [idUser]);
-
-    return <>{nombre}</>;
-  };
-
-  const isUser1Or2Confirmed = (cita) => {
-    return cita.cita.estado === 'Confirmada' && (userId === 1 || userId === 2);
-  };
-
-  const isCitaPasada = (fechaCita) => {
-    const fechaActual = moment();
-    const fechaCitaMoment = moment.utc(fechaCita, 'YYYY-MM-DD');
-    return fechaCitaMoment.isBefore(fechaActual, 'day');
   };
 
   return (
     <>
       <CRow>
-        <CCol>
-          <CCard>
-            <CCardHeader>Lista de citas</CCardHeader>
+        <CCol xs="12" lg="12">
+          <CCard className="card-style">
+            <CCardHeader className="header-style">
+              <strong>Lista de Citas</strong>
+            </CCardHeader>
             <CCardBody>
-              <CTable responsive align="middle" striped>
-                <CTableHead color="dark">
+              <CTable align="middle" className="mb-0 border" hover responsive>
+                <CTableHead color="light">
                   <CTableRow>
-                    <CTableHeaderCell scope="col">Barbero</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Fecha de Atencion</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Hora de Atencion</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Cliente</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">tipo Corte</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Hora Fin </CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Acciones</CTableHeaderCell>
+                    <CTableHeaderCell>Empleado</CTableHeaderCell>
+                    <CTableHeaderCell>Fecha</CTableHeaderCell>
+                    <CTableHeaderCell>Hora</CTableHeaderCell>
+                    <CTableHeaderCell>Cliente</CTableHeaderCell>
+                    <CTableHeaderCell>Hora Fin</CTableHeaderCell>
+                    <CTableHeaderCell>Estado</CTableHeaderCell>
+                    <CTableHeaderCell>Acciones</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
@@ -318,135 +298,79 @@ function ListaCitas() {
                       <CTableDataCell><BarberoNombre id_empleado={cita.cita.id_empleado} /></CTableDataCell>
                       <CTableDataCell>{moment.utc(cita.cita.Fecha_Atencion).format('DD-MM-YYYY')}</CTableDataCell>
                       <CTableDataCell>{cita.cita.Hora_Atencion}</CTableDataCell>
-                      <CTableDataCell> <UsuarioNombre idUser={cita.cita.id_usuario} /></CTableDataCell>
-                      <CTableDataCell key={index}>
-                        <ServicioNombre id={cita.detallesCita[index]?.id_servicio} />
-                      </CTableDataCell>
-
+                      <CTableDataCell><UsuarioNombre idUser={cita.cita.id_usuario} /></CTableDataCell>
                       <CTableDataCell>{cita.cita.Hora_Fin}</CTableDataCell>
                       <CTableDataCell>
-                        <span
-                          className={`btn ${cita.cita.estado === 'Cancelada' ? 'btn-danger' : cita.cita.estado === 'Confirmada' ? 'btn-success' : isUser1Or2Confirmed(cita) ? 'btn-success' : 'btn-warning'}`}
-                          style={{ cursor: 'default' }}
-                        >
-                          {cita.cita.estado === 'Cancelada' ? 'Cancelada' : cita.cita.estado === 'Confirmada' ? 'Confirmada' : isUser1Or2Confirmed(cita) ? 'Confirmada' : 'Pendiente'}
-                        </span>
+                        {cita.cita.estado === 'Confirmada' ? (
+                          <CBadge color="success">Confirmada</CBadge>
+                        ) : (
+                          cita.cita.estado === 'Cancelada' ? (
+                            <CBadge color="danger">Cancelada</CBadge>
+                          ) : (
+                            <CBadge color="warning">Pendiente</CBadge>
+                          )
+                        )}
                       </CTableDataCell>
                       <CTableDataCell>
-                        {cita.cita.estado !== 'Cancelada' && cita.cita.estado !== 'Confirmada' && (
-                          <>
-                            {userId === 3 && (
-                              <CButton
-                                color="danger"
-                                onClick={() => CancelarCita(cita.cita.id_cita, cita.cita.id_empleado)}
-                                style={{ marginRight: '5px' }}
-                              >
-                                <FaTimes style={{ marginRight: '5px' }} />
-                                Cancelar
-                              </CButton>
-                            )}
-                            {(userId === 1 || userId === 2) && (
-                              <>
-                                <CButton
-                                  color="danger"
-                                  onClick={() => CancelarCita(cita.cita.id_cita, cita.cita.id_empleado)}
-                                  style={{ marginRight: '5px' }}
-                                >
-                                  <FaTimes style={{ marginRight: '5px' }} />
-                                  Cancelar
-                                </CButton>
-                                <CButton
-                                  color={isCitaPasada(cita.cita.Fecha_Atencion) ? "secondary" : "success"}
-                                  onClick={() => TomarCita(cita.cita.id_cita)}
-                                  disabled={cita.cita.estado === 'Confirmada' || isCitaPasada(cita.cita.Fecha_Atencion)}
-                                  style={{
-                                    marginRight: '5px',
-                                    cursor: cita.cita.estado === 'Confirmada' || isCitaPasada(cita.cita.Fecha_Atencion) ? 'not-allowed' : 'pointer'
-                                  }}
-                                >
-                                  {cita.cita.estado === 'Confirmada' || isCitaPasada(cita.cita.Fecha_Atencion) ? 'Vencida' : 'Confirmar'}
-                                </CButton>
-
-
-
-                              </>
-                            )}
-                          </>
-                        )}
-                        {cita.cita.estado === 'Confirmada' && (
-                          <CButton color="secondary" disabled style={{ marginRight: '5px' }}>
-                            <FaCheck style={{ marginRight: '5px' }} />
-                            Confirmada
-                          </CButton>
-                        )}
-                        {cita.cita.estado === 'Cancelada' && (
-                          <CButton color="secondary" disabled style={{ marginRight: '5px' }}>
+                        {cita.cita.estado === 'Cancelada' ? (
+                          <CButton color="secondary" disabled>
                             <FaTimes style={{ marginRight: '5px' }} />
                             Cancelada
                           </CButton>
+                        ) : (
+                          !isCitaPasada(cita.cita.Fecha_Atencion) && (
+                            <>
+                              {userRoleId === 3 ? (
+                                cita.cita.estado === 'Confirmada' ? (
+                                  <CBadge color="success">Confirmada</CBadge>
+                                ) : (
+                                  <CButton
+                                    color={cita.cita.estado === 'Confirmada' ? 'secondary' : 'danger'}
+                                    onClick={() => CancelarCita(cita.cita.id_cita, cita.cita.id_empleado)}
+                                    style={{ marginRight: '5px' }}
+                                    disabled={cita.cita.estado === 'Confirmada'}
+                                  >
+                                    <FaTimes style={{ marginRight: '5px' }} />
+                                    Cancelar
+                                  </CButton>
+                                )
+                              ) : (
+                                <>
+                                  <CButton
+                                    color={cita.cita.estado === 'Confirmada' ? 'secondary' : 'danger'}
+                                    onClick={() => CancelarCita(cita.cita.id_cita, cita.cita.id_empleado)}
+                                    style={{ marginRight: '5px' }}
+                                    disabled={cita.cita.estado === 'Confirmada'}
+                                  >
+                                    <FaTimes style={{ marginRight: '5px' }} />
+                                    Cancelar
+                                  </CButton>
+                                  {cita.cita.estado !== 'Confirmada' && (
+                                    <CButton
+                                      color="success"
+                                      onClick={() => TomarCita(cita.cita.id_cita)}
+                                    >
+                                      <FaCheck style={{ marginRight: '5px' }} />
+                                      Confirmar
+                                    </CButton>
+                                  )}
+                                </>
+                              )}
+                            </>
+                          )
                         )}
                       </CTableDataCell>
+
+
+
                     </CTableRow>
                   ))}
                 </CTableBody>
-
-
               </CTable>
-              <CModal
-                visible={visible}
-                onClose={() => setVisible(false)}
-                aria-labelledby="LiveDemoExampleLabel"
-              >
-                <CModalHeader onClose={() => setVisible(false)}>
-                  <CModalTitle id="LiveDemoExampleLabel">
-                    Detalle Cita
-                  </CModalTitle>
-                </CModalHeader>
-                <CModalBody>
-                  <CTable>
-                    <CTableHead>
-                      <CTableRow>
-                        <CTableHeaderCell>ID Servicio</CTableHeaderCell>
-                        <CTableHeaderCell>Nombre Servicio</CTableHeaderCell>
-                        <CTableHeaderCell>Valor</CTableHeaderCell>
-                      </CTableRow>
-                    </CTableHead>
-                    <CTableBody>
-                      {detallesCita.map((detalle, index) => (
-                        <CTableRow key={index}>
-                          <CTableDataCell>{detalle.id_servicio}</CTableDataCell>
-                          <CTableDataCell>{detalle.servicioInfo.nombre}</CTableDataCell>
-                          <CTableDataCell>{detalle.servicioInfo.valor}</CTableDataCell>
-                        </CTableRow>
-                      ))}
-                    </CTableBody>
-                  </CTable>
-                </CModalBody>
-                <CModalFooter>
-                  <CButton color="secondary" onClick={() => setVisible(false)}>
-                    Close
-                  </CButton>
-                </CModalFooter>
-              </CModal>
-              <CPagination align="center" aria-label="Page navigation example" className="mt-3">
-                <CPaginationItem onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-                  Anterior
-                </CPaginationItem>
-                {Array.from({ length: Math.ceil(citas.length / pageSize) }, (_, i) => (
-                  <CPaginationItem
-                    key={i}
-                    onClick={() => handlePageChange(i + 1)}
-                    active={i + 1 === currentPage}
-                  >
-                    {i + 1}
-                  </CPaginationItem>
-                ))}
-                <CPaginationItem
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === Math.ceil(citas.length / pageSize)}
-                >
-                  Siguiente
-                </CPaginationItem>
+              <CPagination className="justify-content-center" aria-label="Page navigation example">
+                <CPaginationItem disabled={currentPage === 1} onClick={() => handlePageChange(currentPage - 1)}>Anterior</CPaginationItem>
+                <CPaginationItem active>{currentPage}</CPaginationItem>
+                <CPaginationItem disabled={currentPage === Math.ceil(citas.length / pageSize)} onClick={() => handlePageChange(currentPage + 1)}>Siguiente</CPaginationItem>
               </CPagination>
             </CCardBody>
           </CCard>

@@ -1,4 +1,7 @@
+
+
 const apiUrl = 'http://localhost:8095/api/empleado';
+
 
 const EmpleadoService = {
     getAllEmpleados: () => {
@@ -29,19 +32,26 @@ const EmpleadoService = {
 
     createEmpleado: (newEmpleado) => {
         const token = localStorage.getItem('token');
+        const formData = new FormData();
+        Object.keys(newEmpleado).forEach(key => {
+            formData.append(key, newEmpleado[key]);
+        });
+
         return fetch(apiUrl, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(newEmpleado),
+            body: formData,
         })
             .then(response => response.json())
             .catch(error => {
                 console.error('Error al crear el empleado:', error);
             });
     },
+
+
+
 
     updateEmpleado: (id, updatedEmpleado) => {
         const token = localStorage.getItem('token');

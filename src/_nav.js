@@ -95,7 +95,7 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: <span style={{ fontWeight: 'bold' }}>Programación de  Turnos</span>,
+    name: <span style={{ fontWeight: 'bold' }}>Programación Agenda</span>,
     to: '/agendas/crearconfiguracion',
     icon: <CIcon icon={cilCalendar} customClassName="nav-icon" />,
   },

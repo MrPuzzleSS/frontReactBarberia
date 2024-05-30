@@ -9,7 +9,7 @@ const AppFooter = () => {
         <span className="ms-1">&copy; 2024 BAC</span>
       </div>
       <div className="ms-auto">
-        <span className="me-1">Hecho por Simón Ruiz, Valeria Carmona, Simón Zuleta, Feliciano Mosquera, Erlinson Vera</span>
+        <span className="me-1">Feliciano Mosquera</span>
       </div>
     </CFooter>
   )

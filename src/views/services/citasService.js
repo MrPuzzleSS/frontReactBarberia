@@ -9,14 +9,20 @@ const getAllCitasAgendadas = () => {
 
 }
 
-const getAllCitasServicios = (id_cita) => {
-    return http.get(`/citas/usuario/${id_cita}`);
+const getAllCitasServicios = (id_usuario) => {
+    return http.get(`/citas/usuario/${id_usuario}`);
 }
+
 //---------------------------
 const getUsuario = (id_usuario) => {
     return http.get(`/usuario/${id_usuario}`);
 }
 //----------------------
+
+const getEmpleadoConCitas = (id_empleado) => {
+    return http.get(`/empleado/citas/${id_empleado}`);
+}
+
 
 const CancelarCita = (id_cita) => {
     return http.post(`/cancelar/${id_cita}`);
@@ -41,15 +47,7 @@ const getEmpleadoAgendas = id => {
 
 }
 
-const getEmpleadoConCitas = async (id) => {
-    try {
-        const response = await http.get(`/empleado/citas/${id}`);
-        return response.data;
-    } catch (error) {
-        console.error('Error al obtener el empleado y sus citas:', error);
-        throw error;
-    }
-}
+
 
 
 

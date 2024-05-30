@@ -1,14 +1,17 @@
 import React from 'react';
-import App from './App';
-import { Provider } from 'react-redux'; // Asegúrate de tener la importación correcta
 import { createRoot } from 'react-dom/client';
+import App from './App';
+import { Provider as ReduxProvider } from 'react-redux';
 import { UserProvider } from './components/userContext';
+import { ProfileImageProvider } from 'src/views/ProfileImageContext';
 import store from './store';
 
 createRoot(document.getElementById('root')).render(
-  <Provider store={store}>
+  <ReduxProvider store={store}>
     <UserProvider>
-      <App />
+      <ProfileImageProvider>
+        <App />
+      </ProfileImageProvider>
     </UserProvider>
-  </Provider>,
+  </ReduxProvider>
 );

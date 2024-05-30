@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const RegisterCliente = () => {
-  const roleIdCliente = 2;
+  const roleIdCliente = 3;
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -25,7 +25,6 @@ const RegisterCliente = () => {
     correo: '',
     telefono: '',
     contrasena: '',
-
     estado: 'Activo',
   });
 
@@ -43,6 +42,15 @@ const RegisterCliente = () => {
   const handleAddUser = async () => {
     try {
       setErrors({}); // Limpiar errores al intentar registrar
+      // Verificar si el formulario es válido
+      if (!isFormValid()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al agregar usuario',
+          text: 'Por favor, completa todos los campos correctamente.',
+        });
+        return;
+      }
       const response = await axios.post('http://localhost:8095/api/usuario', newUser);
       console.log('Respuesta al agregar usuario:', response.data);
 
@@ -57,7 +65,7 @@ const RegisterCliente = () => {
     } catch (error) {
       console.error('Error al registrar usuario:', error);
 
-      if (error.response.status === 400 && error.response.data && error.response.data.error) {
+      if (error.response && error.response.status === 400 && error.response.data && error.response.data.error) {
         Swal.fire({
           icon: 'error',
           title: 'Error al agregar usuario',
@@ -140,12 +148,25 @@ const RegisterCliente = () => {
     setErrors({ ...errors, [fieldName]: error });
   };
 
-
   const isFormValid = () => {
-    // Verificar si todos los errores son una cadena vacía
-    return Object.values(errors).every((error) => error === '');
+    // Verificar si todos los campos requeridos tienen valores válidos
+    return (
+      newUser.nombre_usuario.trim() !== '' &&
+      newUser.apellido.trim() !== '' &&
+      newUser.correo.trim() !== '' &&
+      newUser.documento.trim() !== '' &&
+      newUser.telefono.trim() !== '' &&
+      newUser.contrasena.trim() !== '' &&
+      confirmPassword.trim() !== '' &&
+      errors.nombre_usuario === '' &&
+      errors.apellido === '' &&
+      errors.correo === '' &&
+      errors.documento === '' &&
+      errors.telefono === '' &&
+      errors.contrasena === '' &&
+      errors.confirmPassword === ''
+    );
   };
-
   return (
     <div className="min-vh-100 d-flex align-items-center">
       <div className="w-100" style={{ backgroundImage: `url(${prueba2})`, backgroundSize: 'cover', height: '100vh' }} />
